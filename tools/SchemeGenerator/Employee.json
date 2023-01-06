@@ -1,0 +1,43 @@
+{
+  "update_id": 307405321,
+  "message": {
+    "message_id": 4955,
+    "from": {
+      "id": 506545376,
+      "is_bot": false,
+      "first_name": "Maseva",
+      "username": "MasevaMaster",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 506545376,
+      "first_name": "Maseva",
+      "username": "MasevaMaster",
+      "type": "private"
+    },
+    "date": 1672770140,
+    "photo": [
+      {
+        "file_id": "AgACAgIAAxkBAAITW2O0clxWK90IOiDwxw2ma-OMzmNvAAJbwDEbhb6oSfHzk1uMQGZsAQADAgADcwADLQQ",
+        "file_unique_id": "AQADW8AxG4W-qEl4",
+        "file_size": 655,
+        "width": 90,
+        "height": 57
+      },
+      {
+        "file_id": "AgACAgIAAxkBAAITW2O0clxWK90IOiDwxw2ma-OMzmNvAAJbwDEbhb6oSfHzk1uMQGZsAQADAgADbQADLQQ",
+        "file_unique_id": "AQADW8AxG4W-qEly",
+        "file_size": 2988,
+        "width": 320,
+        "height": 202
+      },
+      {
+        "file_id": "AgACAgIAAxkBAAITW2O0clxWK90IOiDwxw2ma-OMzmNvAAJbwDEbhb6oSfHzk1uMQGZsAQADAgADeAADLQQ",
+        "file_unique_id": "AQADW8AxG4W-qEl9",
+        "file_size": 6269,
+        "width": 549,
+        "height": 347
+      }
+    ]
+  }
+}

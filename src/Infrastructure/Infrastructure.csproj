@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <RootNamespace>MissBot.Infrastructure</RootNamespace>
+        <AssemblyName>MissBot.Infrastructure</AssemblyName>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CsvHelper" Version="15.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.0-rc.2.22472.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
+        <ProjectReference Include="..\Application\Application.csproj" />
+    </ItemGroup>
+
+</Project>
