@@ -2,15 +2,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Telegram.Bot.Types;
 
-namespace BotService.Common
+namespace MissBot.Extensions
 {
 
     public static class StringExtensions
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string EncodeUtf8(this string value) =>
-            new(Encoding.UTF8.GetBytes(value).Select(c => Convert.ToChar(c)).ToArray());
-
+    {        
         internal static (string command, string[] args) GetCommandAndArgs(this Message message)
             => ParseCommand(message.Text);
         internal static (string command, string[] args) GetCommandAndArgs(this CallbackQuery query)

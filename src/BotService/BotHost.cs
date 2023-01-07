@@ -1,22 +1,23 @@
 using BotService.Configuration;
 using BotService.Interfaces;
-using MissBot.Application;
-using MissBot.Application.Common.Interfaces;
+using BotService.Internal;
+using MissBot;
+using MissBot.Common.Interfaces;
 using MissBot.Infrastructure.Persistence;
 
 namespace BotService
 {
-    public class BotHost
+    public class BotHost : IBotHost
     {
         internal static BotConnectionOptions ConnectionOptions
             => new BotConnectionOptions();
         internal static BotOptionsBuilder BotOptions { get; set; }
-   
-        public static void CreateDefault(IBotStartupConfig startupConfig, string[] args = null)
-        {        
-            IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
+        internal static IHostBuilder hostBuilder;
+        public static IBotBuilder CreateDefault(IBotStartupConfig startupConfig, string[] args = null)
+        {
+            hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.ConfigureHostConfiguration(config =>
-            {                
+            {
             }).ConfigureServices((host, services) =>
             {
                 services
@@ -40,14 +41,17 @@ namespace BotService
             .ConfigureLogging(log => log.AddConsole().AddDebug())
             .ConfigureHostOptions(options =>
             {
-                
 
-            })            
+
+            })
             .UseConsoleLifetime(opt =>
             { });
-            
 
-            hostBuilder.Build().Run();
+
+            return BotBuilder.Default;
         }
+
+        public void RunBot()
+            => hostBuilder.Build().Run();
     }
 }

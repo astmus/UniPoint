@@ -2,9 +2,9 @@ using System.Reflection;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using MissBot.Application.Common.Behaviours;
+using MissBot.Common.Behaviours;
 
-namespace MissBot.Application;
+namespace MissBot;
 public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)

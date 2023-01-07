@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.Common.Exceptions;
+﻿namespace MissBot.Common.Exceptions;
 
 public class ForbiddenAccessException : Exception
 {

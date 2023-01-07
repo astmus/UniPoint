@@ -1,6 +1,3 @@
-
-using MissBot.Application.Common.Models;
-
 namespace MissBot.Infrastructure.Identity;
 public static class IdentityResultExtensions
 {

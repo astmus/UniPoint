@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.Common.Models;
-using Telegram.Bot.Args;
+using MissBot.Common.Interfaces;
 
 namespace MissBot.Infrastructure.Identity;
 public class IdentityService : IIdentityService

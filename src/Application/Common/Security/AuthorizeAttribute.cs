@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.Common.Security;
+﻿namespace MissBot.Common.Security;
 
 /// <summary>
 /// Specifies the class this attribute is applied to requires authorization.

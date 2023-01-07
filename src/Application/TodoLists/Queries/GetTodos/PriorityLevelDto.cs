@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.TodoLists.Queries.GetTodos;
+﻿namespace MissBot.TodoLists.Queries.GetTodos;
 
 public class PriorityLevelDto
 {

@@ -1,8 +1,8 @@
-﻿using MediatR;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.Common.Security;
+using MediatR;
+using MissBot.Common.Interfaces;
+using MissBot.Common.Security;
 
-namespace MissBot.Application.TodoLists.Commands.PurgeTodoLists;
+namespace MissBot.TodoLists.Commands.PurgeTodoLists;
 [Authorize(Roles = "Administrator")]
 [Authorize(Policy = "CanPurge")]
 public record PurgeTodoListsCommand : IRequest;

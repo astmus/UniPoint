@@ -1,9 +1,9 @@
-﻿using MediatR;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Interfaces;
+using MediatR;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.TodoLists.Commands.UpdateTodoList;
+namespace MissBot.TodoLists.Commands.UpdateTodoList;
 public record UpdateTodoListCommand : IRequest
 {
     public int Id { get; init; }

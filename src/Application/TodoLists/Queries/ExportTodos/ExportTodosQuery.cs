@@ -2,9 +2,9 @@
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 
-namespace MissBot.Application.TodoLists.Queries.ExportTodos;
+namespace MissBot.TodoLists.Queries.ExportTodos;
 public record ExportTodosQuery : IRequest<ExportTodosVm>
 {
     public int ListId { get; init; }

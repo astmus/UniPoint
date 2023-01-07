@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation.Results;
+using MissBot.Common.Exceptions;
 using NUnit.Framework;
-using MissBot.Application.Common.Exceptions;
 
 namespace MissBot.Application.UnitTests.Common.Exceptions;
 public class ValidationExceptionTests

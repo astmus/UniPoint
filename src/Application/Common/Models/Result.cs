@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.Common.Models;
+﻿namespace MissBot.Common.Models;
 
 public class Result
 {

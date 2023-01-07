@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using MissBot.Application.Common.Exceptions;
+using MissBot.Common.Exceptions;
 
-namespace MissBot.WebUI.Filters;
+namespace WebUI.Filters;
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {
     private readonly IDictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
@@ -28,7 +28,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
     private void HandleException(ExceptionContext context)
     {
-        Type type = context.Exception.GetType();
+        var type = context.Exception.GetType();
         if (_exceptionHandlers.ContainsKey(type))
         {
             _exceptionHandlers[type].Invoke(context);

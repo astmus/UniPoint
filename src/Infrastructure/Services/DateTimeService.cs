@@ -1,4 +1,4 @@
-﻿using MissBot.Application.Common.Interfaces;
+﻿using MissBot.Common.Interfaces;
 
 namespace MissBot.Infrastructure.Services;
 public class DateTimeService : IDateTime

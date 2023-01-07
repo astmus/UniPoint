@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
+using MissBot.Common.Behaviours;
+using MissBot.Common.Interfaces;
+using MissBot.TodoItems.Commands.CreateTodoItem;
 using Moq;
 using NUnit.Framework;
-using MissBot.Application.Common.Behaviours;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.TodoItems.Commands.CreateTodoItem;
 
 namespace MissBot.Application.UnitTests.Common.Behaviours;
 public class RequestLoggerTests

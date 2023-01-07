@@ -1,10 +1,10 @@
 ﻿using System.Runtime.Serialization;
 using AutoMapper;
 using NUnit.Framework;
-using MissBot.Application.Common.Mappings;
-using MissBot.Application.Common.Models;
-using MissBot.Application.TodoLists.Queries.GetTodos;
 using MissBot.Domain.Entities;
+using MissBot.TodoLists.Queries.GetTodos;
+using MissBot.Common.Models;
+using MissBot.Common.Mappings;
 
 namespace MissBot.Application.UnitTests.Common.Mappings;
 public class MappingTests

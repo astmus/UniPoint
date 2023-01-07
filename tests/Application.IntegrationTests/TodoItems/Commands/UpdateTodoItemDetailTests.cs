@@ -1,13 +1,12 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.TodoItems.Commands.CreateTodoItem;
-using MissBot.Application.TodoItems.Commands.UpdateTodoItem;
-using MissBot.Application.TodoItems.Commands.UpdateTodoItemDetail;
-using MissBot.Application.TodoLists.Commands.CreateTodoList;
+using FluentAssertions;
+using MissBot.Common.Exceptions;
 using MissBot.Domain.Entities;
 using MissBot.Domain.Enums;
-
+using MissBot.TodoItems.Commands.CreateTodoItem;
+using MissBot.TodoItems.Commands.UpdateTodoItem;
+using MissBot.TodoItems.Commands.UpdateTodoItemDetail;
+using MissBot.TodoLists.Commands.CreateTodoList;
+using NUnit.Framework;
 using static MissBot.Application.IntegrationTests.Testing;
 
 namespace MissBot.Application.IntegrationTests.TodoItems.Commands;

@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.Common.Interfaces;
+﻿namespace MissBot.Common.Interfaces;
 
 public interface IDateTime
 {

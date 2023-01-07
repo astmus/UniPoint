@@ -1,10 +1,10 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.TodoLists.Commands.DeleteTodoList;
+namespace MissBot.TodoLists.Commands.DeleteTodoList;
 public record DeleteTodoListCommand(int Id) : IRequest;
 
 public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>

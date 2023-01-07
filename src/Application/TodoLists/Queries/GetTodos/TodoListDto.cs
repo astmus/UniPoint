@@ -1,7 +1,7 @@
-﻿using MissBot.Application.Common.Mappings;
+﻿using MissBot.Common.Mappings;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.TodoLists.Queries.GetTodos;
+namespace MissBot.TodoLists.Queries.GetTodos;
 public class TodoListDto : IMapFrom<TodoList>
 {
     public TodoListDto()

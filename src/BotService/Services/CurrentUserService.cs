@@ -1,5 +1,4 @@
-
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 
 public class CurrentUserService : ICurrentUserService
 {

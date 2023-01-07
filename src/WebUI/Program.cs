@@ -1,5 +1,6 @@
-using MissBot.Application;
+using MissBot;
 using MissBot.Infrastructure.Persistence;
+using WebUI;
 
 var builder = WebApplication.CreateBuilder(args);
 

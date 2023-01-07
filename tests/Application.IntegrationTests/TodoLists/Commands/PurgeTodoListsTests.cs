@@ -1,11 +1,10 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Security;
-using MissBot.Application.TodoLists.Commands.CreateTodoList;
-using MissBot.Application.TodoLists.Commands.PurgeTodoLists;
+using FluentAssertions;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Security;
 using MissBot.Domain.Entities;
-
+using MissBot.TodoLists.Commands.CreateTodoList;
+using MissBot.TodoLists.Commands.PurgeTodoLists;
+using NUnit.Framework;
 using static MissBot.Application.IntegrationTests.Testing;
 
 namespace MissBot.Application.IntegrationTests.TodoLists.Commands;

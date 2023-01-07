@@ -1,10 +1,10 @@
 using System.Reflection;
 using MediatR;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.Common.Security;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Interfaces;
+using MissBot.Common.Security;
 
-namespace MissBot.Application.Common.Behaviours;
+namespace MissBot.Common.Behaviours;
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly ICurrentUserService _currentUserService;

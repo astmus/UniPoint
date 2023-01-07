@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.Common.Interfaces;
+namespace MissBot.Common.Interfaces;
 public interface IApplicationDbContext
 {
     DbSet<TodoList> TodoLists { get; }

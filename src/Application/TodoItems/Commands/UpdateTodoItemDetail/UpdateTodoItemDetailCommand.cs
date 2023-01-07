@@ -1,10 +1,10 @@
-﻿using MediatR;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Interfaces;
+using MediatR;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 using MissBot.Domain.Enums;
 
-namespace MissBot.Application.TodoItems.Commands.UpdateTodoItemDetail;
+namespace MissBot.TodoItems.Commands.UpdateTodoItemDetail;
 public record UpdateTodoItemDetailCommand : IRequest
 {
     public int Id { get; init; }

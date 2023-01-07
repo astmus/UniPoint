@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Models;
+using MissBot.Common.Models;
 
-namespace MissBot.Application.Common.Mappings;
+namespace MissBot.Common.Mappings;
 public static class MappingExtensions
 {
     public static Task<PaginatedList<TDestination>> PaginatedListAsync<TDestination>(this IQueryable<TDestination> queryable, int pageNumber, int pageSize) where TDestination : class

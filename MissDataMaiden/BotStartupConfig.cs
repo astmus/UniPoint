@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BotService.Configuration;
 using BotService.Interfaces;
 
@@ -12,13 +7,18 @@ namespace MissDataMaiden
     {    
 
         public void ConfigureBot(IBotOptionsBuilder botBuilder)
-        {
-            
-        }
+            => botBuilder.ReceiveCallBacks().ReceiveInlineQueries().ReceiveInlineResult()
+                        .SetTimeout(TimeSpan.FromMinutes(2))
+                        .UseCustomUpdateHandler()
+                        .SetToken(Environment.GetEnvironmentVariable("JarviseKey", EnvironmentVariableTarget.User))
+                        .SetExceptionHandler(HandleError);
 
         public void ConfigureHost(IBotConnectionOptions botConnection, IConfiguration configurationBuilder)
         {
           
         }
+
+        private Task HandleError(Exception error, CancellationToken cancelToken)
+            => Task.FromException(error);
     }
 }

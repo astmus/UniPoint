@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 
-namespace MissBot.Application.TodoLists.Commands.UpdateTodoList;
+namespace MissBot.TodoLists.Commands.UpdateTodoList;
 public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCommand>
 {
     private readonly IApplicationDbContext _context;

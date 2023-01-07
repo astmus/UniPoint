@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.TodoLists.Commands.CreateTodoList;
+namespace MissBot.TodoLists.Commands.CreateTodoList;
 public record CreateTodoListCommand : IRequest<int>
 {
     public string? Title { get; init; }

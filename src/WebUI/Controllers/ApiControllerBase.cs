@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace MissBot.WebUI.Controllers;
+namespace WebUI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public abstract class ApiControllerBase : ControllerBase

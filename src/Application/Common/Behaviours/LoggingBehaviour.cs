@@ -1,8 +1,8 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 
-namespace MissBot.Application.Common.Behaviours;
+namespace MissBot.Common.Behaviours;
 public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
     private readonly ILogger _logger;
@@ -20,9 +20,9 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
     {
         var requestName = typeof(TRequest).Name;
         var userId = _currentUserService.UserId;
-        string userName = string.Empty;
+        var userName = string.Empty;
 
-        if (userId!=0)
+        if (userId != 0)
         {
             userName = await _identityService.GetUserNameAsync(userId.ToString());
         }

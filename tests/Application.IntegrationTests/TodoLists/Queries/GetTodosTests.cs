@@ -1,9 +1,8 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using MissBot.Application.TodoLists.Queries.GetTodos;
+using FluentAssertions;
 using MissBot.Domain.Entities;
 using MissBot.Domain.ValueObjects;
-
+using MissBot.TodoLists.Queries.GetTodos;
+using NUnit.Framework;
 using static MissBot.Application.IntegrationTests.Testing;
 
 namespace MissBot.Application.IntegrationTests.TodoLists.Queries;

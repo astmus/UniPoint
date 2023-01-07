@@ -1,12 +1,12 @@
-﻿using AutoMapper;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.Common.Security;
+using MissBot.Common.Interfaces;
+using MissBot.Common.Security;
 using MissBot.Domain.Enums;
 
-namespace MissBot.Application.TodoLists.Queries.GetTodos;
+namespace MissBot.TodoLists.Queries.GetTodos;
 [Authorize]
 public record GetTodosQuery : IRequest<TodosVm>;
 

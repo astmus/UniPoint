@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace MissBot.Application.Common.Exceptions;
+namespace MissBot.Common.Exceptions;
 public class ValidationException : Exception
 {
     public ValidationException()

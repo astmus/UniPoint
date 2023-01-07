@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace MissBot.Application.Common.Models;
+namespace MissBot.Common.Models;
 public class PaginatedList<T>
 {
     public List<T> Items { get; }

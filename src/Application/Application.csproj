@@ -2,10 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <RootNamespace>MissBot.Application</RootNamespace>
-        <AssemblyName>MissBot.Application</AssemblyName>
+        <RootNamespace>MissBot</RootNamespace>
+        <AssemblyName>MissBot</AssemblyName>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>annotations</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Domain\Domain.csproj" />
+        <ProjectReference Include="..\MissCore\MissCore.csproj" />
     </ItemGroup>
 
 </Project>

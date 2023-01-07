@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.WeatherForecasts.Queries.GetWeatherForecasts;
+﻿namespace MissBot.WeatherForecasts.Queries.GetWeatherForecasts;
 
 public class WeatherForecast
 {

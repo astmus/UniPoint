@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using CsvHelper.Configuration;
-using MissBot.Application.TodoLists.Queries.ExportTodos;
+using MissBot.TodoLists.Queries.ExportTodos;
 
 namespace MissBot.Infrastructure.Files.Maps;
 public class TodoItemRecordMap : ClassMap<TodoItemRecord>

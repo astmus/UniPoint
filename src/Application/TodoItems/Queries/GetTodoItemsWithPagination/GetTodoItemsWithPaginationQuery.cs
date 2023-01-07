@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using MissBot.Application.Common.Interfaces;
-using MissBot.Application.Common.Mappings;
-using MissBot.Application.Common.Models;
+using MissBot.Common.Interfaces;
+using MissBot.Common.Mappings;
+using MissBot.Common.Models;
 
-namespace MissBot.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+namespace MissBot.TodoItems.Queries.GetTodoItemsWithPagination;
 public record GetTodoItemsWithPaginationQuery : IRequest<PaginatedList<TodoItemBriefDto>>
 {
     public int ListId { get; init; }

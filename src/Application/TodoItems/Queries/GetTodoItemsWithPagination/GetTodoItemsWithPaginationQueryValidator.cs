@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MissBot.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+namespace MissBot.TodoItems.Queries.GetTodoItemsWithPagination;
 public class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTodoItemsWithPaginationQuery>
 {
     public GetTodoItemsWithPaginationQueryValidator()

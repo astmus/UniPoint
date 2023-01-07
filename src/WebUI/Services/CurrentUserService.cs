@@ -1,8 +1,7 @@
 using System.Security.Claims;
+using MissBot.Common.Interfaces;
 
-using MissBot.Application.Common.Interfaces;
-
-namespace MissBot.WebUI.Services;
+namespace WebUI.Services;
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

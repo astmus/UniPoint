@@ -1,6 +1,6 @@
-﻿using MissBot.Application.TodoLists.Queries.ExportTodos;
+﻿using MissBot.TodoLists.Queries.ExportTodos;
 
-namespace MissBot.Application.Common.Interfaces;
+namespace MissBot.Common.Interfaces;
 public interface ICsvFileBuilder
 {
     byte[] BuildTodoItemsFile(IEnumerable<TodoItemRecord> records);

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MissBot.Application.Common.Models;
-using MissBot.Application.TodoItems.Commands.CreateTodoItem;
-using MissBot.Application.TodoItems.Commands.DeleteTodoItem;
-using MissBot.Application.TodoItems.Commands.UpdateTodoItem;
-using MissBot.Application.TodoItems.Commands.UpdateTodoItemDetail;
-using MissBot.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+using MissBot.Common.Models;
+using MissBot.TodoItems.Commands.CreateTodoItem;
+using MissBot.TodoItems.Commands.DeleteTodoItem;
+using MissBot.TodoItems.Commands.UpdateTodoItem;
+using MissBot.TodoItems.Commands.UpdateTodoItemDetail;
+using MissBot.TodoItems.Queries.GetTodoItemsWithPagination;
 
-namespace MissBot.WebUI.Controllers;
+namespace WebUI.Controllers;
 [Authorize]
 public class TodoItemsController : ApiControllerBase
 {

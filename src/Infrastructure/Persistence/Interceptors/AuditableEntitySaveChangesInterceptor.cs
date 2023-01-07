@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Common;
 
 namespace MissBot.Infrastructure.Persistence.Interceptors;

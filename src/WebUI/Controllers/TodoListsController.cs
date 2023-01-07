@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MissBot.Application.TodoLists.Commands.CreateTodoList;
-using MissBot.Application.TodoLists.Commands.DeleteTodoList;
-using MissBot.Application.TodoLists.Commands.UpdateTodoList;
-using MissBot.Application.TodoLists.Queries.ExportTodos;
-using MissBot.Application.TodoLists.Queries.GetTodos;
+using MissBot.TodoLists.Commands.CreateTodoList;
+using MissBot.TodoLists.Commands.DeleteTodoList;
+using MissBot.TodoLists.Commands.UpdateTodoList;
+using MissBot.TodoLists.Queries.ExportTodos;
+using MissBot.TodoLists.Queries.GetTodos;
 
-namespace MissBot.WebUI.Controllers;
+namespace WebUI.Controllers;
 [Authorize]
 public class TodoListsController : ApiControllerBase
 {

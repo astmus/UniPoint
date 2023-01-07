@@ -1,7 +1,7 @@
 using System.Reflection;
 using AutoMapper;
 
-namespace MissBot.Application.Common.Mappings;
+namespace MissBot.Common.Mappings;
 public class MappingProfile : Profile
 {
     public MappingProfile()

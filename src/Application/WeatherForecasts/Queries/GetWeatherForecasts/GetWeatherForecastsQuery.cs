@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MissBot.Application.WeatherForecasts.Queries.GetWeatherForecasts;
+namespace MissBot.WeatherForecasts.Queries.GetWeatherForecasts;
 public record GetWeatherForecastsQuery : IRequest<IEnumerable<WeatherForecast>>;
 
 public class GetWeatherForecastsQueryHandler : RequestHandler<GetWeatherForecastsQuery, IEnumerable<WeatherForecast>>

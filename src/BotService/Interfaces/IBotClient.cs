@@ -2,7 +2,7 @@ using MediatR;
 
 namespace BotService.Interfaces
 {
-    public interface IBotClient
+    public interface IBotConnection
     {
         Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
         Task WriteAsync(object data, CancellationToken cancel = default);

@@ -1,9 +1,9 @@
 using FluentValidation;
 using MediatR;
-using ValidationException = MissBot.Application.Common.Exceptions.ValidationException;
+using ValidationException = MissBot.Common.Exceptions.ValidationException;
 
-namespace MissBot.Application.Common.Behaviours;
-public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest: IRequest<TResponse>
+namespace MissBot.Common.Behaviours;
+public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -33,5 +33,5 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         return await next();
     }
 
-    
+
 }

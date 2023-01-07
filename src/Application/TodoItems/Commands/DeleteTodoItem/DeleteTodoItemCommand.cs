@@ -1,10 +1,10 @@
-﻿using MediatR;
-using MissBot.Application.Common.Exceptions;
-using MissBot.Application.Common.Interfaces;
+using MediatR;
+using MissBot.Common.Exceptions;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 using MissBot.Domain.Events;
 
-namespace MissBot.Application.TodoItems.Commands.DeleteTodoItem;
+namespace MissBot.TodoItems.Commands.DeleteTodoItem;
 public record DeleteTodoItemCommand(int Id) : IRequest;
 
 public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>

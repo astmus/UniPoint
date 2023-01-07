@@ -1,6 +1,4 @@
-using MissBot.Application.Common.Models;
-
-namespace MissBot.Application.Common.Interfaces;
+namespace MissBot.Common.Interfaces;
 public interface IIdentityService
 {
     Task<string> GetUserNameAsync(string userId);

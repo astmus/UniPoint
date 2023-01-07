@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MissBot.Application.TodoItems.Commands.CreateTodoItem;
+namespace MissBot.TodoItems.Commands.CreateTodoItem;
 public class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCommand>
 {
     public CreateTodoItemCommandValidator()

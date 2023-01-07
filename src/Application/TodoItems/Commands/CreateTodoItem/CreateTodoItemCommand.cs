@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 using MissBot.Domain.Events;
 
-namespace MissBot.Application.TodoItems.Commands.CreateTodoItem;
+namespace MissBot.TodoItems.Commands.CreateTodoItem;
 public record CreateTodoItemCommand : IRequest<int>
 {
     public int ListId { get; init; }

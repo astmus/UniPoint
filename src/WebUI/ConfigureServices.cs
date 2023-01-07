@@ -2,12 +2,12 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using MissBot.Application.Common.Interfaces;
 using MissBot.Infrastructure.Persistence;
-using MissBot.WebUI.Filters;
-using MissBot.WebUI.Services;
+using MissBot.Common.Interfaces;
+using WebUI.Filters;
+using WebUI.Services;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace WebUI;
 public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)

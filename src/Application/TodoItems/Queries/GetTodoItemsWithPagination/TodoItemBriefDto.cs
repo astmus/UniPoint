@@ -1,7 +1,7 @@
-﻿using MissBot.Application.Common.Mappings;
+﻿using MissBot.Common.Mappings;
 using MissBot.Domain.Entities;
 
-namespace MissBot.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+namespace MissBot.TodoItems.Queries.GetTodoItemsWithPagination;
 public class TodoItemBriefDto : IMapFrom<TodoItem>
 {
     public int Id { get; set; }

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 using MissBot.Infrastructure.Files;
 using MissBot.Infrastructure.Identity;
 using MissBot.Infrastructure.Persistence;

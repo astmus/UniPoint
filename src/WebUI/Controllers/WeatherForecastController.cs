@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MissBot.Application.WeatherForecasts.Queries.GetWeatherForecasts;
+using MissBot.WeatherForecasts.Queries.GetWeatherForecasts;
 
-namespace MissBot.WebUI.Controllers;
+namespace WebUI.Controllers;
 public class WeatherForecastController : ApiControllerBase
 {
     [HttpGet]

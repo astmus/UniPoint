@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MissBot.Application.TodoItems.Commands.UpdateTodoItem;
+namespace MissBot.TodoItems.Commands.UpdateTodoItem;
 public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
 {
     public UpdateTodoItemCommandValidator()

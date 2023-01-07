@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using MissBot.Application.Common.Interfaces;
 using MissBot.Infrastructure.Persistence;
 
 using static MissBot.Application.IntegrationTests.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
+using MissBot.Common.Interfaces;
 
 namespace MissBot.Application.IntegrationTests;
 internal class CustomWebApplicationFactory : WebApplicationFactory<Program>

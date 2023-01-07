@@ -42,7 +42,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram.Bot", "external\Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissDataMaiden", "MissDataMaiden\MissDataMaiden.csproj", "{DCD73BCC-322E-408E-B5DD-9F183434DF74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotService", "src\BotService\BotService.csproj", "{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotService", "src\BotService\BotService.csproj", "{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissCore", "src\MissCore\MissCore.csproj", "{0145FD37-5652-4849-A3AA-B1EA62C0C50A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0145FD37-5652-4849-A3AA-B1EA62C0C50A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0145FD37-5652-4849-A3AA-B1EA62C0C50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0145FD37-5652-4849-A3AA-B1EA62C0C50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0145FD37-5652-4849-A3AA-B1EA62C0C50A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +122,7 @@ Global
 		{4DBD0B64-8F2C-4CB4-8651-33EF74635E70} = {07A8A339-A886-4D90-BD25-2B7480E1BA36}
 		{488B702C-A4C2-44E7-B763-30682ECD9B3A} = {07A8A339-A886-4D90-BD25-2B7480E1BA36}
 		{5BE8BFE7-D994-4542-AA16-DF88D6E6A97E} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
+		{0145FD37-5652-4849-A3AA-B1EA62C0C50A} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3CB609D9-5D54-4C11-A371-DAAC8B74E430}

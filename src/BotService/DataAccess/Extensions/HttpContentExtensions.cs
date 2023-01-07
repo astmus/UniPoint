@@ -1,16 +1,15 @@
-using System.IO;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
-using BotService.Common;
-using BotService.DataAccess.Extensions;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+using System.Text;
 
 namespace BotService.DataAccess.Extensions
 {
 
     internal static class HttpContentExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static string EncodeUtf8(this string value) =>
+                new(Encoding.UTF8.GetBytes(value).Select(c => Convert.ToChar(c)).ToArray());
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void AddStreamContent(
             this MultipartFormDataContent multipartContent,

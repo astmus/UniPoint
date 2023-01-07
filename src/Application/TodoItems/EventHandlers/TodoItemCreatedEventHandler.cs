@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MissBot.Domain.Events;
 
-namespace MissBot.Application.TodoItems.EventHandlers;
+namespace MissBot.TodoItems.EventHandlers;
 public class TodoItemCreatedEventHandler : INotificationHandler<TodoItemCreatedEvent>
 {
     private readonly ILogger<TodoItemCreatedEventHandler> _logger;

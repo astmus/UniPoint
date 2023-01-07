@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MissBot.Application.Common.Interfaces;
+using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
 using MissBot.Infrastructure.Identity;
 using MissBot.Infrastructure.Persistence.Interceptors;

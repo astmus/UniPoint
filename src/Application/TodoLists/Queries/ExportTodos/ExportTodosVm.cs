@@ -1,4 +1,4 @@
-﻿namespace MissBot.Application.TodoLists.Queries.ExportTodos;
+﻿namespace MissBot.TodoLists.Queries.ExportTodos;
 
 public class ExportTodosVm
 {
