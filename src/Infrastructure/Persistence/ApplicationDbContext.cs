@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MissBot.Common.Interfaces;
 using MissBot.Domain.Entities;
+using MissBot.Infrastructure.Common;
 using MissBot.Infrastructure.Identity;
 using MissBot.Infrastructure.Persistence.Interceptors;
 

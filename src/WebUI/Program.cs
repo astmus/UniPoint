@@ -1,4 +1,5 @@
 using MissBot;
+using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
 using WebUI;
 

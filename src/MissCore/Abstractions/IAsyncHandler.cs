@@ -6,4 +6,8 @@ namespace MissCore.Abstractions
     {
         Task ExecuteAsync(IHandleContext context, HandleDelegate next);
     }
+    public interface IAsyncHandler<T>
+    {
+        Task HandleAsync(IContext<T> context, T data);
+    }
 }

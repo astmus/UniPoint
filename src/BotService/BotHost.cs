@@ -3,6 +3,7 @@ using BotService.Interfaces;
 using BotService.Internal;
 using MissBot;
 using MissBot.Common.Interfaces;
+using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
 
 namespace BotService

@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MissBot.Domain.Common;
 
-namespace MediatR;
+namespace MissBot.Infrastructure.Common;
 public static class MediatorExtensions
 {
     public static async Task DispatchDomainEvents(this IMediator mediator, DbContext context)

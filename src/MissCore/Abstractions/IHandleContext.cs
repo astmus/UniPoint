@@ -12,6 +12,7 @@ namespace MissCore.Abstractions
 
     public interface IUpdateInfo
     {
+        string GetId();
         long ChatId { get; }
         long UserId { get; }
         uint UpdateId { get; }
