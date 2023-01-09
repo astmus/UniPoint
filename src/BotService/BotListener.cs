@@ -4,7 +4,7 @@ using MissCore.DataAccess.Async;
 
 namespace BotService
 {
-    public partial class BotListener : BackgroundService
+    public class BotListener : BackgroundService
     {
         private readonly ILogger<BotListener> _logger;
         private readonly IHostApplicationLifetime _hostLifeTime;

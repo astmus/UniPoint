@@ -1,9 +1,9 @@
 using System.Net;
 using System.Runtime.CompilerServices;
-using BotService.Configuration;
 using BotService.DataAccess.Extensions;
 using BotService.Interfaces;
 using MissBot;
+using MissCore.Configuration;
 using Telegram.Bot.Args;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Requests;

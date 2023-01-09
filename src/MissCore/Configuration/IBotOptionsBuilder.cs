@@ -1,6 +1,5 @@
-using BotService.Interfaces;
 
-namespace BotService.Configuration
+namespace MissCore.Configuration
 {
     public interface IBotOptionsBuilder
     {

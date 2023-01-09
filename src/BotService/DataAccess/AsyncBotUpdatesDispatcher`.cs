@@ -47,7 +47,7 @@ namespace BotService.DataAccess
                     //contextFactory.GetChatContext(update).With();
 
                     var updateSctx = contextFactory.GetOrInit<IContext<TUpdate>>();
-
+                    
                     var handler = bot.BotServices.GetRequiredService<IAsyncHandler<TUpdate>>();
                     await handler.HandleAsync(updateSctx, update).ConfigFalse();
                 };

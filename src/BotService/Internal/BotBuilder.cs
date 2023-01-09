@@ -1,8 +1,8 @@
-using BotService.Configuration;
 using BotService.DataAccess;
 using MissBot.Handlers;
 using MissBot.Interfaces;
 using MissCore.Abstractions;
+using MissCore.Configuration;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
 
@@ -92,6 +92,12 @@ namespace BotService.Internal
         {            
             _botCommands.AddRange(typeof(TBot).GetAttributedCommands<TBot>());
             return this;
+        }
+
+        public void WithUpdates<TUpdate>() where TUpdate : IUpdateInfo
+        {
+
+            throw new NotImplementedException();
         }
 
 

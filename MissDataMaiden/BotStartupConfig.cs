@@ -1,5 +1,5 @@
-using BotService.Configuration;
 using BotService.Interfaces;
+using MissCore.Configuration;
 
 namespace MissDataMaiden
 {

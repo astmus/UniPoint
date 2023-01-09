@@ -7,6 +7,8 @@ using MissBot.Common.Interfaces;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
 using MissCore.Abstractions;
+using MissCore.Configuration;
+using MissCore.Data.Context;
 using MissCore.DataAccess.Async;
 
 namespace BotService
@@ -32,6 +34,7 @@ namespace BotService
                     .AddHostedService<BotListener>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
+                services.AddScoped(typeof(IContext<>), typeof(Context<>));
                 services.AddScoped<IBotConnectionOptions>(sp
                     => BotOptions.Build());
                 services.AddHttpContextAccessor();
@@ -57,12 +60,13 @@ namespace BotService
         }
 
         Action<IBotBuilder> configuratorDelegate;
-        public IBotHost AddBot<TUpdate>(Action<IBotBuilder> configurator) where TUpdate : Update, IUpdateInfo
+        public IBotHost AddBot<TBot>(Action<IBotBuilder> configurator) where TBot :class, IBot
         {
             configuratorDelegate = configurator;
             hostBuilder.ConfigureServices(services =>
             {
                 services
+                .AddScoped<IBot, TBot>()
                 .AddTransient<IBotUpdatesDispatcher<Update>, AsyncBotUpdatesDispatcher<Update>>()
                 .AddTransient<IBotUpdatesReceiver<Update>, AsyncBotUpdatesReceiver<Update>>()
                 .AddTransient<IBotConnection, BotConnection>()

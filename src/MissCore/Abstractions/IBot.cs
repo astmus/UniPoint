@@ -1,11 +1,17 @@
+using Microsoft.Extensions.Configuration;
+using MissCore.Configuration;
+
 namespace MissCore.Abstractions
 {
     public interface IBot
     {
-        IBotServicesProvider BotServices { get; }
+        IServiceProvider BotServices { get; }
+        public void ConfigureHost(IBotConnectionOptions botConnection, IConfiguration configurationBuilder);
+        public void ConfigureBot(IBotOptionsBuilder botBuilder);
+    }
 
-        //IBotOptions Options { get; set; }
-        //IBotConnection Connection { get; }
-        //  ICollection<IBotCommandInfo> Commands { get; }
+    public interface IBot<TUpdate> : IBot where TUpdate:IUpdateInfo
+    {
+        void RunAsync();
     }
 }

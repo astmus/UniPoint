@@ -1,9 +1,9 @@
 #if NETCOREAPP3_1_OR_GREATER
 using System.Diagnostics;
 using System.Threading.Channels;
-using BotService.Configuration;
 using BotService.Internal;
 using MissCore.Abstractions;
+using MissCore.Configuration;
 using MissCore.DataAccess.Async;
 using Telegram.Bot.Types.Enums;
 

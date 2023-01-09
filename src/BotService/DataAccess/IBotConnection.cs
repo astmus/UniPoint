@@ -1,4 +1,4 @@
-using BotService.Configuration;
+using MissCore.Configuration;
 using Telegram.Bot.Requests.Abstractions;
 
 namespace BotService.DataAccess

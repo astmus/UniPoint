@@ -6,7 +6,7 @@ using MissCore.Abstractions;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
 
-namespace BotService.Configuration
+namespace MissCore.Configuration
 {
     public interface IBotCommands
     {
@@ -23,9 +23,9 @@ namespace BotService.Configuration
 
         IBotBuilder Use<THandler>(THandler handler) where THandler : IAsyncHandler;
 
-        IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand:BotCommand;
-
+        IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand;
+        void WithUpdates<TUpdate>() where TUpdate : IUpdateInfo;
         HandleDelegate Build();
-        IBotClient BuildService(); 
+        IBotClient BuildService();
     }
 }

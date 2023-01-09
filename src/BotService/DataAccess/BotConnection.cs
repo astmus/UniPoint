@@ -1,6 +1,7 @@
-using BotService.Configuration;
 using MediatR;
 using MissCore.Abstractions;
+using MissCore.Configuration;
+using Telegram.Bot.Requests;
 
 namespace BotService.DataAccess
 {
@@ -18,6 +19,11 @@ namespace BotService.DataAccess
 
         uint IBotConnection.Timeout
             => (uint)Options.Timeout.TotalSeconds;
+
+        public async Task<User> GetBotInfoAsync(CancellationToken cancellationToken = default)
+        => await MakeRequestAsync<User>(request: new ParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);           
+        
 
         public IBotClient SetupContext(IHandleContext context)
         {

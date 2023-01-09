@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
 
-namespace BotService.Configuration
+namespace MissCore.Configuration
 {
     /// <summary>
     /// Configurations for the bot
@@ -28,7 +28,7 @@ namespace BotService.Configuration
         /// Indicates which <see cref="UpdateType"/>s are allowed to be received.
         /// In case of <c>null</c> the previous setting will be used
         /// </summary>
-        UpdateType[] AllowedUpdates { get;}
+        UpdateType[] AllowedUpdates { get; }
 
         /// <summary>
         /// Limits the number of updates to be retrieved. Values between 1-100 are accepted.

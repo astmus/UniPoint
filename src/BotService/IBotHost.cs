@@ -1,11 +1,11 @@
-using BotService.Configuration;
 using MissCore.Abstractions;
+using MissCore.Configuration;
 
 namespace BotService
 {
     public interface IBotHost
     {
         void Run();
-        IBotHost AddBot<TUpdate>(Action<IBotBuilder> configurator) where TUpdate : Update, IUpdateInfo;
+        IBotHost AddBot<TBot>(Action<IBotBuilder> configurator) where TBot :class, IBot;
     }
 }

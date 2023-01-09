@@ -1,4 +1,4 @@
-using BotService.Configuration;
+using MissCore.Configuration;
 
 namespace BotService.Interfaces
 {

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using BotService.Interfaces;
+using MissCore.Configuration;
 using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration

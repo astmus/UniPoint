@@ -15,8 +15,8 @@ namespace MissDataMaiden
         public static void Main(string[] args)
         {
             var host = BotHost.CreateDefault(new BotStartupConfig(), args);
-            host.AddBot<BotUpdate>(builder=>builder
-                .AddCommndFromAttributes<BotWorker>()
+            host.AddBot<MissDataMaid>(builder=>builder
+                .AddCommndFromAttributes<MissDataMaid>()
                 .Use<ExceptionHandler>()
                 .Use<MediatorMiddleware>()
                 .Use<CallbackQueryHandler>()
