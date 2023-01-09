@@ -23,7 +23,42 @@ namespace BotService.Configuration
         }
 
         public IBotOptionsBuilder SetToken(string token, string baseUrl = default, bool useTestEnvironment = false)
-            => With(() => Options.Token = token);
+            => With(() => ParseToken(token));
+
+        public IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
+        {
+            Options.Token = token;
+            Options.BaseUrl = baseUrl;
+            Options.UseTestEnvironment = useTestEnvironment;
+
+            Options.BotId = GetIdFromToken(token);
+
+            Options.LocalBotServer = baseUrl is not null;
+            var effectiveBaseUrl = Options.LocalBotServer
+                ? ExtractBaseUrl(baseUrl)
+                : BaseTelegramUrl;
+
+            Options.BaseRequestUrl = useTestEnvironment
+                ? $"{effectiveBaseUrl}/bot{token}/test"
+                : $"{effectiveBaseUrl}/bot{token}";
+
+            Options.BaseFileUrl = useTestEnvironment
+                ? $"{effectiveBaseUrl}/file/bot{token}/test"
+                : $"{effectiveBaseUrl}/file/bot{token}";
+            return this;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static long GetIdFromToken(string token)
+            {
+                var span = token.AsSpan();
+                var index = span.IndexOf(':');
+
+                if (index is < 1 or > 16) { return default; }
+
+                var botIdSpan = span[..index];
+                if (!long.TryParse(botIdSpan, out var botId)) { return default; }
+                return botId;
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string ExtractBaseUrl(string baseUrl)
@@ -36,6 +71,7 @@ namespace BotService.Configuration
             return $"{baseUri.Scheme}://{baseUri.Authority}";
         }
         Func<Action, IBotOptionsBuilder> With;
+
         public IBotOptionsBuilder ReceiveCallBacks()
             => With(() => updates = updates.Append(UpdateType.CallbackQuery));
         public IBotOptionsBuilder ReceiveInlineQueries()
@@ -45,7 +81,8 @@ namespace BotService.Configuration
         public IBotOptionsBuilder TrackMessgeChanges()
             => With(() => updates = updates.Append(UpdateType.EditedMessage));
         public IBotOptionsBuilder SetTimeout(TimeSpan timeout)
-            => With(() => Options.Timeout = timeout);
+            => With(()
+                => Options.Timeout = timeout);
 
         public IBotConnectionOptions Build()
         {

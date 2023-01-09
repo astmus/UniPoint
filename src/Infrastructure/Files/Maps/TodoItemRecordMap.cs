@@ -1,14 +1,13 @@
-﻿using System.Globalization;
-using CsvHelper.Configuration;
-using MissBot.TodoLists.Queries.ExportTodos;
+//using System.Globalization;
+//using CsvHelper.Configuration;
 
-namespace MissBot.Infrastructure.Files.Maps;
-public class TodoItemRecordMap : ClassMap<TodoItemRecord>
-{
-    public TodoItemRecordMap()
-    {
-        AutoMap(CultureInfo.InvariantCulture);
+//namespace MissBot.Infrastructure.Files.Maps;
+//public class TodoItemRecordMap : ClassMap<TodoItemRecord>
+//{
+//    public TodoItemRecordMap()
+//    {
+//        AutoMap(CultureInfo.InvariantCulture);
 
-        Map(m => m.Done).ConvertUsing(c => c.Done ? "Yes" : "No");
-    }
-}
+//        Map(m => m.Done).ConvertUsing(c => c.Done ? "Yes" : "No");
+//    }
+//}

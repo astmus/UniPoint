@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MissBot.Common.Interfaces;
-using MissBot.Domain.Common;
 
 namespace MissBot.Infrastructure.Persistence.Interceptors;
 public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
@@ -36,20 +35,20 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
     {
         if (context == null) return;
 
-        foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
-        {
-            if (entry.State == EntityState.Added)
-            {
-                entry.Entity.CreatedBy = _currentUserService.UserId.ToString();
-                entry.Entity.Created = _dateTime.Now;
-            }
+        //foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
+        //{
+        //    if (entry.State == EntityState.Added)
+        //    {
+        //        entry.Entity.CreatedBy = _currentUserService.UserId.ToString();
+        //        entry.Entity.Created = _dateTime.Now;
+        //    }
 
-            if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
-            {
-                entry.Entity.LastModifiedBy = _currentUserService.UserId.ToString();
-                entry.Entity.LastModified = _dateTime.Now;
-            }
-        }
+        //    if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
+        //    {
+        //        entry.Entity.LastModifiedBy = _currentUserService.UserId.ToString();
+        //        entry.Entity.LastModified = _dateTime.Now;
+        //    }
+        //}
     }
 }
 

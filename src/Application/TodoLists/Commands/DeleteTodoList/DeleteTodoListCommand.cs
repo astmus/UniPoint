@@ -1,36 +1,32 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MissBot.Common.Exceptions;
-using MissBot.Common.Interfaces;
-using MissBot.Domain.Entities;
 
 namespace MissBot.TodoLists.Commands.DeleteTodoList;
 public record DeleteTodoListCommand(int Id) : IRequest;
 
 public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
 {
-    private readonly IApplicationDbContext _context;
+    //private readonly IApplicationDbContext _context;
 
-    public DeleteTodoListCommandHandler(IApplicationDbContext context)
+    public DeleteTodoListCommandHandler(/*IApplicationDbContext context*/)
     {
-        _context = context;
+        //_context = context;
     }
 
-    public async Task<Unit> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
+    public  Task<Unit> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
+        //var entity = await _context.TodoLists
+        //    .Where(l => l.Id == request.Id)
+        //    .SingleOrDefaultAsync(cancellationToken);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        //if (entity == null)
+        //{
+        //    throw new NotFoundException(nameof(TodoList), request.Id);
+        //}
 
-        _context.TodoLists.Remove(entity);
+        //_context.TodoLists.Remove(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        //await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return Unit.Task;
     }
 }

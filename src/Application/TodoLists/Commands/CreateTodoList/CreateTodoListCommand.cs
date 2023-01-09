@@ -1,6 +1,5 @@
-﻿using MediatR;
+using MediatR;
 using MissBot.Common.Interfaces;
-using MissBot.Domain.Entities;
 
 namespace MissBot.TodoLists.Commands.CreateTodoList;
 public record CreateTodoListCommand : IRequest<int>
@@ -17,16 +16,17 @@ public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListComman
         _context = context;
     }
 
-    public async Task<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
+    public Task<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity = new TodoList();
+        //var entity = new TodoList();
 
-        entity.Title = request.Title;
+        //entity.Title = request.Title;
 
-        _context.TodoLists.Add(entity);
+        //_context.TodoLists.Add(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        //await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+        //return entity.Id;
+        return Task.FromResult(1);
     }
 }

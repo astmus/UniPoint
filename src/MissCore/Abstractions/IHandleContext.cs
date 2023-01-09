@@ -5,7 +5,6 @@ namespace MissCore.Abstractions
     {
         IBotServicesProvider BotServices { get; }
         IContext Data { get; }
-        IBotClient Client { get; }
         T NextHandler<T>() where T : IAsyncHandler;
         IUpdateInfo Info { get; }
     }
@@ -17,5 +16,11 @@ namespace MissCore.Abstractions
         long UserId { get; }
         uint UpdateId { get; }
         bool IsHandled { get; set; }
+    }
+
+    public interface IUpdateInfo<out T>
+    {
+        T GetId();
+      
     }
 }

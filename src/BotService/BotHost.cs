@@ -1,10 +1,13 @@
 using BotService.Configuration;
+using BotService.DataAccess;
 using BotService.Interfaces;
 using BotService.Internal;
 using MissBot;
 using MissBot.Common.Interfaces;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
+using MissCore.Abstractions;
+using MissCore.DataAccess.Async;
 
 namespace BotService
 {
@@ -14,20 +17,23 @@ namespace BotService
             => new BotConnectionOptions();
         internal static BotOptionsBuilder BotOptions { get; set; }
         internal static IHostBuilder hostBuilder;
-        public static IBotBuilder CreateDefault(IBotStartupConfig startupConfig, string[] args = null)
+        internal static IBotHost Default
+            => new BotHost();
+        public static IBotHost CreateDefault(IBotStartupConfig startupConfig, string[] args = null)
         {
             hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.ConfigureHostConfiguration(config =>
-            {
-            }).ConfigureServices((host, services) =>
+            { })
+            .ConfigureServices((host, services) =>
             {
                 services
                     .AddApplicationServices()
                     .AddInfrastructureServices(host.Configuration)
                     .AddHostedService<BotListener>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
-
-
+                services.AddHttpClient<IBotConnection, BotConnection>();
+                services.AddScoped<IBotConnectionOptions>(sp
+                    => BotOptions.Build());
                 services.AddHttpContextAccessor();
 
                 services.AddHealthChecks()
@@ -47,12 +53,28 @@ namespace BotService
             })
             .UseConsoleLifetime(opt =>
             { });
-
-
-            return BotBuilder.Default;
+            return BotHost.Default;
         }
 
-        public void RunBot()
-            => hostBuilder.Build().Run();
+        Action<IBotBuilder> configuratorDelegate;
+        public IBotHost AddBot<TUpdate>(Action<IBotBuilder> configurator) where TUpdate : Update, IUpdateInfo
+        {
+            configuratorDelegate = configurator;
+            hostBuilder.ConfigureServices(services =>
+            {
+                services
+                .AddTransient<IBotUpdatesDispatcher<Update>, AsyncBotUpdatesDispatcher<Update>>()
+                .AddTransient<IBotUpdatesReceiver<Update>, AsyncBotUpdatesReceiver<Update>>()
+                .AddTransient<IBotConnection, BotConnection>()
+                .AddTransient<IBotClient, BotConnection>();
+            });
+            return this;
+        }
+
+        public void Run()
+        {
+            configuratorDelegate(BotBuilder.Default);
+            hostBuilder.Build().Run();
+        }
     }
 }

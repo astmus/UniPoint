@@ -1,4 +1,5 @@
 using BotService.Configuration;
+using BotService.DataAccess;
 using MissBot.Handlers;
 using MissBot.Interfaces;
 using MissCore.Abstractions;
@@ -10,11 +11,12 @@ namespace BotService.Internal
     internal class BotBuilder : IBotBuilder
     {
         internal HandleDelegate HandlerDelegate { get; private set; }
-        static internal IBotBuilder Default
-            => new BotBuilder();
+        
         private readonly ICollection<Func<HandleDelegate, HandleDelegate>> _components;
-        private List<IBotCommandInfo> _botCommands;
+        private List<IBotCommandInfo> _botCommands = new List<IBotCommandInfo>();
 
+        internal static IBotBuilder Default
+            => new BotBuilder();
         public BotBuilder()
         {
             _components = new List<Func<HandleDelegate, HandleDelegate>>();
@@ -24,8 +26,6 @@ namespace BotService.Internal
         {
             throw new NotImplementedException();
         }
-
-
 
         public IBotBuilder Use<THandler>() where THandler : IAsyncHandler
         {
@@ -72,11 +72,7 @@ namespace BotService.Internal
             return HandlerDelegate = handle;
         }
 
-        #region Commands       
-
-
-       
-
+        #region Commands    
 
         public IBotClient BuildService()
         {
@@ -85,12 +81,11 @@ namespace BotService.Internal
 
         public IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand
         {
-            throw new NotImplementedException();
-        }
-
-        public IBotHost BuildHostService()
-        {
-            throw new NotImplementedException();
+            _components.Add(
+                next =>
+                context =>
+                     context.NextHandler<THandler>().ExecuteAsync(context, next));
+            return this;
         }
 
         public IBotBuilder AddCommndFromAttributes<TBot>() where TBot:class, IBot

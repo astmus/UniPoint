@@ -1,7 +1,5 @@
-﻿using MediatR;
-using MissBot.Common.Interfaces;
-using MissBot.Domain.Entities;
-using MissBot.Domain.Events;
+using MediatR;
+using MissCore.DataAccess;
 
 namespace MissBot.TodoItems.Commands.CreateTodoItem;
 public record CreateTodoItemCommand : IRequest<int>
@@ -13,28 +11,29 @@ public record CreateTodoItemCommand : IRequest<int>
 
 public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationGenericRepository _context;
 
-    public CreateTodoItemCommandHandler(IApplicationDbContext context)
+    public CreateTodoItemCommandHandler(IApplicationGenericRepository context)
     {
         _context = context;
     }
 
-    public async Task<int> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
+    public Task<int> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = new TodoItem
-        {
-            ListId = request.ListId,
-            Title = request.Title,
-            Done = false
-        };
+        //var entity = new TodoItem
+        //{
+        //    ListId = request.ListId,
+        //    Title = request.Title,
+        //    Done = false
+        //};
 
-        entity.AddDomainEvent(new TodoItemCreatedEvent(entity));
+        //entity.AddDomainEvent(new TodoItemCreatedEvent(entity));
 
-        _context.TodoItems.Add(entity);
+        //_context.TodoItems.Add(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        //await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+        //return entity.Id;
+        return Task.FromResult(0);
     }
 }

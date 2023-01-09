@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MissBot.Common.Models;
 using MissBot.TodoItems.Commands.CreateTodoItem;
-using MissBot.TodoItems.Commands.DeleteTodoItem;
 using MissBot.TodoItems.Commands.UpdateTodoItem;
-using MissBot.TodoItems.Commands.UpdateTodoItemDetail;
 using MissBot.TodoItems.Queries.GetTodoItemsWithPagination;
 
 namespace WebUI.Controllers;
@@ -36,24 +34,24 @@ public class TodoItemsController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPut("[action]")]
-    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
-    {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
+    //[HttpPut("[action]")]
+    //public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
+    //{
+    //    if (id != command.Id)
+    //    {
+    //        return BadRequest();
+    //    }
 
-        await Mediator.Send(command);
+    //    await Mediator.Send(command);
 
-        return NoContent();
-    }
+    //    return NoContent();
+    //}
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public  async Task<ActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoItemCommand(id));
-
+        // await Mediator.Send(new DeleteTodoItemCommand(id));
+        await Task.Yield();
         return NoContent();
     }
 }

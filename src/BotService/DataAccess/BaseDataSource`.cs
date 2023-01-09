@@ -1,36 +1,39 @@
 using System.Runtime.CompilerServices;
 using BotService.DataAccess.Async;
 using MissCore.Abstractions;
+using MissCore.Data.Identity;
 using MissCore.DataAccess.Async;
 
 namespace BotService.DataAccess
 {
 
-    public abstract class BaseDataSource<TUpdate> where TUpdate : class
+    public abstract class BaseDataSource<TUpdate> where TUpdate : class, IUpdateInfo
     {
-        public class AsyncSourceUpdatesQueue : AsyncQueue<TUpdate>, IAsyncSourceUpdatesQueue<TUpdate>
+        public class AsyncUpdatesQueue<T> : AsyncQueue<T>, IAsyncUpdatesQueue<T> where T : class, TUpdate
         {
-            internal protected async Task<TUpdate> PopUpdateAsync(CancellationToken cancellationToken)
+            public AsyncUpdatesQueue()
+            {
+                QueueId = Identity.Of(this);
+            }
+
+            public Identifier QueueId { get; protected set; }
+
+            internal protected async Task<T> PopUpdateAsync(CancellationToken cancellationToken)
             {
                 await signal.WaitAsync(cancellationToken);
                 items.TryDequeue(out var workItem);
                 return workItem;
             }
 
-            public void PushUpdate(TUpdate update)
+            public void PushUpdate(T update)
                 => QueueItem(update);
-
-            public void PushUpdate<TGUpdate>(TGUpdate update) where TGUpdate : TUpdate
-                => QueueItem(update);
-            
         }
-        protected abstract AsyncSourceUpdatesQueue Updates { get; }
+        protected abstract AsyncUpdatesQueue<TUpdate> Updates { get; init; }
         public async IAsyncEnumerable<TUpdate> PendingUpdates([EnumeratorCancellation] CancellationToken cancelToken)
         {
             do
             {
-                TUpdate update = default(TUpdate);
-                if ((update = await Updates.PopUpdateAsync(cancelToken)) != default(TUpdate))
+                if (await Updates.PopUpdateAsync(cancelToken) is TUpdate update && !update.IsHandled)
                     yield return update;
             } while (!cancelToken.IsCancellationRequested);
             yield break;

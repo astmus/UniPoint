@@ -1,6 +1,6 @@
 namespace MissCore.DataAccess.Async
 {
-    public interface IAsyncQueue<in T> where T : class
+    public interface IAsyncQueue<in T>
     {
         void QueueItem(T item);
     }

@@ -1,37 +1,35 @@
-using MediatR;
-using MissBot.Common.Exceptions;
-using MissBot.Common.Interfaces;
-using MissBot.Domain.Entities;
-using MissBot.Domain.Events;
+//using MediatR;
+//using MissBot.Common.Exceptions;
+//using MissBot.Common.Interfaces;
 
-namespace MissBot.TodoItems.Commands.DeleteTodoItem;
-public record DeleteTodoItemCommand(int Id) : IRequest;
+//namespace MissBot.TodoItems.Commands.DeleteTodoItem;
+//public record DeleteTodoItemCommand(int Id) : IRequest;
 
-public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
-{
-    private readonly IApplicationDbContext _context;
+//public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
+//{
+//    private readonly IApplicationDbContext _context;
 
-    public DeleteTodoItemCommandHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
+//    public DeleteTodoItemCommandHandler(IApplicationDbContext context)
+//    {
+//        _context = context;
+//    }
 
-    public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
-    {
-        var entity = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+//    public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+//    {
+//        var entity = await _context.TodoItems
+//            .FindAsync(new object[] { request.Id }, cancellationToken);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoItem), request.Id);
-        }
+//        if (entity == null)
+//        {
+//            throw new NotFoundException(nameof(TodoItem), request.Id);
+//        }
 
-        _context.TodoItems.Remove(entity);
+//        _context.TodoItems.Remove(entity);
 
-        entity.AddDomainEvent(new TodoItemDeletedEvent(entity));
+//        entity.AddDomainEvent(new TodoItemDeletedEvent(entity));
 
-        await _context.SaveChangesAsync(cancellationToken);
+//        await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
-    }
-}
+//        return Unit.Value;
+//    }
+//}

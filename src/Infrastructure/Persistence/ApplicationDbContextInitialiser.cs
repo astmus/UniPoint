@@ -1,19 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MissBot.Domain.Entities;
 using MissBot.Infrastructure.Identity;
 
 namespace MissBot.Infrastructure.Persistence;
 #nullable enable
 public class ApplicationDbContextInitialiser
 {
-    private readonly ILogger<ApplicationDbContextInitialiser>? _logger;
+    private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext? _context;
    // private readonly UserManager<ApplicationUser> _userManager;
    // private readonly RoleManager<IdentityRole> _roleManager;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser>? logger, ApplicationDbContext? context/*, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager*/)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext? context/*, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager*/)
     {
         _logger = logger;
         _context = context;
@@ -25,7 +24,7 @@ public class ApplicationDbContextInitialiser
     {
         try
         {
-            if (_context.Database.IsSqlServer())
+            if (_context?.Database.IsSqlServer() == true)
             {
                 await _context.Database.MigrateAsync();
             }
@@ -50,7 +49,7 @@ public class ApplicationDbContextInitialiser
         }
     }
 
-    public async Task TrySeedAsync()
+    public  Task TrySeedAsync()
     {
         // Default roles
         var administratorRole = new IdentityRole("Administrator");
@@ -62,7 +61,7 @@ public class ApplicationDbContextInitialiser
 
         // Default users
         var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
-
+        return Task.CompletedTask;
         //if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         //{
         //    await _userManager.CreateAsync(administrator, "Administrator1!");
@@ -71,22 +70,22 @@ public class ApplicationDbContextInitialiser
 
         // Default data
         // Seed, if necessary
-        if (!_context?.TodoLists.Any() ?? false)
-        {
-            _context?.TodoLists.Add(new TodoList
-            {
-                Title = "Todo List",
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
-                }
-            });
+        //if (!_context?.TodoLists.Any() ?? false)
+        //{
+        //    _context?.TodoLists.Add(new TodoList
+        //    {
+        //        Title = "Todo List",
+        //        Items =
+        //        {
+        //            new TodoItem { Title = "Make a todo list 📃" },
+        //            new TodoItem { Title = "Check off the first item ✅" },
+        //            new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
+        //            new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
+        //        }
+        //    });
 
-            await _context?.SaveChangesAsync();
-        }
+        //    await _context?.SaveChangesAsync();
+      //  }
     }
 }
 #nullable disable

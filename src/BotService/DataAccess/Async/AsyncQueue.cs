@@ -4,7 +4,7 @@ using MissCore.DataAccess.Async;
 
 namespace BotService.DataAccess.Async
 {
-    public class AsyncQueue<T> : IAsyncQueue<T> where T : class
+    public class AsyncQueue<T> : IAsyncQueue<T>
     {
         protected ConcurrentQueue<T> items = new ConcurrentQueue<T>();
         protected SemaphoreSlim signal = new SemaphoreSlim(0);

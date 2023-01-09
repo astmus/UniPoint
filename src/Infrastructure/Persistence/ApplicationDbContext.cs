@@ -1,17 +1,13 @@
 using System.Reflection;
-using Duende.IdentityServer.EntityFramework.Options;
 using MediatR;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using MissBot.Common.Interfaces;
-using MissBot.Domain.Entities;
 using MissBot.Infrastructure.Common;
-using MissBot.Infrastructure.Identity;
 using MissBot.Infrastructure.Persistence.Interceptors;
+using MissCore.DataAccess;
 
 namespace MissBot.Infrastructure.Persistence;
-public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<ApplicationUser>*/, IApplicationDbContext
+public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<ApplicationUser>*/, IApplicationGenericRepository
 {
     private readonly IMediator _mediator;
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
@@ -29,9 +25,9 @@ public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<Applica
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
+    public DbSet<User> Users => Set<User>();
 
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Chat> Chats => Set<Chat>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -51,4 +47,7 @@ public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<Applica
 
         return await base.SaveChangesAsync(cancellationToken);
     }
+
+    public IEnumerable<TEntity> GetRepository<TEntity>() where TEntity:class
+        => Set<TEntity>().AsNoTracking();
 }

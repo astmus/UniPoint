@@ -1,4 +1,5 @@
 using System;
+using BotService.DataAccess;
 using MissBot.Handlers;
 using MissBot.Interfaces;
 using MissCore.Abstractions;
@@ -24,8 +25,7 @@ namespace BotService.Configuration
 
         IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand:BotCommand;
 
-        IBotHost BuildHostService();
-
         HandleDelegate Build();
+        IBotClient BuildService(); 
     }
 }

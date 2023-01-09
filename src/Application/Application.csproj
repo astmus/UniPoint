@@ -9,15 +9,25 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="TodoItems\**" />
+      <Compile Remove="TodoLists\**" />
+      <EmbeddedResource Remove="TodoItems\**" />
+      <EmbeddedResource Remove="TodoLists\**" />
+      <None Remove="TodoItems\**" />
+      <None Remove="TodoLists\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-rc.2.22472.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Domain\Domain.csproj" />
+        <ProjectReference Include="..\..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
         <ProjectReference Include="..\MissCore\MissCore.csproj" />
     </ItemGroup>
+    
 
 </Project>
