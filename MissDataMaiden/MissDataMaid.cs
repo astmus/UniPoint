@@ -1,56 +1,51 @@
-using BotService;
-using BotService.DataAccess;
-using BotService.Interfaces;
+using BotService.Common;
 using MissBot.Attributes;
-using MissBot.Extensions;
 using MissCore.Abstractions;
 using MissCore.Configuration;
+using MissCore.Handlers;
 using MissDataMaiden.Commands;
+using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
+    public class MissDataMaidUpdate : Update<MissDataMaid>
+    { }
+
     [HasBotCommand(Name = nameof(List), Description = "List of data bases with info")]
     [HasBotCommand(Name = nameof(Info), Description = "Inforamtion about current server state")]
     [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
-    public class MissDataMaid : BaseBot<Update<MissDataMaid>>, IBot
+    public class MissDataMaid :  IBot<Update<MissDataMaid>>
     {
         private readonly ILogger<MissDataMaid> _logger;
+        private IServiceScope scope;
 
-        public MissDataMaid(ILogger<MissDataMaid> logger, IServiceProvider sp, IHostApplicationLifetime lifeTime):base(logger,lifeTime, sp)
-        {           
-            
-        }                
-        User info;
-        public override async Task StartAsync(CancellationToken cancellationToken)
-        {
-           var client =  BotServices.GetRequiredService<IBotClient>();
-            try
-            {
-                info = await client.GetBotInfoAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.WriteError(ex);
-            }
-            await base.StartAsync(cancellationToken);
-        }
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
-            }
+        public IServiceProvider BotServices
+            => scope.ServiceProvider;
+        public User BotInfo { get; set; }
+        public Func<HandleDelegate> Handler { get; set; }
+
+        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime)
+        {                       
         }
 
-        public void ConfigureHost(IBotConnectionOptions botConnection, IConfiguration configurationBuilder)
+        public void ConfigureOptions(IBotOptionsBuilder botBuilder)
+            => botBuilder 
+                        .ReceiveCallBacks()
+                        .ReceiveInlineQueries()
+                        .ReceiveInlineResult();                        
+
+        private Task HandleError(Exception error, CancellationToken cancel)
         {
             throw new NotImplementedException();
-        }
+        }   
 
-        public void ConfigureBot(IBotOptionsBuilder botBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        public void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
+            => connectionOptions            
+                    .SetToken(Environment.GetEnvironmentVariable("JarviseKey", EnvironmentVariableTarget.User))
+                    .SetTimeout(TimeSpan.FromMinutes(2))                        
+                    .SetExceptionHandler(HandleError);
+
+        public void SetScope(IServiceScope botScope)
+            => scope = botScope;
     }
 }

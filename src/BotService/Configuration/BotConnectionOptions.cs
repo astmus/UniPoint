@@ -87,6 +87,6 @@ namespace BotService.Configuration
         /// Handler of connection exception
         /// </summary>
         public Func<Exception, CancellationToken, Task> ConnectionErrorHandler { get; internal set; }
-
+        
     }
 }

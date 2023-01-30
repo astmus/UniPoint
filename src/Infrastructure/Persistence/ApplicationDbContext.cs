@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MissBot.Infrastructure.Common;
 using MissBot.Infrastructure.Persistence.Interceptors;
 using MissCore.DataAccess;
+using Telegram.Bot.Types;
 
 namespace MissBot.Infrastructure.Persistence;
 public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<ApplicationUser>*/, IApplicationGenericRepository

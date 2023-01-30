@@ -1,17 +1,22 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MissCore.Configuration;
+using MissCore.Handlers;
+using Telegram.Bot.Types;
 
 namespace MissCore.Abstractions
 {
     public interface IBot
     {
-        IServiceProvider BotServices { get; }
-        public void ConfigureHost(IBotConnectionOptions botConnection, IConfiguration configurationBuilder);
-        public void ConfigureBot(IBotOptionsBuilder botBuilder);
+        User BotInfo { get; set; }
+        void ConfigureOptions(IBotOptionsBuilder botBuilder);
+        void SetScope(IServiceScope botScope);
+        void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
+        Func<HandleDelegate> Handler { get; set; }
     }
 
-    public interface IBot<TUpdate> : IBot where TUpdate:IUpdateInfo
+    public interface IBot<TUpdate> : IBot where TUpdate:class,IUpdateInfo
     {
-        void RunAsync();
+        IServiceProvider BotServices { get; }
     }
 }

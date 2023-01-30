@@ -38,13 +38,5 @@ namespace BotService.DataAccess
             } while (!cancelToken.IsCancellationRequested);
             yield break;
         }
-
-        public virtual Task StopAsync(CancellationToken cancellationToken)
-        {
-            //LogInfo($"Bot finished works : {this}");
-            return Task.CompletedTask;
-        }
-
-
     }
 }

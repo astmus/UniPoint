@@ -1,7 +1,6 @@
 using MissCore.Abstractions;
-using MissCore.Handlers;
 
-namespace MissBot.Handlers
+namespace MissCore.Handlers
 {
 
     public abstract class BaseHandler<TData> : BaseHandleComponent

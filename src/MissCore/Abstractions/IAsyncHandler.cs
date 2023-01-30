@@ -11,11 +11,12 @@ namespace MissCore.Abstractions
     {
         Task HandleAsync(IContext<T> context, T data);
     }
-
-    public interface IBotUpdatesDispatcher<TUpdate> where TUpdate :  IUpdateInfo
+    public interface IBotUpdatesDispatcher
     {
         void Initialize(CancellationToken cancel = default);
+    }
+    public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate :  IUpdateInfo
+    {
         public void PushUpdate(TUpdate update);
-
     }
 }

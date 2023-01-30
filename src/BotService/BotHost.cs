@@ -13,37 +13,51 @@ using MissCore.DataAccess.Async;
 
 namespace BotService
 {
-    public class BotHost : IBotHost
+    public class BotHost : BackgroundService, IBotHost
     {
-        internal static BotConnectionOptions ConnectionOptions
-            => new BotConnectionOptions();
-        internal static BotOptionsBuilder BotOptions { get; set; }
+
+        static List<IBotBuilder> botsBuilders = new List<IBotBuilder>();
+        List<IBot> bots = new List<IBot>();
+
+        public BotHost()
+        {
+            int i = 0;
+        }
+        IServiceScopeFactory scopeFactory;
+        public BotHost(IServiceScopeFactory factory)
+            => scopeFactory = factory;
+
+        public IBotBuilder<TBot> AddBot<TBot>() where TBot : class, IBot
+        {
+            hostBuilder.ConfigureServices(services => services.AddHostedService<BotClient<TBot>>()
+                                                                                    .AddScoped<TBot>()
+                                                                                    .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance));
+            botsBuilders.Add(BotBuilder<TBot>.Instance);
+            return BotBuilder<TBot>.Instance;
+        }
+
         internal static IHostBuilder hostBuilder;
-        internal static IBotHost Default
-            => new BotHost();
-        public static IBotHost CreateDefault(IBotStartupConfig startupConfig, string[] args = null)
+        internal static IBotHost BotsHost;
+
+        public static IBotHost CreateDefault(string[] args = null)
         {
             hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.ConfigureHostConfiguration(config =>
             { })
             .ConfigureServices((host, services) =>
             {
-                services
-                    .AddApplicationServices()
-                    .AddInfrastructureServices(host.Configuration)
-                    .AddHostedService<BotListener>();
-                services.AddSingleton<ICurrentUserService, CurrentUserService>();
+                //services
+                //    .AddApplicationServices()
+                //    .AddInfrastructureServices(host.Configuration);
+                services.AddHostedService<BotHost>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
                 services.AddScoped(typeof(IContext<>), typeof(Context<>));
-                services.AddScoped<IBotConnectionOptions>(sp
-                    => BotOptions.Build());
+                services.AddScoped(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());
+                services.AddScoped<IBotConnectionOptionsBuilder, BotOptionsBuilder>();
+                services.AddScoped<IBotOptionsBuilder>(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>());
                 services.AddHttpContextAccessor();
-
                 services.AddHealthChecks()
-                    .AddDbContextCheck<ApplicationDbContext>();
-
-                startupConfig.ConfigureHost(BotHost.ConnectionOptions, host.Configuration);
-                startupConfig.ConfigureBot(BotOptions = new BotOptionsBuilder(BotHost.ConnectionOptions));
+                    .AddDbContextCheck<ApplicationDbContext>();                
 
             }).ConfigureAppConfiguration(config =>
             {
@@ -51,34 +65,39 @@ namespace BotService
             .ConfigureLogging(log => log.AddConsole().AddDebug())
             .ConfigureHostOptions(options =>
             {
-
-
             })
             .UseConsoleLifetime(opt =>
             { });
-            return BotHost.Default;
+            return BotsHost = new BotHost();
         }
 
-        Action<IBotBuilder> configuratorDelegate;
-        public IBotHost AddBot<TBot>(Action<IBotBuilder> configurator) where TBot :class, IBot
+
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
-            configuratorDelegate = configurator;
-            hostBuilder.ConfigureServices(services =>
-            {
-                services
-                .AddScoped<IBot, TBot>()
-                .AddTransient<IBotUpdatesDispatcher<Update>, AsyncBotUpdatesDispatcher<Update>>()
-                .AddTransient<IBotUpdatesReceiver<Update>, AsyncBotUpdatesReceiver<Update>>()
-                .AddTransient<IBotConnection, BotConnection>()
-                .AddTransient<IBotClient, BotConnection>();
-            });
-            return this;
+            foreach (var bot in botsBuilders)
+                bots.Add(bot.BuildClient(scopeFactory.CreateScope()));
+            
+            return base.StartAsync(cancellationToken);
+        }
+        //protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        //    => await RootHost.RunAsync();
+        IHost host;
+        public void Start()
+        {
+            // bots.ForEach(b => b.BuildService());
+            host = hostBuilder.Build();
+            host.Run();
         }
 
-        public void Run()
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            configuratorDelegate(BotBuilder.Default);
-            hostBuilder.Build().Run();
+            
+            return Task.CompletedTask;
         }
+
+        //protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        //{
+        //    return Task.CompletedTask;
+        //}
     }
 }

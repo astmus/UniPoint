@@ -9,13 +9,13 @@ namespace MissCore.DataAccess
     public class DataContextFactory : Context, IDataContextFactory
     {
         IServiceScopeFactory scopeFactory;
-        IServiceScope mainScope;
+
 
         public DataContextFactory(IServiceScopeFactory clientRoot) : base(null)
         {
             scopeFactory = clientRoot;
-            mainScope = clientRoot.CreateScope();
-            Services = mainScope.ServiceProvider;
+          //  mainScope = clientRoot.CreateScope();
+            //Services = mainScope.ServiceProvider;
         }
         public IContext<T> GetContext<T>() where T : class
             => ActivatorUtilities.GetServiceOrCreateInstance<IContext<T>>(Services);
@@ -25,5 +25,9 @@ namespace MissCore.DataAccess
       
         public T GetOrInit<T>() where T : class
             => ActivatorUtilities.GetServiceOrCreateInstance<T>(Services);
+
+        public IServiceScope GetScope()
+            => scopeFactory.CreateScope();
+        
     }
 }

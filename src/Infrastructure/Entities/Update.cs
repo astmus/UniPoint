@@ -8,6 +8,7 @@ public class Update : TG, IUpdateInfo
 {
     public long ChatId { get; }
     public long UserId { get; }
+
     [JsonProperty("update_id", Required = Required.Always)]
     public uint UpdateId { get; init; }
         

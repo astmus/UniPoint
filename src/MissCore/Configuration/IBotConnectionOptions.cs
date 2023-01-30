@@ -53,6 +53,6 @@ namespace MissCore.Configuration
         IExceptionParser ExceptionsParser { get; }
         bool LocalBotServer { get; }
         JsonSerializerSettings SerializeSettings { get; }
-        bool UseTestEnvironment { get; }
+        bool UseTestEnvironment { get; }        
     }
 }

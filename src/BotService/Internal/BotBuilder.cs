@@ -1,22 +1,45 @@
 using BotService.DataAccess;
+using Microsoft.Extensions.DependencyInjection;
 using MissBot.Handlers;
 using MissBot.Interfaces;
 using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace BotService.Internal
 {
-    internal class BotBuilder : IBotBuilder
+    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot
     {
+        internal static BotBuilder<TBot> instance;
+        internal static BotBuilder<TBot> Instance { get=> instance ?? (instance = new BotBuilder<TBot>());  }
+
+        public IBotBuilder<TBot> UseCommndFromAttributes()
+        {
+            _botCommands.AddRange(typeof(TBot).GetAttributedCommands<TBot>());
+            return this;
+        }
+        public override IBot BuildClient(IServiceScope scope)
+        {            
+            Build();
+            var bot = scope.ServiceProvider.GetRequiredService<TBot>();
+            bot.SetScope(scope);
+            bot.Handler = ()=> Build();
+            return bot;
+        }     
+
+        
+    }
+
+    internal  class BotBuilder : IBotBuilder
+    {
+        protected internal Func<IServiceScope, IBot> func;
         internal HandleDelegate HandlerDelegate { get; private set; }
         
-        private readonly ICollection<Func<HandleDelegate, HandleDelegate>> _components;
-        private List<IBotCommandInfo> _botCommands = new List<IBotCommandInfo>();
+        protected readonly ICollection<Func<HandleDelegate, HandleDelegate>> _components;
+        protected List<IBotCommandInfo> _botCommands = new List<IBotCommandInfo>();
 
-        internal static IBotBuilder Default
-            => new BotBuilder();
         public BotBuilder()
         {
             _components = new List<Func<HandleDelegate, HandleDelegate>>();
@@ -74,12 +97,9 @@ namespace BotService.Internal
 
         #region Commands    
 
-        public IBotClient BuildService()
-        {
-            throw new NotImplementedException();
-        }
+       
 
-        public IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand
+        public IBotBuilder Use<TCommand, THandler>() where THandler : BaseHandler<TCommand> where TCommand : BotCommand
         {
             _components.Add(
                 next =>
@@ -88,17 +108,11 @@ namespace BotService.Internal
             return this;
         }
 
-        public IBotBuilder AddCommndFromAttributes<TBot>() where TBot:class, IBot
-        {            
-            _botCommands.AddRange(typeof(TBot).GetAttributedCommands<TBot>());
-            return this;
-        }
+        
 
-        public void WithUpdates<TUpdate>() where TUpdate : IUpdateInfo
-        {
+        public virtual IBot BuildClient(IServiceScope scope)
+            => scope.ServiceProvider.GetRequiredService<IBot>();
 
-            throw new NotImplementedException();
-        }
 
 
         #endregion

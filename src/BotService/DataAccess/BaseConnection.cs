@@ -17,7 +17,7 @@ namespace BotService.DataAccess
     /// </summary>
     public abstract class BaseConnection
     {
-        protected readonly IBotConnectionOptions _options;
+        public abstract IBotConnectionOptions Options { get; set; }
         readonly HttpClient _httpClient;
 
         /// <summary>
@@ -25,13 +25,13 @@ namespace BotService.DataAccess
         /// </summary>
         public TimeSpan Timeout
         {
-            get => _options.Timeout;
+            get => Options.Timeout;
             set => _httpClient.Timeout = value;
         }
 
-        public BaseConnection(IBotConnectionOptions options, HttpClient httpClient = default)
+        public BaseConnection(HttpClient httpClient = default)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            //Options = options ?? throw new ArgumentNullException(nameof(options));
             _httpClient = httpClient ?? new HttpClient();
         }
         public virtual async Task<TResponse> MakeRequestAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
@@ -43,7 +43,7 @@ namespace BotService.DataAccess
             /// <inheritdoc />
             if (request is null) { throw new ArgumentNullException(nameof(request)); }
 
-            var url = $"{_options.BaseRequestUrl}/{request.MethodName}";
+            var url = $"{Options.BaseRequestUrl}/{request.MethodName}";
 
 #pragma warning disable CA2000
             var httpRequest = new HttpRequestMessage(method: request.Method, requestUri: url)
@@ -84,13 +84,13 @@ namespace BotService.DataAccess
                     )
                     .ConfigureAwait(false);
 
-                throw _options.ExceptionsParser.Parse(failedApiResponse);
+                throw Options.ExceptionsParser.Parse(failedApiResponse);
             }
 
             var apiResponse = await httpResponse
                 .DeserializeContentAsync<ApiResponse<TResponse>>(
                     guard: response => response.Ok == false ||
-                                       response.Result is null, _options.SerializeSettings
+                                       response.Result is null, Options.SerializeSettings
                 )
                 .ConfigureAwait(false);
 
@@ -134,7 +134,7 @@ namespace BotService.DataAccess
         /// Test the API token
         /// </summary>
         /// <returns><c>true</c> if token is valid</returns>
-        public async Task<bool> TestApiAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> GetBotClientAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace BotService.DataAccess
 
             if (destination is null) { throw new ArgumentNullException(nameof(destination)); }
 
-            var fileUri = $"{_options.BaseFileUrl}/{filePath}";
+            var fileUri = $"{Options.BaseFileUrl}/{filePath}";
             using var httpResponse = await GetResponseAsync(
                 httpClient: _httpClient,
                 fileUri: fileUri,
@@ -177,7 +177,7 @@ namespace BotService.DataAccess
                     )
                     .ConfigureAwait(false);
 
-                throw _options.ExceptionsParser.Parse(failedApiResponse);
+                throw Options.ExceptionsParser.Parse(failedApiResponse);
             }
 
             if (httpResponse.Content is null)

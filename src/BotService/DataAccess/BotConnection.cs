@@ -1,7 +1,7 @@
-using MediatR;
 using MissCore.Abstractions;
 using MissCore.Configuration;
 using Telegram.Bot.Requests;
+using Telegram.Bot.Types;
 
 namespace BotService.DataAccess
 {
@@ -10,24 +10,22 @@ namespace BotService.DataAccess
     /// </summary>
     public class BotConnection : BaseConnection, IBotConnection, IBotClient
     {
-        public BotConnection(IBotConnectionOptions botOptions, HttpClient httpClient = null) : base(botOptions, httpClient)
+        public BotConnection(IBotConnectionOptions options = null, HttpClient httpClient = null) : base(httpClient: httpClient)
         {
+            Options = options;
         }
-
-        public IBotConnectionOptions Options
-            => _options;
-
+        public override IBotConnectionOptions Options { get; set; }
+        public IBotUpdatesDispatcher Dispatcher { get; protected set; }
+        public User Info { get; protected set; }
         uint IBotConnection.Timeout
             => (uint)Options.Timeout.TotalSeconds;
 
-        public async Task<User> GetBotInfoAsync(CancellationToken cancellationToken = default)
-        => await MakeRequestAsync<User>(request: new ParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);           
-        
-
-        public IBotClient SetupContext(IHandleContext context)
+        public async Task<User> GetBotInfoAsync(IBotConnectionOptions options, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Options = options;
+            var info = await MakeRequestAsync(request: new ParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
+            return info;
         }
     }
 }

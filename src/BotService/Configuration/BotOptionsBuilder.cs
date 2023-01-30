@@ -1,30 +1,32 @@
 using System.Runtime.CompilerServices;
-using BotService.Interfaces;
 using MissCore.Configuration;
 using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration
 {
 
-    internal class BotOptionsBuilder : IBotOptionsBuilder
+    internal class BotOptionsBuilder : IBotOptionsBuilder, IBotConnectionOptionsBuilder
     {
         const string BaseTelegramUrl = "https://api.telegram.org";
         public BotConnectionOptions Options;
         public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
         List<Action> updItems;
 
-        public BotOptionsBuilder(BotConnectionOptions options)
+        public BotOptionsBuilder()
         {
             updItems = new List<Action>();
             With = action
                 =>
             { updItems.Add(action); return this; };
-            Options = options;
+            Options = new();
             updates = updates.Append(UpdateType.Message);
         }
 
-        public IBotOptionsBuilder SetToken(string token, string baseUrl = default, bool useTestEnvironment = false)
-            => With(() => ParseToken(token));
+        public IBotConnectionOptionsBuilder SetToken(string token, string baseUrl = default, bool useTestEnvironment = false)
+        {
+            ParseToken(token);
+            return this;
+        }
 
         public IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
         {
@@ -81,10 +83,6 @@ namespace BotService.Configuration
             => With(() => updates = updates.Append(UpdateType.ChosenInlineResult));
         public IBotOptionsBuilder TrackMessgeChanges()
             => With(() => updates = updates.Append(UpdateType.EditedMessage));
-        public IBotOptionsBuilder SetTimeout(TimeSpan timeout)
-            => With(()
-                => Options.Timeout = timeout);
-
         public IBotConnectionOptions Build()
         {
             foreach (var action in updItems)
@@ -93,10 +91,22 @@ namespace BotService.Configuration
             return Options;
         }
 
-        public IBotOptionsBuilder SetExceptionHandler(Func<Exception, CancellationToken, Task> handlerFactory)
-        => With(() => Options.ConnectionErrorHandler = handlerFactory);
+        public IBotConnectionOptionsBuilder SetTimeout(TimeSpan timeout)
+        {
+            Options.Timeout = timeout;
+            return this;
+        }
 
-        public IBotOptionsBuilder UseCustomUpdateHandler()
-            => With(() => Options.UseCustomParser = true);
+        public IBotConnectionOptionsBuilder SetExceptionHandler(Func<Exception, CancellationToken, Task> handlerFactory)
+        {
+            Options.ConnectionErrorHandler = handlerFactory;
+            return this;
+        }
+
+        public IBotConnectionOptionsBuilder UseCustomUpdateHandler()
+        {
+            Options.UseCustomParser = true;
+            return this;
+        }
     }
 }
