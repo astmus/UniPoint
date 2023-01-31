@@ -8,10 +8,10 @@ namespace MissBot.Handlers
     public class CallbackQueryHandler : BaseHandler<CallbackQuery>
     {
         public override CallbackQuery GetDataForHandle()
-            => Context.Data.Get<Update>().CallbackQuery;
+            => Context.ContextData.Get<Update>().CallbackQuery;
 
         public override bool ItCanBeHandled(IHandleContext context)
-            => context.Data.Get<UpdateType>() is  UpdateType.CallbackQuery;
+            => context.ContextData.Get<UpdateType>() is  UpdateType.CallbackQuery;
 
 
         public override Task StartHandleAsync(CallbackQuery data, IHandleContext context)

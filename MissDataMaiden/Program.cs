@@ -13,15 +13,15 @@ namespace MissDataMaiden
         {
             var botHost = BotHost.CreateDefault(args);
             botHost.AddBot<MissDataMaid>()
+               // .UseUpdateHandler<MissDataMaid.Handler>()
                 .UseCommndFromAttributes()
-                    .Use<ExceptionHandler>()
-                    .Use<MediatorMiddleware>()
+                    .Use<ExceptionHandler>()                    
                     .Use<CallbackQueryHandler>()
                     .Use<Disk, DiskCommandHandler>()
                     .Use<Info, InfoCommandHadler>()
                     .Use<List, ListCommandHnadler>();
 
-            botHost.AddBot<MissChannel>();
+            //botHost.AddBotHandler<MissDataMaid>();
             botHost.Start();
             //  .RunBot< BotUpdate>();
         }

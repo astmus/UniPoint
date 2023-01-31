@@ -14,7 +14,7 @@ namespace MissBot.Handlers
 
         public override async Task StartHandleAsync(TCommand data, IHandleContext context)
         {
-            var typle = context.Data.Get<Update>().Message.GetCommandAndArgs();
+            var typle = context.ContextData.Get<Update>().Message.GetCommandAndArgs();
 
             var cmdInfo = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Context.BotServices);
             cmdInfo.Command = typle.command;
@@ -23,7 +23,7 @@ namespace MissBot.Handlers
 
         public abstract Task HandleCommandAsync(TCommand command, string[] args);
         public override bool ItCanBeHandled(IHandleContext context)
-            => context.Data.Get<Message>()?.Entities?.FirstOrDefault()?.Type is MessageEntityType.BotCommand;
+            => context.ContextData.Get<Message>()?.Entities?.FirstOrDefault()?.Type is MessageEntityType.BotCommand;
 
         public Task HandleAsync(IContext<TCommand> context, TCommand data)
         {

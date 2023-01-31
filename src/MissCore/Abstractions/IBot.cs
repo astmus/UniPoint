@@ -9,13 +9,14 @@ namespace MissCore.Abstractions
     public interface IBot
     {
         User BotInfo { get; set; }
-        void ConfigureOptions(IBotOptionsBuilder botBuilder);
-        void SetScope(IServiceScope botScope);
+        void ConfigureOptions(IBotOptionsBuilder botBuilder);        
         void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
-        Func<HandleDelegate> Handler { get; set; }
+        Func<Update, string> ScopePredicate { get; }
+        //IAsyncHandler<TUpdate> CreateHandleContext<TUpdate>(TUpdate update) where TUpdate:IUpdateInfo;
+        //Task CreateHandle<TUpdate>(TUpdate update) where TUpdate : IUpdateInfo;
     }
 
-    public interface IBot<TUpdate> : IBot where TUpdate:class,IUpdateInfo
+    public interface IBot<in TUpdate> : IBot where TUpdate:class,IUpdateInfo
     {
         IServiceProvider BotServices { get; }
     }

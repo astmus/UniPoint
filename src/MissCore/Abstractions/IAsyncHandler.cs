@@ -17,6 +17,7 @@ namespace MissCore.Abstractions
     }
     public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate :  IUpdateInfo
     {
-        public void PushUpdate(TUpdate update);
+        Func<TUpdate, string> ScopePredicate { get; set; }
+        void PushUpdate(TUpdate update);
     }
 }

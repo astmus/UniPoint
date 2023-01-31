@@ -7,6 +7,7 @@ namespace MissCore.Data.Context
     {
         public static IContext<TScope> Current { get; protected set; }
         public string Id { get; }
+        public TScope Data { get; }
 
         IServiceProvider scoped;
         IServiceScope Scope;

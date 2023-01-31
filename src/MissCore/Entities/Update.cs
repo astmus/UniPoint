@@ -16,10 +16,5 @@ public class Update : TG, IUpdateInfo
 
     public string GetId()    
         => $"{nameof(ChatId)}:{ChatId} {nameof(UserId)}:{UserId}";
-    
 }
 
-public class Update<TEntity> : Update, IUpdateInfo
-{
-    
-}

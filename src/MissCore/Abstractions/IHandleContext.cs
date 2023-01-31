@@ -1,12 +1,14 @@
+using System;
+
 namespace MissCore.Abstractions
 {
 
     public interface IHandleContext
     {
-        IBotServicesProvider BotServices { get; }
-        IContext Data { get; }
+        IServiceProvider BotServices { get; }
+        IContext ContextData { get; }
         T NextHandler<T>() where T : IAsyncHandler;
-        IUpdateInfo Info { get; }
+        IUpdateInfo Update { get; }
     }
 
     public interface IUpdateInfo
@@ -16,11 +18,5 @@ namespace MissCore.Abstractions
         long UserId { get; }
         uint UpdateId { get; }
         bool IsHandled { get; set; }
-    }
-
-    public interface IUpdateInfo<out T>
-    {
-        T GetId();
-      
     }
 }

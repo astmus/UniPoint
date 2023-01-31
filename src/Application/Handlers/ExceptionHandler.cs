@@ -15,7 +15,7 @@ namespace MissBot.Handlers
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("An error occured in handling update {0}.{1}{2}", context.Info, Environment.NewLine, e);
+                Console.WriteLine("An error occured in handling update {0}.{1}{2}", context.Update, Environment.NewLine, e);
                 Console.ResetColor();
             }
         }

@@ -3,6 +3,7 @@ using MissCore.Abstractions;
 namespace MissCore.Handlers
 {
     public delegate Task HandleDelegate(IHandleContext context);
+    public delegate Task HandleContextDelegate(IContext context);
     public abstract class BaseHandleComponent : IAsyncHandler
     {
         protected internal IHandleContext Context { get; protected set; }

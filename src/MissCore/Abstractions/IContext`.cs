@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MissCore.Abstractions
 {
-    public interface IContext<in TScope>
+    public interface IContext<TScope> :IContext
     {
-        IContext<TScope> With<T>(T value, string name = null) where T : class;
-        IContext<T> GetContextOf<T>(string name = null);
-        public T GetContext<T>(bool createIfNotExists = true, string name = null) where T : class, IHandleContext;
+        TScope Data { get; }
     }
 }

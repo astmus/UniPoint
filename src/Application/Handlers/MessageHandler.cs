@@ -8,11 +8,11 @@ namespace MissBot.Handlers
     public class MessageHandler : BaseHandler<Message>
     {
         public override Message GetDataForHandle()
-            => Context.Data.Get<Message>();
+            => Context.ContextData.Get<Message>();
 
 
         public override bool ItCanBeHandled(IHandleContext context)
-            => Context.Data.Get<UpdateType>() is UpdateType.Message;
+            => Context.ContextData.Get<UpdateType>() is UpdateType.Message;
 
         public override Task StartHandleAsync(Message data, IHandleContext context)
         {

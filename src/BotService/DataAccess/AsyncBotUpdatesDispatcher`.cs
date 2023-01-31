@@ -3,7 +3,6 @@ using BotService.Common;
 using BotService.DataAccess.Async;
 using MissCore.Abstractions;
 using MissCore.Configuration;
-using MissCore.DataAccess;
 using MissCore.DataAccess.Async;
 
 
@@ -13,12 +12,16 @@ namespace BotService.DataAccess
 
     public class AsyncBotUpdatesDispatcher<TUpdate> : BaseDataSource<TUpdate>,  IBotUpdatesDispatcher<TUpdate> where TUpdate : class, IUpdateInfo
     {
+        IHandleContextFactory Factory { get; }
         public ILogger<AsyncBotUpdatesDispatcher<TUpdate>> log { get; protected set; }
         Thread thread;   
         protected override AsyncUpdatesQueue<TUpdate> Updates { get; init; }
-        public AsyncBotUpdatesDispatcher(ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger)
+        public Func<TUpdate, string> ScopePredicate { get; set; }
+
+        public AsyncBotUpdatesDispatcher(IHandleContextFactory factory, ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger)
         {
-             log = logger;     
+            Factory = factory;
+            log = logger;     
             Updates = new AsyncUpdatesQueue<TUpdate>();
             thread = new Thread(StartInThread);
             thread.IsBackground = true;
@@ -30,17 +33,12 @@ namespace BotService.DataAccess
             {
                 await foreach (var update in PendingUpdates(src.Token))
                 {
-                    log.WriteJson(update);
-
-                    //contextFactory.HandleInput(update);
-                    
-                    //var bot = chatScope.GetScopedBot<IBot<TUpdate>>();
-                    //contextFactory.GetChatContext(update).With();
-
-                   // var updateSctx = contextFactory.GetOrInit<IContext<TUpdate>>();
-                    
-                  //  var handler = bot.BotServices.GetRequiredService<IAsyncHandler<TUpdate>>();
-                   // await handler.HandleAsync(updateSctx, update).ConfigFalse();
+                    log.WriteJson(update.GetType().FullName);
+                    var scope = Factory.Init(ScopePredicate(update));
+                    var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
+                    var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
+                    ctx.Set(update);
+                    await handler.HandleAsync(ctx, update);                    
                 };
             }
             catch (Exception e)

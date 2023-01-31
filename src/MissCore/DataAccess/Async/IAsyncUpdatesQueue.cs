@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using MissCore.Abstractions;
-
-namespace MissCore.DataAccess.Async
+namespace MissCore.Abstractions
 {
     public interface IBotUpdatesReceiver<out TUpdate> : IAsyncEnumerable<TUpdate> where TUpdate : class, IUpdateInfo
     {

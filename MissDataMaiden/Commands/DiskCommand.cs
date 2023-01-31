@@ -21,7 +21,7 @@ namespace MissDataMaiden.Commands
         SqlRawQuery CurrentRequest;
 
         public override bool ItCanBeHandled(IHandleContext context)
-            => base.ItCanBeHandled(context) && context.Data.Get<Message>().Text == nameof(Disk);
+            => base.ItCanBeHandled(context) && context.ContextData.Get<Message>().Text == nameof(Disk);
 
         public DiskCommandHandler(IConfiguration config)
         {

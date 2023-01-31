@@ -17,7 +17,7 @@ namespace MissDataMaiden.Commands
     {
         public string Payload { get; init; }
         public override bool ItCanBeHandled(IHandleContext context)
-            => base.ItCanBeHandled(context) && context.Data.Get<Message>().Text == nameof(List);
+            => base.ItCanBeHandled(context) && context.ContextData.Get<Message>().Text == nameof(List);
        
         public string[] Params { get; init; }
         public override Task HandleCommandAsync(List command, string[] args)
