@@ -1,9 +1,8 @@
-using BotService.Configuration;
-using BotService.DataAccess;
+using BotService.Connection.Extensions;
+using MissBot.Abstractions;
 using MissBot.Extensions;
 using MissCore.Abstractions;
 using MissCore.Configuration;
-using MissCore.DataAccess.Async;
 using MissCore.Entities;
 using Telegram.Bot.Types;
 
@@ -41,8 +40,10 @@ namespace BotService
             var client = botScopeServices.GetRequiredService<IBotConnection>();
             try
             {
-                var info = await client.GetBotInfoAsync(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build(), cancellationToken);
-                Bot.BotInfo = info;                              
+                var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
+                var info = await client.GetBotInfoAsync(botConnectionOptions, cancellationToken);
+                Bot.BotInfo = info;
+                await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
                 _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {info}");
             }
             catch (Exception ex)

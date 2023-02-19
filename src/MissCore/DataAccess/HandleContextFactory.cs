@@ -1,14 +1,9 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using MissCore.Abstractions;
-using MissCore.Configuration;
-using MissCore.Data.Context;
-
+using MissBot.Abstractions;
 
 namespace MissCore.Handlers
 {
-
-
     public class HandleContextFactory : IHandleContextFactory
     {
         public IServiceScopeFactory ScopeFactory { get; init; }
@@ -21,11 +16,6 @@ namespace MissCore.Handlers
         public HandleContextFactory(IServiceScopeFactory clientRoot)
         {
             ScopeFactory = clientRoot;          
-        }
-
-        public IHandleContext Creatre<TUpdate>(TUpdate update) where TUpdate : IUpdateInfo
-        {
-            throw new NotImplementedException();
         }
 
         public IServiceScope Init(string identifier)

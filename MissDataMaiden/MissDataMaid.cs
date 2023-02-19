@@ -1,4 +1,4 @@
-using BotService.Common;
+using MissBot.Abstractions;
 using MissBot.Attributes;
 using MissCore.Abstractions;
 using MissCore.Configuration;
@@ -10,47 +10,37 @@ using Telegram.Bot.Types;
 namespace MissDataMaiden
 {
 
-    [HasBotCommand(Name = nameof(List), Description = "List of data bases with info")]
-    [HasBotCommand(Name = nameof(Info), Description = "Inforamtion about current server state")]
-    [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
-    public class MissDataMaid :  IBot
+    [HasBotCommand(Name = nameof(List), CmdType = typeof(List), Description = "List of data bases with info")]
+    [HasBotCommand(Name = nameof(Info), CmdType = typeof(Info), Description = "Inforamtion about current server state")]
+    [HasBotCommand(Name = nameof(Disk), CmdType = typeof(Disk), Description = "Disk space information")]
+    public class MissDataMaid : IBot
     {
         private readonly ILogger<MissDataMaid> _logger;
         private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
-        public class Handler : IAsyncHandler<Update<MissDataMaid>>
+        public class ContextHandler : ContextHandler<Update<MissDataMaid>>
         {
-            HandleDelegate Handle;
-            IServiceProvider BotServices;
-            public Handler(IContext<Update<MissDataMaid>> context, IBotBuilder<MissDataMaid> builder)
+            IBotServicesProvider BotServices;
+            public ContextHandler(IBotBuilder<MissDataMaid> builder)
             {
-                Context = context;
-                Handle = builder.Build();
-                BotServices = builder.BotServices();
+                BotServices = builder.BotServicesProvider();
             }
-            IContext<Update<MissDataMaid>> Context { get; }
 
-            public async Task HandleAsync(IContext<Update<MissDataMaid>> context, Update<MissDataMaid> data)
+            public override void SetupContext(IContext context, Update<MissDataMaid> update)
             {
-                await Handle(new Context() { BotServices = this.BotServices, ContextData = Context, Update = data });
+                context.Set(update);
+                //context.Set(update.Message.From);
+                //context.Set(update.Message.Type);
+                context.Set(update.Chat);
+                //context.Set(update.Message.Entities);
+                //context.Set(update.Message.EntityValues);
             }
         }
-        class Context : IHandleContext
-        {
-            public IServiceProvider BotServices { get; set; }
-            public IContext ContextData { get; set; }
-            public IUpdateInfo Update { get; set; }
-            public T NextHandler<T>() where T : IAsyncHandler
-                => BotServices.GetRequiredService<T>();
-        }
-        
-        public IServiceProvider BotServices
-            => scope.ServiceProvider;
+
         public User BotInfo { get; set; }
-
         public Func<Update, string> ScopePredicate
-            => (u) => $"{nameof(u.Message.Chat)}: {u.Message.Chat.Id}";
+             => (u) => u is Update<MissDataMaid> upd ? $"{nameof(upd.Chat)}: {upd.Chat.Id}" : "";
 
         public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime)
         {
@@ -58,21 +48,23 @@ namespace MissDataMaiden
         }
 
         public void ConfigureOptions(IBotOptionsBuilder botBuilder)
-            => botBuilder 
+            => botBuilder
                         .ReceiveCallBacks()
                         .ReceiveInlineQueries()
-                        .ReceiveInlineResult();                        
+                        .ReceiveInlineResult()
+                        .TrackMessgeChanges();
 
         private Task HandleError(Exception error, CancellationToken cancel)
         {
             log.LogError(error, error.Message);
             return Task.CompletedTask;
-        }   
+        }
 
         public void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
-            => connectionOptions            
+            => connectionOptions
                     .SetToken(Environment.GetEnvironmentVariable("JarviseKey", EnvironmentVariableTarget.User))
-                    .SetTimeout(TimeSpan.FromMinutes(2))                        
-                    .SetExceptionHandler(HandleError);
-    }
+                    .SetTimeout(TimeSpan.FromMinutes(2));
+         }
+
+
 }

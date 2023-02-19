@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using MissCore.Abstractions;
+using MissBot.Abstractions;
 using MissCore.Configuration;
 using Telegram.Bot.Types;
 

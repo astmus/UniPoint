@@ -1,18 +1,16 @@
 using MediatR;
-using MissBot.Common;
+using MissBot.Abstractions;
 using MissBot.Handlers;
-using MissBot.Interfaces;
-using MissCore.Abstractions;
 using MissDataMaiden.Queries;
 using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
     public class Info : BotCommand, IBotCommandData
-    {
-        public MissCommand<Info> CommandData { get; set; }
-        public string Payload { get; init; }
-        public string[] Params { get; init; }
+    {        
+        public string Payload { get; set; }
+        public string[] Params { get; set; }
+        public string Name { get; set; }
     }
 
     internal class InfoCommandHadler : BotCommandHandler<Info>
@@ -24,10 +22,10 @@ namespace MissDataMaiden.Commands
 
         IMediator mm;
         string connectionString;
-        private const string CFG_KEY_COMMAND = nameof(IBotCommandInfo.Command);
+        private const string CFG_KEY_COMMAND = nameof(IBotCommandInfo);
         private const string CFG_KEY_DESCRIPTION = nameof(IBotCommandInfo.Description);
         private const string CFG_KEY_PARAMS = nameof(IBotCommandData.Params);
-        public InfoCommandHadler(IBot controller, IConfiguration config)
+        public InfoCommandHadler(IConfiguration config)
         {
            
             Config = config;
@@ -119,34 +117,30 @@ namespace MissDataMaiden.Commands
         #endregion
 
 
-        public override async Task StartHandleAsync(Info data, IHandleContext context)
-        {
-            var cmd = Config.GetSection(nameof(BotCommand)).GetChildren().Where(child
-                => child.GetSection(CFG_KEY_COMMAND).Value == nameof(Info)).
-                   Select(cmd => new MissCommand<Info>()
-                   {
-                       Command = cmd.GetRequiredSection(CFG_KEY_COMMAND).Value,
-                       Description = cmd.GetRequiredSection(CFG_KEY_DESCRIPTION).Value,
-                       CustomParams = cmd.GetRequiredSection(CFG_KEY_PARAMS).Value
-                   }).FirstOrDefault();
+        //public override async Task StartHandleAsync(Info data, IHandleContext context)
+        //{
+        //    //var cmd = Config.GetSection(nameof(BotCommand)).GetChildren().Where(child
+        //    //    => child.GetSection(CFG_KEY_COMMAND).Value == nameof(Info)).
+        //    //       Select(cmd => new MissCommand<Info>()
+        //    //       {                   
+        //    //           //Command = cmd.GetRequiredSection(CFG_KEY_COMMAND).Value,
+        //    //          // Description = cmd.GetRequiredSection(CFG_KEY_DESCRIPTION).Value,
+        //    //         //  CustomParams = cmd.GetRequiredSection(CFG_KEY_PARAMS).Value
+        //    //       }).FirstOrDefault();
 
 
-            CurrentRequest = new SqlRawQuery(cmd.CustomParams);
-            connectionString = Config.GetConnectionString("Default");
-            using (var src = new CancellationTokenSource())
-            {
-                var result = await mm.Send(CurrentRequest, src.Token);
-            };
-        }
-        public override Task HandleCommandAsync(Info command, string[] args)
-            => throw new NotImplementedException();
-        public override bool ItCanBeHandled(IHandleContext context)
-            => base.ItCanBeHandled(context) && context is Update upd && upd.Message.Text == nameof(Info);
-        public override Info GetDataForHandle()
+        //    CurrentRequest = null;// new SqlRawQuery(cmd.CustomParams);
+        //    connectionString = Config.GetConnectionString("Default");
+        //    using (var src = new CancellationTokenSource())
+        //    {
+        //        var result = await mm.Send(CurrentRequest, src.Token);
+        //    };
+        //}
+        
+
+        public override Task HandleAsync(IContext<Info> context, Info data)
         {
-            var cmdInfo = ActivatorUtilities.GetServiceOrCreateInstance<Info>(Context.BotServices);
-           // cmdInfo.Command = Command;
-            return cmdInfo;
+            throw new NotImplementedException();
         }
     }
 }

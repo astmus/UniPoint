@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -14,6 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
     <ProjectReference Include="..\src\BotService\BotService.csproj" />
+    <ProjectReference Include="..\src\MissCore\MissCore.csproj" />
   </ItemGroup>
 </Project>

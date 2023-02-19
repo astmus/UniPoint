@@ -1,30 +1,21 @@
-using MissBot.Common;
+using MissBot.Abstractions;
 using MissBot.Handlers;
-using MissBot.Interfaces;
-using MissCore.Abstractions;
-using Telegram.Bot.Types;
 
-namespace MissDataMaiden.Commands
+namespace MissDataMaiden
 {
-    public class List : BotCommand, IBotCommandData
+    public class List : IBotCommandData
     {
-        public MissCommand<BotCommand> CommandData { get; set; }
-        public string Payload { get; init; }
-        public string[] Params { get; init; }
+        public string Payload { get; set; }
+        public string[] Params { get; set; }
+        public string Name { get; set; }
     }
 
-    public class ListCommandHnadler : BotCommandHandler<List>, IBotCommandData
+    public class ListCommandHadler : BotCommandHandler<List>
     {
-        public string Payload { get; init; }
-        public override bool ItCanBeHandled(IHandleContext context)
-            => base.ItCanBeHandled(context) && context.ContextData.Get<Message>().Text == nameof(List);
-       
-        public string[] Params { get; init; }
-        public override Task HandleCommandAsync(List command, string[] args)
-        {
-            Console.WriteLine($"Unhandled command {command}");
-            return Task.CompletedTask;
-        }
+        public string Payload { get; set; }       
+        public string[] Params { get; set; }
+        public string Name { get; set; }
+
 
         //public override async Task HandleCommandAsync(List command,string[] args)
         //{
@@ -41,10 +32,8 @@ namespace MissDataMaiden.Commands
         //}
         //public override BotCommand<List> GetDataForHandle()
         //    => new BotCommand<List>() { Command = Context.Data.Get<Message>().Command };
-        public override Task StartHandleAsync(List data, IHandleContext context)
-            => throw new NotImplementedException();
 
-        public override List GetDataForHandle()
+        public override Task HandleAsync(IContext<List> context, List data)
         {
             throw new NotImplementedException();
         }

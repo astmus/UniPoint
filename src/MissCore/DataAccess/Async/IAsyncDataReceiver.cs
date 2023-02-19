@@ -1,6 +1,4 @@
-using MissCore.Abstractions;
-
-namespace MissCore.DataAccess.Async
+namespace MissBot.Abstractions
 {
     public interface IAsyncDataReceiver<TUpdate> : IAsyncEnumerable<TUpdate> where TUpdate : class, IUpdateInfo
     {

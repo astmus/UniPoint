@@ -29,7 +29,7 @@ namespace BotService.Configuration
         }
         public string Token { get; internal set; }
         public TimeSpan Timeout { get; internal set; }
-
+        
         /// <summary>
         ///  Setup custom parser of success response
         /// </summary>

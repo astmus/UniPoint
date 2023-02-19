@@ -1,11 +1,15 @@
 using System;
+using MissCore.Entities;
 
 namespace MissCore.Abstractions
 {
-
+    public interface IContextHandler<T> : IAsyncHandler
+    {
+        void SetupContext(IContext context, Update<T> update);
+    }
     public interface IHandleContext
     {
-        IServiceProvider BotServices { get; }
+        IBotServiceProvider BotServices { get; }
         IContext ContextData { get; }
         T NextHandler<T>() where T : IAsyncHandler;
         IUpdateInfo Update { get; }
@@ -13,9 +17,6 @@ namespace MissCore.Abstractions
 
     public interface IUpdateInfo
     {
-        string GetId();
-        long ChatId { get; }
-        long UserId { get; }
         uint UpdateId { get; }
         bool IsHandled { get; set; }
     }

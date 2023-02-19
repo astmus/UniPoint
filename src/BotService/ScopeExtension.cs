@@ -1,16 +1,16 @@
 using System.Reflection;
+using MissBot.Abstractions;
 using MissBot.Attributes;
-using MissBot.Interfaces;
-using MissCore.Abstractions;
 
 namespace BotService
 {
-    internal static class BotCommandExtension
-    {
-        public static IEnumerable<IBotCommandInfo> GetAttributedCommands<TBot>(this Type botType) where TBot : class, IBot
-        => botType.GetCustomAttributes<HasBotCommandAttribute>().Select(s => s.Command());
-
-        public static IEnumerable<IBotCommandInfo> GetDefinedCommands<TBot>(this TBot bot) where TBot : class, IBot
-            => bot.GetType().GetAttributedCommands<TBot>();
+    public static class BotCommandExtension
+    { 
+        record CommandData(string Command, Type CmdType, string Description) : IBotCommandInfo;
+        public static IEnumerable<HasBotCommandAttribute> GetCommandAttributes<TBot>(this Type botType) where TBot : class, IBot
+            => botType.GetCustomAttributes<HasBotCommandAttribute>();      
+        public static IEnumerable<IBotCommandInfo> GetCommandsFromAttributes(this object bot)
+            => bot.GetType().GetCustomAttributes<HasBotCommandAttribute>().Select(s => new CommandData($"/{s.Name.ToLower()}", s.CmdType, s.Description));
     }
+   
 }

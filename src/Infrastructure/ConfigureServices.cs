@@ -12,7 +12,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+       // services.AddScoped<AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<IApplicationGenericRepository, ApplicationDbContext>();
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
@@ -34,7 +34,7 @@ public static class ConfigureServices
         //services.AddIdentityServer()
         //    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-        services.AddTransient<IDateTime, DateTimeService>();
+        //services.AddTransient<IDateTime, DateTimeService>();
         // services.AddTransient<IIdentityService, IdentityService>();
        // services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 

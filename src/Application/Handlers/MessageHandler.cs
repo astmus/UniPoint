@@ -1,3 +1,4 @@
+using MissBot.Abstractions;
 using MissCore.Abstractions;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
@@ -7,11 +8,13 @@ namespace MissBot.Handlers
 {
     public class MessageHandler : BaseHandler<Message>
     {
-        public override Message GetDataForHandle()
+        protected override IHandleContext Context { get; set; }
+
+        public  Message GetDataForHandle()
             => Context.ContextData.Get<Message>();
 
 
-        public override bool ItCanBeHandled(IHandleContext context)
+        public bool ItCanBeHandled(IHandleContext context)
             => Context.ContextData.Get<UpdateType>() is UpdateType.Message;
 
         public override Task StartHandleAsync(Message data, IHandleContext context)

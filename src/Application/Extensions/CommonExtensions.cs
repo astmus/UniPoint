@@ -1,6 +1,11 @@
-using Microsoft.Extensions.Logging;
-
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MissBot.Abstractions;
+using MissCore.Abstractions;
+using MissCore.Configuration;
 
 namespace MissBot.Extensions
 {
@@ -25,6 +30,19 @@ namespace MissBot.Extensions
         //	public static Task SendExceptionNotifyRequest(this IMediator mediator, Exception error, CancellationToken cancel = default)
         //		=> mediator.Send(new ExceptionNotifyRequest(error), cancel);
         //}
+    }
+    public static class BotBuilderExtension
+    {
+        public static IBotBuilder<TBot> UseMediator<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
+        {
+            botBuilder.BotServices.AddMediatR(Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly());
+            return botBuilder;
+        }
+        public static IBotBuilder<TBot> UseLogging<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
+        {
+            botBuilder.BotServices.AddLogging();
+            return botBuilder;
+        }        
     }
 }
 

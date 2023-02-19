@@ -19,11 +19,11 @@ public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<Applica
     //    _mediator = mediator;
     //    _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     //}
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator, AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator/*, AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor*/)
         : base(options)
     {
         _mediator = mediator;
-        _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
+        //_auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
     public DbSet<User> Users => Set<User>();
@@ -39,12 +39,12 @@ public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<Applica
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
+     //   optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await _mediator.DispatchDomainEvents(this);
+     //   await _mediator.DispatchDomainEvents(this);
 
         return await base.SaveChangesAsync(cancellationToken);
     }

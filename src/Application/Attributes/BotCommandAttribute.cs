@@ -1,5 +1,3 @@
-using MissBot.Interfaces;
-
 namespace MissBot.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -8,6 +6,6 @@ namespace MissBot.Attributes
         public string Name { get; init; }
         public object Value { get; set; }
         public bool Optional { get; init; }
-        public IBotCommandData Command { get; set; }
+        //public IBotCommandData Command { get; set; }
     }
 }

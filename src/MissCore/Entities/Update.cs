@@ -1,20 +1,12 @@
-using MissCore.Abstractions;
+using MissBot.Abstractions;
+using MissCore;
 using Newtonsoft.Json;
 using TG = Telegram.Bot.Types.Update;
-/// <summary>
-/// This object represents a message.
-/// </summary>
-public class Update : TG, IUpdateInfo
+
+public class Update : TG, IUpdateInfo, IUpdateCallbackQuery, IUpdateChannelPost, IUpdateEditedChannelPost, IUpdateEditedMessage, IUpdateInlineQuery, IUpdateMessage
 {
-    public long ChatId { get; }
-    public long UserId { get; }
-
     [JsonProperty("update_id", Required = Required.Always)]
-    public uint UpdateId { get; init; }
-        
+    public uint UpdateId { get; init; }        
     public bool IsHandled { get; set; }
-
-    public string GetId()    
-        => $"{nameof(ChatId)}:{ChatId} {nameof(UserId)}:{UserId}";
 }
 

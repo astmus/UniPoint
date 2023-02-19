@@ -7,6 +7,5 @@ namespace MissCore.Configuration
         IBotOptionsBuilder ReceiveInlineQueries();
         IBotOptionsBuilder ReceiveInlineResult();
         IBotOptionsBuilder TrackMessgeChanges();
-        
     }
 }

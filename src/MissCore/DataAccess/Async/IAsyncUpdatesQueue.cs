@@ -1,4 +1,4 @@
-namespace MissCore.Abstractions
+namespace MissBot.Abstractions
 {
     public interface IBotUpdatesReceiver<out TUpdate> : IAsyncEnumerable<TUpdate> where TUpdate : class, IUpdateInfo
     {

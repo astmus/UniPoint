@@ -1,4 +1,3 @@
-using MissCore.DataAccess.Async;
 using MissCore.Handlers;
 
 namespace MissCore.Abstractions
@@ -7,6 +6,12 @@ namespace MissCore.Abstractions
     {
         Task ExecuteAsync(IHandleContext context, HandleDelegate next);
     }
+
+    public interface IAsyncBotCommansHandler
+    {
+        Task HandleCommandAsync(IHandleContext context, IBotCommandData command);
+    }
+
     public interface IAsyncHandler<T>
     {
         Task HandleAsync(IContext<T> context, T data);

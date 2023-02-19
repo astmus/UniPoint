@@ -28,7 +28,7 @@ namespace BotService.Configuration
             return this;
         }
 
-        public IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
+        IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
         {
             Options.Token = token;
             Options.BaseUrl = baseUrl;
@@ -107,6 +107,6 @@ namespace BotService.Configuration
         {
             Options.UseCustomParser = true;
             return this;
-        }
+        }       
     }
 }

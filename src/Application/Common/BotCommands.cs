@@ -1,4 +1,4 @@
-using MissBot.Interfaces;
+using MissBot.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;
@@ -24,6 +24,8 @@ namespace MissBot.Common
         [JsonIgnore]
         public MissCommand<BotCommand> CommandData { get; set; }
 
+        public Type CmdType => ((IBotCommandInfo)CommandData).CmdType;
+
         public static implicit operator BotCommandInfo(string cmd)
             => new BotCommandInfo($"/{cmd}".Replace("//", "/").ToLower());
         public static implicit operator string(BotCommandInfo cmd)
@@ -40,9 +42,12 @@ namespace MissBot.Common
     }
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record MissCommand<TInfoData> : BotCommandInfo where TInfoData : BotCommand
+    public record MissCommand<TInfoData> : BotCommandInfo, IBotCommandData where TInfoData : BotCommand
     {
         public string CustomParams { get; set; }
+        public string Payload { get; set; }
+        string[] IBotCommandData.Params { get; set; }
+
         public record Cmd(string name);
         public record Params(params string[] args);
     }

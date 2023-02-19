@@ -1,3 +1,5 @@
+using MissBot.Abstractions;
+using MissCore;
 using MissCore.Abstractions;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
@@ -5,19 +7,20 @@ using Telegram.Bot.Types.Enums;
 
 namespace MissBot.Handlers
 {
-    public class CallbackQueryHandler : BaseHandler<CallbackQuery>
+    public class CallbackQueryHandler : BaseHandler<IUpdateCallbackQuery>
     {
-        public override CallbackQuery GetDataForHandle()
-            => Context.ContextData.Get<Update>().CallbackQuery;
+        protected override IHandleContext Context { get; set; }
 
-        public override bool ItCanBeHandled(IHandleContext context)
-            => context.ContextData.Get<UpdateType>() is  UpdateType.CallbackQuery;
-
-
-        public override Task StartHandleAsync(CallbackQuery data, IHandleContext context)
+        public virtual Task StartHandleAsync(CallbackQuery data, IHandleContext context)
         {
             Console.WriteLine($"Unhandled callbackquery {data}");
             return Task.CompletedTask;
+        }
+
+        public override async Task StartHandleAsync(IUpdateCallbackQuery data, IHandleContext context)
+        {
+            if (data.CallbackQuery is CallbackQuery query)
+                await StartHandleAsync(query, context);        
         }
 
         //data.ChatId,

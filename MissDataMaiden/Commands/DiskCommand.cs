@@ -1,46 +1,44 @@
-using System.ComponentModel;
-using MissBot.Common;
+using MissBot.Attributes;
 using MissBot.Handlers;
-using MissBot.Interfaces;
-using MissCore.Abstractions;
+using MissBot.Abstractions;
 using MissDataMaiden.Queries;
-using Telegram.Bot.Types;
+using Duende.IdentityServer.Services;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissDataMaiden.Commands
 {
-    [Description("Descirption from attribute")]
-    public class Disk : BotCommand, IBotCommandData
+
+    public record Disk :  IBotCommandData
     {
-        public MissCommand<Disk> CommandData { get; set; }
-        public string Payload { get; init; }
-        public string[] Params { get; init; }
+        public string Payload { get; set; }
+        public string[] Params { get; set; }
+        public string Name { get; set; }       
     }
 
     public class DiskCommandHandler : BotCommandHandler<Disk>
     {
-        SqlRawQuery CurrentRequest;
-
-        public override bool ItCanBeHandled(IHandleContext context)
-            => base.ItCanBeHandled(context) && context.ContextData.Get<Message>().Text == nameof(Disk);
+        SqlRawQuery CurrentRequest;        
 
         public DiskCommandHandler(IConfiguration config)
         {
-            //CurrentRequest = new SqlRawQuery(config.GetCommandByName(nameof(Disk)).Payload);
+            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
+            
+            CurrentRequest = new SqlRawQuery(disk.Payload);
         }
+        
+        public override Disk Model { get; set; }
 
-        public override Task StartHandleAsync(Disk data, IHandleContext context)
-            => throw new NotImplementedException();
-
-        public override Task HandleCommandAsync(Disk command, string[] args)
+        public override async Task BeforeComamandHandle(IContext<Disk> context)
         {
-            Console.WriteLine($"Unhandled command {command}");
-            return Task.CompletedTask;
+            await context.Response.SendHandlingStart(); 
         }
-
-        public override Disk GetDataForHandle()
+        public override async Task HandleAsync(IContext<Disk> context, Disk data)
         {
-            throw new NotImplementedException();
-        }
+            Model = data;
+            var res = await
+                context.Response.WriteMessageAsync(this, default);
+                
+        }        
 
         //public override BotCommand<Disk> GetDataForHandle()
         //    => new BotCommand<Disk>() { Command = Context.Data.Get<Message>().Command };

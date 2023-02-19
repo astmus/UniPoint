@@ -1,79 +1,79 @@
-using System.Reflection;
-using MediatR;
-using MissBot.Common.Exceptions;
-using MissBot.Common.Interfaces;
-using MissBot.Common.Security;
+//using System.Reflection;
+//using MediatR;
+//using MissBot.Common.Exceptions;
+//using MissBot.Common.Interfaces;
+//using MissBot.Common.Security;
 
-namespace MissBot.Common.Behaviours;
-public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
-{
-    private readonly ICurrentUserService _currentUserService;
-    private readonly IIdentityService _identityService;
+//namespace MissBot.Common.Behaviours;
+//public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+//{
+//    private readonly ICurrentUserService _currentUserService;
+//    private readonly IIdentityService _identityService;
 
-    public AuthorizationBehaviour(
-        ICurrentUserService currentUserService,
-        IIdentityService identityService)
-    {
-        _currentUserService = currentUserService;
-        _identityService = identityService;
-    }
+//    public AuthorizationBehaviour(
+//        ICurrentUserService currentUserService,
+//        IIdentityService identityService)
+//    {
+//        _currentUserService = currentUserService;
+//        _identityService = identityService;
+//    }
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-    {
-        var authorizeAttributes = request.GetType().GetCustomAttributes<AuthorizeAttribute>();
+//    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+//    {
+//        var authorizeAttributes = request.GetType().GetCustomAttributes<AuthorizeAttribute>();
 
-        if (authorizeAttributes.Any())
-        {
-            // Must be authenticated user
-            if (_currentUserService.UserId == 0)
-            {
-                throw new UnauthorizedAccessException();
-            }
+//        if (authorizeAttributes.Any())
+//        {
+//            // Must be authenticated user
+//            if (_currentUserService.UserId == 0)
+//            {
+//                throw new UnauthorizedAccessException();
+//            }
 
-            // Role-based authorization
-            var authorizeAttributesWithRoles = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Roles));
+//            // Role-based authorization
+//            var authorizeAttributesWithRoles = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Roles));
 
-            if (authorizeAttributesWithRoles.Any())
-            {
-                var authorized = false;
+//            if (authorizeAttributesWithRoles.Any())
+//            {
+//                var authorized = false;
 
-                foreach (var roles in authorizeAttributesWithRoles.Select(a => a.Roles.Split(',')))
-                {
-                    foreach (var role in roles)
-                    {
-                        var isInRole = await _identityService.IsInRoleAsync(_currentUserService.UserId.ToString(), role.Trim());
-                        if (isInRole)
-                        {
-                            authorized = true;
-                            break;
-                        }
-                    }
-                }
+//                foreach (var roles in authorizeAttributesWithRoles.Select(a => a.Roles.Split(',')))
+//                {
+//                    foreach (var role in roles)
+//                    {
+//                        var isInRole = await _identityService.IsInRoleAsync(_currentUserService.UserId.ToString(), role.Trim());
+//                        if (isInRole)
+//                        {
+//                            authorized = true;
+//                            break;
+//                        }
+//                    }
+//                }
 
-                // Must be a member of at least one role in roles
-                if (!authorized)
-                {
-                    throw new ForbiddenAccessException();
-                }
-            }
+//                // Must be a member of at least one role in roles
+//                if (!authorized)
+//                {
+//                    throw new ForbiddenAccessException();
+//                }
+//            }
 
-            // Policy-based authorization
-            var authorizeAttributesWithPolicies = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Policy));
-            if (authorizeAttributesWithPolicies.Any())
-            {
-                foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
-                {
-                    var authorized = await _identityService.AuthorizeAsync(_currentUserService.UserId.ToString(), policy);
+//            // Policy-based authorization
+//            var authorizeAttributesWithPolicies = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Policy));
+//            if (authorizeAttributesWithPolicies.Any())
+//            {
+//                foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
+//                {
+//                    var authorized = await _identityService.AuthorizeAsync(_currentUserService.UserId.ToString(), policy);
 
-                    if (!authorized)
-                    {
-                        throw new ForbiddenAccessException();
-                    }
-                }
-            }
-        }
+//                    if (!authorized)
+//                    {
+//                        throw new ForbiddenAccessException();
+//                    }
+//                }
+//            }
+//        }
 
-        // User is authorized / authorization not required
-        return await next();
-    }
-}
+//        // User is authorized / authorization not required
+//        return await next();
+//    }
+//}

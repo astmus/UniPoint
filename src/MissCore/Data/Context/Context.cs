@@ -1,18 +1,11 @@
 using System.Collections.Concurrent;
-using MissCore.Abstractions;
+using MissBot.Abstractions;
 using MissCore.Data.Identity;
 
 namespace MissCore.Data.Context
 {
     public class Context : ConcurrentDictionary<string, object>, IContext
     {
-        public IServiceProvider Services { get; internal set; }
-        public Context()
-        {
-
-        }
-        public Context(IServiceProvider services)
-            => Services = services;
         public T Get<T>(string name)
         {
             var result = default(T);
