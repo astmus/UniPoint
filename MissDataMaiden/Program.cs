@@ -13,8 +13,9 @@ namespace MissDataMaiden
         {
             var botHost = BotHost.CreateDefault(args);
             botHost.AddBot<MissDataMaid>()
-                .UseContextHandler<MissDataMaid.ContextHandler>()
                 .UseCommndFromAttributes()
+                .UseUpdateHandler<MissDataMaid.UpdateHandler>()
+                .UseCommandHandler<MissDataMaid.UpdateHandler>()
                     .UseMediator()
                     .UseLogging()                    
                     .Use<ExceptionHandler>()                    

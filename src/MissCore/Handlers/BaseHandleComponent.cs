@@ -5,15 +5,18 @@ namespace MissCore.Handlers
 {
     public abstract class BaseHandleComponent : IAsyncHandler
     {
-        protected internal IHandleContext Context { get; protected set; }
-        public async Task ExecuteAsync(IHandleContext context, HandleDelegate next)
+        public ExecuteHandler ExecuteHandler { get; }
+        public AsyncHandler AsyncHandler 
+            => HandleAsync;
+                    
+        public abstract Task ExecuteAsync(IHandleContext context);
+        
+
+        protected async virtual Task HandleAsync(IHandleContext context)
         {
-            if (ItCanBeHandled(context))
-                await HandleAsync(Context = context);
-            else
-                await next(context);
+            AsyncHandler next = context.Get<AsyncHandler>();
+            await ExecuteAsync(context);
+            await next(context).ConfigureAwait(false);
         }
-        public abstract bool ItCanBeHandled(IHandleContext context);
-        protected abstract Task HandleAsync(IHandleContext context);
     }
 }

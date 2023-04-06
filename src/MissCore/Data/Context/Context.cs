@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Transactions;
 using MissBot.Abstractions;
 using MissCore.Data.Identity;
 
@@ -6,6 +7,8 @@ namespace MissCore.Data.Context
 {
     public class Context : ConcurrentDictionary<string, object>, IContext
     {
+        public static IHandleContext Current { get; protected set; }
+  
         public T Get<T>(string name)
         {
             var result = default(T);
@@ -23,6 +26,12 @@ namespace MissCore.Data.Context
 
             return result;
         }
+
+        public TAny GetAny<TAny>()
+        {            
+            return this.Where(x=> x.Value is TAny).Select(s=> s.Value).Cast<TAny>().FirstOrDefault();
+        }
+
         public T Get<T>(Predicate<string> filter = null)
         {
             var result = default(T);

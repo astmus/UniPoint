@@ -4,22 +4,39 @@ using MissBot.Abstractions;
 namespace MissCore.Handlers
 {
 
-    public abstract class BaseHandler<TData> : IAsyncHandler
+    public abstract class BaseHandler<TData> : IAsyncHandler, ISetupHandler<TData>
     {
-        protected abstract IHandleContext Context { get; set; }       
-        
-        public abstract Task StartHandleAsync(TData data, IHandleContext context);
+        protected TData Data { get; set; }
+        public IContext<TData> Context { get; protected set; }
+        public ExecuteHandler ExecuteHandler
+            => ExecuteAsync;
 
-        public Task HandleAsync(IContext<TData> context, TData data)
-        => StartHandleAsync(data, Context);
+        public AsyncHandler AsyncHandler
+            => HandleAsync;
+        public SetupHandler<TData> SetupHandler
+            => Setup;
 
-        public async Task ExecuteAsync(IHandleContext context, HandleDelegate next)
+        protected async Task Setup(TData data, IContext<TData> context)
         {
-            if (context.Update is TData data)
-                await StartHandleAsync(data, context);
-            await next(context);
+            Data = data;
+            Context = context;
+            await AsyncHandler(Context);
         }
 
+        protected async Task RunAsync(TData data, IContext<TData> context, AsyncHandler next)
+        {
+            Data = data;
+            Context = context;
+            await next(Context);
+        }
 
+        public abstract Task ExecuteAsync(CancellationToken cancel = default);           
+
+        async Task HandleAsync(IHandleContext context)
+        {
+            if (context.Get<TData>() is TData data)            
+                await ExecuteHandler();
+            await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
+        }
     }
 }

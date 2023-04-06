@@ -2,22 +2,40 @@ namespace MissBot.Abstractions
 {
     public interface IAsyncHandler
     {
-        Task ExecuteAsync(IHandleContext context, HandleDelegate next);
+        ExecuteHandler ExecuteHandler { get; }
+        AsyncHandler AsyncHandler { get; }
     }
 
-    public interface IAsyncBotCommansHandler
+    public interface IAsyncBotCommandHandler
     {
-        Task HandleCommandAsync(IHandleContext context, IBotCommandData command);
+        Task HandleAsync<TCommand>(IHandleContext context) where TCommand : class, IBotCommandData;
+        Task HandleCommandAsync<TCommand>(IContext<TCommand> context) where TCommand : class, IBotCommandData;
     }
 
-    public interface IAsyncHandler<T>
+    public interface ISetupHandler<T>
     {
-        Task HandleAsync(IContext<T> context, T data);
+        SetupHandler<T> SetupHandler { get; }
     }
+
+
+    public interface IAsyncHandler<T> : IAsyncHandler
+    {
+        AsyncGenericHandler<T> GenericHandler { get; }
+        Task HandleAsync(IContext<T> context);
+    }
+
+    public interface IAsyncUpdateHandler<T>
+    {
+        T Update { get; set; }
+        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U:T,IUpdateInfo;
+    }
+
+
     public interface IBotUpdatesDispatcher
     {
         void Initialize(CancellationToken cancel = default);
     }
+
     public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate : IUpdateInfo
     {
         Func<TUpdate, string> ScopePredicate { get; set; }

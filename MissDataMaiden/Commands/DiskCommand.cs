@@ -4,6 +4,7 @@ using MissBot.Abstractions;
 using MissDataMaiden.Queries;
 using Duende.IdentityServer.Services;
 using Telegram.Bot.Types.ReplyMarkups;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MissDataMaiden.Commands
 {
@@ -11,8 +12,7 @@ namespace MissDataMaiden.Commands
     public record Disk :  IBotCommandData
     {
         public string Payload { get; set; }
-        public string[] Params { get; set; }
-        public string Name { get; set; }       
+        public string[] Params { get; set; } 
     }
 
     public class DiskCommandHandler : BotCommandHandler<Disk>
@@ -26,19 +26,20 @@ namespace MissDataMaiden.Commands
             CurrentRequest = new SqlRawQuery(disk.Payload);
         }
         
-        public override Disk Model { get; set; }
+        
 
         public override async Task BeforeComamandHandle(IContext<Disk> context)
         {
             await context.Response.SendHandlingStart(); 
         }
-        public override async Task HandleAsync(IContext<Disk> context, Disk data)
+
+        public override async Task HandleAsync(IContext<Disk> context)
         {
-            Model = data;
+            Command = context.Data;
             var res = await
                 context.Response.WriteMessageAsync(this, default);
                 
-        }        
+        }     
 
         //public override BotCommand<Disk> GetDataForHandle()
         //    => new BotCommand<Disk>() { Command = Context.Data.Get<Message>().Command };

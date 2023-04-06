@@ -8,19 +8,23 @@ namespace MissBot.Handlers
 {
     public class MessageHandler : BaseHandler<Message>
     {
-        protected override IHandleContext Context { get; set; }
-
+        
         public  Message GetDataForHandle()
-            => Context.ContextData.Get<Message>();
+            => Context.Get<Message>();
 
 
         public bool ItCanBeHandled(IHandleContext context)
-            => Context.ContextData.Get<UpdateType>() is UpdateType.Message;
+            => Context.Get<UpdateType>() is UpdateType.Message;
 
-        public override Task StartHandleAsync(Message data, IHandleContext context)
+        public  Task ExecuteAsync(Message data, IHandleContext context)
         {
             Console.WriteLine(data.Text);
             return Task.CompletedTask;
+        }
+
+        public override Task ExecuteAsync(CancellationToken cancel = default)
+        {
+            throw new NotImplementedException();
         }
         //data.ChatId,
         //"*PONG*"//,

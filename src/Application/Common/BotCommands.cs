@@ -46,6 +46,7 @@ namespace MissBot.Common
     {
         public string CustomParams { get; set; }
         public string Payload { get; set; }
+        public string Name { get; set; }
         string[] IBotCommandData.Params { get; set; }
 
         public record Cmd(string name);

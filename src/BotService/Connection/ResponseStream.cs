@@ -5,7 +5,7 @@ using MissCore.Data.Context;
 
 namespace BotService.Connection
 {
-    internal class ResponseStream : Context, IResponseStream
+    internal class ResponseStream : Context, IResponseStream 
     {
         IMediator mediator;
         Message<object> message;

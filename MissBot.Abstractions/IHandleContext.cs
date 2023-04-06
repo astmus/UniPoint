@@ -1,15 +1,20 @@
 namespace MissBot.Abstractions
 {
-    public interface IContextHandler<T> : IAsyncHandler where T: IUpdateInfo
+    public interface IContextHandler<T>  where T: IUpdateInfo
     {
         void SetupContext(IContext context, T update);
     }
-    public interface IHandleContext
-    {
-        IBotServicesProvider BotServices { get; }
-        IContext ContextData { get; }
+
+    public interface IHandleContext : IContext
+    {        
+        IBotServicesProvider BotServices { get; set; }        
         T NextHandler<T>() where T : IAsyncHandler;
-        IUpdateInfo Update { get; }
+        IHandleContext SetupData<T>(IContext context, T data);
+    }
+
+    public interface IUpdate<TUpdate> : IUpdateInfo
+    {
+        TUpdate Data { get; }
     }
 
     public interface IUpdateInfo

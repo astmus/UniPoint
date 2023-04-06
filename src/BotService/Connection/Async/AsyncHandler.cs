@@ -5,16 +5,18 @@ namespace BotService.Connection.Async
 {
     public abstract class AsyncBotHandler<TUpdate> : IAsyncHandler where TUpdate : class, IHandleContext
     {
-        protected HandleDelegate handler;
+        protected AsyncHandler handler;
         public uint Id { get; set; }
         public bool IsHandled { get; set; }
+        public ExecuteHandler ExecuteHandler { get; }
+        public AsyncHandler AsyncHandler { get; }
 
         protected IContext<TUpdate> context;
         protected TUpdate data;
-        public void SetHandle(HandleDelegate handle)
+        public void SetHandle(AsyncHandler handle)
             => handler = handle;
         public abstract Task HandleAsync(TUpdate data, IHandleContext context, CancellationToken cancel);
-        public abstract Task ExecuteAsync(IHandleContext context, HandleDelegate next);
+        public abstract Task ExecuteAsync(IHandleContext context, AsyncHandler next);
     }
     public abstract class UpdateHandler<TUpdate> : AsyncBotHandler<TUpdate> where TUpdate : class, IHandleContext
     {

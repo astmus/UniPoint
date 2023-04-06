@@ -1,3 +1,4 @@
+using System.Globalization;
 using Telegram.Bot.Types;
 
 namespace MissBot.Extensions.Entities
@@ -13,11 +14,11 @@ namespace MissBot.Extensions.Entities
             if (message.Contains(" "))
             {
                 var items = message.Split("--");
-                return (items[0], items[1..]);
+                return (items[0].Substring(1), items[1..]);
                 //return (items[0], items[1..^1]);
             }
             else
-                return (message, null);
+                return (message.Substring(1), null);
         }
         //public static string[] GetArgs(this InlineQuery query)
         //    => query.Query.Contains("--") ? query.Query.Split("--") : new string[] { query.Query };

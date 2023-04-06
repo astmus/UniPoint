@@ -6,18 +6,16 @@ namespace MissCore.Handlers
 
     public abstract class ContextHandler<T> : IContextHandler<T> where T:IUpdateInfo
     {
-        public async Task ExecuteAsync(IHandleContext context, HandleDelegate next)
+        public async Task ExecuteAsync(IHandleContext context, AsyncHandler next)
         {
-            if (context.Update is T update)
+            if (context.GetAny<Update>() is IUpdate<T> update)
             {
-                SetupContext(context.ContextData, update);
+                SetupContext(context, update.Data);
             }
             await next(context).ConfigureAwait(false);
         }
 
-        public abstract void SetupContext(IContext context, T update);
-
-   
+        public abstract void SetupContext(IContext context, T update);   
     }
 
 }

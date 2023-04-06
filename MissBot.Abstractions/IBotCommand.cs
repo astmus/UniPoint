@@ -5,6 +5,7 @@ namespace MissBot.Abstractions
     {
         string Payload { get; set; }
         string[] Params { get; set; }
+        string Name { get; set; }
     }
 
     public interface IBotCommandInfo

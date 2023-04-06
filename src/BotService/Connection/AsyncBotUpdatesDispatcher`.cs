@@ -29,11 +29,11 @@ namespace BotService.Connection
                 {
                     log.WriteJson(update.GetType().FullName);
                     var scope = Factory.Init(ScopePredicate(update));
-                    var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
+                    var handler = scope.ServiceProvider.GetRequiredService<IAsyncUpdateHandler<TUpdate>>();
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-                    ctx.Set(update);
+                    ctx.Data = update;
                     ctx.Set(scope.ServiceProvider);
-                    await handler.HandleAsync(ctx, update).ConfigFalse();                    
+                    await handler.HandleUpdateAsync(update, ctx).ConfigFalse();                    
                 };
             }
             catch (Exception e)

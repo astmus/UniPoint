@@ -1,5 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Attributes;
+using MissBot.Handlers;
 using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Entities;
@@ -19,15 +20,26 @@ namespace MissDataMaiden
         private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
-        public class ContextHandler : ContextHandler<Update<MissDataMaid>>
+        public class UpdateHandler : BotCommandHandler, IAsyncUpdateHandler<Update<MissDataMaid>>
         {
-            IBotServicesProvider BotServices;
-            public ContextHandler(IBotBuilder<MissDataMaid> builder)
+            private readonly IBotBuilder<MissDataMaid> builder;
+            AsyncHandler handleDelegate;
+            public UpdateHandler(IBotBuilder<MissDataMaid> builder)
             {
-                BotServices = builder.BotServicesProvider();
+                this.builder = builder;
             }
 
-            public override void SetupContext(IContext context, Update<MissDataMaid> update)
+            public Update<MissDataMaid> Update { get; set; }
+
+            public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
+            {
+                context.BotServices ??= builder.BotServicesProvider();
+                context.Data = update;
+                handleDelegate ??= builder.BuildHandler();
+                await handleDelegate(context);
+            }
+
+            public  void SetupContext(IContext context, Update<MissDataMaid> update)
             {
                 context.Set(update);
                 //context.Set(update.Message.From);
