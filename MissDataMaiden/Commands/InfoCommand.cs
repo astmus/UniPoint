@@ -1,22 +1,22 @@
 using MediatR;
 using MissBot.Abstractions;
 using MissBot.Handlers;
+using MissCore.Entities;
 using MissDataMaiden.Queries;
 using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
-    public class Info : BotCommand, IBotCommandData
-    {        
-        public string Payload { get; set; }
-        public string[] Params { get; set; }
-        public string Name { get; set; }
+    public record Info : BotCommand<BotEntity<Info>.Unit>, IBotCommandData
+    {     
+        
+
     }
 
     internal class InfoCommandHadler : BotCommandHandler<Info>
     {
 
-        SqlRawQuery CurrentRequest { get; set; }
+        SqlRaw<Info>.Query CurrentRequest { get; set; }
    
         public IConfiguration Config { get; }
 
@@ -138,7 +138,7 @@ namespace MissDataMaiden.Commands
         //}
         
 
-        public override Task HandleAsync(IContext<Info> context, Info data)
+        public override Task HandleAsync(IContext<Info> context)
         {
             throw new NotImplementedException();
         }

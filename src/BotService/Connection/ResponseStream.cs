@@ -1,5 +1,6 @@
 using BotService.Common;
 using MediatR;
+using MissBot.Abstractions;
 using MissBot.Commands;
 using MissCore.Data.Context;
 
@@ -8,7 +9,7 @@ namespace BotService.Connection
     internal class ResponseStream : Context, IResponseStream 
     {
         IMediator mediator;
-        Message<object> message;
+       // Message<BaseEntity.Unit<object>> message;
         public ResponseStream(IMediator mm)
         {
 
@@ -19,12 +20,12 @@ namespace BotService.Connection
             throw new NotImplementedException();
         }
 
-        public Task FlushAsync(CancellationToken cancel)
-        {
-            var items = from value in this select value.Value.ToStringJson();
-            message.Text = string.Join("\n", items);
-            return mediator.Send(message.Update(),cancel);
-        }
+        //public Task FlushAsync(CancellationToken cancel)
+        //{
+        //    var items = from value in this select value.Value.ToStringJson();
+        //    message.Text = string.Join("\n", items);
+        //    return mediator.Send(message.Update(),cancel);
+        //}
 
         public Task OpenAsync()
         {

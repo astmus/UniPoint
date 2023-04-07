@@ -39,14 +39,19 @@ namespace MissDataMaiden
         public Task HandleCommandAsync<TCommand>(IContext<TCommand> context) where TCommand : class, IBotCommandData
         {
             context.BotServices = sp;
+            
             var handler = sp.GetRequiredService<IAsyncHandler<TCommand>>() as BotCommandHandler<TCommand>;
             return handler.HandleAsync(context);
         }
 
         public Task HandleAsync<TCommand>(IHandleContext context) where TCommand : class, IBotCommandData
         {
+            var upd = context.GetAny<Update<MissDataMaid>>();
+
             var cmdCtx = context.BotServices.GetRequiredService<IContext<TCommand>>();
-            cmdCtx.Set(context.GetAny<Update>());
+            cmdCtx.Set(upd);
+            cmdCtx.Set(upd.Message);
+            cmdCtx.Set(upd.Chat);
             return HandleCommandAsync<TCommand>(cmdCtx);
         }
     }

@@ -5,12 +5,14 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Commands
+namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record SendResponse<TResponse> : BaseRequest<Message<TResponse>>
+    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>>
     {
-		/// <inheritdoc />
+        [JsonIgnore]
+        public Message<TResponse> Message { get; set; }
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public ChatId ChatId { get; }
 
@@ -67,11 +69,11 @@ namespace MissBot.Commands
         /// (in the format <c>@channelusername</c>)
         /// </param>
         /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
-        public SendResponse(ChatId chatId, string text)
+        public ResponseRequest(ChatId chatId)
             : base("sendMessage")
         {
             ChatId = chatId;
-            Text = text;
+            Text = nameof(TResponse);
         }
     }
 }

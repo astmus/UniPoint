@@ -1,20 +1,19 @@
 
 
 using System.Collections.Generic;
-using MissBot.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Commands
+namespace MissBot.Abstractions
 {
     /// <summary>
     /// Use this method to edit text and game messages. On success the edited <see cref="Message"/> is returned.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record EditMessageRequest<TEntity> : BaseRequest<TEntity>  where TEntity:Message
+    public record UpdateDataRequest<TEntity> : BaseRequest<TEntity>
     {
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
@@ -59,12 +58,12 @@ namespace MissBot.Commands
         /// </param>
         /// <param name="messageId">Identifier of the message to edit</param>
         /// <param name="text">New text of the message, 1-4096 characters after entities parsing</param>
-        public EditMessageRequest(ChatId chatId, int messageId, string text)
+        public UpdateDataRequest(ChatId chatId, int messageId, TEntity data = default)
             : base("editMessageText")
         {
             ChatId = chatId;
             MessageId = messageId;
-            Text = text;
+            Text = data.ToString();// .Select(d=> d.ToString()).SelectMany(sm=> sm+Environment.NewLine).ToString();
         }
     }
 }

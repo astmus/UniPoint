@@ -15,7 +15,7 @@ namespace MissDataMaiden
             botHost.AddBot<MissDataMaid>()
                 .UseCommndFromAttributes()
                 .UseUpdateHandler<MissDataMaid.UpdateHandler>()
-                .UseCommandHandler<MissDataMaid.UpdateHandler>()
+                //.UseCommandHandler<MissDataMaid.UpdateHandler>()
                     .UseMediator()
                     .UseLogging()                    
                     .Use<ExceptionHandler>()                    

@@ -5,39 +5,73 @@ using MissDataMaiden.Queries;
 using Duende.IdentityServer.Services;
 using Telegram.Bot.Types.ReplyMarkups;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MissCore.Entities;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using MediatR;
 
 namespace MissDataMaiden.Commands
 {
 
-    public record Disk :  IBotCommandData
+    public record Disk :  BotCommand<Unit>
     {
-        public string Payload { get; set; }
-        public string[] Params { get; set; } 
+        [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+        public record DataUnit : Unit
+        {
+            public string Name { get; set; }
+            public string Created { get; set; }
+            public int DaysAgo { get; set; }
+            public double Size { get; set; }
+        }
+
+        public record Query(string sql) : SqlRaw<DataUnit>.Query(sql);
+        public class Handler : SqlRaw<DataUnit>.Handler<Query>
+        {
+            public Handler(IConfiguration config) : base(config)
+            {
+            }
+        }
     }
 
     public class DiskCommandHandler : BotCommandHandler<Disk>
     {
-        SqlRawQuery CurrentRequest;        
+        private readonly IConfiguration config;
+        SqlRaw<Disk.DataUnit>.Query CurrentRequest;        
 
         public DiskCommandHandler(IConfiguration config)
         {
-            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
+            //var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
             
-            CurrentRequest = new SqlRawQuery(disk.Payload);
+            this.config = config;
         }
         
         
 
-        public override async Task BeforeComamandHandle(IContext<Disk> context)
-        {
-            await context.Response.SendHandlingStart(); 
-        }
+        //public override async  Task BeforeComamandHandle(IContext<Disk> context)
+        //{
+        //    Disk.CommandResult response = context.Scope.Result;
+            
+        //    await response.SendHandlingStart(); 
+        //}
 
         public override async Task HandleAsync(IContext<Disk> context)
         {
-            Command = context.Data;
-            var res = await
-                context.Response.WriteMessageAsync(this, default);
+            Command = context.Scope;
+            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
+            var response = context.CreateResponseChannel<Disk.CommandResult>(context);
+            response.Context = context;
+            await response.SendHandlingStart();
+            //var srv = context.BotServices .Get<IBotServicesProvider>();
+            var mm = context.BotServices.GetService<IMediator>();
+            //Disk.Result result = context.CreateResponse<Disk.Result>(null);
+          //  context.Response = new Disk.Result();
+            
+            await foreach (var obj in mm.CreateStream(new Disk.Query(disk.Payload)))
+            {
+                response.Write(obj);
+            }
+
+            await response.Commit(default);
                 
         }     
 

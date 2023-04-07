@@ -7,7 +7,6 @@ public class Update : TG, IUpdateInfo, IUpdateCallbackQuery, IUpdateChannelPost,
 {
     [JsonProperty("update_id", Required = Required.Always)]
     public uint UpdateId { get; init; }
-    public bool IsHandled { get; set; }
-    public IBotCommandData BotCommand { get; set; }
+    public bool IsHandled { get; set; }    
 }
 

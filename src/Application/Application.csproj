@@ -9,10 +9,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Interfaces\**" />
       <Compile Remove="TodoItems\**" />
       <Compile Remove="TodoLists\**" />
+      <EmbeddedResource Remove="Interfaces\**" />
       <EmbeddedResource Remove="TodoItems\**" />
       <EmbeddedResource Remove="TodoLists\**" />
+      <None Remove="Interfaces\**" />
       <None Remove="TodoItems\**" />
       <None Remove="TodoLists\**" />
     </ItemGroup>
@@ -34,7 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Interfaces\" />
       <Folder Include="Presentation\" />
     </ItemGroup>
 

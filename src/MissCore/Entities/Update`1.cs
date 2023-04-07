@@ -7,9 +7,13 @@ namespace MissCore.Entities
     public class Update<TEntity> : Update, IUpdateInfo, IUpdate<TEntity>
     {
         public string Text
-            => Message?.Text;
-        public Chat Chat
-        => Message?.Chat ?? EditedMessage?.Chat;
+            => UniMessage.Text;
+        public Telegram.Bot.Types.Chat Chat
+        => UniMessage.Chat;
+
+        public Message UniMessage
+            => Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
+
         public IResponseChannel Response { get; internal set; }
         public TEntity Data { get; set; }
         public bool IsCommand => this switch

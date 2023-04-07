@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using MissBot.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;

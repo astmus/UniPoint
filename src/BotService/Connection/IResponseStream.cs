@@ -6,6 +6,6 @@ namespace BotService.Connection
         Task WriteAsync<T>(T value);
         Task OpenAsync();
         Task CloseAsync();
-        Task FlushAsync(CancellationToken cancel);
+      //  Task FlushAsync(CancellationToken cancel);
     }
 }

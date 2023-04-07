@@ -1,9 +1,10 @@
 using MissBot.Abstractions;
 using MissBot.Handlers;
+using MissCore.Entities;
 
 namespace MissDataMaiden
 {
-    public class List : IBotCommandData
+    public record List : BotCommand<BotEntity<List>.Unit>
     {
         public string Payload { get; set; }
         public string[] Params { get; set; }
@@ -32,8 +33,9 @@ namespace MissDataMaiden
         //}
         //public override BotCommand<List> GetDataForHandle()
         //    => new BotCommand<List>() { Command = Context.Data.Get<Message>().Command };
+              
 
-        public override Task HandleAsync(IContext<List> context, List data)
+        public override Task HandleAsync(IContext<List> context)
         {
             throw new NotImplementedException();
         }

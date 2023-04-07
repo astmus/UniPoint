@@ -20,7 +20,7 @@ namespace MissDataMaiden
         private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
-        public class UpdateHandler : BotCommandHandler, IAsyncUpdateHandler<Update<MissDataMaid>>
+        public class UpdateHandler :  IAsyncUpdateHandler<Update<MissDataMaid>>
         {
             private readonly IBotBuilder<MissDataMaid> builder;
             AsyncHandler handleDelegate;
@@ -31,23 +31,16 @@ namespace MissDataMaiden
 
             public Update<MissDataMaid> Update { get; set; }
 
-            public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
+            public  Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
             {
                 context.BotServices ??= builder.BotServicesProvider();
-                context.Data = update;
+                context.Scope = update;
                 handleDelegate ??= builder.BuildHandler();
-                await handleDelegate(context);
-            }
-
-            public  void SetupContext(IContext context, Update<MissDataMaid> update)
-            {
-                context.Set(update);
-                //context.Set(update.Message.From);
-                //context.Set(update.Message.Type);
-                context.Set(update.Chat);
-                //context.Set(update.Message.Entities);
-                //context.Set(update.Message.EntityValues);
-            }
+                
+                return Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
+                    => await handleDelegate(ctx), context, false));
+                //await handleDelegate(context);
+            }          
         }
 
         public User BotInfo { get; set; }
@@ -77,6 +70,4 @@ namespace MissDataMaiden
                     .SetToken(Environment.GetEnvironmentVariable("JarviseKey", EnvironmentVariableTarget.User))
                     .SetTimeout(TimeSpan.FromMinutes(2));
          }
-
-
 }

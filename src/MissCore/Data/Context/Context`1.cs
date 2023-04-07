@@ -10,14 +10,11 @@ namespace MissCore.Data.Context
         public Context()
             => Current = this;
         
-        public TScope Data {
+        public TScope Scope {
             get=> Get<TScope>();
             set=> Set(value);
             }
-
-        public IResponseChannel Response
-            => scoped.GetRequiredService<IResponseChannel>();
-
+ 
         public IBotServicesProvider BotServices { get; set; }
 
         IServiceProvider scoped;
@@ -39,5 +36,7 @@ namespace MissCore.Data.Context
         {
             return BotServices.GetService<T>();            
         }
+
+        
     }
 }

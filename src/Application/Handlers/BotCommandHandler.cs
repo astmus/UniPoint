@@ -3,38 +3,38 @@ using MissBot.Abstractions;
 
 namespace MissBot.Handlers
 {
-    public class BotCommandHandler : IAsyncBotCommandHandler
-    {
+    //public class BotCommandHandler : IAsyncBotCommandHandler
+    //{
 
-        public Task HandleAsync(IHandleContext context, IBotCommandData command)
-        => HandleCommandAsync(null, command);
+    //    public Task HandleAsync(IHandleContext context, IBotCommandData command)
+    //    => HandleCommandAsync(context);
 
-        public  async Task HandleCommandAsync<TCommand>(IContext<TCommand> context) where TCommand:class,IBotCommandData
-        {
-            var ctx = context.BotServices.GetService<IContext<TCommand>>();
-            ctx.Response.SetContext(context);
-            var handler = context.BotServices.GetRequiredService<IAsyncHandler<TCommand>>();
-            ctx.Data = Activator.CreateInstance<TCommand>();
+    //    public  async Task HandleCommandAsync<TCommand>(IContext<TCommand> context) where TCommand:class,IBotCommandData
+    //    {
+    //        var ctx = context.BotServices.GetService<IContext<TCommand>>();
+    //        ctx.Response.SetContext(context);
+    //        var handler = context.BotServices.GetRequiredService<IAsyncHandler<TCommand>>();
+    //        ctx.Data = Activator.CreateInstance<TCommand>();
 
-            //await BeforeComamandHandle(ctx).ConfigureAwait(false);
-            try
-            {
+    //        //await BeforeComamandHandle(ctx).ConfigureAwait(false);
+    //        try
+    //        {
             
-                await handler.HandleAsync(ctx);
-                //await AfterComamandHandle(ctx).ConfigureAwait(false);
-            }
-            catch (Exception error)
-            {
-                Console.WriteLine(error.Message);
-               // await OnComamandFailed(ctx, error);
-            }
-        }
+    //            await handler.HandleAsync(ctx);
+    //            //await AfterComamandHandle(ctx).ConfigureAwait(false);
+    //        }
+    //        catch (Exception error)
+    //        {
+    //            Console.WriteLine(error.Message);
+    //           // await OnComamandFailed(ctx, error);
+    //        }
+    //    }
 
-        Task IAsyncBotCommandHandler.HandleAsync<TCommand>(IHandleContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    Task IAsyncBotCommandHandler.HandleAsync<TCommand>(IHandleContext context)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 
     public abstract class BotCommandHandler<TCommand> :  IAsyncHandler<TCommand> where TCommand : class, IBotCommandData
     {
