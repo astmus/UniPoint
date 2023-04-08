@@ -12,11 +12,11 @@ namespace MissCore.Configuration
 
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
 
-        IBotBuilder Use<THandler>() where THandler : class, IAsyncHandler;
+        IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler;
 
         IBotBuilder Use<THandler>(THandler handler) where THandler :class, IAsyncHandler;
 
-        IBotBuilder Use<TCommand, THandler>() where THandler :class, IAsyncHandler<TCommand> where TCommand :class, IBotCommandData;
+        IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
         AsyncHandler BuildHandler();
         void Build();
     }
@@ -24,6 +24,7 @@ namespace MissCore.Configuration
     {
         IServiceCollection BotServices { get; }
         IBotServicesProvider BotServicesProvider();
+        IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;
         IBotBuilder<TBot> UseCommndFromAttributes();
         IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<Update<TBot>>;
         IBotBuilder<TBot> UseCommandHandler<THandler>() where THandler : class, IAsyncBotCommandHandler;

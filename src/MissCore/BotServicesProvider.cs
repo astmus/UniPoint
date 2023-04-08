@@ -13,11 +13,7 @@ namespace MissCore
     {
         IServiceProvider sp;
         public BotServicesProvider(IServiceProvider spr)
-            => sp = spr;
-        public IBotServicesProvider CreateScope()
-        {
-            throw new NotImplementedException();
-        }
+            => sp = spr;       
 
         public T GetRequiredService<T>()
             => sp.GetRequiredService<T>();

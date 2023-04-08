@@ -8,7 +8,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record SendResponse<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IEnumerable<IResponseResult>
+    public record SendResponse<TResponse> : BaseRequest<Message<TResponse>>
     {
         [JsonIgnore]
         TResponse ResponseData { get; set; }

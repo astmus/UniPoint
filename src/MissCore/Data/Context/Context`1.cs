@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
@@ -10,7 +11,7 @@ namespace MissCore.Data.Context
         public Context()
             => Current = this;
         
-        public TScope Scope {
+        public TScope Data {
             get=> Get<TScope>();
             set=> Set(value);
             }
@@ -32,11 +33,14 @@ namespace MissCore.Data.Context
             return this;
         }
 
-        public T NextHandler<T>() where T : IAsyncHandler
-        {
-            return BotServices.GetService<T>();            
-        }
+        public T NextHandler<T>() where T : class
+            => BotServices.GetService<T>();                    
 
-        
+        public IResponseChannel Create()
+        {
+            var res = BotServices.GetRequiredService<IResponseChannel>();
+            res.SetContext(this);
+            return res;
+        }
     }
 }

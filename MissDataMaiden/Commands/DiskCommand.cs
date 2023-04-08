@@ -1,5 +1,4 @@
 using MissBot.Attributes;
-using MissBot.Handlers;
 using MissBot.Abstractions;
 using MissDataMaiden.Queries;
 using Duende.IdentityServer.Services;
@@ -13,7 +12,7 @@ using MediatR;
 namespace MissDataMaiden.Commands
 {
 
-    public record Disk :  BotCommand<Unit>
+    public record Disk :  BotCommand<Disk.DataUnit>
     {
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
         public record DataUnit : Unit
@@ -54,13 +53,15 @@ namespace MissDataMaiden.Commands
         //    await response.SendHandlingStart(); 
         //}
 
-        public override async Task HandleAsync(IContext<Disk> context)
+        public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
-            Command = context.Scope;
-            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
-            var response = context.CreateResponseChannel<Disk.CommandResult>(context);
-            response.Context = context;
+
+            IResponseChannel response = context.Create();
+
             await response.SendHandlingStart();
+            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
+            context.Data.Result.Write(new Disk.DataUnit() { });
+            
             //var srv = context.BotServices .Get<IBotServicesProvider>();
             var mm = context.BotServices.GetService<IMediator>();
             //Disk.Result result = context.CreateResponse<Disk.Result>(null);
@@ -68,10 +69,10 @@ namespace MissDataMaiden.Commands
             
             await foreach (var obj in mm.CreateStream(new Disk.Query(disk.Payload)))
             {
-                response.Write(obj);
+                context.Data.Result.Write(obj);
             }
 
-            await response.Commit(default);
+            await response.WriteAsync(context.Data.Result, default);
                 
         }     
 

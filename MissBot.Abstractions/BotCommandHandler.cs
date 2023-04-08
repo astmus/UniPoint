@@ -1,7 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using MissBot.Abstractions;
-
-namespace MissBot.Handlers
+namespace MissBot.Abstractions
 {
     //public class BotCommandHandler : IAsyncBotCommandHandler
     //{
@@ -19,7 +16,7 @@ namespace MissBot.Handlers
     //        //await BeforeComamandHandle(ctx).ConfigureAwait(false);
     //        try
     //        {
-            
+
     //            await handler.HandleAsync(ctx);
     //            //await AfterComamandHandle(ctx).ConfigureAwait(false);
     //        }
@@ -36,14 +33,13 @@ namespace MissBot.Handlers
     //    }
     //}
 
-    public abstract class BotCommandHandler<TCommand> :  IAsyncHandler<TCommand> where TCommand : class, IBotCommandData
+    public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : IBotCommand
     {
-        public TCommand Command { get; set; } = Activator.CreateInstance<TCommand>();
         public ExecuteHandler ExecuteHandler { get; }
         public AsyncHandler AsyncHandler { get; }
 
         public AsyncGenericHandler<TCommand> GenericHandler
-            => HandleAsync; 
+            => HandleAsync;
 
         public virtual Task BeforeComamandHandle(IContext<TCommand> context)
                 => Task.CompletedTask;
@@ -52,7 +48,21 @@ namespace MissBot.Handlers
         public virtual Task OnComamandFailed(IContext<TCommand> context, Exception error)
             => Task.CompletedTask;
 
-        public abstract Task HandleAsync(IContext<TCommand> context);
-        
+        public async Task HandleAsync(IContext<TCommand> context)
+        {
+            try
+            {                
+                await BeforeComamandHandle(context).ConfigureAwait(false);
+                await RunAsync(context.Data, context);
+                await AfterComamandHandle(context).ConfigureAwait(false);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.Message);
+                await OnComamandFailed(context, error);
+            }
+        }
+
+        public abstract Task RunAsync(TCommand command, IContext<TCommand> context);
     }
 }

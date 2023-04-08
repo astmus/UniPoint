@@ -8,7 +8,7 @@ using TG = Telegram.Bot.Types.Chat;
 /// </summary>
 namespace MissBot.Abstractions
 {
-    public class Chat : TG
+    public class ChatTyped : TG
     {
         public IRequest<Message<TEntity>> GetResponse<TEntity>()
                 => new ResponseRequest<TEntity>(Id);

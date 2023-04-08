@@ -6,7 +6,7 @@ namespace MissBot.Abstractions
         T Get<T>(Predicate<string> filter = null);
         T Get<T>();
         T Get<T>(string name);
-        TAny GetAny<TAny>();
+        TAny Any<TAny>();
         T Set<T>(T value, string name = null);
     }
 }

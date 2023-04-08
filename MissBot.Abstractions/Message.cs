@@ -12,7 +12,7 @@ namespace MissBot.Abstractions
             => new UpdateDataRequest<TEntity>(Chat.Id, MessageId, Result);
 
         [JsonProperty(Required = Required.Always)]
-        public new Chat Chat { get; set; }
+        public new ChatTyped Chat { get; set; }
         public TEntity Result { get; set; }
     }
 }

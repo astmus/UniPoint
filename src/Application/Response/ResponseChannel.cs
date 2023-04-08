@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 using MissBot.Commands;
 using MissCore.Abstractions;
 using Telegram.Bot.Types.Enums;
-using TGChat = MissBot.Abstractions.Chat;
+
 
 namespace MissBot.Response
 {
@@ -19,23 +19,23 @@ namespace MissBot.Response
         public async Task WriteAsync<T>(T data, CancellationToken cancel) where T : class
         {
             var message = ctx.Get<Message>();
-           // var responseMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(message.Response<T>(data.ToString()));
-         //   ctx.Set(null);
+            var responseMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(new SendResponse<T>(message.Chat.Id,data.ToString()));
+            ctx.Set(responseMessage);
         }        
 
         public async Task SendHandlingStart()
         {
-            await ctx.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(ctx.Get<TGChat>().SetAction(ChatAction.Typing));
+            await ctx.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(ctx.Any<Telegram.Bot.Types.Chat>().SetAction(ChatAction.Typing));
         }
 
-        //public async Task UpdateAsync<T>(T data, CancellationToken cancel) where T : class
-        //{
-        //    if (ctx.Get<Message<T>>() is Message<T> response)
-        //    {
-        //        response.Text = data.ToString();
-        //        var updatedMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(response.Update());
-        //        ctx.Set(updatedMessage);
-        //    }
-        //}
+        public async Task UpdateAsync<T>(T data, CancellationToken cancel) where T : class
+        {
+            if (ctx.Get<Message<T>>() is Message<T> response)
+            {
+                response.Text = data.ToString();
+                var updatedMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(response.Update());
+                ctx.Set(updatedMessage);
+            }
+        }
     }
 }

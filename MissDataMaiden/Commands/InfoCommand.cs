@@ -1,22 +1,25 @@
 using MediatR;
 using MissBot.Abstractions;
-using MissBot.Handlers;
 using MissCore.Entities;
 using MissDataMaiden.Queries;
 using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
-    public record Info : BotCommand<BotEntity<Info>.Unit>, IBotCommandData
-    {     
+    public record Info : BotCommand<InfoUnit>
+    {
         
+    }
+
+    public record InfoUnit(string s) :  Info.Unit
+    {
 
     }
 
     internal class InfoCommandHadler : BotCommandHandler<Info>
     {
 
-        SqlRaw<Info>.Query CurrentRequest { get; set; }
+        SqlRaw<InfoUnit>.Query CurrentRequest { get; set; }
    
         public IConfiguration Config { get; }
 
@@ -30,6 +33,11 @@ namespace MissDataMaiden.Commands
            
             Config = config;
             
+        }
+
+        public override Task RunAsync(Info command, IContext<Info> context)
+        {
+            throw new NotImplementedException();
         }
         #region Commented
         //public override async Task HandleCommandAsync(Info command, string[] args)
@@ -117,30 +125,6 @@ namespace MissDataMaiden.Commands
         #endregion
 
 
-        //public override async Task StartHandleAsync(Info data, IHandleContext context)
-        //{
-        //    //var cmd = Config.GetSection(nameof(BotCommand)).GetChildren().Where(child
-        //    //    => child.GetSection(CFG_KEY_COMMAND).Value == nameof(Info)).
-        //    //       Select(cmd => new MissCommand<Info>()
-        //    //       {                   
-        //    //           //Command = cmd.GetRequiredSection(CFG_KEY_COMMAND).Value,
-        //    //          // Description = cmd.GetRequiredSection(CFG_KEY_DESCRIPTION).Value,
-        //    //         //  CustomParams = cmd.GetRequiredSection(CFG_KEY_PARAMS).Value
-        //    //       }).FirstOrDefault();
 
-
-        //    CurrentRequest = null;// new SqlRawQuery(cmd.CustomParams);
-        //    connectionString = Config.GetConnectionString("Default");
-        //    using (var src = new CancellationTokenSource())
-        //    {
-        //        var result = await mm.Send(CurrentRequest, src.Token);
-        //    };
-        //}
-        
-
-        public override Task HandleAsync(IContext<Info> context)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

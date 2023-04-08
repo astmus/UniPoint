@@ -8,7 +8,7 @@ namespace MissCore.Handlers
     {
         public async Task ExecuteAsync(IHandleContext context, AsyncHandler next)
         {
-            if (context.GetAny<Update>() is IUpdate<T> update)
+            if (context.Any<Update>() is IUpdate<T> update)
             {
                 SetupContext(context, update.Data);
             }

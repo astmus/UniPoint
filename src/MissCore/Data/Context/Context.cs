@@ -27,7 +27,7 @@ namespace MissCore.Data.Context
             return result;
         }
 
-        public TAny GetAny<TAny>()
+        public TAny Any<TAny>()
         {            
             return this.Where(x=> x.Value is TAny).Select(s=> s.Value).Cast<TAny>().FirstOrDefault();
         }

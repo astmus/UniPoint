@@ -4,15 +4,15 @@ using Telegram.Bot.Types.Enums;
 
 namespace MissCore.Entities
 {
-    public class Update<TEntity> : Update, IUpdateInfo, IUpdate<TEntity>
+    public class Update<TEntity> : Update, IUpdateInfo, IUpdate<TEntity>, ICommonUpdate
     {
         public string Text
-            => UniMessage.Text;
-        public Telegram.Bot.Types.Chat Chat
-        => UniMessage.Chat;
+            => Message.Text;
+        public Chat Chat
+        => Message.Chat;
 
-        public Message UniMessage
-            => Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
+        public new Message Message
+            => base.Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
 
         public IResponseChannel Response { get; internal set; }
         public TEntity Data { get; set; }

@@ -30,13 +30,14 @@ namespace MissCore.Handlers
             await next(Context);
         }
 
-        public abstract Task ExecuteAsync(CancellationToken cancel = default);           
+        public abstract Task ExecuteAsync(CancellationToken cancel = default);
 
         async Task HandleAsync(IHandleContext context)
         {
-            if (context.GetAny<TData>() is TData data)            
+            if (context.Get<TData>() is TData data)
                 await ExecuteHandler();
-            await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
+            else
+                await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
         }
     }
 }

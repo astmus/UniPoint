@@ -8,24 +8,23 @@ using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCommandHandler : BaseHandleComponent, IAsyncBotCommandHandler
+    internal class MissDataCommandHandler :  IAsyncBotCommandHandler
     {
         IMediator mm;
         public MissDataCommandHandler(IMediator mediator)
             => mm = mediator;
 
-        bool isCommand;
-        IBotServicesProvider sp;
-        public override Task ExecuteAsync(IHandleContext context)
+        bool isCommand;        
+        (string command, string[] args) data;
+
+        public Task ExecuteAsync(IHandleContext context)
         {
-            var update = context.GetAny<Update<MissDataMaid>>();
-            string cmd = "cmd";
-            if (isCommand = update.IsCommand)
-            {
-                sp = context.BotServices;               
-                cmd = update.Message.GetCommandAndArgs().command;
-            }
-            return HandleAsync(context, string.Concat(cmd.AsSpan(0,1).ToString().ToUpper(), cmd.AsSpan(1)));;
+            var update = context.Any<Update<MissDataMaid>>();
+            
+            if (isCommand = update.IsCommand)            
+                data = update.Message.GetCommandAndArgs();            
+
+            return HandleAsync(context, data.command);
         }
 
         Task HandleAsync(IHandleContext context, string command) => command switch
@@ -36,23 +35,27 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };
 
-        public Task HandleCommandAsync<TCommand>(IContext<TCommand> context) where TCommand : class, IBotCommandData
-        {
-            context.BotServices = sp;
+  
+
+        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :class, IBotCommand
+        {            
+            var upd = context.Any<ICommonUpdate>();
             
-            var handler = sp.GetRequiredService<IAsyncHandler<TCommand>>() as BotCommandHandler<TCommand>;
-            return handler.HandleAsync(context);
-        }
-
-        public Task HandleAsync<TCommand>(IHandleContext context) where TCommand : class, IBotCommandData
-        {
-            var upd = context.GetAny<Update<MissDataMaid>>();
-
             var cmdCtx = context.BotServices.GetRequiredService<IContext<TCommand>>();
+            cmdCtx.BotServices = context.BotServices;
+            cmdCtx.Data ??= context.Get<TCommand>() ?? ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(context.BotServices);
+            cmdCtx.Data.Params = data.args;
             cmdCtx.Set(upd);
             cmdCtx.Set(upd.Message);
             cmdCtx.Set(upd.Chat);
-            return HandleCommandAsync<TCommand>(cmdCtx);
+
+            var handler = context.BotServices.GetRequiredService<IAsyncHandler<TCommand>>();
+            await handler.HandleAsync(cmdCtx);
+
+            AsyncHandler next = context.Get<AsyncHandler>();            
+            await next(context).ConfigureAwait(false);
+
+            int i = 0;
         }
     }
 }

@@ -31,13 +31,13 @@ namespace MissDataMaiden
 
             public Update<MissDataMaid> Update { get; set; }
 
-            public  Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
+            public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
             {
                 context.BotServices ??= builder.BotServicesProvider();
-                context.Scope = update;
+                context.Data = update;
                 handleDelegate ??= builder.BuildHandler();
                 
-                return Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
+                await Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
                     => await handleDelegate(ctx), context, false));
                 //await handleDelegate(context);
             }          

@@ -7,6 +7,11 @@ namespace MissBot.Abstractions
         string[] Params { get; set; }
     }
 
+    public interface IBotCommand : IBotCommandData, IBotCommandInfo
+    {
+
+    }
+
     public interface IBotCommandInfo
     {
         Type CmdType { get; }

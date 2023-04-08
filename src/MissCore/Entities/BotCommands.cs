@@ -1,14 +1,13 @@
 using MissBot.Abstractions;
-using MissCore.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Telegram.Bot.Types;
 
-
-namespace MissCore.Entities
+namespace MissBot.Common
 {
-
+    
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record BaseBotCommand : BaseEntity, IBotCommandInfo, IBotCommandData
+    public record CommandData : IBotCommandInfo, IBotCommandData
     {
         /// <summary>
         /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
@@ -22,105 +21,28 @@ namespace MissCore.Entities
         [JsonProperty(Required = Required.Always)]
         public string Description { get; set; } = default!;
 
-        static Type _CmdType;
-        public Type CmdType
-            => _CmdType ??= GetType();
-
+        public string CustomParams { get; set; }
         public string Payload { get; set; }
-        public string[] Params { get; set; }
-    }
 
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record BotCommand<TCommand> : BotEntity<TCommand>, IBotCommandInfo, IBotCommandData
-    {
-        /// <summary>
-        /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string Command { get; set; } = default!;
-
-        /// <summary>
-        /// Description of the command, 3-256 characters.
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string Description { get; set; } = default!;
-
-        static Type _CmdType;
-        public Type CmdType
-            => _CmdType ??= GetType();
-
-        public string Payload { get; set; }
         public string[] Params { get; set; }
 
-        public CommandResult Result { get; set; }
+        public Type CmdType => this.CmdType;
 
-        public record CommandResult : Union
-        {
-            public string ErrorMessage { get; set; }
-            //Chat CurrentChat { get; set; }
+        public static implicit operator CommandData(string cmd)
+            => new CommandData($"/{cmd}".Replace("//", "/").ToLower());
+        public static implicit operator string(CommandData cmd)
+            => $"/{cmd.Command}".Replace("//", "/").ToLower();
 
-            //Message<Result> response;
-            //public  async Task SendHandlingStart()
-            //{
-            //    response = await Context.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(new ResponseRequest<Result>(Context.Get<Telegram.Bot.Types.Chat>().Id));
-            //    CurrentChat = response.Chat;
-            //    await Context.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(CurrentChat.SetAction(Telegram.Bot.Types.Enums.ChatAction.Typing));
-            //}
-            
+        public static bool operator ==(string commandA, CommandData commandB)
+        => commandA?.EndsWith(commandB?.Command?.ToLower()) == true ||
+                    commandB?.Command.ToLower().EndsWith(commandA ?? string.Empty) == true;
 
-            //public async Task WriteAsync<T>(T data, CancellationToken cancel) where T : class
-            //{
-            //    await SendHandlingStart();                
-            //    response.Result = this;
-            //    var responseMessage = await Context.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(response.Update(),cancel);
-            //    Context.Set(responseMessage);
-            //}
-          
-            //public async Task UpdateAsync<T>(T data, CancellationToken cancel) where T : class
-            //{
-            //    if (ctx.Get<Message<T>>() is Message<T> responseMessage)
-            //    {
-            //        //responseMessage.Result = data;
-            //        var updatedMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(new EditRequest<T>(responseMessage.Chat.Id, responseMessage.MessageId, data.ToString()));
-            //        ctx.Set(updatedMessage);
-            //    }
-            //}
+        public static bool operator !=(string commandA, CommandData commandB)
+            => commandA?.EndsWith(commandB?.Command?.ToLower()) == false &&
+                 commandB?.Command?.ToLower().EndsWith(commandA ?? string.Empty) == false;
 
-
-
-
-            //public async Task UpdateAsync(CancellationToken cancel)
-            //{
-            //    if (Context.Get<Message<Result>>() is Message<Result> responseMessage)
-            //    {
-            //        var chatResponse = new ResponseRequest<Result>(CurrentChat.Id);
-            //        chatResponse.Message.Result = this;
-            //        /*var updatedMessage = */await Context.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(chatResponse, cancel);
-            //        //ctx.Set(updatedMessage);
-            //    }
-            //}
-
-
-            //public Task SendAsync(TData data, CancellationToken cancel)
-            //{
-            //    return WriteAsync(this, cancel);
-            //}
-
-            //public override Task Commit(CancellationToken cancel)
-            //{               
-            //    return WriteAsync(this, cancel);
-            //}
-
-          
-
-            //public async Task<TResult> CreateResponseAsync<TResult>(IHandleContext context) where TResult:IResponseResultUnit
-            //{
-            //    var response = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(new ResponseRequest<TResult>(ctx.Get<Telegram.Bot.Types.Chat>().Id));
-            //    return response.Result;
-
-            //}
-
-
-        }
     }
+
+
+
 }
