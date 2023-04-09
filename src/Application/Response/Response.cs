@@ -17,9 +17,11 @@ namespace MissBot.Response
 
         public async Task WriteAsync<T>(T data, CancellationToken cancel) where T : class
         {
-            var message = ctx.Get<Message>();
-            var responseMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(new SendResponse<T>(message.Chat.Id,data.ToString()));
-            ctx.Set(responseMessage);
+            var message = ctx.Any<ICommonUpdate>();
+            var response = ctx.BotServices.Response<T>();
+            response.Init(message, ctx.BotServices.GetRequiredService<IBotClient>);
+            
+            await response.Commit(cancel);            
         }        
 
         public async Task SendHandlingStart()
@@ -27,14 +29,22 @@ namespace MissBot.Response
             await ctx.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(ctx.Any<Chat>().SetAction(ChatAction.Typing));
         }
 
-        public async Task UpdateAsync<T>(T data, CancellationToken cancel) where T : class
+        
+        public async Task<IResponseChannel> CreateAsync<T>(T data, CancellationToken cancel) where T : class
         {
-            if (ctx.Get<Message<T>>() is Message<T> response)
-            {
-                response.Text = data.ToString();
-                var updatedMessage = await ctx.BotServices.GetRequiredService<IBotClient>().SendQueryRequestAsync(response.Update());
-                ctx.Set(updatedMessage);
-            }
+            var message = ctx.Any<ICommonUpdate>();
+            var response = ctx.BotServices.Response<T>();
+            return await response.InitAsync(data, message, ctx.BotServices.GetRequiredService<IBotClient>);
+
+            
+        }
+
+        public IResponse<T> Create<T>(T data) where T : class
+        {
+            var message = ctx.Any<ICommonUpdate>();
+            var response = ctx.BotServices.Response<T>();
+            response.Init(message, ctx.BotServices.GetRequiredService<IBotClient>);
+            return response;
         }
     }
 }

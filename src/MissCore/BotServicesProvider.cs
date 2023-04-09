@@ -21,5 +21,8 @@ namespace MissCore
 
         public object? GetService(Type serviceType)
             => sp.GetService(serviceType);
+
+        public IResponse<T> Response<T>()
+            => sp.GetRequiredService<IResponse<T>>();
     }
 }

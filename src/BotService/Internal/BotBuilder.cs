@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
+using MissBot.Common;
 using MissBot.Response;
 using MissCore;using MissCore.Configuration;using MissCore.Data.Context;
 using MissCore.Entities;namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
@@ -37,6 +38,7 @@ using MissCore.Entities;namespace BotService.Internal{    internal class Bot
 
         public IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand        {                        Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
             Services.AddScoped<IResponse, Response>();
+            Services.AddScoped<IResponse<TCommand>, Response<TCommand>>();
             Services.AddScoped<IContext<TCommand>, Context<TCommand>>();
             //_components.Add(
             //    next =>

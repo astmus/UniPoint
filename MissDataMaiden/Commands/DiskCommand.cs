@@ -61,22 +61,23 @@ namespace MissDataMaiden.Commands
 
             IResponse response = context.Response;
 
-            await response.SendHandlingStart();
+  
             
             //context.Data.Result.Write(new Disk.DataUnit() { });
             
             //var srv = context.BotServices .Get<IBotServicesProvider>();
-            var mm = context.BotServices.GetService<IMediator>();
+            var mm = context.Root.BotServices.GetService<IMediator>();
             //Disk.Result result = context.CreateResponse<Disk.Result>(null);
           //  context.Response = new Disk.Result();
+            var result = response.Create(command);
             
             await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
             {
                 //context.Data.Result.Write(obj);
                 command.Result.Write(obj);
             }
-
-            await response.WriteAsync(command.Result, default);
+            result.Write(command.Result);
+            await result.Commit(default);
                 
         }     
 

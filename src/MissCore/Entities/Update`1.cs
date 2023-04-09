@@ -14,7 +14,6 @@ namespace MissCore.Entities
         public new Message Message
             => base.Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
 
-        public IResponse Response { get; internal set; }
         public TEntity Data { get; set; }
         public bool IsCommand => this switch
         {

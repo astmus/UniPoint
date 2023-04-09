@@ -13,9 +13,11 @@ namespace MissBot.Abstractions;
 
 //}
 
-public record EditRequest<TEntity> : SendResponse<TEntity>  where TEntity : IEnumerable<IResponseResult>
+public record EditRequest<TEntity> : ResponseMessage<TEntity>  where TEntity : IEnumerable<IResponseChannel>
 {
-    public EditRequest(ChatId chatId, int messageId, string text) : base(chatId, text)
+    public EditRequest(ChatId chatId, int messageId, string text) : base(text)
     {
     }
+
+    public override ChatId ChatId { get; }
 }

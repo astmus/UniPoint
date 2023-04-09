@@ -52,9 +52,9 @@ namespace MissBot.Abstractions
         public async Task HandleAsync(IContext<TCommand> context)
         {
             try
-            {                
+            {
                 await BeforeComamandHandle(context).ConfigureAwait(false);
-                await RunAsync(context.Get<TCommand>(), context);
+                await RunAsync(context.Data, context);
                 await AfterComamandHandle(context).ConfigureAwait(false);
             }
             catch (Exception error)

@@ -8,9 +8,11 @@ namespace MissBot.Abstractions
     }
 
     public interface IHandleContext : IContext
-    {        
-        IBotServicesProvider BotServices { get; set; }        
+    {
+        IAsyncHandler<T> GetAsyncHandler<T>();
+        IBotServicesProvider BotServices { get; }        
         T NextHandler<T>() where T : class;
+        IContext<T> GetContext<T>();
         IHandleContext SetupData<T>(IContext context, T data);
     }
 
@@ -21,7 +23,7 @@ namespace MissBot.Abstractions
     public interface ICommonUpdate
     {
         Message Message { get; }
-        Chat Chat { get; }
+        Chat Chat { get; }        
     }
 
     public interface IUpdateInfo

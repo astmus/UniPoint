@@ -7,7 +7,7 @@ namespace MissCore.Data.Context
 {
     public class Context : ConcurrentDictionary<string, object>, IContext
     {
-        public static IHandleContext Current { get; protected set; }
+
   
         public T Get<T>(string name)
         {

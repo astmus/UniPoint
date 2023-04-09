@@ -31,7 +31,8 @@ namespace BotService.Connection
                     var scope = Factory.Init(ScopePredicate(update));
                     var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-                    ctx.Set(update);
+                    ctx.Data = update;
+                    //ctx.Set(update);
                     ctx.Set(scope.ServiceProvider);
                     await handler.HandleAsync(ctx).ConfigFalse();                    
                 };

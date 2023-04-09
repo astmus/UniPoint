@@ -27,9 +27,16 @@ namespace MissCore.Handlers
 
         public async Task HandleAsync(IContext<Update<TBot>> context)
         {
-            context.BotServices ??= builder.BotServicesProvider();
-            handleDelegate ??= builder.BuildHandler();
-            await handleDelegate(context).ConfigureAwait(false);
+            handleDelegate = context.Get<AsyncHandler>();
+
+            if (handleDelegate == null)
+            {
+                context.SetServices(builder.BotServicesProvider());
+                handleDelegate = builder.BuildHandler();
+                context.Set(handleDelegate);
+            }
+            
+            await handleDelegate(context.Root).ConfigureAwait(false);
         }
     }    
 }

@@ -9,7 +9,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace MissBot.Commands
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponseResult
+    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponseChannel
     {
         [JsonIgnore]
         public TResponse ResponseData { get; set; }

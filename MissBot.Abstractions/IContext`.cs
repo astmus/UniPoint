@@ -1,9 +1,11 @@
 
 namespace MissBot.Abstractions
 {
-    public interface IContext<TScope> : IContext, IHandleContext
+    public interface IContext<TScope> : IContext
     {
-        //TScope Data { get; set; }
+        void SetServices(IBotServicesProvider botServices);        
+        TScope Data { get; set; }
+        IHandleContext Root { get; set; }
         IResponse Response { get; }
     }
 }

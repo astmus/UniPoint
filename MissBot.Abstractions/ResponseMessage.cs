@@ -8,13 +8,13 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record SendResponse<TResponse> : BaseRequest<Message<TResponse>>
+    public abstract record ResponseMessage<TResponse> : BaseRequest<Message<TResponse>>
     {
         [JsonIgnore]
-        public TResponse Result { get; set; }
+        public Message<TResponse> Result { get; protected set; }
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public ChatId ChatId { get; }
+        public abstract ChatId ChatId { get; }
 
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -26,11 +26,11 @@ namespace MissBot.Abstractions
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Text { get; }
+        public string Text { get; protected set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
 
         /// <inheritdoc cref="Abstractions.Documentation.Entities"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -69,10 +69,8 @@ namespace MissBot.Abstractions
         /// (in the format <c>@channelusername</c>)
         /// </param>
         /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
-        public SendResponse(ChatId chatId, string text = default)
-            : base("sendMessage")
+        public ResponseMessage(string text = default) : base("sendMessage")
         {
-            ChatId = chatId;
             Text = text ?? nameof(TResponse);
         }
     }
