@@ -43,36 +43,40 @@ namespace MissDataMaiden.Commands
             
             this.config = config;
         }
-        
-        
+
+        public override Disk Command
+            => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
+
+
 
         //public override async  Task BeforeComamandHandle(IContext<Disk> context)
         //{
         //    Disk.CommandResult response = context.Scope.Result;
-            
+
         //    await response.SendHandlingStart(); 
         //}
 
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
 
-            IResponseChannel response = context.Create();
+            IResponse response = context.Response;
 
             await response.SendHandlingStart();
-            var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
-            context.Data.Result.Write(new Disk.DataUnit() { });
+            
+            //context.Data.Result.Write(new Disk.DataUnit() { });
             
             //var srv = context.BotServices .Get<IBotServicesProvider>();
             var mm = context.BotServices.GetService<IMediator>();
             //Disk.Result result = context.CreateResponse<Disk.Result>(null);
           //  context.Response = new Disk.Result();
             
-            await foreach (var obj in mm.CreateStream(new Disk.Query(disk.Payload)))
+            await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
             {
-                context.Data.Result.Write(obj);
+                //context.Data.Result.Write(obj);
+                command.Result.Write(obj);
             }
 
-            await response.WriteAsync(context.Data.Result, default);
+            await response.WriteAsync(command.Result, default);
                 
         }     
 

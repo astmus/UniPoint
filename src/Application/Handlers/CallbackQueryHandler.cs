@@ -1,9 +1,7 @@
 using MissBot.Abstractions;
 using MissCore;
-using MissCore.Abstractions;
 using MissCore.Handlers;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace MissBot.Handlers
 {

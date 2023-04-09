@@ -21,7 +21,7 @@ namespace MissBot.Extensions.Entities
         {
             if (message.Contains("/"))
             {
-                var items = message.Split("--");
+                var items = message.Split("--",StringSplitOptions.RemoveEmptyEntries);
                 return (items[0].AsSpan(1).Capitalize(), items[1..]);
             }
             return (null, null);

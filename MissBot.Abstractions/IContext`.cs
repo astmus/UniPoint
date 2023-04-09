@@ -3,7 +3,7 @@ namespace MissBot.Abstractions
 {
     public interface IContext<TScope> : IContext, IHandleContext
     {
-        TScope Data { get; set; }
-        IResponseChannel Create();
+        //TScope Data { get; set; }
+        IResponse Response { get; }
     }
 }

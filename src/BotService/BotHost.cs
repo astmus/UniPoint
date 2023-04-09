@@ -3,7 +3,6 @@ using BotService.Connection;
 using BotService.Internal;
 using MissBot;
 using MissBot.Infrastructure.Persistence;
-using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Data.Context;
 using MissCore.Entities;
@@ -34,7 +33,7 @@ namespace BotService
                                                                                     .AddScoped<IResponseStream, ResponseStream>()
                                                                                     //.AddTransient<IBotHandler<TBot>, BotHandler<TBot>>()
                                                                                     .AddScoped<TBot>()
-                                                                                    .AddScoped<IAsyncHandler<Update<TBot>>, Handler<TBot>>()
+                                                                                    .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance)

@@ -27,8 +27,7 @@ namespace MissBot.Abstractions
 
     public interface IAsyncUpdateHandler<T>
     {
-        T Update { get; set; }
-        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U:T,IUpdateInfo;
+        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U:IUpdate<T>,IUpdateInfo;
     }
 
 

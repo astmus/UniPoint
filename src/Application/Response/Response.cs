@@ -2,13 +2,12 @@ using MediatR;
 using MissBot.Abstractions;
 using Telegram.Bot.Types;
 using MissBot.Commands;
-using MissCore.Abstractions;
 using Telegram.Bot.Types.Enums;
-
+using MissCore.Configuration;
 
 namespace MissBot.Response
 {
-    public class ResponseChannel : IResponseChannel
+    public class Response : IResponse
     {
         IHandleContext ctx;
         public void SetContext(IHandleContext context)
@@ -25,7 +24,7 @@ namespace MissBot.Response
 
         public async Task SendHandlingStart()
         {
-            await ctx.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(ctx.Any<Telegram.Bot.Types.Chat>().SetAction(ChatAction.Typing));
+            await ctx.BotServices.GetRequiredService<IBotClient>().SendCommandAsync(ctx.Any<Chat>().SetAction(ChatAction.Typing));
         }
 
         public async Task UpdateAsync<T>(T data, CancellationToken cancel) where T : class

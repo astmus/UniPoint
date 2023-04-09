@@ -1,7 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Commands;
-using MissBot.Extensions;
-using MissCore.Abstractions;
+using MissCore.Configuration;
 using Telegram.Bot.Types;
 
 namespace BotService.Connection.Extensions

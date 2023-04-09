@@ -41,16 +41,17 @@ namespace MissDataMaiden
         {            
             var upd = context.Any<ICommonUpdate>();
             
-            var cmdCtx = context.BotServices.GetRequiredService<IContext<TCommand>>();
-            cmdCtx.BotServices = context.BotServices;
-            cmdCtx.Data ??= context.Get<TCommand>() ?? ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(context.BotServices);
-            cmdCtx.Data.Params = data.args;
-            cmdCtx.Set(upd);
-            cmdCtx.Set(upd.Message);
-            cmdCtx.Set(upd.Chat);
+            var ctx = context.BotServices.GetRequiredService<IContext<TCommand>>();
+            ctx.BotServices = context.BotServices;
+            //cmdCtx.Data ??= context.Get<TCommand>() ?? ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(context.BotServices);
+            //cmdCtx.Data.Params = data.args;
+            ctx.Set(upd);
+            ctx.Set(upd.Message);
+            ctx.Set(upd.Chat);
 
-            var handler = context.BotServices.GetRequiredService<IAsyncHandler<TCommand>>();
-            await handler.HandleAsync(cmdCtx);
+            var handler = context.BotServices.GetRequiredService<IAsyncHandler<TCommand>>() as BotCommandHandler<TCommand>;
+            ctx.Set(handler.Command).Params = data.args;
+            await handler.HandleAsync(ctx);
 
             AsyncHandler next = context.Get<AsyncHandler>();            
             await next(context).ConfigureAwait(false);

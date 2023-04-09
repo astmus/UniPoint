@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissCore.Abstractions;
+using MissCore.Configuration;
 
 namespace MissCore
 {
@@ -13,7 +8,10 @@ namespace MissCore
     {
         IServiceProvider sp;
         public BotServicesProvider(IServiceProvider spr)
-            => sp = spr;       
+            => sp = spr;
+
+        public IBotClient Client
+            => GetRequiredService<IBotClient>();
 
         public T GetRequiredService<T>()
             => sp.GetRequiredService<T>();

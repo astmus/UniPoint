@@ -6,19 +6,20 @@ namespace MissDataMaiden
 {
     public record List : BotCommand<ListUnit>
     {
-        
+
     }
     public record ListUnit : List.Unit
     {
     }
-        public class ListCommandHadler : BotCommandHandler<List>
-    {    
-        public string Payload { get; set; }       
+    public class ListCommandHadler : BotCommandHandler<List>
+    {
+        public string Payload { get; set; }
         public string[] Params { get; set; }
         public string Name { get; set; }
+        public override List Command { get; }
 
         public override Task RunAsync(List command, IContext<List> context)
-        {        
+        {
             throw new NotImplementedException();
         }
 

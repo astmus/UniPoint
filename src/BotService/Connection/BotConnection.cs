@@ -1,5 +1,3 @@
-using MissBot.Abstractions;
-using MissCore.Abstractions;
 using MissCore.Configuration;
 using Telegram.Bot.Requests;
 using Telegram.Bot.Requests.Abstractions;

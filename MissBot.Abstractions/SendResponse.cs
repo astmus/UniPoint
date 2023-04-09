@@ -11,7 +11,7 @@ namespace MissBot.Abstractions
     public record SendResponse<TResponse> : BaseRequest<Message<TResponse>>
     {
         [JsonIgnore]
-        TResponse ResponseData { get; set; }
+        public TResponse Result { get; set; }
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public ChatId ChatId { get; }

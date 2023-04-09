@@ -1,10 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Attributes;
-using MissBot.Handlers;
-using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Entities;
-using MissCore.Handlers;
 using MissDataMaiden.Commands;
 using Telegram.Bot.Types;
 
@@ -20,31 +17,33 @@ namespace MissDataMaiden
         private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
-        public class UpdateHandler :  IAsyncUpdateHandler<Update<MissDataMaid>>
-        {
-            private readonly IBotBuilder<MissDataMaid> builder;
-            AsyncHandler handleDelegate;
-            public UpdateHandler(IBotBuilder<MissDataMaid> builder)
-            {
-                this.builder = builder;
-            }
+        //public class UpdateHandler :  IAsyncUpdateHandler<Update<MissDataMaid>>, IAsyncUpdateHandler<MissDataMaid>
+        //{
+        //    private readonly IBotBuilder<MissDataMaid> builder;
+        //    AsyncHandler handleDelegate;
+        //    public UpdateHandler(IBotBuilder<MissDataMaid> builder)
+        //    {
+        //        this.builder = builder;
+        //    }
 
-            public Update<MissDataMaid> Update { get; set; }
+        //    public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : IUpdate<Update<MissDataMaid>>, IUpdateInfo
+        //    {
+        //        context.BotServices ??= builder.BotServicesProvider();
+        //        handleDelegate ??= builder.BuildHandler();
 
-            public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : Update<MissDataMaid>, IUpdateInfo
-            {
-                context.BotServices ??= builder.BotServicesProvider();
-                context.Data = update;
-                handleDelegate ??= builder.BuildHandler();
-                
-                await Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
-                    => await handleDelegate(ctx), context, false));
-                //await handleDelegate(context);
-            }          
-        }
+        //        await Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
+        //            => await handleDelegate(ctx), context, false));
+        //        //await handleDelegate(context);
+        //    }
+
+        //    public Task HandleUpdateAsync<U>(U update, IContext<MissDataMaid> context) where U : IUpdate<MissDataMaid>, IUpdateInfo
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
 
         public User BotInfo { get; set; }
-        public Func<Update, string> ScopePredicate
+        public Func<ICommonUpdate, string> ScopePredicate
              => (u) => u is Update<MissDataMaid> upd ? $"{nameof(upd.Chat)}: {upd.Chat.Id}" : "";
 
         public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime)

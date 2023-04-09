@@ -2,7 +2,7 @@ using Telegram.Bot.Types;
 
 namespace MissBot.Abstractions
 {
-    public interface IContextHandler<T>  where T: IUpdateInfo
+    public interface IContextHandler<T>
     {
         void SetupContext(IContext context, T update);
     }

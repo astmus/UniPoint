@@ -8,7 +8,7 @@ namespace MissCore
     public abstract class Bot : IBot
     {
         public abstract User BotInfo { get; set; }
-        public Func<Update, string> ScopePredicate { get; }
+        public Func<ICommonUpdate, string> ScopePredicate { get; }
 
         public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
         public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);

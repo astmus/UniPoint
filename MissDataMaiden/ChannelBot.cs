@@ -1,12 +1,7 @@
-using BotService.Connection;
-using BotService.Interfaces;
 using MissBot.Abstractions;
 using MissBot.Attributes;
-using MissBot.Extensions;
-using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Entities;
-using MissCore.Handlers;
 using MissDataMaiden.Commands;
 using Telegram.Bot.Types;
 
@@ -28,7 +23,7 @@ namespace MissDataMaiden
             => scope.ServiceProvider;
         public User BotInfo { get; set; }
 
-        public Func<global::Update, string> ScopePredicate
+        public Func<ICommonUpdate, string> ScopePredicate
             => (u) => $"{nameof(u.Message.Chat)}: {u.Message.Chat.Id}";
 
         public void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
@@ -43,14 +38,6 @@ namespace MissDataMaiden
         public void SetScope(IServiceScope botScope)
             => scope = botScope;
 
-        public IHandleContext CreateHandleContext<TUpdate>(TUpdate update) where TUpdate : IUpdateInfo
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task CreateHandle<TUpdate>(TUpdate update) where TUpdate : IUpdateInfo
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

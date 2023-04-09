@@ -22,6 +22,7 @@ namespace MissDataMaiden.Commands
         SqlRaw<InfoUnit>.Query CurrentRequest { get; set; }
    
         public IConfiguration Config { get; }
+        public override Info Command { get; }
 
         IMediator mm;
         string connectionString;

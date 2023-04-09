@@ -35,6 +35,7 @@ namespace MissBot.Abstractions
 
     public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : IBotCommand
     {
+        public abstract TCommand Command { get; }
         public ExecuteHandler ExecuteHandler { get; }
         public AsyncHandler AsyncHandler { get; }
 
@@ -53,7 +54,7 @@ namespace MissBot.Abstractions
             try
             {                
                 await BeforeComamandHandle(context).ConfigureAwait(false);
-                await RunAsync(context.Data, context);
+                await RunAsync(context.Get<TCommand>(), context);
                 await AfterComamandHandle(context).ConfigureAwait(false);
             }
             catch (Exception error)

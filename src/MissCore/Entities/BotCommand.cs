@@ -1,9 +1,6 @@
 using MissBot.Abstractions;
-using MissBot.Common;
-using MissCore.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Types;
 
 namespace MissCore.Entities
 {

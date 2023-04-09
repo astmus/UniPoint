@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissCore.Abstractions;
-using MissCore.Entities;
+
 
 namespace MissCore.Configuration
 {
@@ -26,8 +25,8 @@ namespace MissCore.Configuration
         IBotServicesProvider BotServicesProvider();
         IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;
         IBotBuilder<TBot> UseCommndFromAttributes();
-        IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<Update<TBot>>;
+        IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<TBot>;
         IBotBuilder<TBot> UseCommandHandler<THandler>() where THandler : class, IAsyncBotCommandHandler;
-        IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler :class, IAsyncUpdateHandler<Update<TBot>>;
+        IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler :class, IAsyncUpdateHandler<TBot>;
     }
 }

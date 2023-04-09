@@ -9,11 +9,10 @@ using MissCore;
 using MissCore.Abstractions;
 using MissCore.Configuration;
 */
-using MissCore.Configuration;
 using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 
-namespace MissBot.Abstractions
+namespace MissCore.Configuration
 {
     public interface IBotConnection
     {

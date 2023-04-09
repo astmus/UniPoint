@@ -1,13 +1,12 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
 using MissBot.Response;
-using MissCore;
-using MissCore.Abstractions;using MissCore.Configuration;using MissCore.Data.Context;
+using MissCore;using MissCore.Configuration;using MissCore.Data.Context;
 using MissCore.Entities;namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
         }        internal BotBuilder()
-        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        IBotServicesProvider sp;        public IBotServicesProvider BotServicesProvider()            => sp ??= new BotServicesProvider(Instance.Services.BuildServiceProvider());        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<Update<TBot>>        {            Services.AddTransient<IAsyncUpdateHandler<Update<TBot>>, THandler>();
+        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        IBotServicesProvider sp;        public IBotServicesProvider BotServicesProvider()            => sp ??= new BotServicesProvider(Instance.Services.BuildServiceProvider());        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
-            host.ConfigureServices((h, s) => s.AddTransient<IAsyncUpdateHandler<Update<TBot>>, THandler>());            return this;        }
+            host.ConfigureServices((h, s) => s.AddTransient<IAsyncUpdateHandler<TBot>, THandler>());            return this;        }
 
         public IBotBuilder<TBot> UseCommandHandler<THandler>() where THandler : class, IAsyncBotCommandHandler        {            Services.AddScoped<IAsyncBotCommandHandler, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
@@ -16,8 +15,8 @@ using MissCore.Entities;namespace BotService.Internal{    internal class Bot
             _components.Add(
                 next =>
                 context =>
-                     context.NextHandler<IAsyncBotCommandHandler>().ExecuteAsync(context.SetupData(context, next)));            return this;        }        public IBotBuilder<TBot> UseContextHandler<THandler>() where THandler : class, IContextHandler<Update<TBot>>        {            Services.AddSingleton<THandler>();
-            Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);            host.ConfigureServices((h, s) => s.AddSingleton<IContextHandler<Update<TBot>>, THandler>());
+                     context.NextHandler<IAsyncBotCommandHandler>().ExecuteAsync(context.SetupData(context, next)));            return this;        }        public IBotBuilder<TBot> UseContextHandler<THandler>() where THandler : class, IContextHandler<TBot>        {            Services.AddSingleton<THandler>();
+            Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);            host.ConfigureServices((h, s) => s.AddSingleton<IContextHandler<TBot>, THandler>());
             //_components.Add(            //    next =>            //    context =>
             //        context.NextHandler<THandler>().AsyncHandler(context.SetupData(context, next)));            return this;        }
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {            Services.AddScoped<THandler>();            _components.Add(                next =>                context =>                     context.NextHandler<THandler>().AsyncHandler(context.SetupData(context, next)));            return this;        }
@@ -37,13 +36,13 @@ using MissCore.Entities;namespace BotService.Internal{    internal class Bot
 
 
         public IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand        {                        Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
-            Services.AddScoped<IResponseChannel, ResponseChannel>();
+            Services.AddScoped<IResponse, Response>();
             Services.AddScoped<IContext<TCommand>, Context<TCommand>>();
-            _components.Add(
-                next =>
-                context =>
-                     context.BotServices.
-                        GetRequiredService<IAsyncBotCommandHandler>().HandleAsync<TCommand>(context));
+            //_components.Add(
+            //    next =>
+            //    context =>
+            //         context.BotServices.
+            //            GetRequiredService<IAsyncBotCommandHandler>().HandleAsync<TCommand>(context));
             return this;        }
 
         public void Build()

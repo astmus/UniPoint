@@ -1,6 +1,6 @@
 namespace MissBot.Abstractions
 {
-    public interface IResponseChannel
+    public interface IResponse
     {
         Task SendHandlingStart();
         void SetContext(IHandleContext context);

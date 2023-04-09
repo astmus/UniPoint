@@ -1,17 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissCore.Abstractions;
 using MissCore.Configuration;
 using MissCore.Entities;
 
 namespace MissCore.Handlers
 {
-    public class Handler<TBot> : BaseHandleComponent, IAsyncHandler<Update<TBot>> where TBot:class, IBot
+    public class BotUpdateHandler<TBot> : BaseHandleComponent, IAsyncHandler<Update<TBot>> where TBot:class, IBot
     {
         private readonly IBotBuilder<TBot> builder;
         AsyncHandler handleDelegate;
       
-        public Handler(IBotBuilder<TBot> builder)
+        public BotUpdateHandler(IBotBuilder<TBot> builder)
         {            
             //handleDelegate = builder.BuildHandler();
             //botServices = builder.BotServicesProvider();

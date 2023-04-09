@@ -1,9 +1,8 @@
 using System.Reflection;
 using MissBot.Abstractions;
 using MissBot.Attributes;
-using MissCore.Abstractions;
+using MissCore.Configuration;
 using MissCore.Entities;
-using MissCore.Handlers;
 
 namespace MissBot.Handlers
 {
