@@ -37,11 +37,12 @@ namespace MissCore.Data.Context
         public T NextHandler<T>() where T : class
             => Root.BotServices.GetService<T>();
 
-        public IContext<T> GetContext<T>()
+        public IContext<T> GetContext<T>(T data = default)
         {
             var ctx = Root.BotServices.GetService<IContext<T>>();
             ctx.Root = Root;
             ctx.Set(Any<ICommonUpdate>());
+            ctx.Data = data;
             return ctx;
         }
 

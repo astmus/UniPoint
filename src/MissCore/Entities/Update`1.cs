@@ -9,7 +9,7 @@ namespace MissCore.Entities
         public string Text
             => Message.Text;
         public Chat Chat
-        => Message.Chat;
+            => Message?.Chat ?? new Chat() { Id = InlineQuery?.From.Id ?? CallbackQuery?.From.Id ?? ChosenInlineResult.From.Id };
 
         public new Message Message
             => base.Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
@@ -17,7 +17,7 @@ namespace MissCore.Entities
         public TEntity Data { get; set; }
         public bool IsCommand => this switch
         {
-            { Message: { } } when Message.Entities.Any(a => a.Type == MessageEntityType.BotCommand) => true,            
+            { Message: { } } when Message.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,            
             _ => false
         };
     }

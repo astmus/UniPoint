@@ -29,9 +29,7 @@ namespace BotService
         public IBotBuilder<TBot> AddBot<TBot>() where TBot : class, IBot
         {
             hostBuilder.ConfigureServices(services => services
-                                                                                    .AddHostedService<BotClient<TBot>>()
-                                                                                    .AddScoped<IResponseStream, ResponseStream>()
-                                                                                    //.AddTransient<IBotHandler<TBot>, BotHandler<TBot>>()
+                                                                                    .AddHostedService<BotClient<TBot>>()                                                                                    
                                                                                     .AddScoped<TBot>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
@@ -42,7 +40,7 @@ namespace BotService
             buildActions.Add(() => BotBuilder<TBot>.Instance.Build());
             var builder = BotBuilder<TBot>.GetInstance(hostBuilder);
             builder.Services.AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>());
-            builder.Services.AddScoped<IResponseStream, ResponseStream>().AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name);
+            builder.Services.AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name);
             return builder;
         }
 

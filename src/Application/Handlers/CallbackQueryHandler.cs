@@ -5,25 +5,18 @@ using Telegram.Bot.Types;
 
 namespace MissBot.Handlers
 {
-    public class CallbackQueryHandler : BaseHandler<IUpdateCallbackQuery>
+    public class CallbackQueryHandler : BaseHandler<CallbackQuery>
     {
        
 
         public override Task ExecuteAsync(CancellationToken cancel = default)
             => Task.CompletedTask;
 
-        public virtual Task StartHandleAsync(CallbackQuery data, IHandleContext context)
+        public override Task HandleAsync(IContext<CallbackQuery> context)
         {
-            Console.WriteLine($"Unhandled callbackquery {data}");
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
 
-        //data.ChatId,
-        //"*PONG*"//,
-        //ParseMode.Markdown,
-        //replyToMessageId: msg.MessageId,
-        //replyMarkup: new InlineKeyboardMarkup(
-        //    InlineKeyboardButton.WithCallbackData("Ping", "PONG")
-        //)
+        
     }
 }

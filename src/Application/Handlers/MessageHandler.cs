@@ -25,6 +25,11 @@ namespace MissBot.Handlers
         {
             throw new NotImplementedException();
         }
+
+        public override Task HandleAsync(IContext<Message> context)
+        {
+            throw new NotImplementedException();
+        }
         //data.ChatId,
         //"*PONG*"//,
         //ParseMode.Markdown,

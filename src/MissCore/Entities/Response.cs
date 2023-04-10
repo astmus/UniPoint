@@ -24,7 +24,7 @@ namespace MissBot.Common
         {
             message = Result = await Client().SendQueryRequestAsync(this, cancel);
         }
-        public void Init(ICommonUpdate update, BotClientDelegate sender)
+        public void Init(ICommonUpdate update, BotClientDelegate sender, T data = default)
         {
             channel = update.Chat;
             message = update.Message;
@@ -38,6 +38,12 @@ namespace MissBot.Common
         public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
         {            
             WriteUnit(unit);            
+        }
+
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
+        {
+            foreach (var unit in units)
+                Write(unit);
         }
 
         protected virtual Response<T> WriteUnit(Unit<T> unit)

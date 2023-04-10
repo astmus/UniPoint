@@ -34,9 +34,7 @@ namespace MissBot.Response
         {
             var message = ctx.Any<ICommonUpdate>();
             var response = ctx.BotServices.Response<T>();
-            return await response.InitAsync(data, message, ctx.BotServices.GetRequiredService<IBotClient>);
-
-            
+            return await response.InitAsync(data, message, ctx.BotServices.GetRequiredService<IBotClient>);            
         }
 
         public IResponse<T> Create<T>(T data) where T : class

@@ -6,9 +6,7 @@ using MissCore.Data.Identity;
 namespace MissCore.Data.Context
 {
     public class Context : ConcurrentDictionary<string, object>, IContext
-    {
-
-  
+    {  
         public T Get<T>(string name)
         {
             var result = default(T);

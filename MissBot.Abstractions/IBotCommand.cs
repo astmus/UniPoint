@@ -11,7 +11,12 @@ namespace MissBot.Abstractions
     {
 
     }
-
+    public interface IInlineUnit
+    {
+        object[] Content { get; }
+        string Id { get; }
+        string Title { get;  }
+    }
     public interface IBotCommandInfo
     {
         Type CmdType { get; }

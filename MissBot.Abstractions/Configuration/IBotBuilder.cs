@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-
+using Telegram.Bot.Types;
 
 namespace MissCore.Configuration
 {
@@ -32,6 +32,7 @@ namespace MissCore.Configuration
         IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;
         IBotBuilder<TBot> UseCommndFromAttributes();
         IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<TBot>;
+        IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCommandHandler<THandler>() where THandler : class, IAsyncBotCommandHandler;
         IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler :class, IAsyncUpdateHandler<TBot>;
     }

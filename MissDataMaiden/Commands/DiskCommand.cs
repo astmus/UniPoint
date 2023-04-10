@@ -26,7 +26,7 @@ namespace MissDataMaiden.Commands
         }        
 
         public record Query(string sql) : SqlRaw<DataUnit>.Query(sql);
-        public class Handler : SqlRaw<DataUnit>.Handler<Query>
+        public class Handler : SqlRaw<DataUnit>.StreamHandler<Query>
         {
             public Handler(IConfiguration config) : base(config)
             {

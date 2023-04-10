@@ -17,30 +17,6 @@ namespace MissDataMaiden
         private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
-        //public class UpdateHandler :  IAsyncUpdateHandler<Update<MissDataMaid>>, IAsyncUpdateHandler<MissDataMaid>
-        //{
-        //    private readonly IBotBuilder<MissDataMaid> builder;
-        //    AsyncHandler handleDelegate;
-        //    public UpdateHandler(IBotBuilder<MissDataMaid> builder)
-        //    {
-        //        this.builder = builder;
-        //    }
-
-        //    public async Task HandleUpdateAsync<U>(U update, IContext<Update<MissDataMaid>> context) where U : IUpdate<Update<MissDataMaid>>, IUpdateInfo
-        //    {
-        //        context.BotServices ??= builder.BotServicesProvider();
-        //        handleDelegate ??= builder.BuildHandler();
-
-        //        await Task.FromResult(ThreadPool.QueueUserWorkItem<IContext<Update<MissDataMaid>>>(async ctx
-        //            => await handleDelegate(ctx), context, false));
-        //        //await handleDelegate(context);
-        //    }
-
-        //    public Task HandleUpdateAsync<U>(U update, IContext<MissDataMaid> context) where U : IUpdate<MissDataMaid>, IUpdateInfo
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
 
         public User BotInfo { get; set; }
         public Func<ICommonUpdate, string> ScopePredicate

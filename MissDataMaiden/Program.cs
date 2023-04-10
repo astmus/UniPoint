@@ -19,6 +19,7 @@ namespace MissDataMaiden
                     .Use<ExceptionHandler>()                                        
                     .UseCommandHandler<MissDataCommandHandler>()
                     .Use<CallbackQueryHandler>()
+                    .UseInlineHandler<ListDiskCommandHandler>()
                     //.Use<MissDataCommandHandler>()
                     .Use<Disk, DiskCommandHandler, DiskResponse>()
                     .Use<Info, InfoCommandHadler>()

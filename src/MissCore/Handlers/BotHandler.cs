@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissCore.Configuration;
 using MissCore.Entities;
+using Telegram.Bot.Types.Enums;
 
 namespace MissCore.Handlers
 {
@@ -35,8 +36,17 @@ namespace MissCore.Handlers
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
+
+            SetUpdateObject(context, context.Data.Type);
             
             await handleDelegate(context.Root).ConfigureAwait(false);            
         }
+
+        object SetUpdateObject(IContext<Update<TBot>> ctx, UpdateType type) => type switch
+        {
+            UpdateType.InlineQuery => ctx.Set(ctx.Data.InlineQuery),
+            _ => ctx
+        };
+
     }    
 }
