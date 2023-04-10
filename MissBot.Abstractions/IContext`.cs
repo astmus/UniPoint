@@ -7,5 +7,7 @@ namespace MissBot.Abstractions
         TScope Data { get; set; }
         IHandleContext Root { get; set; }
         IResponse Response { get; }
+        ICommonUpdate CommonUpdate { get; }
+        BotClientDelegate ClientDelegate { get; }
     }
 }

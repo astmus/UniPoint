@@ -21,7 +21,7 @@ namespace MissBot.Abstractions
 
     public interface IAsyncHandler<T> : IAsyncHandler
     {
-        AsyncGenericHandler<T> GenericHandler { get; }
+        //AsyncGenericHandler<T> GenericHandler { get; }
         Task HandleAsync(IContext<T> context);
     }
 

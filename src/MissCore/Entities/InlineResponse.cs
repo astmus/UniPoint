@@ -48,7 +48,11 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : BotUnion
+        {
+        }
+
+        public override void Write<TUnitData>(TUnitData unit)
         {
             if (unit is IInlineUnit u)
                 results.Add(new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))

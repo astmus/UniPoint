@@ -17,13 +17,15 @@ namespace MissDataMaiden
                     .UseMediator()
                     .UseLogging()                    
                     .Use<ExceptionHandler>()                                        
-                    .UseCommandHandler<MissDataCommandHandler>()
-                    .Use<CallbackQueryHandler>()
+                    .UseCommandDispatcher<MissDataCommandHandler>()
+                    .UseCallbackDispatcher<CallbackQueryHandler>()
                     .UseInlineHandler<ListDiskCommandHandler>()
-                    //.Use<MissDataCommandHandler>()
-                    .Use<Disk, DiskCommandHandler, DiskResponse>()
-                    .Use<Info, InfoCommandHadler>()
-                    .Use<List, ListCommandHadler>();
+                    .AddCommand<Disk, DiskCommandHandler, DiskResponse>()
+                    .AddCommand<Info, InfoCommandHadler>()
+                    .AddCommand<List, ListCommandHadler>()
+                    .AddAction<DBInfo, DdActionHandler>()
+                    .AddAction<DBRestore, DdActionHandler>()
+                    .AddAction<DBDelete, DdActionHandler>();
 
 
             botHost.AddBot<MissChannel>();

@@ -35,18 +35,23 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }        
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        public override void Write<TUnitData>(TUnitData unit)
         {            
             WriteUnit(unit);            
         }
 
+        public void WriteResult<TUnitData>(TUnitData units) where TUnitData : BotUnion
+        {
+            foreach (var unit in units)
+                Write(unit);
+        }
         public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
         {
             foreach (var unit in units)
                 Write(unit);
         }
 
-        protected virtual Response<T> WriteUnit(Unit<T> unit)
+        protected virtual Response<T> WriteUnit(BotUnit unit)
         {
             Text += unit.ToString().AsSection("Section");
             return this;

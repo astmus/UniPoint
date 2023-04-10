@@ -1,4 +1,5 @@
 using MissBot.Abstractions;
+using MissCore.Configuration;
 
 namespace MissCore.Data.Context
 {
@@ -60,5 +61,9 @@ namespace MissCore.Data.Context
         }
 
         public IHandleContext Root { get; set; }
+        public ICommonUpdate CommonUpdate
+            => Get<ICommonUpdate>();
+        public BotClientDelegate ClientDelegate
+            => Root.BotServices.GetRequiredService<IBotClient>;
     }
 }

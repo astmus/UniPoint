@@ -50,12 +50,12 @@ namespace MissDataMaiden.Commands
         public async override Task<IEnumerable<ResultUnit>> LoadAsync(int skip, string filter)
         {
             var objs = await mm.Send(CurrentRequest with { skip = skip });
-            return objs./*Where(w => w.Title.Contains(filter)).Skip(skip).Take(BatchSize ?? 15)*/
+            return objs.//Where(w => w.Title.Contains(filter))?./*.Skip(skip).Take(BatchSize ?? 15)*/
                 Select(s => ResultUnit.Create(s, s.Content, Create(s.Id))) ?? new []{ ResultUnit.Empty};
         }
 
         InlineKeyboardMarkup Create(string id)
-            => InlineKeyBoard.Create($"info;{id}", $"restore;{id}", $"delete;{id}");
+            =>new InlineKeyBoard(new InlineAction[]{ new DBInfo(id), new DBDelete(id), new DBRestore(id) });
 
     }
 }

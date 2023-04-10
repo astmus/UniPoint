@@ -11,13 +11,12 @@ namespace MissCore.Configuration
 
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
 
-        IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler;
+        IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IEntityAction;
 
-        IBotBuilder Use<THandler>(THandler handler) where THandler :class, IAsyncHandler;
-        
+        IBotBuilder Use<THandler>(THandler handler) where THandler :class, IAsyncHandler;        
 
-        IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
-        IBotBuilder Use<TCommand, THandler, TResponse>() where
+        IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
+        IBotBuilder AddCommand<TCommand, THandler, TResponse>() where
             THandler : BotCommandHandler<TCommand> where
             TCommand : class, IBotCommand where
             TResponse :class, IResponse<TCommand>;
@@ -33,7 +32,8 @@ namespace MissCore.Configuration
         IBotBuilder<TBot> UseCommndFromAttributes();
         IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<TBot>;
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
-        IBotBuilder<TBot> UseCommandHandler<THandler>() where THandler : class, IAsyncBotCommandHandler;
+        IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
+        IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler;
         IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler :class, IAsyncUpdateHandler<TBot>;
     }
 }

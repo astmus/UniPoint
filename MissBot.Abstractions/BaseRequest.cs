@@ -7,7 +7,7 @@ using Telegram.Bot.Requests.Abstractions;
 namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BaseRequest<TResponse> : IRequest<TResponse>
+    public abstract record BaseRequest<TResponse> : BotEntity<TResponse>,  IRequest<TResponse>
     {
         /// <inheritdoc />
         [JsonIgnore]

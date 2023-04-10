@@ -12,9 +12,7 @@ namespace MissCore.Handlers
         AsyncHandler handleDelegate;
       
         public BotUpdateHandler(IBotBuilder<TBot> builder)
-        {            
-            //handleDelegate = builder.BuildHandler();
-            //botServices = builder.BotServicesProvider();
+        {               
             this.builder = builder;
         }
 
@@ -45,6 +43,7 @@ namespace MissCore.Handlers
         object SetUpdateObject(IContext<Update<TBot>> ctx, UpdateType type) => type switch
         {
             UpdateType.InlineQuery => ctx.Set(ctx.Data.InlineQuery),
+            UpdateType.CallbackQuery => ctx.Set(ctx.Data.CallbackQuery),
             _ => ctx
         };
 

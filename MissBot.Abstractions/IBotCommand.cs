@@ -11,6 +11,14 @@ namespace MissBot.Abstractions
     {
 
     }
+
+    public interface IEntityAction
+    {
+    }
+    public interface IEntityAction<TEntity> : IEntityAction
+    {
+    }
+
     public interface IInlineUnit
     {
         object[] Content { get; }

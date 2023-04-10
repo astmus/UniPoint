@@ -3,8 +3,7 @@ using MissBot.Abstractions;
 
 namespace MissCore.Handlers
 {
-
-    public abstract class BaseHandler<TData> : IAsyncHandler<TData>, ISetupHandler<TData>
+    public abstract class BaseHandler<TData> : IAsyncHandler<TData>
     {
         protected TData Data { get; set; }
         public IContext<TData> Context { get; protected set; }
@@ -12,20 +11,12 @@ namespace MissCore.Handlers
             => ExecuteAsync;
 
         public AsyncHandler AsyncHandler
-            => HandleAsync;
-        public SetupHandler<TData> SetupHandler
-            => Setup;
+            => HandleAsync;    
 
-        public AsyncGenericHandler<TData> GenericHandler { get; }
+        public AsyncGenericHandler<TData> GenericHandler { get; }        
 
-        protected async Task Setup(TData data, IContext<TData> context)
-        {
-            Data = data;
-            Context = context;
-            await GenericHandler(Context);
-        }      
-
-        public abstract Task ExecuteAsync(CancellationToken cancel = default);
+        public virtual Task ExecuteAsync(CancellationToken cancel = default)
+            => Task.CompletedTask;
 
         async Task HandleAsync(IHandleContext context)
         {
