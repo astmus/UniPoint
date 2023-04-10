@@ -1,10 +1,19 @@
+using System.Runtime.CompilerServices;
+
 namespace MissBot.Extensions.Response
 {
 	public static class TagComposition
 	{
-		public static string AsBTag(this string content) => $"<b>{content}</b>";
-		public static string AsITag(this string content) => $"<i>{content}</i>";
-		public static string AsCodeTag(this string content) => $"<code>{content}</code>";
+		//public static string AsBTag(this string content) => $"<b>{content}</b>";
+        public static string AsBTag(this string content, string title,  string separator = ":") => $"<b>{title}{separator}</b> {content} ";
+        public static string AsBTag(this string content) => $"<b>{content}</b> ";
+        public static string AsBTag(this int content) => $"<b>{content}</b> ";
+        public static string AsBTag(this double content) => $"<b>{content}</b> ";
+        public static string AsBTag(this int content, string title, string separator = ":") => $"<b>{title}{separator}</b> {content} ";
+        public static string AsBTag(this double content, string title, string separator = ":") => $"<b>{title}{separator}</b> {content} ";
+        public static string AsITag(this string content) => $"<i>{content}</i>";
+        public static string Shrink(this string content, short length) => content.PadRight(length)[..length];
+        public static string AsCodeTag(this string content) => $"<code>{content}</code>";
 		public static string AsStrikeTag(this string content) => $"<s>{content}</s>";
 		public static string AsUnderTag(this string content) => $"<u>{content}</u>";
 		public static string AsPreTag(this string content) => $"<pre>{content}</pre>";

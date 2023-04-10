@@ -34,7 +34,17 @@ using MissCore.Entities;namespace BotService.Internal{    internal class Bot
 
 
         #region Commands    
-
+        public IBotBuilder Use<TCommand, THandler, TResponse>() where
+              THandler : BotCommandHandler<TCommand> where
+              TCommand : class, IBotCommand where
+              TResponse :class, IResponse<TCommand>
+        {
+            Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
+            Services.AddScoped<IResponse, Response>();
+            Services.AddScoped<IResponse<TCommand>, TResponse>();
+            Services.AddScoped<IContext<TCommand>, Context<TCommand>>();
+            return this;
+        }
 
         public IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand        {                        Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
             Services.AddScoped<IResponse, Response>();

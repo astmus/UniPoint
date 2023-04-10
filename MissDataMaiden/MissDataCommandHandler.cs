@@ -33,9 +33,7 @@ namespace MissDataMaiden
             nameof(List) => HandleAsync<List>(context),
             nameof(Info) => HandleAsync<Info>(context),
             _ => context.Get<AsyncHandler>()(context)
-        };
-
-  
+        };  
 
         public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :class, IBotCommand
         {            

@@ -8,6 +8,8 @@ using MissCore.Entities;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using MediatR;
+using MissBot.Common;
+using MissBot.Extensions.Response;
 
 namespace MissDataMaiden.Commands
 {
@@ -21,7 +23,7 @@ namespace MissDataMaiden.Commands
             public string Created { get; set; }
             public int DaysAgo { get; set; }
             public double Size { get; set; }
-        }
+        }        
 
         public record Query(string sql) : SqlRaw<DataUnit>.Query(sql);
         public class Handler : SqlRaw<DataUnit>.Handler<Query>
@@ -29,6 +31,22 @@ namespace MissDataMaiden.Commands
             public Handler(IConfiguration config) : base(config)
             {
             }
+        }
+    }
+
+    public record DiskResponse : Response<Disk>
+    {        
+        protected override Response<Disk> WriteUnit(Unit<Disk> unit) => unit switch
+        {
+            Disk.DataUnit du => WriteDataUnit(du),
+            _ => base.WriteUnit(unit)
+        };
+
+        Response<Disk> WriteDataUnit(Disk.DataUnit data)
+        {
+            Text += $"{data.Name.Shrink(10)}       {data.Created}      {data.DaysAgo}      {data.Size}".AsCodeTag().LineTag();
+            
+            return this;
         }
     }
 
@@ -47,8 +65,6 @@ namespace MissDataMaiden.Commands
         public override Disk Command
             => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
 
-
-
         //public override async  Task BeforeComamandHandle(IContext<Disk> context)
         //{
         //    Disk.CommandResult response = context.Scope.Result;
@@ -58,27 +74,18 @@ namespace MissDataMaiden.Commands
 
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
-
             IResponse response = context.Response;
-
   
-            
-            //context.Data.Result.Write(new Disk.DataUnit() { });
-            
-            //var srv = context.BotServices .Get<IBotServicesProvider>();
             var mm = context.Root.BotServices.GetService<IMediator>();
-            //Disk.Result result = context.CreateResponse<Disk.Result>(null);
-          //  context.Response = new Disk.Result();
+  
             var result = response.Create(command);
-            Disk.Union res = new Disk.Union();
+
             await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
             {
                 //context.Data.Result.Write(obj);
-                res.Write(obj);
                 result.Write(obj);
             }
-            await result.Commit(default);
-                
+            await result.Commit(default);            
         }     
 
         //public override BotCommand<Disk> GetDataForHandle()

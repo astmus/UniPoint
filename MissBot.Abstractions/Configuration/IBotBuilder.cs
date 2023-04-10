@@ -14,8 +14,14 @@ namespace MissCore.Configuration
         IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler;
 
         IBotBuilder Use<THandler>(THandler handler) where THandler :class, IAsyncHandler;
+        
 
         IBotBuilder Use<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
+        IBotBuilder Use<TCommand, THandler, TResponse>() where
+            THandler : BotCommandHandler<TCommand> where
+            TCommand : class, IBotCommand where
+            TResponse :class, IResponse<TCommand>;
+
         AsyncHandler BuildHandler();
         void Build();
     }

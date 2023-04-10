@@ -19,32 +19,34 @@ namespace MissBot.Common
         Chat channel;
         public override ChatId ChatId
             => channel.Id;
-
+        
         public async Task Commit(CancellationToken cancel)
         {
             message = Result = await Client().SendQueryRequestAsync(this, cancel);
         }
-
-
         public void Init(ICommonUpdate update, BotClientDelegate sender)
         {
             channel = update.Chat;
             message = update.Message;
             Client = sender;
         }
-
         public async Task<IResponseChannel> InitAsync(T data, ICommonUpdate update, BotClientDelegate sender)
         {
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
+        }        
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        {            
+            WriteUnit(unit);            
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        protected virtual Response<T> WriteUnit(Unit<T> unit)
         {
-            
-                Text += unit.ToString().AsSection("Section");
+            Text += unit.ToString().AsSection("Section");
+            return this;
         }
     }
+
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public class GetChannelQuery<T> : RequestBase<ResponseChannel<T>>, IChatTargetable
     {
