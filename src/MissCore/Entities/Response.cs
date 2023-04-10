@@ -5,6 +5,8 @@ using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Requests;
 using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
+using MissBot.Common;
+using MissBot.Extensions.Response;
 
 namespace MissBot.Common
 {
@@ -37,10 +39,10 @@ namespace MissBot.Common
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : BaseEntity<T>.Union
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
         {
-            foreach (var u in unit)
-                Text += u.ToString();
+            
+                Text += unit.ToString().AsSection("Section");
         }
     }
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]

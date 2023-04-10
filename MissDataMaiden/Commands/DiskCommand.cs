@@ -12,10 +12,10 @@ using MediatR;
 namespace MissDataMaiden.Commands
 {
 
-    public record Disk :  BotCommand<Disk.DataUnit>
+    public record Disk :  BotCommand<Disk>, IBotCommand
     {
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-        public record DataUnit : Unit
+        public record DataUnit : Disk.Unit
         {
             public string Name { get; set; }
             public string Created { get; set; }
@@ -70,13 +70,13 @@ namespace MissDataMaiden.Commands
             //Disk.Result result = context.CreateResponse<Disk.Result>(null);
           //  context.Response = new Disk.Result();
             var result = response.Create(command);
-            
+            Disk.Union res = new Disk.Union();
             await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
             {
                 //context.Data.Result.Write(obj);
-                command.Result.Write(obj);
+                res.Write(obj);
+                result.Write(obj);
             }
-            result.Write(command.Result);
             await result.Commit(default);
                 
         }     

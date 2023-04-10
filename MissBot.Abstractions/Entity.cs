@@ -8,9 +8,14 @@ using System.Threading.Tasks;
 namespace MissBot.Abstractions
 {
         
+        public record Unit<TValue> : BaseEntity;
+        public record Union<TValue> : Unit<TValue>;
     public abstract record BaseEntity
-    {        
-        public record Unit : BaseEntity;
+    {
+    }
+    public abstract record BotEntity<TUnit>
+    {
+        public record Unit : Unit<TUnit>;
         public record Union : Unit, IEnumerable<Unit>
         {
             IList<Unit> Units { get; } = new List<Unit>();
@@ -28,8 +33,5 @@ namespace MissBot.Abstractions
                 return ((IEnumerable)Units).GetEnumerator();
             }
         }
-    }
-    public abstract record BaseEntity<TUnit> : BaseEntity
-    {
     }
 }

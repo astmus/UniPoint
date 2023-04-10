@@ -6,7 +6,7 @@ using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
-    public record Info : BotCommand<InfoUnit>
+    public record Info : BotCommand<InfoUnit>, IBotCommand
     {
         
     }
