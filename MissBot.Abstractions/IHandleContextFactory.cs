@@ -7,5 +7,6 @@ namespace MissBot.Abstractions
         IServiceScopeFactory ScopeFactory { get; }
         IServiceScope this[string scopeHash] { get; }
         IServiceScope Init(string identifier);
+        void Remove(string identifier);
     }
 }

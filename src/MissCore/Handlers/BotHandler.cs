@@ -36,7 +36,7 @@ namespace MissCore.Handlers
                 context.Set(handleDelegate);
             }
             
-            await handleDelegate(context.Root).ConfigureAwait(false);
+            await handleDelegate(context.Root).ConfigureAwait(false);            
         }
     }    
 }

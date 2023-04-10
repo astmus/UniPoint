@@ -20,5 +20,12 @@ namespace MissCore.Handlers
 
         public IServiceScope Init(string identifier)
             => scopes.GetOrAdd(identifier, (id) => ScopeFactory.CreateScope());
+
+        public void Remove(string identifier)
+        {
+            IServiceScope scope;
+            scopes.Remove(identifier, out scope);
+            scope.Dispose();
+        }
     }
 }

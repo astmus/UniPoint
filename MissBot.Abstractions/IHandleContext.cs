@@ -23,7 +23,8 @@ namespace MissBot.Abstractions
     public interface ICommonUpdate
     {
         Message Message { get; }
-        Chat Chat { get; }        
+        Chat Chat { get; }
+        bool IsHandled { get; set; }
     }
 
     public interface IUpdateInfo

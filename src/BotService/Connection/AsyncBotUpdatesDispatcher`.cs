@@ -27,14 +27,17 @@ namespace BotService.Connection
             {
                 await foreach (var update in PendingUpdates(src.Token))
                 {
-                    log.WriteJson(update.GetType().FullName);
-                    var scope = Factory.Init(ScopePredicate(update));
+                    var id = ScopePredicate(update);
+                    var scope = Factory.Init(id);
                     var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
                     ctx.Data = update;
-                    //ctx.Set(update);
                     ctx.Set(scope.ServiceProvider);
-                    await handler.HandleAsync(ctx).ConfigFalse();                    
+
+                    await handler.HandleAsync(ctx).ConfigFalse();
+
+                    if (update.IsHandled)
+                        Factory.Remove(id);
                 };
             }
             catch (Exception e)

@@ -5,7 +5,7 @@ using MissBot.Response;
 using MissCore;using MissCore.Configuration;using MissCore.Data.Context;
 using MissCore.Entities;namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
         }        internal BotBuilder()
-        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        IBotServicesProvider sp;        public IBotServicesProvider BotServicesProvider()            => sp ??= new BotServicesProvider(Instance.Services.BuildServiceProvider());        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
+        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
             host.ConfigureServices((h, s) => s.AddTransient<IAsyncUpdateHandler<TBot>, THandler>());            return this;        }
 
@@ -28,6 +28,7 @@ using MissCore.Entities;namespace BotService.Internal{    internal class Bot
             AsyncHandler handle = context =>
                 {
                     Update upd = context.Any<Update>();
+                    upd.IsHandled = true;
 #if DEBUG                    Console.WriteLine("No handler for update {0} of type {1}.", upd.UpdateId, upd.UpdateId);
 #endif                    return Task.FromResult(1);
                 };            foreach (var component in _components.Reverse())                handle = component(handle);            return HandlerDelegate = handle;        }
