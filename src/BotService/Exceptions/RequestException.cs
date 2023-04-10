@@ -1,6 +1,5 @@
 
 using System.Net;
-using BotService.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 /// <summary>

@@ -9,7 +9,6 @@ namespace MissCore
     {
         public abstract User BotInfo { get; set; }
         public Func<ICommonUpdate, string> ScopePredicate { get; }
-
         public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
         public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         public abstract Task CreateHandle<TUpdate>(TUpdate update) where TUpdate : IUpdateInfo;

@@ -1,7 +1,4 @@
 
-
-
-using BotService.Interfaces;
 using Telegram.Bot.Exceptions;
 /// <summary>
 /// Default implementation of <see cref="IExceptionParser"/> that always returns <see cref="ApiRequestException"/>

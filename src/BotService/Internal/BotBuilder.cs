@@ -43,10 +43,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                      context.NextHandler<IAsyncHandler<InlineQuery>>().AsyncHandler(context.SetupData(context, next)));
             return this;
-        }        public IBotBuilder<TBot> UseContextHandler<THandler>() where THandler : class, IContextHandler<TBot>        {            Services.AddSingleton<THandler>();
-            Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);            host.ConfigureServices((h, s) => s.AddSingleton<IContextHandler<TBot>, THandler>());
-            //_components.Add(            //    next =>            //    context =>
-            //        context.NextHandler<THandler>().AsyncHandler(context.SetupData(context, next)));            return this;        }
+        }     
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {            Services.AddScoped<THandler>();            _components.Add(                next =>                context =>                     context.NextHandler<THandler>().AsyncHandler(context.SetupData(context, next)));            return this;        }
 
 

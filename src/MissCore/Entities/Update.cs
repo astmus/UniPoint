@@ -3,7 +3,7 @@ using MissCore;
 using Newtonsoft.Json;
 using TG = Telegram.Bot.Types.Update;
 
-public class Update : TG, IUpdateInfo, IUpdateCallbackQuery, IUpdateChannelPost, IUpdateEditedChannelPost, IUpdateEditedMessage, IUpdateInlineQuery, IUpdateMessage
+public class Update : TG, IUpdateInfo
 {
     [JsonProperty("update_id", Required = Required.Always)]
     public uint UpdateId { get; init; }

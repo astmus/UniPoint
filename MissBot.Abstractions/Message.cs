@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Telegram.Bot.Types;
 using TG = Telegram.Bot.Types.Message;
 /// <summary>
 /// This object represents a message.
@@ -12,7 +13,7 @@ namespace MissBot.Abstractions
             => new UpdateDataRequest<TEntity>(Chat.Id, MessageId, Result);
 
         [JsonProperty(Required = Required.Always)]
-        public new ChatTyped Chat { get; set; }
+        public new Chat Chat { get; set; }
         public TEntity Result { get; set; }
     }
 }

@@ -30,7 +30,6 @@ namespace MissCore.Configuration
         IBotServicesProvider BotServicesProvider();
         IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;
         IBotBuilder<TBot> UseCommndFromAttributes();
-        IBotBuilder<TBot> UseContextHandler<THandler>() where THandler: class, IContextHandler<TBot>;
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
         IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler;

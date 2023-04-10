@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace MissBot.Abstractions
 {
-
     public record Unit<TValue> : BaseEntity.BotUnit;
     public record Union<TValue> : Unit<TValue>;
     public abstract record BaseEntity
@@ -31,6 +30,7 @@ namespace MissBot.Abstractions
             }
         }
     }
+
     public abstract record BotEntity<TUnit> : BaseEntity.BotUnion
     {
         public abstract record Response : ResponseMessage<TUnit>;

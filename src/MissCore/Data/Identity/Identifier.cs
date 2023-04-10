@@ -22,9 +22,8 @@ namespace MissCore.Data.Identity
             => Identifier<T>.Current.Next;
         public static string Of(object data)
             => new Identifier(data);
-        //public static int IntId<T>(T data, Func<object> getter)
-        //	=> (int)Identifier<T>.Instance[data];
     }
+
     public class Identifier<T>
     {
         protected Identifier(object data = null)

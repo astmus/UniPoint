@@ -20,9 +20,7 @@ namespace MissCore.Handlers
             => HandleAsync;
 
         public override Task ExecuteAsync(IHandleContext context)
-        {
-            throw new NotImplementedException();
-        }
+            => Task.CompletedTask;
 
         public async Task HandleAsync(IContext<Update<TBot>> context)
         {

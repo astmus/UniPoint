@@ -31,6 +31,7 @@ namespace BotService.Connection
                     var scope = Factory.Init(id);
                     var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
+
                     ctx.Data = update;
                     ctx.Set(scope.ServiceProvider);
 
@@ -42,7 +43,7 @@ namespace BotService.Connection
             }
             catch (Exception e)
             {
-                log.WriteCritical(e);
+                log.LogCritical(e.Message);
             }
         }   
 
