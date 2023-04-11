@@ -2,11 +2,10 @@ namespace MissBot.Abstractions
 {
     public interface IResponse
     {
-        Task SendHandlingStart();
-        void SetContext(IHandleContext context);
+        Task SendHandlingStart();        
         Task WriteAsync<T>(T data, CancellationToken cancel) where T : class;
-        Task<IResponseChannel> CreateAsync<T>(T data, CancellationToken cancel) where T : class;
-        IResponse<T> Create<T>(T data) where T : class;
+        Task<IResponseChannel> InitAsync<T>(T data, CancellationToken cancel, IHandleContext context) where T : class;
+        IResponse<T> Init<T>(T data, IHandleContext context);
     }
     public interface IResponseChannel
     {

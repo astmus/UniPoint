@@ -14,7 +14,7 @@ using MissCore.Handlers;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore(string id) : InlineAction(id + $"Restore;{nameof(DBRestore)}.{id}");
+    public record DBRestore(string id) : InlineAction($"Restore;{nameof(DBRestore)}.{id}");
     public record DBDelete(string id) : InlineAction($"Delete;{nameof(DBDelete)}.{id}");
     public record DBInfo(string id) : InlineAction($"Info;{nameof(DBInfo)}.{id}")
     {
@@ -37,8 +37,8 @@ namespace MissDataMaiden.Commands
     {
         public async override Task HandleAsync(IContext<DBInfo> context)
         {
-            var response = context.Response.Create(context.Data);
-            response.Init(context.CommonUpdate, context.ClientDelegate);
+            var response = context.CreateResponse();
+            
             response.WriteResult(new DBInfo.Response("0"));
 
             await response.Commit(default);

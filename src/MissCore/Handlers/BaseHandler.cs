@@ -21,7 +21,7 @@ namespace MissCore.Handlers
         async Task HandleAsync(IHandleContext context)
         {
             if (context.Get<TData>() is TData data)
-                await HandleAsync(context.GetContext<TData>(data));
+                await HandleAsync(context.CreateDataContext<TData>(data));
             else
                 await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
         }

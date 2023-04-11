@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 
 namespace BotService.Connection.Async
 {

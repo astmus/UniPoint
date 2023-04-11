@@ -1,5 +1,5 @@
 
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 
 namespace MissBot.Abstractions
 {

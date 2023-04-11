@@ -1,9 +1,7 @@
 using MissBot.Abstractions;
-
-
 using Telegram.Bot.Types;
 
-namespace MissCore.Configuration
+namespace MissBot.Abstractions.Configuration
 {
     public interface IBot
     {

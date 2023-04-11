@@ -1,6 +1,6 @@
 using BotService.Common;
 using MissBot.Abstractions;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 
 namespace BotService.Connection
 {
@@ -44,6 +44,9 @@ namespace BotService.Connection
             catch (Exception e)
             {
                 log.LogCritical(e.Message);
+            }
+            finally {
+                StartInThread();
             }
         }   
 

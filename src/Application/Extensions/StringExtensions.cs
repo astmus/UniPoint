@@ -12,7 +12,7 @@ namespace MissBot.Extensions
             => ParseCommand(query.Data);
         static (string command, string[] args) ParseCommand(string message)
         {
-            if (message.Contains(" "))
+            if (message.Contains("."))
             {
                 var items = message.Split(".");
                 return (items[0], items[1..]);

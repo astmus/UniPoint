@@ -1,5 +1,4 @@
-
-namespace MissCore.Configuration
+namespace MissBot.Abstractions.Configuration
 {
     public interface IBotOptionsBuilder
     {

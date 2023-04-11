@@ -74,18 +74,18 @@ namespace MissDataMaiden.Commands
 
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
-            IResponse response = context.Response;
+            IResponse<Disk> response = context.CreateResponse(command);
   
             var mm = context.Root.BotServices.GetService<IMediator>();
   
-            var result = response.Create(command);
+            
 
             await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
             {
-                //context.Data.Result.Write(obj);
-                result.Write(obj);
+             
+                response.Write(obj);
             }
-            await result.Commit(default);            
+            await response.Commit(default);            
         }     
 
         //public override BotCommand<Disk> GetDataForHandle()

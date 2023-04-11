@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using Telegram.Bot.Types;
 
-namespace MissCore.Configuration
+namespace MissBot.Abstractions.Configuration
 {
 
     public interface IBotBuilder
@@ -11,15 +11,15 @@ namespace MissCore.Configuration
 
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
 
-        IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IEntityAction;
+        IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IEntityAction;
 
-        IBotBuilder Use<THandler>(THandler handler) where THandler :class, IAsyncHandler;        
+        IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler;
 
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
         IBotBuilder AddCommand<TCommand, THandler, TResponse>() where
             THandler : BotCommandHandler<TCommand> where
             TCommand : class, IBotCommand where
-            TResponse :class, IResponse<TCommand>;
+            TResponse : class, IResponse<TCommand>;
 
         AsyncHandler BuildHandler();
         void Build();
@@ -33,6 +33,6 @@ namespace MissCore.Configuration
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
         IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler;
-        IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler :class, IAsyncUpdateHandler<TBot>;
+        IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>;
     }
 }

@@ -1,13 +1,9 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Results.Inline;
+using MissBot.Commands.Results.Inline;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Requests;
-using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
-using MissBot.Common;
-using MissBot.Extensions.Response;
-using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissBot.Common
@@ -41,6 +37,7 @@ namespace MissBot.Common
             message = update.Message;
             Query = unit;
             Client = sender;
+            results.Clear();
         }
 
         public async Task<IResponseChannel> InitAsync(T data, ICommonUpdate update, BotClientDelegate sender)
@@ -55,8 +52,9 @@ namespace MissBot.Common
         public override void Write<TUnitData>(TUnitData unit)
         {
             if (unit is IInlineUnit u)
-                results.Add(new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
-                { ReplyMarkup = u.Content[1] as InlineKeyboardMarkup });
+                results.Add(GetContent(u, u.Content));
+                //new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
+                //{ ReplyMarkup = u.Content[1] as InlineKeyboardMarkup });
         }
 
         public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
@@ -64,10 +62,39 @@ namespace MissBot.Common
             foreach (var unit in units)
             {
                 var u = unit as IInlineUnit;
-                results.Add(new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
-                    { ReplyMarkup = u.Content[1] as InlineKeyboardMarkup });
+                results.Add(GetContent(u, u.Content));
+
+                //new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
+                //{ ReplyMarkup = u.Content[1] as InlineKeyboardMarkup }); ;
             }
         }
+
+        InlineQueryResult GetContent(params object[] content)
+        {
+            InlineQueryResult result = null;
+       
+            result = InitResult(content[0]);
+            
+            foreach (var item in content)
+                SetupContent(item, result);
+            return result;
+
+        void SetupContent(object value, InlineQueryResult result)
+        {
+            object value1 = value switch {
+                IInlineUnit unit => result.Id = unit.Id,
+                InlineKeyboardMarkup markup => result.ReplyMarkup = markup,
+                _ => null
+            };
+        }
+        }
+
+        InlineQueryResult InitResult(object value) => value switch
+        {
+            IInlineUnit unit when unit.Content[0] is string str => new InlineQueryResultArticle(unit.Id,unit.Title, new InputTextMessageContent(str)),            
+            _ => null
+        };
+
     }
 
 

@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Configuration;
 using MissBot.Attributes;
-using MissCore.Configuration;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
 using Telegram.Bot.Types;

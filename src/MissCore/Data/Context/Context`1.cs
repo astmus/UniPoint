@@ -1,5 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 
 namespace MissCore.Data.Context
 {
@@ -16,31 +17,29 @@ namespace MissCore.Data.Context
             this.botServices = botServices;
         }
 
+        IServiceProvider scoped;
         IBotServicesProvider botServices;
         public IBotServicesProvider BotServices
             => botServices ?? Root.BotServices;
 
-        IServiceProvider scoped;
-
         public Context(IServiceProvider scopedProvider)
         {
             scoped = scopedProvider;
-            Root = this;            
+            Root = this;
         }
 
-
-        public IHandleContext SetupData<T>(IContext context, T data)
+        public IHandleContext SetNextHandler<T>(IContext context, T data) where T : class
         {
             context.Set(data);
             return this;
         }
 
-        public T NextHandler<T>() where T : class
+        public T GetNextHandler<T>() where T : class
             => Root.BotServices.GetService<T>();
 
-        public IContext<T> GetContext<T>(T data = default)
+        public IContext<T> CreateDataContext<T>(T data = default)
         {
-            var ctx = Root.BotServices.GetService<IContext<T>>();
+            var ctx = Root.BotServices.GetService<IContext<T>>() as Context<T>;
             ctx.Root = Root;
             ctx.Set(Any<ICommonUpdate>());
             ctx.Data = data;
@@ -48,19 +47,19 @@ namespace MissCore.Data.Context
         }
 
         public IAsyncHandler<T> GetAsyncHandler<T>()
-            => Root.BotServices.GetRequiredService<IAsyncHandler<T>>();
+            => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-        public IResponse Response
+        public TScope InitContextData(params object[] args)
+            => Data = (TScope)Activator.CreateInstance(typeof(TScope), args);
+
+        public IResponse<TScope> CreateResponse(TScope scopeData = default)
         {
-            get
-            {
-                var res = Root.BotServices.GetRequiredService<IResponse>();
-                res.SetContext(this);
-                return res;
-            }
+            var res = Root.BotServices.GetRequiredService<IResponse>();
+            Data ??= scopeData ?? ActivatorUtilities.GetServiceOrCreateInstance<TScope>(BotServices);
+            return res.Init(Data, this);
         }
 
-        public IHandleContext Root { get; set; }
+        public IHandleContext Root { get; protected set; }
         public ICommonUpdate CommonUpdate
             => Get<ICommonUpdate>();
         public BotClientDelegate ClientDelegate

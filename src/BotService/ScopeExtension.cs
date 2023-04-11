@@ -1,7 +1,7 @@
 using System.Reflection;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Configuration;
 using MissBot.Attributes;
-using MissCore.Configuration;
 
 namespace BotService
 {

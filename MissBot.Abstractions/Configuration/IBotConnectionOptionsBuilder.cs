@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
 
-namespace MissCore.Configuration
+namespace MissBot.Abstractions.Configuration
 {
     /// <summary>
     /// Configurations for the bot

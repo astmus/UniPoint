@@ -3,13 +3,13 @@ using BotService.Connection;
 using BotService.Internal;
 using MissBot;
 using MissBot.Infrastructure.Persistence;
-using MissCore.Configuration;
 using MissCore.Data.Context;
 using MissCore.Entities;
 using MissCore.Handlers;
 using Microsoft.Extensions.Options;
 using MissBot.Infrastructure;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Configuration;
 
 namespace BotService
 {

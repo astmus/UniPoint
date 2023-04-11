@@ -4,11 +4,11 @@ namespace MissBot.Abstractions
 {
     public interface IHandleContext : IContext
     {
-        IAsyncHandler<T> GetAsyncHandler<T>();
         IBotServicesProvider BotServices { get; }        
-        T NextHandler<T>() where T : class;
-        IContext<T> GetContext<T>(T data = default);
-        IHandleContext SetupData<T>(IContext context, T data);
+        IAsyncHandler<T> GetAsyncHandler<T>();
+        T GetNextHandler<T>() where T : class;
+        IHandleContext SetNextHandler<T>(IContext context, T data) where T:class;
+        IContext<T> CreateDataContext<T>(T data = default);
     }
 
     public interface IUpdate<TUpdate> : IUpdateInfo

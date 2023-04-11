@@ -39,7 +39,7 @@ namespace MissDataMaiden
         {            
             var upd = context.Any<ICommonUpdate>();
             
-            var ctx = context.GetContext<TCommand>();
+            var ctx = context.CreateDataContext<TCommand>();
             
             var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
             ctx.Data ??= handler.Command;
@@ -49,8 +49,6 @@ namespace MissDataMaiden
 
             AsyncHandler next = context.Get<AsyncHandler>();            
             await next(context).ConfigureAwait(false);
-
-            int i = 0;
         }
     }
 }

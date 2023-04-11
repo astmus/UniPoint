@@ -1,4 +1,4 @@
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;

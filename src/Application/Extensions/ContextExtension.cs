@@ -13,11 +13,7 @@ public static class ContextExtension
         => factory.ServiceProvider.CreateScope();
     internal static IServiceScope CreateMessageScope(this IServiceScope factory)
         => factory.ServiceProvider.CreateScope();
-    internal static IContext<User> GetOrCreateUserContext(this MissCore.DataAccess.DataContextFactory contextFactory, IUpdateInfo update)
-        => contextFactory.GetContext<User>();
-    internal static IContext<Telegram.Bot.Types.Chat> GetOrCreateChatContext(this MissCore.DataAccess.DataContextFactory contextFactory, IUpdateInfo update)
-        => contextFactory.GetContext<Telegram.Bot.Types.Chat>();
-    internal static IContext<User> GetUserContext(this MissCore.DataAccess.DataContextFactory contextFactory, IUpdateInfo update)
+    internal static IContext<User> GetUserContext(this MissCore.DataAccess.ResponseDataContext contextFactory, IUpdateInfo update)
         => contextFactory.Get<IContext<User>>(update.ToString());    
    
 

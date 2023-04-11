@@ -1,6 +1,6 @@
 using Telegram.Bot.Requests.Abstractions;
 
-namespace MissCore.Configuration
+namespace MissBot.Abstractions.Configuration
 {
     public interface IBotClient : IBotConnection
     {

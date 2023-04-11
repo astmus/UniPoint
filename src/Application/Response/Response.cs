@@ -3,17 +3,15 @@ using MissBot.Abstractions;
 using Telegram.Bot.Types;
 using MissBot.Commands;
 using Telegram.Bot.Types.Enums;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
+using MissCore.DataAccess;
 
 namespace MissBot.Response
 {
-    public class Response : IResponse
+    public class Response : ResponseDataContext, IResponse
     {
         IHandleContext ctx;
-        public void SetContext(IHandleContext context)
-        {
-            ctx = context;
-        }
+       
 
         public async Task WriteAsync<T>(T data, CancellationToken cancel) where T : class
         {
@@ -30,18 +28,20 @@ namespace MissBot.Response
         }
 
         
-        public async Task<IResponseChannel> CreateAsync<T>(T data, CancellationToken cancel) where T : class
+        public async Task<IResponseChannel> InitAsync<T>(T data, CancellationToken cancel, IHandleContext context) where T : class
         {
-            var message = ctx.Any<ICommonUpdate>();
+            ctx = context;
+            var message = context.Any<ICommonUpdate>();
             var response = ctx.BotServices.Response<T>();
             return await response.InitAsync(data, message, ctx.BotServices.GetRequiredService<IBotClient>);            
         }
 
-        public IResponse<T> Create<T>(T data) where T : class
+        public IResponse<T> Init<T>(T data, IHandleContext context)
         {
+            ctx = context;
             var message = ctx.Any<ICommonUpdate>();
             var response = ctx.BotServices.Response<T>();
-            response.Init(message, ctx.BotServices.GetRequiredService<IBotClient>);
+            response.Init(message, ctx.BotServices.GetRequiredService<IBotClient>, data);
             return response;
         }
     }

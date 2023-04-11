@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 using Telegram.Bot.Types;
 
 namespace MissCore

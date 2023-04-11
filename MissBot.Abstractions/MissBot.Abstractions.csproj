@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\external\Telegram.Bot\src\EnumSerializer.Generator\EnumSerializer.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
   </ItemGroup>
 

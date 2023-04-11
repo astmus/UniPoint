@@ -17,7 +17,7 @@ namespace MissCore.Data.Context
 
         public T Get<T>()
         {
-            var id = Identifier<T>.TypeId;
+            var id = GetId<T>();
             var result = default(T);
             if (TryGetValue(id, out var r) && r is T reference)
                 result = reference;
@@ -41,9 +41,12 @@ namespace MissCore.Data.Context
         }
 
         public T Set<T>(T value, string name = null)
-            => (T)AddOrUpdate(name ?? Identifier<T>.TypeId,
+            => (T)AddOrUpdate(name ?? GetId<T>(),
                     (k, w) => w,
                     (k, o, w) => this[k] = w, value);
+
+        protected virtual string GetId<T>()
+            => Identifier<T>.TypeId;
     }
 
 }

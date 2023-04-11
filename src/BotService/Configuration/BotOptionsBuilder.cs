@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using MissCore.Configuration;
+using MissBot.Abstractions.Configuration;
 using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration
