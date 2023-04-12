@@ -17,18 +17,22 @@ namespace MissBot.Common
         BotClientDelegate Client;
         Message message;
         Chat channel;
+        
+
         public override ChatId ChatId
             => channel.Id;
-        
+
         public async Task Commit(CancellationToken cancel)
         {
+           
+            await Client().SendQueryRequestAsync(this, cancel);
             message = Result = await Client().SendQueryRequestAsync(this, cancel);
         }
         public void Init(ICommonUpdate update, BotClientDelegate sender, T data = default)
         {
             channel = update.Chat;
             message = update.Message;
-            Client = sender;
+            Client = sender;            
         }
         public async Task<IResponseChannel> InitAsync(T data, ICommonUpdate update, BotClientDelegate sender)
         {

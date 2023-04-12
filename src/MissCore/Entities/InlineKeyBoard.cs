@@ -9,19 +9,14 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record InlineAction : Unit<InlineAction>, IEntityAction
+    public record InlineAction : Value, IEntityAction
     {
         public InlineAction(string data)
         {
             var items = data.Split(";");
             Text = items[0];
             Data = items.Skip(1)?.FirstOrDefault();
-        }
-
-        public record Result(string state) : BotEntity<InlineAction>.Response
-        {
-            public override ChatId ChatId { get; }
-        }
+        }      
 
         public string Text { get; set; }
         public string Data { get; set; }
@@ -30,6 +25,15 @@ namespace MissCore.Entities
             new InlineAction(data);
         public static implicit operator InlineKeyboardButton(InlineAction s) =>
             InlineKeyboardButton.WithCallbackData(s.Text, s.Data);
+    }
+
+    
+
+    public record InlineAction<TEntity> : InlineAction, IEntityAction<TEntity>
+    {
+        public InlineAction(string data) : base(data)
+        {
+        }
     }
 
 

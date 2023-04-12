@@ -1,3 +1,5 @@
+using MissBot.Abstractions.Persistance;
+
 namespace MissBot.Abstractions
 {
     public interface IAsyncHandler
@@ -17,6 +19,11 @@ namespace MissBot.Abstractions
     {
         Task HandleAsync(IContext<T> context);
     }
+    public interface IAsyncEntityActionHandler<TEntity, TAction> : IAsyncHandler<TAction> where TAction:IEntityAction<TEntity>
+    {
+        Task HandleActionAsync(IRepository<TEntity> repository, IContext<TAction> context);
+    }
+
 
     public interface IAsyncUpdateHandler<T>
     {

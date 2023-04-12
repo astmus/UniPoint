@@ -11,30 +11,31 @@ using MediatR;
 using MissBot.Common;
 using MissBot.Extensions.Response;
 using MissCore.Handlers;
+using MissDataMaiden.Entities;
+using MissBot.Abstractions.Persistance;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore(string Id = default) : InlineAction($"Restore;{nameof(DBRestore)}.{Id}");
+    public record DBRestore(string Id = default) : InlineAction<DataBase>($"Restore;{nameof(DBRestore)}.{Id}");
     public record DBDelete(string Id = default) : InlineAction($"Delete;{nameof(DBDelete)}.{Id}");
-    public record DBInfo(string Id = default) : InlineAction($"Info;{nameof(DBInfo)}.{Id}")
+    public record DBInfo(string Id = default) : InlineAction<DataBase>($"Info;{nameof(DBInfo)}.{Id}")
     {
         public record Response : Unit<DBInfo>
         {
             public Response(string state)
             {
             }
-        }
-        //public record Query(string sql) : SqlRaw<DataUnit>.Query(sql);
-        //public class Handler : SqlRaw<DataUnit>.StreamHandler<Query>
-        //{
-        //    public Handler(IConfiguration config) : base(config)
-        //    {
-        //    }
-        //}
+        }    
     }
 
-    public class DdActionHandler : BaseHandler<DBInfo>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>
+    public class DdActionHandler : BaseHandler<DBInfo>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DataBase, DBInfo>
     {
+        public async Task HandleActionAsync(IRepository<DataBase> repository, IContext<DBInfo> context)
+        {
+            var db = await repository.GetAsyncById(Convert.ToInt32(context.Data.Data));
+            
+        }
+
         public async override Task HandleAsync(IContext<DBInfo> context)
         {
             var response = context.CreateResponse();

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.Response;
 using MissBot.Common;
 using MissBot.Response;
 using MissCore;using MissCore.Data.Context;
@@ -25,6 +26,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         {
             Services.AddScoped<IAsyncHandler<CallbackQuery>, THandler>();
             Services.AddScoped<IResponse, Response>();
+            Services.AddScoped<IResponseNotification, CallBackNotification>();
             Services.AddScoped<IResponse<CallbackQuery>, Response<CallbackQuery>>();
             Services.AddScoped<IContext<CallbackQuery>, Context<CallbackQuery>>();
             _components.Add(

@@ -12,6 +12,13 @@ namespace MissBot.Abstractions
 
     }
 
+    public interface IResponseNotification
+    {
+        Task ShowPopupAsync(string message, CancellationToken cancel = default);
+        Task SendTextAsync(string message, CancellationToken cancel = default);
+        void Init(ICommonUpdate update, BotClientDelegate sender, CallbackQuery unit);        
+    }
+
     public interface IResponse<TUnit> : IResponseChannel
     {
         Task Commit(CancellationToken cancel);

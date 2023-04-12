@@ -11,8 +11,9 @@ namespace MissDataMaiden
     internal class MissDataCallBackDispatcher : CallbackQueryHandler
     {
         IMediator mm;
-        public MissDataCallBackDispatcher(IMediator mediator)
-            => mm = mediator;
+ 
+        public MissDataCallBackDispatcher(IMediator mediator, IResponseNotification notifier) : base(notifier)
+        { }
 
         protected override Task HandleAsync(IHandleContext context, string command, string[] args) => command switch
         {
@@ -29,9 +30,14 @@ namespace MissDataMaiden
             ctx.InitContextData(args);
 
             var handler = context.GetAsyncHandler<TAction>();
-            
-            await handler.HandleAsync(ctx);
-            
+            try
+            {
+                await handler.HandleAsync(ctx);
+            }
+            catch (Exception ex)
+            {
+                await notifier.SendTextAsync(ex.Message);
+            }
             //if (context.GetNextHandler<TAction>() is IAsyncHandler<TAction> next)
             //    await next.HandleAsync(ctx).ConfigureAwait(false);
         }
