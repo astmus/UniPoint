@@ -9,22 +9,24 @@ namespace MissBot.Handlers
 {
     public class InlineQueryHandler : BaseHandler<InlineQuery>
     {
-        private static readonly object[] empty = { "Empty" };
+        private const string empty = "Empty";
 
-        public record DataUnit : BotEntity<InlineQuery>.Unit
+        public record InlineUnit : Unit<InlineQuery>, IInlineUnit
         {
-            public string Id { get; set; }
-            public string Title { get; set; } = "Title";
-            public string Content { get; set; } = "Content";
-        }
-        public record ResultUnit(string Id, string Title, object[] Content) : BotEntity<InlineQuery>.Unit, IInlineUnit
-        {
-            public static ResultUnit Create(DataUnit data, string filter, params object[] content)
-                => new ResultUnit(data.Id+filter, data.Title, content);
+            protected virtual void Refresh() { }
+            public string Id { get => Get<string>(); set { Set(value); Refresh(); } }
+            public string Title { get => Get<string>(); set => Set(value); }
+            public string Content { get => Get<string>(); set => Set(value); }
 
-            public static readonly ResultUnit Empty
-                = new ResultUnit("0", "No", empty);
+            public static readonly InlineUnit Empty
+                = new InlineUnit() { Id = "", Title = "Not found", Content = empty };
         }
+        //public record ResultUnit(string Id, string Title, string Content) : BotEntity<InlineQuery>.Unit, IInlineUnit
+        //{
+        //    public static ResultUnit Create(InlineUnit data, string filter, string content)
+        //        => new ResultUnit(data.Id+filter, data.Title, content);
+
+        //}
 
         public override Task ExecuteAsync(CancellationToken cancel = default)
             => Task.CompletedTask;
@@ -32,26 +34,20 @@ namespace MissBot.Handlers
         public async override Task HandleAsync(IContext<InlineQuery> context)
         {
             var data = context.Data;
-            var response = context.CreateResponse(data);            
-            
-            try
-            {
-                var items = await LoadAsync(data.Offset.IsNullOrEmpty() ? 0 : int.Parse(data.Offset), data.Query);
-                if (items.Count() != 0)
-                    response.Write(items);
-                else
-                    response.Write(ResultUnit.Empty);
-                await response.Commit(default);
-            }
-            finally
-            {
-                context.Root.Set(AsyncHandler);
-            }
+            var response = context.CreateResponse(data);
+
+            var items = await LoadAsync(data.Offset.IsNullOrEmpty() ? 0 : int.Parse(data.Offset), data.Query);
+            if (items.Count() != 0)
+                response.WriteResult(items);
+            else
+                response.Write(InlineUnit.Empty);
+            await response.Commit(default);
+
         }
         public virtual int? BatchSize { get; }
-        public  virtual Task<IEnumerable<ResultUnit>> LoadAsync(int skip, string filter)
-        {            
-            return Task.FromResult(Enumerable.Empty<ResultUnit>().Append(ResultUnit.Empty));
+        public virtual Task<BotUnion> LoadAsync(int skip, string filter)
+        {
+            return Task.FromResult(new BotUnion<InlineUnit>() { InlineUnit.Empty } as BotUnion);
         }
 
     }

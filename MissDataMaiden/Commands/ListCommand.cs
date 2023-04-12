@@ -8,7 +8,7 @@ namespace MissDataMaiden
     {
 
     }
-    public record ListUnit : List.Unit
+    public record ListUnit : BotUnion
     {
     }
 

@@ -13,11 +13,11 @@ using MissBot.Extensions.Response;
 
 namespace MissDataMaiden.Commands
 {
-
+    [JsonObject]
     public record Disk :  BotCommand<Disk>, IBotCommand
     {
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-        public record DataUnit : Disk.Unit
+        public record DataUnit : Unit<Disk>
         {
             public string Name { get; set; }
             public string Created { get; set; }
@@ -36,7 +36,7 @@ namespace MissDataMaiden.Commands
 
     public record DiskResponse : Response<Disk>
     {        
-        protected override Response<Disk> WriteUnit(BotUnit unit) => unit switch
+        protected override Response<Disk> WriteUnit(Unit<Disk> unit) => unit switch
         {
             Disk.DataUnit du => WriteDataUnit(du),
             _ => base.WriteUnit(unit)
@@ -44,6 +44,7 @@ namespace MissDataMaiden.Commands
 
         Response<Disk> WriteDataUnit(Disk.DataUnit data)
         {
+            
             Text += $"{data.Name.Shrink(10)}       {data.Created}      {data.DaysAgo}      {data.Size}".AsCodeTag().LineTag();
             
             return this;
@@ -63,7 +64,7 @@ namespace MissDataMaiden.Commands
         }
 
         public override Disk Command
-            => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
+            => new Disk() { Payload = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().GetValue<string>("Payload") };
 
         //public override async  Task BeforeComamandHandle(IContext<Disk> context)
         //{
@@ -75,7 +76,7 @@ namespace MissDataMaiden.Commands
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
             IResponse<Disk> response = context.CreateResponse(command);
-  
+            //command.Add(new Disk.DataUnit());
             var mm = context.Root.BotServices.GetService<IMediator>();
   
             

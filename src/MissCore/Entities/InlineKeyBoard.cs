@@ -9,7 +9,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record InlineAction : IEntityAction
+    public record InlineAction : Unit<InlineAction>, IEntityAction
     {
         public InlineAction(string data)
         {
@@ -32,27 +32,23 @@ namespace MissCore.Entities
             InlineKeyboardButton.WithCallbackData(s.Text, s.Data);
     }
 
-    
 
-    public class InlineKeyBoard : InlineKeyboardMarkup
+
+    public class InlineKeyBoard
     {
-        public static InlineKeyBoard Create(params string[] items)
-            => new InlineKeyBoard(items.Select(s=> (InlineKeyboardButton)new InlineAction(s)));
-        public InlineKeyBoard(InlineKeyboardButton inlineKeyboardButton) : base(inlineKeyboardButton)
+        public static InlineKeyBoard Init(InlineAction action = default)
+            => new InlineKeyBoard().Append(action);
+        public static InlineKeyBoard Append(ref InlineKeyBoard board, InlineAction action)
+        => board !=null ? board.Append(action) : Init(action);
+        public InlineKeyboardMarkup GetKeyboard
+            => new InlineKeyboardMarkup(actions);
+        List<InlineKeyboardButton> actions = new List<InlineKeyboardButton>();
+        
+
+        public InlineKeyBoard Append(InlineAction action)
         {
-        }
-        public InlineKeyBoard(InlineAction inlineKeyboardButton) : base(inlineKeyboardButton)
-        {
-        }
-        public InlineKeyBoard(IEnumerable<InlineAction> inlineKeyboardButton) : base(inlineKeyboardButton.Select(s=> (InlineKeyboardButton)s))
-        {
-        }
-        public InlineKeyBoard(IEnumerable<InlineKeyboardButton> inlineKeyboardRow) : base(inlineKeyboardRow)
-        {
-        }
-      
-        public InlineKeyBoard(IEnumerable<IEnumerable<InlineKeyboardButton>> inlineKeyboard) : base(inlineKeyboard)
-        {
-        }
+            actions.Add(action);
+            return this;
+        }        
     }
 }

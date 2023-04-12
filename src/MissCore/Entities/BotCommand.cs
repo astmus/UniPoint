@@ -7,7 +7,7 @@ namespace MissCore.Entities
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record BotCommand<TResult> : BotEntity<TResult>, IBotCommandData, IBotCommandInfo
+    public record BotCommand<TResult> : BotEntity<TResult>.Unit, IBotCommandData, IBotCommandInfo
     {
         /// <summary>
         /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.

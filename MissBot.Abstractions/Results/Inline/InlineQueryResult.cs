@@ -23,7 +23,6 @@ public abstract class InlineQueryResult
     /// </summary>
     [JsonProperty(Required = Required.Always)]
     public string Id { get; set; }
-
     /// <summary>
     /// Optional. Inline keyboard attached to the message
     /// </summary>

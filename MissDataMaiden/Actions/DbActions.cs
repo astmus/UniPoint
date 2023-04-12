@@ -14,13 +14,13 @@ using MissCore.Handlers;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore(string id) : InlineAction($"Restore;{nameof(DBRestore)}.{id}");
-    public record DBDelete(string id) : InlineAction($"Delete;{nameof(DBDelete)}.{id}");
-    public record DBInfo(string id) : InlineAction($"Info;{nameof(DBInfo)}.{id}")
+    public record DBRestore(string Id = default) : InlineAction($"Restore;{nameof(DBRestore)}.{Id}");
+    public record DBDelete(string Id = default) : InlineAction($"Delete;{nameof(DBDelete)}.{Id}");
+    public record DBInfo(string Id = default) : InlineAction($"Info;{nameof(DBInfo)}.{Id}")
     {
-        public record Response : Result
+        public record Response : Unit<DBInfo>
         {
-            public Response(string state) : base(state)
+            public Response(string state)
             {
             }
         }
@@ -39,7 +39,7 @@ namespace MissDataMaiden.Commands
         {
             var response = context.CreateResponse();
             
-            response.WriteResult(new DBInfo.Response("0"));
+            response.Write(new DBInfo.Response("0"));
 
             await response.Commit(default);
         }
@@ -54,18 +54,7 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
 
-        //protected override Response<Disk> WriteUnit(Unit<Disk> unit) => unit switch
-        //{
-        //    Disk.DataUnit du => WriteDataUnit(du),
-        //    _ => base.WriteUnit(unit)
-        //};
-
-        //Response<Disk> WriteDataUnit(Disk.DataUnit data)
-        //{
-        //    Text += $"{data.Name.Shrink(10)}       {data.Created}      {data.DaysAgo}      {data.Size}".AsCodeTag().LineTag();
-
-        //    return this;
-        //}
+      
     }
 
     //public class DiskCommandHandler : BotCommandHandler<Disk>

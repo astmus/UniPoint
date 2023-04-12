@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Results.Inline;
 using MissBot.Commands.Results.Inline;
+using MissCore.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;
@@ -21,16 +22,19 @@ namespace MissBot.Common
             => Query.Id;
         public override IEnumerable<InlineQueryResult> Results
             => results;
+        InlineKeyBoard keyboard;
+        InlineKeyBoard Keyboard
+        => keyboard ?? (keyboard = new InlineKeyBoard());
 
         List<InlineQueryResult> results = new List<InlineQueryResult>();
 
-        public override string? NextOffset { get; set; } = "15";
+        public override string? NextOffset
+            => results?.Count < 15 ? null : "15";
         public override int? CacheTime { get; set; } = 5000;
 
         public async Task Commit(CancellationToken cancel)
-        {
-            await Client().SendQueryRequestAsync(this);
-        }
+            =>  await Client().SendQueryRequestAsync(this);
+        
         public void Init(ICommonUpdate update, BotClientDelegate sender, T unit = null)
         {
             channel = update.Chat;
@@ -45,56 +49,57 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
-        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : BotUnion
+
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
         {
+            var content = unit.Meta.FirstOrNull<object?>("Content") ?? unit.Meta.FirstOrNull<object?>("Title");
+            InlineQueryResult result = InitResult(content);
+          
+
+            foreach (var item in unit.Meta)            
+                SetContent(item.Key, item.Value, result);
+
+            results.Add(result);
+            result.ReplyMarkup = keyboard?.GetKeyboard;
+            keyboard = null;          
         }
 
-        public override void Write<TUnitData>(TUnitData unit)
-        {
-            if (unit is IInlineUnit u)
-                results.Add(GetContent(u, u.Content));
-                //new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
-                //{ ReplyMarkup = u.Content[1] as InlineKeyboardMarkup });
-        }
-
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : BotUnion
         {
             foreach (var unit in units)
             {
-                var u = unit as IInlineUnit;
-                results.Add(GetContent(u, u.Content));
+                //   results.Add(GetContent(unit));
 
                 //new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
                 //{ ReplyMarkup = u.Content[1] as InlineKeyboardMarkup }); ;
+                //InlineKeyboardMarkup n = new InlineKeyboardMarkup();
+                
+
             }
         }
 
-        InlineQueryResult GetContent(params object[] content)
+    
+        object SetContent(string key, object value, InlineQueryResult result) => result switch
+            {
+                InlineQueryResultArticle article when key == nameof(article.Id) => article.Id = value +Query.Query,
+                InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
+                InlineQueryResultArticle article when value is InlineAction action => Keyboard.Append(action),
+                //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
+                _ => result
+            };           
+        
+    
+    InlineQueryResult InitResult(object? data) => data switch
         {
-            InlineQueryResult result = null;
-       
-            result = InitResult(content[0]);
-            
-            foreach (var item in content)
-                SetupContent(item, result);
-            return result;
-
-        void SetupContent(object value, InlineQueryResult result)
-        {
-            object value1 = value switch {
-                IInlineUnit unit => result.Id = unit.Id,
-                InlineKeyboardMarkup markup => result.ReplyMarkup = markup,
-                _ => null
-            };
-        }
-        }
-
-        InlineQueryResult InitResult(object value) => value switch
-        {
-            IInlineUnit unit when unit.Content[0] is string str => new InlineQueryResultArticle(unit.Id,unit.Title, new InputTextMessageContent(str)),            
+             string weak => new InlineQueryResultArticle(null, null, new InputTextMessageContent(weak)),
             _ => null
         };
 
+        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : BotUnion
+        {
+            foreach (var item in unit)
+                Write(item as Unit<T>);            
+        }
     }
 
 

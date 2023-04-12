@@ -43,7 +43,7 @@ namespace MissBot.Abstractions
         /// don't support pagination. Offset length can't exceed 64 bytes
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public abstract string? NextOffset { get; set; }
+        public abstract string? NextOffset { get; }
 
         /// <summary>
         /// If passed, clients will display a button with specified text that switches the

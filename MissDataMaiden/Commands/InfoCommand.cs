@@ -11,7 +11,7 @@ namespace MissDataMaiden.Commands
         
     }
 
-    public record InfoUnit(string s) :  Info.Unit
+    public record InfoUnit(string s) : Value
     {
 
     }
@@ -22,7 +22,8 @@ namespace MissDataMaiden.Commands
         SqlRaw<InfoUnit>.Query CurrentRequest { get; set; }
    
         public IConfiguration Config { get; }
-        public override Info Command { get; }
+        public override Info Command
+            => new Info() { Payload = Config.GetSection(nameof(IBotCommandInfo)).GetChildren().Skip(1).First().GetValue<string>("Payload") };
 
         IMediator mm;
         string connectionString;

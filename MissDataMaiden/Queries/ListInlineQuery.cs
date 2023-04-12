@@ -17,23 +17,48 @@ using Telegram.Bot.Types.InlineQueryResults;
 namespace MissDataMaiden.Commands
 {
 
-    public record ListDBs :  BotEntity<InlineQuery>
+    public record ListDBs : BotEntity<InlineQuery>.Unit
     {
         public string Query { get; set; }
-        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<InlineQueryHandler.DataUnit>(sql, skip,take, filter);
-        public class QueryHandler : SqlRaw<InlineQueryHandler.DataUnit>.Handler<SqlQuery<InlineQueryHandler.DataUnit>>
+        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<ListDiskInlineUnit>.Query(sql, skip, take, filter);
+        public class QueryHandler : SqlQuery.Handler<SqlQuery>
         {
             public QueryHandler(IConfiguration config) : base(config)
             {
             }
         }
     }
+    public record ListDiskInlineUnit : InlineQueryHandler.InlineUnit
+    {
+        static ListDiskInlineUnit()
+        {
+            Unit<DBInfo>.Sample = new DBInfo();
+            Unit<DBDelete>.Sample = new DBDelete();
+            Unit<DBRestore>.Sample = new DBRestore();            
+        }
+        public ListDiskInlineUnit()
+        {
+         
+        }
+        protected override void Refresh()
+        {
+            var v = Info;
+            var d = Delete;
+            var r = Restore;
+        }
+        public DBInfo Info
+            => Set(Unit<DBInfo>.Sample with { Id = this.Id });
+        public DBDelete Delete
+            => Set(Unit<DBDelete>.Sample with { Id = this.Id });
+        public DBRestore Restore
+            => Set(Unit<DBRestore>.Sample with { Id = this.Id });
+    }
 
     public class ListDiskInlineHandler : InlineQueryHandler
     {
         private readonly IConfiguration config;
         private readonly IMediator mm;
-        SqlQuery<DataUnit> CurrentRequest;
+        ListDBs.SqlQuery CurrentRequest;
         ListDBs dbs;
 
         public ListDiskInlineHandler(IConfiguration config, IMediator mm)
@@ -42,19 +67,20 @@ namespace MissDataMaiden.Commands
 
             this.config = config;
             this.mm = mm;
-            dbs = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].Get<ListDBs>();
-            CurrentRequest = new SqlQuery<DataUnit>(dbs.Query, 0, BatchSize ?? 15,"");
+            dbs = new ListDBs() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
+            CurrentRequest = new ListDBs.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
         }
 
 
-        public async override Task<IEnumerable<ResultUnit>> LoadAsync(int skip, string filter)
+        public async override Task<BotUnion> LoadAsync(int skip, string filter)
         {
             var objs = await mm.Send(CurrentRequest with { skip = skip, filter = filter });
-            return objs.Select(s => ResultUnit.Create(s,filter, s.Content, Create(s.Id))) ?? new []{ ResultUnit.Empty};
+            return objs;
+            //ResultUnit.Create(s,filter, s.Content, Create(s.Id))) ?? new []{ ResultUnit.Empty};
         }
 
-        InlineKeyboardMarkup Create(string id)
-            =>new InlineKeyBoard(new InlineAction[]{ new DBInfo(id), new DBDelete(id), new DBRestore(id) });
+        //InlineKeyboardMarkup Create(string id)
+        //    =>new InlineKeyBoard(new InlineAction[]{ new DBInfo(id), new DBDelete(id), new DBRestore(id) });
 
     }
 }

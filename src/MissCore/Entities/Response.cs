@@ -35,7 +35,7 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }        
-        public override void Write<TUnitData>(TUnitData unit)
+        public  void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T> 
         {            
             WriteUnit(unit);            
         }
@@ -43,15 +43,15 @@ namespace MissBot.Common
         public void WriteResult<TUnitData>(TUnitData units) where TUnitData : BotUnion
         {
             foreach (var unit in units)
-                Write(unit);
+                Write(unit as Unit<T>);
         }
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : BotUnion
         {
             foreach (var unit in units)
-                Write(unit);
+                Write(unit as Unit<T>);
         }
 
-        protected virtual Response<T> WriteUnit(BotUnit unit)
+        protected virtual Response<T> WriteUnit(Unit<T> unit)
         {
             Text += unit.ToString().AsSection("Section");
             return this;

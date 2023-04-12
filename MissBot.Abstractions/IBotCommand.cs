@@ -21,7 +21,7 @@ namespace MissBot.Abstractions
 
     public interface IInlineUnit
     {
-        object[] Content { get; }
+        string Content { get; }
         string Id { get; }
         string Title { get;  }
     }

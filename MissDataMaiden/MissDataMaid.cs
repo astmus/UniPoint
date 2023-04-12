@@ -20,7 +20,10 @@ namespace MissDataMaiden
 
         public User BotInfo { get; set; }
         public Func<ICommonUpdate, string> ScopePredicate
-             => (u) => u is Update<MissDataMaid> upd ? $"{nameof(upd.Chat)}: {upd.Chat.Id}" : "";
+             => (update) => update switch {
+             Update upd when upd.Type is Telegram.Bot.Types.Enums.UpdateType.InlineQuery => $"{upd.InlineQuery.Id}",  
+             _=> $"{nameof(update.Chat)}: {update.Chat.Id}"
+             };
 
         public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime)
         {
