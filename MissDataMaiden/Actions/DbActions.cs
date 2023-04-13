@@ -16,31 +16,24 @@ using MissBot.Abstractions.Persistance;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore(string Id = default) : InlineAction<DataBase>($"Restore;{nameof(DBRestore)}.{Id}");
-    public record DBDelete(string Id = default) : InlineAction($"Delete;{nameof(DBDelete)}.{Id}");
-    public record DBInfo(string Id = default) : InlineAction<DataBase>($"Info;{nameof(DBInfo)}.{Id}")
-    {
-        public record Response : Unit<DBInfo>
-        {
-            public Response(string state)
-            {
-            }
-        }    
-    }
+    public record DBRestore : InlineAction<DataBase>;
+    public record DBDelete : InlineAction<DataBase>;
+    public record DBInfo : InlineAction<DataBase>;
 
-    public class DdActionHandler : BaseHandler<DBInfo>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DataBase, DBInfo>
+    public class DdActionHandler : BaseHandler<InlineAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {
-        public async Task HandleActionAsync(IRepository<DataBase> repository, IContext<DBInfo> context)
+        
+
+        public Task HandleActionAsync(DBInfo action, IHandleContext context, CancellationToken cancel = default)
         {
-            var db = await repository.GetAsyncById(Convert.ToInt32(context.Data.Data));
-            
+            throw new NotImplementedException();
         }
 
-        public async override Task HandleAsync(IContext<DBInfo> context)
+        public async  Task HandleAsync(IContext<DBInfo> context)
         {
             var response = context.CreateResponse();
             
-            response.Write(new DBInfo.Response("0"));
+            //response.Write(new DBInfo.Response("0"));
 
             await response.Commit(default);
         }
@@ -55,7 +48,10 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
 
-      
+        public override Task HandleAsync(IContext<InlineAction<DataBase>> context)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     //public class DiskCommandHandler : BotCommandHandler<Disk>

@@ -48,7 +48,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Extensions.Entities
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Commands", "MissBot.Commands\MissBot.Commands.csproj", "{138D1439-A20B-4BF7-8E94-558214FC6817}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissBot.Abstractions", "MissBot.Abstractions\MissBot.Abstractions.csproj", "{51B33F67-77DB-4AD2-9647-4D23E1A01711}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Abstractions", "MissBot.Abstractions\MissBot.Abstractions.csproj", "{51B33F67-77DB-4AD2-9647-4D23E1A01711}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.DataAccess", "src\MissBot.DataAccess\MissBot.DataAccess.csproj", "{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{51B33F67-77DB-4AD2-9647-4D23E1A01711}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51B33F67-77DB-4AD2-9647-4D23E1A01711}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51B33F67-77DB-4AD2-9647-4D23E1A01711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +143,7 @@ Global
 		{E9EB6953-A065-48B3-9C13-9726C181241B} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
 		{138D1439-A20B-4BF7-8E94-558214FC6817} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
 		{51B33F67-77DB-4AD2-9647-4D23E1A01711} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
+		{A8FDE566-D5C6-40B2-A256-1AA7F22400D1} = {6ED356A7-8B47-4613-AD01-C85CF28491BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3CB609D9-5D54-4C11-A371-DAAC8B74E430}

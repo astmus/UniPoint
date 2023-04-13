@@ -1,5 +1,6 @@
 using MediatR;
 using MissBot.Abstractions;
+using MissBot.Attributes;
 using MissBot.Extensions.Entities;
 using MissBot.Handlers;
 using MissCore.Entities;
@@ -27,8 +28,8 @@ namespace MissDataMaiden
         {        
 
             var ctx = context.CreateDataContext<TAction>();
-            ctx.InitContextData(args);
-
+            ctx.Data = Unit<TAction>.Sample with { Id = args[0] };
+            
             var handler = context.GetAsyncHandler<TAction>();
             try
             {
@@ -38,8 +39,6 @@ namespace MissDataMaiden
             {
                 await notifier.SendTextAsync(ex.Message);
             }
-            //if (context.GetNextHandler<TAction>() is IAsyncHandler<TAction> next)
-            //    await next.HandleAsync(ctx).ConfigureAwait(false);
         }
     }
 }

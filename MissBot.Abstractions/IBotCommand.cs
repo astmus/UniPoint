@@ -14,9 +14,12 @@ namespace MissBot.Abstractions
 
     public interface IEntityAction
     {
+        object? Id { get; }
+        string Text { get; }
     }
     public interface IEntityAction<TEntity> : IEntityAction
     {
+        
     }
 
     public interface IInlineUnit
@@ -24,6 +27,7 @@ namespace MissBot.Abstractions
         string Content { get; }
         string Id { get; }
         string Title { get;  }
+        string Description { get; }
     }
     public interface IBotCommandInfo
     {

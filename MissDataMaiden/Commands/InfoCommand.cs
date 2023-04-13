@@ -11,7 +11,7 @@ namespace MissDataMaiden.Commands
         
     }
 
-    public record InfoUnit(string s) : Value
+    public record InfoUnit(string s) : ValueUnit
     {
 
     }

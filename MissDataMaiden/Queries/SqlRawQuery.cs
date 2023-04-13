@@ -8,7 +8,7 @@ using MissBot.Abstractions;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlQuery<TUnit> : IRequest<BotUnion<TUnit>> where TUnit : Value {
+    public record SqlQuery<TUnit> : IRequest<BotUnion<TUnit>> where TUnit : class {
         public record Query(string sql, int skip, int take, string filter) : SqlQuery<TUnit>;
         public class Handler<TQuery> : IRequestHandler<TQuery, BotUnion<TUnit>> where TQuery : SqlQuery<TUnit>.Query
         {
@@ -40,7 +40,7 @@ namespace MissDataMaiden.Queries
 
         }
         }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : Value
+    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : ValueUnit
     {
         public record Query(string sql, string connection = null) : SqlRaw<TUnion>;
         public class StreamHandler<TQuery> : IStreamRequestHandler<TQuery, TUnion> where TQuery : SqlRaw<TUnion>.Query

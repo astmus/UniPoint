@@ -7,29 +7,40 @@ using Telegram.Bot.Types.InlineQueryResults;
 
 namespace MissBot.Handlers
 {
-    public class InlineQueryHandler : BaseHandler<InlineQuery>
+    public record InlineUnit<TEntity> : Unit<TEntity>, IInlineUnit
+    {
+        protected override sealed void InvalidateEntityData(TEntity unit)
+            => InvalidateMetadate(this, unit);
+
+        protected virtual TEntity InvalidateMetadate(InlineUnit<TEntity> unit, TEntity entity)
+            => Value;
+        
+        //protected override sealed void InvalidateMetadata<TUnit>(TUnit unit, TEntity entity)
+        //{
+        //    InvalidateMetaData(this, entity);
+        //}
+        
+        public string Id { get => Get<string>(); set { Set(value); } }
+        public string Title { get => Get<string>(); set => Set(value); }
+        public string Content { get => Get<string>(); set => Set(value); }
+        public string Description { get => Get<string>(); set => Set(value); }
+
+
+    }
+    public record InlineUnit : ValueUnit, IInlineUnit
     {
         private const string empty = "Empty";
+        public string Id { get => Get<string>(); set { Set(value); } }
+        public string Title { get => Get<string>(); set => Set(value); }
+        public string Content { get => Get<string>(); set => Set(value); }
+        public string Description { get => Get<string>(); set => Set(value); }
 
-        public record InlineUnit : Unit<InlineQuery>, IInlineUnit
-        {
-            protected virtual void Refresh() { }
-            public string Id { get => Get<string>(); set { Set(value); Refresh(); } }
-            public string Title { get => Get<string>(); set => Set(value); }
-            public string Content { get => Get<string>(); set => Set(value); }
+        public static readonly InlineUnit Empty
+            = new InlineUnit() { Id = "", Title = "Not found", Content = empty };
+    }
 
-            public static readonly InlineUnit Empty
-                = new InlineUnit() { Id = "", Title = "Not found", Content = empty };
-        }
-        //public record ResultUnit(string Id, string Title, string Content) : BotEntity<InlineQuery>.Unit, IInlineUnit
-        //{
-        //    public static ResultUnit Create(InlineUnit data, string filter, string content)
-        //        => new ResultUnit(data.Id+filter, data.Title, content);
-
-        //}
-
-        public override Task ExecuteAsync(CancellationToken cancel = default)
-            => Task.CompletedTask;
+    public abstract class InlineQueryHandler : BaseHandler<InlineQuery>
+    {       
 
         public async override Task HandleAsync(IContext<InlineQuery> context)
         {
@@ -45,10 +56,10 @@ namespace MissBot.Handlers
 
         }
         public virtual int? BatchSize { get; }
-        public virtual Task<BotUnion> LoadAsync(int skip, string filter)
-        {
-            return Task.FromResult(new BotUnion<InlineUnit>() { InlineUnit.Empty } as BotUnion);
-        }
+        public abstract Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string filter);
+        //{
+        //    return Task.FromResult(new BotUnion<InlineUnit>() { InlineUnit.Empty } as BotUnion);
+        //}
 
     }
 }

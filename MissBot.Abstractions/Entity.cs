@@ -10,52 +10,49 @@ using System.Threading.Tasks;
 
 namespace MissBot.Abstractions
 {
-    public record BotUnion<TUnit> : BotUnion where TUnit : Value
+    public record BotUnion<TUnit> : BotEntity<TUnit>.Union where TUnit : class
     {
-        public void Add(TUnit obj)
-            => base.Add(obj);
+
     }
     [JsonObject]
-    public record BotUnion : Value, IList<Value>
+    public record BotUnion : ValueUnit, IList<ValueUnit>
     {
-        public BotUnion(IEnumerable<Value> units = default)
+        public BotUnion(IEnumerable<ValueUnit> units = default)
         {
             if (units != null)
                 Union.AddRange(units);
         }
-        List<Value> union;
-        protected List<Value> Union
-            => union ?? (union = new List<Value>());
+        List<ValueUnit> union;
+        protected List<ValueUnit> Union
+            => union ?? (union = new List<ValueUnit>());
         public int Count => Union?.Count ?? 0;
-
         public bool IsReadOnly
             => false;
 
-        Value IList<Value>.this[int index] { get => ((IList<Value>)Union)[index]; set => ((IList<Value>)Union)[index] = value; }
+        ValueUnit IList<ValueUnit>.this[int index] { get => ((IList<ValueUnit>)Union)[index]; set => ((IList<ValueUnit>)Union)[index] = value; }
         public BotUnion this[int index] { get => ((IList<BotUnion>)Union)[index]; set => ((IList<BotUnion>)Union)[index] = value; }
 
-        public static implicit operator List<Value>(BotUnion unit)
+        public static implicit operator List<ValueUnit>(BotUnion unit)
             => unit.Union;
-        public static implicit operator BotUnion(List<Value> units)
+        public static implicit operator BotUnion(List<ValueUnit> units)
             => new BotUnion(units);
-        public void Add(Value obj)
+        public void Add(ValueUnit obj)
             => this.Union.Add(obj);
-        public BotUnion Add(params Value[] units)
+        public BotUnion Add(params ValueUnit[] units)
         {
             Union.AddRange(units);
             return this;
         }
-        public void Add(string obj)
-            => this.Union.Add(new Value(obj));
+ 
 
-        public int IndexOf(Value item)
+        public int IndexOf(ValueUnit item)
         {
-            return ((IList<Value>)Union).IndexOf(item);
+            return ((IList<ValueUnit>)Union).IndexOf(item);
         }
 
-        public void Insert(int index, Value item)
+        public void Insert(int index, ValueUnit item)
         {
-            ((IList<Value>)Union).Insert(index, item);
+            ((IList<ValueUnit>)Union).Insert(index, item);
         }
 
         public void RemoveAt(int index)
@@ -65,27 +62,27 @@ namespace MissBot.Abstractions
 
         public void Clear()
         {
-            ((ICollection<Value>)Union).Clear();
+            ((ICollection<ValueUnit>)Union).Clear();
         }
 
-        public bool Contains(Value item)
+        public bool Contains(ValueUnit item)
         {
-            return ((ICollection<Value>)Union).Contains(item);
+            return ((ICollection<ValueUnit>)Union).Contains(item);
         }
 
-        public void CopyTo(Value[] array, int arrayIndex)
+        public void CopyTo(ValueUnit[] array, int arrayIndex)
         {
-            ((ICollection<Value>)Union).CopyTo(array, arrayIndex);
+            ((ICollection<ValueUnit>)Union).CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(Value item)
+        public bool Remove(ValueUnit item)
         {
-            return ((ICollection<Value>)Union).Remove(item);
+            return ((ICollection<ValueUnit>)Union).Remove(item);
         }
 
-        public IEnumerator<Value> GetEnumerator()
+        public IEnumerator<ValueUnit> GetEnumerator()
         {
-            return Union?.GetEnumerator() ?? Enumerable.Empty<Value>().GetEnumerator();
+            return Union?.GetEnumerator() ?? Enumerable.Empty<ValueUnit>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -93,89 +90,155 @@ namespace MissBot.Abstractions
 
     }
 
-    public record MetaInfo(string key, MetaReference reference);
-    public record MetaReference(WeakReference reference)
+
+    public record Unit<TEntity> : ValueUnit
     {
-        public object? Value
-            => reference.Target;
-        public T As<T>() where T : class
+        TEntity entity;
+        public TEntity Value { get=>entity; init=> entity = value; }
+
+        protected virtual void InvalidateEntityData(TEntity unit)
+        { }
+        public static TEntity Sample
+            => Instance.Value;
+        public static readonly Unit<TEntity> Instance
+            = new Unit<TEntity>() { Value = Activator.CreateInstance<TEntity>() };
+        public override MetaInfo Meta
         {
-            if (reference.Target is T value)
-                return value;
-            return default(T);
+            get
+            {
+                InvalidateEntityData(Value);
+                return MetaData;
+            }
         }
     }
-    
-    public class MetaData : ConcurrentDictionary<string, object>
+
+    public record ValueUnit
     {
+        MetaInfo meta;
+        protected MetaInfo MetaData
+            => meta ?? (meta = new MetaInfo());
+        public class MetaInfo : ConcurrentDictionary<string, object>
+        {
+            public T Get<T>([CallerMemberName] string name = default)
+            {
+                if (TryGetValue(name, out var r) && r is T value)
+                    return value;
+                return default(T);
+            }
+
+            public TAny FirstOrNull<TAny>(string name)
+                => this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
+
+
+            public T Set<T>(T value, [CallerMemberName] string name = default)
+            {
+                AddOrUpdate<T>(name,
+                    (k, w) => w,
+                    (k, o, w) => this[k] = w,
+                    value);
+                return value;
+            }
+        }
         
-
-        public T Get<T>([CallerMemberName] string name = default) 
+        protected T Set<T>(T value, [CallerMemberName] string name = default)
+            => MetaData.Set(value, name);
+        protected T Get<T>([CallerMemberName] string name = default)
+            => MetaData.Get<T>(name);
+        public virtual MetaInfo Meta
         {
-            if (TryGetValue(name, out var r) && r  is T value)
-                return value;
-            return default(T);
+            get
+            {
+                
+                return MetaData;
+            }
         }
 
-        public TAny FirstOrNull<TAny>(string name)
-        {
-            return this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
-        }
-
-        public T Set<T>(T value, [CallerMemberName] string name = default)
-        {
-            AddOrUpdate<T>(name,
-                (k, w) => w,
-                (k, o, w) => this[k] = w,
-                value);
-            return value;
-        }
-        public void Reset()
-            => Clear();
-    }
-
-    public record Unit<TEntity> : Value
-    {
-        protected MetaData meta;
-        public MetaData Meta
-            => meta ?? (meta = new MetaData());
-        public TEntity Value { get; set; }
-        static Unit()
-        {
-            Instance = new Unit<TEntity>() with { Value = Sample = default(TEntity) };
-        }
-        public static Unit<TEntity> Init(TEntity entity)
-            => Instance with { Value = entity };
-        public static Unit<TValue> Init<TValue>(TValue entity = default) where TValue : Unit<TEntity>
-            => Unit<TValue>.Init(entity);
-
-        public static TEntity Sample { get; set; }
-        public static Unit<TEntity> Instance { get; protected set; }
-        protected T Set<T>(T value, [CallerMemberName] string name = default) 
-        {
-            return Meta.Set(value, name);
-        }
-        protected T Get<T>([CallerMemberName] string name = default) 
-        {
-            return Meta.Get<T>(name);
-        }
-        //public static Unit<TEntity> operator +(Unit<TEntity> a, Unit<TEntity> b)
-        //   => new Unit<KeyValuePair<Value, Value>>(new KeyValuePair<Value, Value>(a.unit, b.unit));
-
-    }
-    public record Value(object value = default)
-    {
-        public static implicit operator Value(int unit)
-            => new Value(unit);
-        public static implicit operator int(Value unit)
-            => Convert.ToInt32(unit.value);
-        public static Value operator -(Value a, Value b)
-            => a + (-b);
+        
+        
     }
 
     public static class BotEntity<TUnit>
     {
+        public static TEntityUnit Instance<TEntityUnit>() where TEntityUnit : Unit<TUnit>
+            => BotEntity<TEntityUnit>.Unit.Sample;
         public abstract record Response : ResponseMessage<TUnit>;
-        public record Unit : BotUnion;
+        public record Union : Unit<List<TUnit>>, IList<TUnit>
+    {
+        public Union(IEnumerable<TUnit> units = default)
+        {
+            if (units != null)
+                Units.AddRange(units);
+        }
+        List<TUnit> union;
+        protected List<TUnit> Units
+            => union ?? (union = new List<TUnit>());
+        public int Count => Units?.Count ?? 0;
+        public bool IsReadOnly
+            => false;
+
+            TUnit IList<TUnit>.this[int index] { get => ((IList<TUnit>)Units)[index]; set => ((IList<TUnit>)Units)[index] = value; }
+        public BotUnion this[int index] { get => ((IList<BotUnion>)Units)[index]; set => ((IList<BotUnion>)Units)[index] = value; }
+
+        public static implicit operator List<TUnit>(Union unit)
+            => unit.Units;
+        public static implicit operator Union(List<TUnit> units)
+            => new Union(units);
+        public void Add(TUnit obj)
+            => this.Units.Add(obj);
+        public Union Add(params TUnit[] units)
+        {
+            Units.AddRange(units);
+            return this;
+        }
+
+        public int IndexOf(TUnit item)
+        {
+            return ((IList<TUnit>)Units).IndexOf(item);
+        }
+
+        public void Insert(int index, TUnit item)
+        {
+            ((IList<TUnit>)Units).Insert(index, item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            Units?.RemoveAt(index);
+        }
+
+        public void Clear()
+        {
+            ((ICollection<TUnit>)Units).Clear();
+        }
+
+        public bool Contains(TUnit item)
+        {
+            return ((ICollection<TUnit>)Units).Contains(item);
+        }
+
+        public void CopyTo(TUnit[] array, int arrayIndex)
+        {
+            ((ICollection<TUnit>)Units).CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(TUnit item)
+        {
+            return ((ICollection<TUnit>)Units).Remove(item);
+        }
+
+        public IEnumerator<TUnit> GetEnumerator()
+        {
+            return Units?.GetEnumerator() ?? Enumerable.Empty<TUnit>().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+
+            
+        }
+        public record Unit : Unit<TUnit>
+        {
+           
+        }
     }
 }

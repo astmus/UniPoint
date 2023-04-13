@@ -9,49 +9,33 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record InlineAction : Value, IEntityAction
+    public record InlineAction : ValueUnit, IEntityAction
     {
-        public InlineAction(string data)
-        {
-            var items = data.Split(";");
-            Text = items[0];
-            Data = items.Skip(1)?.FirstOrDefault();
-        }      
-
         public string Text { get; set; }
-        public string Data { get; set; }
-
+        public object? Id { get; set; }
+        public virtual string Action { get; init; }
+     
         public static implicit operator InlineAction(string data) =>
-            new InlineAction(data);
+            new InlineAction() { Action = data };
         public static implicit operator InlineKeyboardButton(InlineAction s) =>
-            InlineKeyboardButton.WithCallbackData(s.Text, s.Data);
+            InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Id}");
     }
-
-    
+       
 
     public record InlineAction<TEntity> : InlineAction, IEntityAction<TEntity>
     {
-        public InlineAction(string data) : base(data)
-        {
-        }
+    
     }
 
 
-
-    public class InlineKeyBoard
-    {
-        public static InlineKeyBoard Init(InlineAction action = default)
-            => new InlineKeyBoard().Append(action);
-        public static InlineKeyBoard Append(ref InlineKeyBoard board, InlineAction action)
-        => board !=null ? board.Append(action) : Init(action);
+    public class InlineKeyBoard : List<InlineKeyboardButton>
+    {        
         public InlineKeyboardMarkup GetKeyboard
-            => new InlineKeyboardMarkup(actions);
-        List<InlineKeyboardButton> actions = new List<InlineKeyboardButton>();
-        
+            => new InlineKeyboardMarkup(this);               
 
         public InlineKeyBoard Append(InlineAction action)
         {
-            actions.Add(action);
+            Add(action);
             return this;
         }        
     }

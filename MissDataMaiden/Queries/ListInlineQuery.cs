@@ -13,53 +13,44 @@ using MissBot.Extensions.Response;
 using Telegram.Bot.Types;
 using MissBot.Handlers;
 using Telegram.Bot.Types.InlineQueryResults;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.Commands
 {
 
-    public record ListDBs : BotEntity<InlineQuery>.Unit
+    public record DbListUnit : InlineUnit<DataBase>
     {
         public string Query { get; set; }
-        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<ListDiskInlineUnit>.Query(sql, skip, take, filter);
+        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<DbListUnit>.Query(sql, skip, take, filter);
         public class QueryHandler : SqlQuery.Handler<SqlQuery>
         {
             public QueryHandler(IConfiguration config) : base(config)
             {
             }
         }
-    }
-    public record ListDiskInlineUnit : InlineQueryHandler.InlineUnit
-    {
-        static ListDiskInlineUnit()
+        protected override DataBase InvalidateMetadate(InlineUnit<DataBase> unit, DataBase entity)
         {
-            Unit<DBInfo>.Sample = new DBInfo();
-            Unit<DBDelete>.Sample = new DBDelete();
-            Unit<DBRestore>.Sample = new DBRestore();            
+            unit.Description = nameof(InvalidateMetadate);
+            Set(Info);
+            Set(Delete);
+            return entity;
         }
-        public ListDiskInlineUnit()
-        {
-         
-        }
-        protected override void Refresh()
-        {
-            var v = Info;
-            var d = Delete;
-            var r = Restore;
-        }
+  
         public DBInfo Info
-            => Set(Unit<DBInfo>.Sample with { Id = this.Id });
+            => Set(Unit<DBInfo>.Sample with { Id = this.Id, Action = nameof(DBInfo) });
         public DBDelete Delete
-            => Set(Unit<DBDelete>.Sample with { Id = this.Id });
+            => Set(Unit<DBDelete>.Sample with { Id = this.Id, Action = nameof(DBDelete) });
         public DBRestore Restore
-            => Set(Unit<DBRestore>.Sample with { Id = this.Id });
+            => Set(Unit<DBRestore>.Sample with { Id = this.Id, Action = nameof(DBRestore) });
     }
+
 
     public class ListDiskInlineHandler : InlineQueryHandler
     {
         private readonly IConfiguration config;
         private readonly IMediator mm;
-        ListDBs.SqlQuery CurrentRequest;
-        ListDBs dbs;
+        DbListUnit.SqlQuery CurrentRequest;
+        DbListUnit dbs;
 
         public ListDiskInlineHandler(IConfiguration config, IMediator mm)
         {
@@ -67,15 +58,17 @@ namespace MissDataMaiden.Commands
 
             this.config = config;
             this.mm = mm;
-            dbs = new ListDBs() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
-            CurrentRequest = new ListDBs.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
+            dbs = new DbListUnit() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
+            CurrentRequest = new DbListUnit.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
         }
 
 
-        public async override Task<BotUnion> LoadAsync(int skip, string filter)
+        public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string filter)
         {
             var objs = await mm.Send(CurrentRequest with { skip = skip, filter = filter });
-            return objs;
+            return objs;//.Select( d
+             //  => Unit<ListDBInlineUnit>.Sample  with { Value = d }).ToList();
+           
             //ResultUnit.Create(s,filter, s.Content, Create(s.Id))) ?? new []{ ResultUnit.Empty};
         }
 

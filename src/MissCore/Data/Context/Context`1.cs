@@ -49,8 +49,7 @@ namespace MissCore.Data.Context
         public IAsyncHandler<T> GetAsyncHandler<T>()
             => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-        public TScope InitContextData(params object[] args)
-            => Data = (TScope)Activator.CreateInstance(typeof(TScope), args);
+      
 
         public IResponse<TScope> CreateResponse(TScope scopeData = default)
         {

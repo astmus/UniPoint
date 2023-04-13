@@ -38,7 +38,7 @@ namespace MissDataMaiden.Commands
     {
 
 
-        protected override Response<Disk> WriteUnit(Unit<Disk> unit) => unit switch
+        protected override Response<Disk> WriteUnit(ValueUnit unit) => unit switch
         {
             Disk.DataUnit du => WriteDataUnit(du),
             _ => base.WriteUnit(unit)

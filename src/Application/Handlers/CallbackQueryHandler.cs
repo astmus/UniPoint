@@ -18,6 +18,7 @@ namespace MissBot.Handlers
         {
             var query = context.Data;
             data = query.GetCommandAndArgs();           
+            notifier.Init(null, context.ClientDelegate, context.Data);
 
             try
             {                
@@ -25,7 +26,6 @@ namespace MissBot.Handlers
             }
             catch (Exception ex)
             {
-                notifier.Init(null, context.ClientDelegate, context.Data);
                 await notifier.ShowPopupAsync(ex.Message);
             }
             context.CommonUpdate.IsHandled = true;

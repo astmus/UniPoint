@@ -24,8 +24,6 @@ namespace MissBot.Common
 
         public async Task Commit(CancellationToken cancel)
         {
-           
-            await Client().SendQueryRequestAsync(this, cancel);
             message = Result = await Client().SendQueryRequestAsync(this, cancel);
         }
         public void Init(ICommonUpdate update, BotClientDelegate sender, T data = default)
@@ -39,23 +37,23 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }        
-        public  void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T> 
+        public  void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {            
             WriteUnit(unit);            
         }
 
-        public void WriteResult<TUnitData>(TUnitData units) where TUnitData : BotUnion
+        public void WriteResult<TUnitData>(TUnitData units) where TUnitData : IEnumerable<ValueUnit>
         {
             foreach (var unit in units)
-                Write(unit as Unit<T>);
+                Write(unit);
         }
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : BotUnion
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : ValueUnit
         {
             foreach (var unit in units)
-                Write(unit as Unit<T>);
+                Write(unit);
         }
 
-        protected virtual Response<T> WriteUnit(Unit<T> unit)
+        protected virtual Response<T> WriteUnit(ValueUnit unit)
         {
             Text += unit.ToString().AsSection("Section");
             return this;

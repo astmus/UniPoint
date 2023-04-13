@@ -4,7 +4,6 @@ namespace MissBot.Abstractions
 {
     public interface IAsyncHandler
     {
-        ExecuteHandler ExecuteHandler { get; }
         AsyncHandler AsyncHandler { get; }
     }
 
@@ -14,14 +13,14 @@ namespace MissBot.Abstractions
         Task HandleAsync<TCommand>(IHandleContext context) where TCommand :class, IBotCommand;
     
     }
-
+    
     public interface IAsyncHandler<T> : IAsyncHandler
     {
         Task HandleAsync(IContext<T> context);
     }
-    public interface IAsyncEntityActionHandler<TEntity, TAction> : IAsyncHandler<TAction> where TAction:IEntityAction<TEntity>
+    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction:class, IEntityAction
     {
-        Task HandleActionAsync(IRepository<TEntity> repository, IContext<TAction> context);
+        Task HandleActionAsync(TAction action, IHandleContext context, CancellationToken cancel = default);
     }
 
 

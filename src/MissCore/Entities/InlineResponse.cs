@@ -30,7 +30,7 @@ namespace MissBot.Common
 
         public override string? NextOffset
             => results?.Count < 15 ? null : "15";
-        public override int? CacheTime { get; set; } = 5000;
+        public override int? CacheTime { get; set; } = 5;
 
         public async Task Commit(CancellationToken cancel)
             =>  await Client().SendQueryRequestAsync(this);
@@ -50,21 +50,22 @@ namespace MissBot.Common
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {
-            var content = unit.Meta.FirstOrNull<object?>("Content") ?? unit.Meta.FirstOrNull<object?>("Title");
+            var meta = unit.Meta;
+                var content = meta.FirstOrNull<object?>("Content") ?? meta.FirstOrNull<object?>("Title");
             InlineQueryResult result = InitResult(content);
           
 
-            foreach (var item in unit.Meta)            
+            foreach (var item in meta)            
                 SetContent(item.Key, item.Value, result);
 
+            result.ReplyMarkup = Keyboard?.GetKeyboard;
             results.Add(result);
-            result.ReplyMarkup = keyboard?.GetKeyboard;
             keyboard = null;          
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : BotUnion
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : ValueUnit
         {
             foreach (var unit in units)
             {
@@ -83,6 +84,7 @@ namespace MissBot.Common
             {
                 InlineQueryResultArticle article when key == nameof(article.Id) => article.Id = value +Query.Query,
                 InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
+                InlineQueryResultArticle article when key == nameof(article.Description) => article.Description = (string)value,
                 InlineQueryResultArticle article when value is InlineAction action => Keyboard.Append(action),
                 //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
                 _ => result
@@ -95,10 +97,10 @@ namespace MissBot.Common
             _ => null
         };
 
-        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : BotUnion
+        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<ValueUnit>
         {
             foreach (var item in unit)
-                Write(item as Unit<T>);            
+                Write(item);            
         }
     }
 
