@@ -8,18 +8,18 @@ using MissBot.Abstractions;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlQuery<TUnit> : IRequest<BotUnion<TUnit>> where TUnit : class {
-        public record Query(string sql, int skip, int take, string filter) : SqlQuery<TUnit>;
-        public class Handler<TQuery> : IRequestHandler<TQuery, BotUnion<TUnit>> where TQuery : SqlQuery<TUnit>.Query
+    public record SqlQuery<TEntity> : IRequest<BotUnion<TEntity>> where TEntity : class {
+        public record Query(string sql, int skip, int take, string filter) : SqlQuery<TEntity>;
+        public class Handler<TQuery> : IRequestHandler<TQuery, BotUnion<TEntity>> where TQuery : SqlQuery<TEntity>.Query
         {
             string connectionString;
             public Handler(IConfiguration config)
                 => connectionString = config.GetConnectionString("Default");
-            public async Task<BotUnion<TUnit>> Handle(TQuery request, CancellationToken cancellationToken)
+            public async Task<BotUnion<TEntity>> Handle(TQuery request, CancellationToken cancellationToken)
             {
                 var queryWithForJson = string.Format(request.sql, request.skip, request.take, request.filter);
 
-                BotUnion<TUnit> single =new BotUnion<TUnit>();
+                BotUnion<TEntity> single =new BotUnion<TEntity>();
                 using (var conn = new SqlConnection(connectionString))
                 {
                     using (var cmd = new SqlCommand(queryWithForJson, conn))
@@ -32,11 +32,19 @@ namespace MissDataMaiden.Queries
                             return single;//single.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<TUnit>(reader.GetString(0)));
                         else
                             while (await reader.ReadAsync())
-                                single.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<TUnit>(reader.GetString(0)));
+                            {
+                                TEntity item = default(TEntity);
+                                item = Newtonsoft.Json.JsonConvert.DeserializeObject<TEntity>(reader.GetString(0));
+                                
+                                single.Add(CreateUnit(item));
+                            }
                     }
                     return single;
                 }
             }
+
+            protected virtual Unit<TEntity> CreateUnit(TEntity entity)
+                => Unit<TEntity>.Instance with { Value = entity };
 
         }
         }

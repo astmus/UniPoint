@@ -7,13 +7,15 @@ using Telegram.Bot.Types.InlineQueryResults;
 
 namespace MissBot.Handlers
 {
-    public record InlineUnit<TEntity> : Unit<TEntity>, IInlineUnit
+    public record InlineUnit<TEntity>(Action<InlineUnit<TEntity>> init = null) : Unit<TEntity>, IInlineUnit
     {
-        protected override sealed void InvalidateEntityData(TEntity unit)
-            => InvalidateMetadate(this, unit);
+        protected override sealed void InvalidateMetaData(TEntity unit)
+        {
+            //base.InvalidateMetaData(unit);
+            init?.Invoke(this);
+        }
 
-        protected virtual TEntity InvalidateMetadate(InlineUnit<TEntity> unit, TEntity entity)
-            => Value;
+        
         
         //protected override sealed void InvalidateMetadata<TUnit>(TUnit unit, TEntity entity)
         //{
@@ -34,7 +36,7 @@ namespace MissBot.Handlers
         public string Title { get => Get<string>(); set => Set(value); }
         public string Content { get => Get<string>(); set => Set(value); }
         public string Description { get => Get<string>(); set => Set(value); }
-
+        
         public static readonly InlineUnit Empty
             = new InlineUnit() { Id = "", Title = "Not found", Content = empty };
     }

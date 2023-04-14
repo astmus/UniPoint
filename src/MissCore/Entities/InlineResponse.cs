@@ -52,8 +52,8 @@ namespace MissBot.Common
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {
-            var meta = unit.Meta;
-                var content = meta.FirstOrNull<object?>("Content") ?? meta.FirstOrNull<object?>("Title");
+            var meta = unit.GetMetaData();
+                var content = meta.AnyFirst("Content");
             InlineQueryResult result = InitResult(content);
           
 

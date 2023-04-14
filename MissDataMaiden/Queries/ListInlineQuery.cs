@@ -18,30 +18,51 @@ using MissDataMaiden.Entities;
 namespace MissDataMaiden.Commands
 {
 
-    public record DbListUnit : InlineUnit<DataBase>
+    public class DataBasesList
     {
         public string Query { get; set; }
-        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<DbListUnit>.Query(sql, skip, take, filter);
+        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<DataBase>.Query(sql, skip, take, filter);
         public class QueryHandler : SqlQuery.Handler<SqlQuery>
         {
             public QueryHandler(IConfiguration config) : base(config)
             {
             }
+            protected override Unit<DataBase> CreateUnit(DataBase entity)
+            {
+                var unit = InlineUnit<DataBase>.Instance with { Value = entity }; 
+                
+                unit[nameof(InlineUnit.Id)] = entity.Id;
+                unit[nameof(InlineUnit.Title)] = entity.Name;
+                unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb";
+
+                unit[nameof(DBInfo)] =
+                        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
+                unit[nameof(DBDelete)] =
+                        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
+                unit[nameof(DBRestore)] =
+                        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
+                return unit;
+                //.Instance with { Value = entity };
+                //Unit < DataBase>.Sample.
+            }
         }
-        protected override DataBase InvalidateMetadate(InlineUnit<DataBase> unit, DataBase entity)
-        {
-            unit.Description = nameof(InvalidateMetadate);
-            Set(Info);
-            Set(Delete);
-            return entity;
-        }
-  
-        public DBInfo Info
-            => Set(Unit<DBInfo>.Sample with { Id = this.Id, Action = nameof(DBInfo) });
-        public DBDelete Delete
-            => Set(Unit<DBDelete>.Sample with { Id = this.Id, Action = nameof(DBDelete) });
-        public DBRestore Restore
-            => Set(Unit<DBRestore>.Sample with { Id = this.Id, Action = nameof(DBRestore) });
+        //public record DbListInlineUnit : InlineUnit<DataBase>
+        //{
+        //    protected override DataBase InvalidateMetadata(InlineUnit<DataBase> unit, DataBase entity)
+        //    {
+        //        //InlineUnit<DataBase>.
+        //        //unit.Description = nameof(InvalidateMetadata);
+        //        Set(Info);
+        //        Set(Delete);
+        //        return entity;
+        //    }
+        //    public DBInfo Info
+        //        => Set(Unit<DBInfo>.Sample with { Id = this.Id, Action = nameof(DBInfo) });
+        //    public DBDelete Delete
+        //        => Set(Unit<DBDelete>.Sample with { Id = this.Id, Action = nameof(DBDelete) });
+        //    public DBRestore Restore
+        //        => Set(Unit<DBRestore>.Sample with { Id = this.Id, Action = nameof(DBRestore) });
+        //}
     }
 
 
@@ -49,8 +70,8 @@ namespace MissDataMaiden.Commands
     {
         private readonly IConfiguration config;
         private readonly IMediator mm;
-        DbListUnit.SqlQuery CurrentRequest;
-        DbListUnit dbs;
+        DataBasesList.SqlQuery CurrentRequest;
+        DataBasesList dbs;
 
         public ListDiskInlineHandler(IConfiguration config, IMediator mm)
         {
@@ -58,8 +79,8 @@ namespace MissDataMaiden.Commands
 
             this.config = config;
             this.mm = mm;
-            dbs = new DbListUnit() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
-            CurrentRequest = new DbListUnit.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
+            dbs = new DataBasesList() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
+            CurrentRequest = new DataBasesList.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
         }
 
 

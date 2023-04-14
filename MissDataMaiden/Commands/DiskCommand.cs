@@ -66,14 +66,14 @@ namespace MissDataMaiden.Commands
         }
 
         public override Disk Command
-            => new Disk() { Payload = config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().GetValue<string>("Payload") };
+            => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();// .GetValue<string>("Payload") };
 
         //public override async  Task BeforeComamandHandle(IContext<Disk> context)
         //{
         //    Disk.CommandResult response = context.Scope.Result;
 
-        //    await response.SendHandlingStart(); 
-        //}
+                //    await response.SendHandlingStart(); 
+                //}
 
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
