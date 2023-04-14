@@ -1,5 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
 namespace BotService.Connection.Extensions
@@ -29,15 +30,18 @@ namespace BotService.Connection.Extensions
                 BotCommandScope scope = default,
                 string languageCode = default,
                 CancellationToken cancellationToken = default
-            ) =>
-                await botClient.MakeRequestAsync(
+            ) 
+            {
+            var s = JsonConvert.SerializeObject(new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.Command, Description = s.Description })));
+               await botClient.MakeRequestAsync(
                         request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s=> new BotCommand() { Command = s.Command, Description = s.Description }))
                         {
                             Scope = scope,
                             LanguageCode = languageCode
-                        },
+    },
                         cancellationToken
                     )
                     .ConfigureAwait(false);
+}
     }
 }

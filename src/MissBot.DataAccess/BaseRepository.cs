@@ -8,8 +8,5 @@ using MissBot.Abstractions.DataAccess;
 
 namespace MissBot.DataAccess
 {
-    public abstract class BaseRepository<TEntity> : IRepository<TEntity>
-    {
-        public abstract Task<TEntity> GetAsyncForAction<TAction>(TAction action) where TAction : IEntityAction<TEntity>;
-    }
+    
 }

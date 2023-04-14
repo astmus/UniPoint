@@ -12,7 +12,7 @@ using MissBot.Common;
 using MissBot.Extensions.Response;
 using MissCore.Handlers;
 using MissDataMaiden.Entities;
-using MissBot.Abstractions.Persistance;
+using MissBot.Abstractions.DataAccess;
 
 namespace MissDataMaiden.Commands
 {

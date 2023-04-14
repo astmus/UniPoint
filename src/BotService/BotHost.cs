@@ -11,6 +11,7 @@ using MissBot.Infrastructure;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 
+
 namespace BotService
 {
     public class BotHost : BackgroundService, IBotHost
@@ -26,7 +27,7 @@ namespace BotService
             log = logger;
         }
 
-        public IBotBuilder<TBot> AddBot<TBot>() where TBot : class, IBot
+        public IBotBuilder<TBot> AddBot<TBot>() where TBot : BaseBot
         {
             hostBuilder.ConfigureServices(services => services
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                                    
@@ -39,7 +40,7 @@ namespace BotService
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             buildActions.Add(() => BotBuilder<TBot>.Instance.Build());
             var builder = BotBuilder<TBot>.GetInstance(hostBuilder);
-            builder.Services.AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>());
+            builder.Services.AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>());   
             builder.Services.AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name);
             return builder;
         }
@@ -57,7 +58,7 @@ namespace BotService
                 services
                     .AddApplicationServices()
                     .AddInfrastructureServices(host.Configuration);
-                services.AddHostedService<BotHost>();
+                services.AddHostedService<BotHost>();                
                 services.AddSingleton<IHandleContextFactory, HandleContextFactory>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
                 services.AddScoped(typeof(IContext<>), typeof(Context<>));

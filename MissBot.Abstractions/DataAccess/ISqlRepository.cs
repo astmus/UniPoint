@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MissBot.Abstractions.Persistance
+namespace MissBot.Abstractions.DataAccess
 {
-    public interface IRepository<TEntity>
+    public interface ISqlRepository
     {
-        Task<TEntity> GetAsyncById(int id);
+        
     }
 }

@@ -5,7 +5,6 @@ namespace MissBot.Abstractions.Configuration
 {
     public interface IBot
     {
-        User BotInfo { get; set; }
         void ConfigureOptions(IBotOptionsBuilder botBuilder);
         void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
         Func<ICommonUpdate, string> ScopePredicate { get; }

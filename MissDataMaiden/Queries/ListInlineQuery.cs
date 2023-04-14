@@ -21,7 +21,7 @@ namespace MissDataMaiden.Commands
     public class DataBasesList
     {
         public string Query { get; set; }
-        public record SqlQuery(string sql, int skip, int take, string filter) : SqlQuery<DataBase>.Query(sql, skip, take, filter);
+        public record SqlQuery(string sql, int skip, int take, string filter) : SqlBotQuery<DataBase>.Query(sql, skip, take, filter);
         public class QueryHandler : SqlQuery.Handler<SqlQuery>
         {
             public QueryHandler(IConfiguration config) : base(config)

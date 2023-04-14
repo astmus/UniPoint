@@ -20,7 +20,7 @@ namespace MissBot.Abstractions.Configuration
         uint Timeout { get; }
         Task DownloadFileAsync(string filePath, Stream destination, CancellationToken cancellationToken = default);
         Task<TResponse> MakeRequestAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
-        Task<User> GetBotInfoAsync(IBotConnectionOptions options, CancellationToken cancellationToken = default);
+        Task<TBot> GetBotAsync<TBot>(IBotConnectionOptions options, CancellationToken cancellationToken = default) where TBot:BaseBot;
     }
 }
 

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Response;
 using MissBot.Common;
 using MissBot.Infrastructure;
@@ -10,9 +11,16 @@ using MissCore.Entities;using Telegram.Bot.Types;
 
 namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
         }        internal BotBuilder()
-        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
+        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());
+
+        public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
+        {
+            Services.AddSingleton<IRepository<BotCommand>, THandler>();
+            host.ConfigureServices((h, s)
+                => s.AddSingleton<IRepository<BotCommand>, THandler>());
+            return this;        }        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
-            host.ConfigureServices((h, s) => s.AddTransient<IAsyncUpdateHandler<TBot>, THandler>());            return this;        }
+            return this;        }
 
         public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler        {            Services.AddScoped<IAsyncBotCommandHandler, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);

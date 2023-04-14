@@ -8,6 +8,7 @@ namespace MissBot.Abstractions.DataAccess
 {
     public interface IRepository<TEntity>
     {
-        Task<TEntity> GetAsyncForAction<TAction>(TAction action) where TAction: IEntityAction<TEntity>;
+        Task<IEnumerable<TEntity>> GetAllAsync();
+        IEnumerable<TEntity> GetAll();
     }
 }

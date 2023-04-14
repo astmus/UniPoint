@@ -1,3 +1,4 @@
+using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using Telegram.Bot.Requests;
 using Telegram.Bot.Requests.Abstractions;
@@ -19,10 +20,10 @@ namespace BotService.Connection
         uint IBotConnection.Timeout
             => (uint)Options.Timeout.TotalSeconds;
 
-        public async Task<User> GetBotInfoAsync(IBotConnectionOptions options, CancellationToken cancellationToken = default)
+        public async Task<TBot> GetBotAsync<TBot>(IBotConnectionOptions options, CancellationToken cancellationToken = default) where TBot:BaseBot
         {
             Options = options;
-            var info = await MakeRequestAsync<User>(request: new ParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+            var info = await MakeRequestAsync<TBot>(request: new ParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
             return info;
         }

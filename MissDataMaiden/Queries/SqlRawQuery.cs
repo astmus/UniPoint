@@ -5,83 +5,38 @@ using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
+using Newtonsoft.Json;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlQuery<TEntity> : IRequest<BotUnion<TEntity>> where TEntity : class {
-        public record Query(string sql, int skip, int take, string filter) : SqlQuery<TEntity>;
-        public class Handler<TQuery> : IRequestHandler<TQuery, BotUnion<TEntity>> where TQuery : SqlQuery<TEntity>.Query
-        {
-            string connectionString;
-            public Handler(IConfiguration config)
-                => connectionString = config.GetConnectionString("Default");
-            public async Task<BotUnion<TEntity>> Handle(TQuery request, CancellationToken cancellationToken)
-            {
-                var queryWithForJson = string.Format(request.sql, request.skip, request.take, request.filter);
-
-                BotUnion<TEntity> single =new BotUnion<TEntity>();
-                using (var conn = new SqlConnection(connectionString))
-                {
-                    using (var cmd = new SqlCommand(queryWithForJson, conn))
-                    {
-                        await conn.OpenAsync(cancellationToken).ConfigFalse();
-
-                        var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-
-                        if (!reader.HasRows)
-                            return single;//single.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<TUnit>(reader.GetString(0)));
-                        else
-                            while (await reader.ReadAsync())
-                            {
-                                TEntity item = default(TEntity);
-                                item = Newtonsoft.Json.JsonConvert.DeserializeObject<TEntity>(reader.GetString(0));
-                                
-                                single.Add(CreateUnit(item));
-                            }
-                    }
-                    return single;
-                }
-            }
-
-            protected virtual Unit<TEntity> CreateUnit(TEntity entity)
-                => Unit<TEntity>.Instance with { Value = entity };
-
-        }
-        }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : ValueUnit
+    public record SqlQuery<TEntity>(string sql = default, string connectionString = default) : IRequest<IEnumerable<TEntity>> where TEntity : class
     {
-        public record Query(string sql, string connection = null) : SqlRaw<TUnion>;
-        public class StreamHandler<TQuery> : IStreamRequestHandler<TQuery, TUnion> where TQuery : SqlRaw<TUnion>.Query
+        public record Query(string sql, int skip, int take, string filter);
+        public record Request(string sql, string connectionString) : SqlQuery<TEntity>(sql, connectionString);
+
+        public static readonly SqlQuery<TEntity>.Request Instance = new Request("", "");
+
+        public virtual async Task<IEnumerable<TEntity>> Handle(CancellationToken cancellationToken = default) 
         {
-            string connectionString;
-            public StreamHandler(IConfiguration config)
-                => connectionString = config.GetConnectionString("Default");
-            public async IAsyncEnumerable<TUnion> Handle(TQuery request, [EnumeratorCancellation] CancellationToken cancellationToken)
+            IEnumerable<TEntity> result = Enumerable.Empty<TEntity>();
+            using (var conn = new SqlConnection(connectionString))
             {
-                var queryWithForJson = $"{request.sql}";
-
-                TUnion single;
-                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand(sql, conn))
                 {
-                    using (var cmd = new SqlCommand(queryWithForJson, conn))
-                    {
-                        await conn.OpenAsync(cancellationToken).ConfigFalse();
+                    await conn.OpenAsync(cancellationToken).ConfigFalse();
 
-                        var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+                    var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
-                        if (!reader.HasRows)
-                            single = Newtonsoft.Json.JsonConvert.DeserializeObject<TUnion>(reader.GetString(0));
-                        else
-                        {
-                            while (await reader.ReadAsync())
-                                yield return Newtonsoft.Json.JsonConvert.DeserializeObject<TUnion>(reader.GetString(0)); //System.Text.Json.JsonSerializer.Deserialize<TUnit>(reader.GetString(0),options);
-                            yield break;
-                        }
-
-                    }
-                    yield return single;
+                    if (!reader.HasRows)
+                        return result;
+                    else
+                        while (await reader.ReadAsync())
+                            return JsonConvert.DeserializeObject<List<TEntity>>(reader.GetString(0));
                 }
+                return result;
             }
-        };
+
+
+        }
     }
 }

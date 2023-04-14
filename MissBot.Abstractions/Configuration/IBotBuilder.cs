@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataAccess;
 using Telegram.Bot.Types;
 
 namespace MissBot.Abstractions.Configuration
@@ -34,5 +35,6 @@ namespace MissBot.Abstractions.Configuration
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
         IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler;
         IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>;
+        IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>;
     }
 }

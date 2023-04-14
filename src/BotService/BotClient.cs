@@ -7,7 +7,7 @@ using Telegram.Bot.Types;
 
 namespace BotService
 {
-    public class BotClient<TBot> : BackgroundService where TBot : class, IBot
+    public class BotClient<TBot> : BackgroundService where TBot : BaseBot
     {
         private readonly ILogger<BotClient<TBot>> _logger;
         private readonly IHostApplicationLifetime _hostLifeTime;
@@ -40,16 +40,16 @@ namespace BotService
             try
             {
                 var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
-                var info = await client.GetBotInfoAsync(botConnectionOptions, cancellationToken);
-                Bot.BotInfo = info;
-                await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
+                var bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)                
+                await botScopeServices.GetRequiredService<TBot>().SyncCommands(client);
+                //await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
                 _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {info}");
             }
             catch (Exception ex)
             {
                 _logger.WriteError(ex);
             }
-            await base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken).ConfigFalse();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
