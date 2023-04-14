@@ -4,7 +4,7 @@ using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    public record List : BotCommand<ListUnit>, IBotCommand
+    public class List : BotCommand<ListUnit>, IBotCommand
     {
 
     }

@@ -10,5 +10,7 @@ namespace MissBot.Abstractions.DataAccess
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
         IEnumerable<TEntity> GetAll();
+        IEnumerable<TEntityType> GetAll<TEntityType>() where TEntityType : TEntity;
+        Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType: TEntity;
     }
 }

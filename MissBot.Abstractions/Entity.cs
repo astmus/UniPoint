@@ -95,19 +95,38 @@ namespace MissBot.Abstractions
     {
         TEntity entity;
         public TEntity Value { get => entity; init => entity = value; }
+        static readonly MetaUnit MetaInfoUnit = new MetaUnit("");
+        public record MetaUnit(string Content) : ValueUnit
+        {
+            
+            protected override bool PrintMembers(StringBuilder builder)
+            {
+                var res = base.PrintMembers(builder);
+                builder.Clear();
+                builder.Append($"{ Content}\n");
+                return res;
+            }
+        }
+        public static MetaUnit CreateMetaUnit(string content)
+            => MetaInfoUnit.Content == "" ? MetaInfoUnit with { Content = content } : MetaInfoUnit;
+
         public override MetaInfo GetMetaData()
         {
-            MetaData.Set(Stringify((Value?.ToString() ?? this.ToString()).Split('{',',','}')), "Content");
+            MetaData.Set(Stringify((Value?.ToString() ?? this.ToString()).Split('{', ',', '}')), "Content");
             InvalidateMetaData(Value);
             return MetaData;
         }
-        static string Stringify(string[] items)
+        internal static string Stringify(string[] items)
         => string.Join(Environment.NewLine, from s in items
-                        where s.Length > 2 && !s.EndsWith("= ")
-                        select s);
- 
-                
-        
+                                            where s.Length > 2 && !s.EndsWith("= ")
+                                            select s);
+        internal static string StringifyMeta(string[] items)
+        => string.Join(" ", from s in items
+                where s.Length > 2 && !s.EndsWith("= ")
+                select s);
+
+
+
 
         protected virtual void InvalidateMetaData(TEntity unit)
         {
@@ -122,7 +141,7 @@ namespace MissBot.Abstractions
             get => MetaData[key];
             set => MetaData.Set(value, key);
         }
-        
+
     }
 
     public class MetaInfo : ConcurrentDictionary<string, object>
@@ -163,7 +182,7 @@ namespace MissBot.Abstractions
 
         public virtual MetaInfo GetMetaData()
         {
-            MetaData.Set(Convert.ToString(this), "Content");         
+            MetaData.Set(Convert.ToString(this), "Content");
             return MetaData;
         }
 

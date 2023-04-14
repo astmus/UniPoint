@@ -16,10 +16,10 @@ namespace MissBot.Abstractions.Configuration
 
         IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler;
 
-        IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand;
+        IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;
         IBotBuilder AddCommand<TCommand, THandler, TResponse>() where
             THandler : BotCommandHandler<TCommand> where
-            TCommand : class, IBotCommand where
+            TCommand : BotCommand, IBotCommand where
             TResponse : class, IResponse<TCommand>;
 
         AsyncHandler BuildHandler();
@@ -33,7 +33,7 @@ namespace MissBot.Abstractions.Configuration
         IBotBuilder<TBot> UseCommndFromAttributes();
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
-        IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler;
+        IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher;
         IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>;
         IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>;
     }

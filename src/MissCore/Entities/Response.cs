@@ -55,7 +55,7 @@ namespace MissBot.Common
 
         protected virtual Response<T> WriteUnit(ValueUnit unit)
         {
-            Text += unit.ToString().AsSection("Section");
+            Text += unit.ToString()[..^1];
             return this;
         }
     }

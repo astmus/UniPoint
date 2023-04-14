@@ -46,7 +46,7 @@ namespace MissDataMaiden
 
         public override void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
             => connectionOptions
-                    .SetToken(Environment.GetEnvironmentVariable("JarviseKey", EnvironmentVariableTarget.User))
+                    .SetToken(Environment.GetEnvironmentVariable("AliseBot", EnvironmentVariableTarget.User))
                     .SetTimeout(TimeSpan.FromMinutes(2));
          }
 }

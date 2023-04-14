@@ -53,6 +53,16 @@ namespace MissDataMaiden.DataAccess
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : DataBase
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<TEntityType> GetAll<TEntityType>() where TEntityType : DataBase
+        {
+            throw new NotImplementedException();
+        }
         // public override Task<DataBase> GetAsyncForAction<TAction>(TAction action)
         //{
 

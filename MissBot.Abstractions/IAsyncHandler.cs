@@ -7,10 +7,10 @@ namespace MissBot.Abstractions
         AsyncHandler AsyncHandler { get; }
     }
 
-    public interface IAsyncBotCommandHandler
+    public interface IAsyncBotCommandDispatcher
     {
         Task ExecuteAsync(IHandleContext context);
-        Task HandleAsync<TCommand>(IHandleContext context) where TCommand :class, IBotCommand;
+        Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotCommandData;
     
     }
     

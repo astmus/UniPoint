@@ -20,7 +20,7 @@ namespace MissDataMaiden
                     .UseMediator()
                     .UseLogging()                    
                     .UseCommandsRepository<BotCommandsRepository>()
-                    .UseCommandDispatcher<MissDataCommandHandler>()
+                    .UseCommandDispatcher<MissDataCommandDispatcher>()
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
                     .UseInlineHandler<ListDiskInlineHandler>()
                     .AddCommand<Disk, DiskCommandHandler, DiskResponse>()

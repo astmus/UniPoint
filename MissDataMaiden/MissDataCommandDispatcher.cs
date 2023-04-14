@@ -1,18 +1,20 @@
 using MediatR;
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Extensions.Entities;
 using MissBot.Handlers;
 using MissCore.Entities;
 using MissCore.Handlers;
 using MissDataMaiden.Commands;
+using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCommandHandler :  IAsyncBotCommandHandler
+    internal class MissDataCommandDispatcher :  IAsyncBotCommandDispatcher
     {
-        IMediator mm;
-        public MissDataCommandHandler(IMediator mediator)
-            => mm = mediator;
+        IRepository<BotCommand> commandsRepository;
+        public MissDataCommandDispatcher(IRepository<BotCommand> mediator)
+            => commandsRepository = mediator;
 
         bool isCommand;        
         (string command, string[] args) data;
@@ -35,14 +37,16 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };  
 
-        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :class, IBotCommand
-        {            
-            var upd = context.Any<ICommonUpdate>();
+        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotCommandData
+        {
+            var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
+            var cmd = handler.Command;
+            var cmds =await commandsRepository.GetAllAsync<TCommand>();
             
             var ctx = context.CreateDataContext<TCommand>();
             
-            var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
-            ctx.Data ??= handler.Command;
+            ctx.Data ??= cmds.FirstOrDefault();
+            ctx.Data.Command = data.command;
             ctx.Data.Params = data.args;
 
             await handler.HandleAsync(ctx);

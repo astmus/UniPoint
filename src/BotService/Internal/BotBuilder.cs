@@ -11,7 +11,7 @@ using MissCore.Entities;using Telegram.Bot.Types;
 
 namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
         }        internal BotBuilder()
-        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.CmdType));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());
+        {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.GetType()));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());
 
         public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
         {
@@ -22,14 +22,14 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
             return this;        }
 
-        public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandHandler        {            Services.AddScoped<IAsyncBotCommandHandler, THandler>();
+        public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher        {            Services.AddScoped<IAsyncBotCommandDispatcher, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
             host.ConfigureServices((h, s)
-                => s.AddScoped<IAsyncBotCommandHandler, THandler>());
+                => s.AddScoped<IAsyncBotCommandDispatcher, THandler>());
             _components.Add(
                 next =>
                 context =>
-                     context.GetNextHandler<IAsyncBotCommandHandler>().ExecuteAsync(context.SetNextHandler(context, next)));            return this;        }
+                     context.GetNextHandler<IAsyncBotCommandDispatcher>().ExecuteAsync(context.SetNextHandler(context, next)));            return this;        }
 
         public IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>
         {
@@ -73,7 +73,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         #region Commands    
         public IBotBuilder AddCommand<TCommand, THandler, TResponse>() where
               THandler : BotCommandHandler<TCommand> where
-              TCommand : class, IBotCommand where
+              TCommand : BotCommand, IBotCommand where
               TResponse :class, IResponse<TCommand>
         {
             Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
@@ -83,7 +83,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             return this;
         }
 
-        public IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : class, IBotCommand        {                        Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
+        public IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand        {                        Services.AddScoped<IAsyncHandler<TCommand>, THandler>();            Services.AddScoped<TCommand>();
             Services.AddScoped<IResponse, Response>();
             Services.AddScoped<IResponse<TCommand>, Response<TCommand>>();
             Services.AddScoped<IContext<TCommand>, Context<TCommand>>();

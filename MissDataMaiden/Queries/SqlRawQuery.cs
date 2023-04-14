@@ -14,6 +14,7 @@ namespace MissDataMaiden.Queries
         public record Query(string sql, int skip, int take, string filter);
         public record Request(string sql, string connectionString) : SqlQuery<TEntity>(sql, connectionString);
 
+        public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         public static readonly SqlQuery<TEntity>.Request Instance = new Request("", "");
 
         public virtual async Task<IEnumerable<TEntity>> Handle(CancellationToken cancellationToken = default) 
@@ -31,7 +32,10 @@ namespace MissDataMaiden.Queries
                         return result;
                     else
                         while (await reader.ReadAsync())
-                            return JsonConvert.DeserializeObject<List<TEntity>>(reader.GetString(0));
+                        {
+                            var str = reader.GetString(0);
+                            return JsonConvert.DeserializeObject<List<TEntity>>(str);
+                        }
                 }
                 return result;
             }

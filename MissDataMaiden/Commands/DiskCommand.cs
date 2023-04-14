@@ -10,45 +10,44 @@ using Newtonsoft.Json;
 using MediatR;
 using MissBot.Common;
 using MissBot.Extensions.Response;
+using MissBot.Abstractions.DataAccess;
+using Telegram.Bot.Types;
+using BotService;
 
 namespace MissDataMaiden.Commands
 {
     [JsonObject]
-    public record Disk :  BotCommand<Disk>, IBotCommand
+    public class Disk : BotCommand<Disk>, IBotCommand
     {
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-        public record DataUnit : Unit<Disk>
-        {
+        public record Dto : Unit<Disk>
+        {          
             public string Name { get; set; }
-            public string Created { get; set; }
-            public int DaysAgo { get; set; }
-            public double Size { get; set; }
-        }        
+            public string Drive { get; set; }
+            public double Free { get; set; }
+            public double Used { get; set; }
+            public double Total { get; set; }
+            public string Perc { get; set; }
+        }
+        public record Request(string connection = null)
+            : SqlQuery<Disk>.Request($"select * from ##BotCommands c INNER JOIN ##BotActionPayloads a ON c.Command = a.EntityAction where Command = /{nameof(Disk).ToLower()}", connection);
 
-        public record Query(string sql) : SqlRaw<DataUnit>.Query(sql);
-        public class Handler : SqlRaw<DataUnit>.StreamHandler<Query>
-        {
-            public Handler(IConfiguration config) : base(config)
-            {
-            }
+        public record Handler : SqlQuery<Disk>        {
+         
         }
     }
 
     public record DiskResponse : Response<Disk>
     {
-
-
         protected override Response<Disk> WriteUnit(ValueUnit unit) => unit switch
         {
-            Disk.DataUnit du => WriteDataUnit(du),
+            Disk.Dto du => WriteDataUnit(du),
             _ => base.WriteUnit(unit)
         };
 
-        Response<Disk> WriteDataUnit(Disk.DataUnit data)
+        Response<Disk> WriteDataUnit(Disk.Dto data)
         {
-            
-            Text += $"{data.Name.Shrink(10)}       {data.Created}      {data.DaysAgo}      {data.Size}".AsCodeTag().LineTag();
-            
+            Text += $"{data.Name.Shrink(10)}{data.Drive}  {data.Free}  {data.Used}   {data.Total}    {data.Perc}".AsCodeTag().LineTag();
             return this;
         }
     }
@@ -56,73 +55,50 @@ namespace MissDataMaiden.Commands
     public class DiskCommandHandler : BotCommandHandler<Disk>
     {
         private readonly IConfiguration config;
-        SqlRaw<Disk.DataUnit>.Query CurrentRequest;        
-
-        public DiskCommandHandler(IConfiguration config)
-        {
-            //var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
-            
+        private readonly IRepository<BotCommand> commandsRepository;
+        SqlQuery<Disk.Dto> query;
+        static Disk disk;
+        public DiskCommandHandler(IConfiguration config, IRepository<BotCommand> commandsRepository)
+        {            
             this.config = config;
+            this.commandsRepository = commandsRepository;
         }
 
         public override Disk Command
-            => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();// .GetValue<string>("Payload") };
-
+        {
+            get
+            {
+                if (disk is Disk cmd)
+                    return cmd;
+                    
+                SqlQuery<Disk>.Sample.Command ??= nameof(Disk);
+                return disk = commandsRepository.GetAll<Disk>().FirstOrDefault(SqlQuery<Disk>.Sample);
+            }
+        }
+        
         //public override async  Task BeforeComamandHandle(IContext<Disk> context)
         //{
         //    Disk.CommandResult response = context.Scope.Result;
 
-                //    await response.SendHandlingStart(); 
-                //}
+        //    await response.SendHandlingStart(); 
+        //}
 
         public override async Task RunAsync(Disk command, IContext<Disk> context)
         {
             IResponse<Disk> response = context.CreateResponse(command);
-            //command.Add(new Disk.DataUnit());
-            var mm = context.Root.BotServices.GetService<IMediator>();
-  
-            
 
-            await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
+
+            var metaUnit = Disk.Dto.CreateMetaUnit($"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}");
+            
+            response.Write(metaUnit);
+
+            query = SqlQuery<Disk.Dto>.Instance with { sql = command.Payload, connectionString = config.GetConnectionString("Default") };
+            var results = await query.Handle().ConfigFalse();
+            foreach (var obj in results)
             {
-             
                 response.Write(obj);
             }
-            await response.Commit(default);            
-        }     
-
-        //public override BotCommand<Disk> GetDataForHandle()
-        //    => new BotCommand<Disk>() { Command = Context.Data.Get<Message>().Command };
-
-        //public override async Task HandleCommandAsync(DiskCommand command, string[] args)
-        //{
-
-        //	var mm = Context.Current.Get<IMediator>();
-        //	var diskInfo = await mm.Send(CurrentRequest).ConfigFalse();
-        //	var result = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(diskInfo);
-
-        //	var str = result.Select(d =>
-        //	{
-        //		var header =
-        //		d.Select(kv => $"{kv.Key.PadRight(6)[0..6].AsBTag()}").Aggregate($"", (s1, s2)
-        //			=> $"{s1} {s2}").AsPreTag();
-        //		var body =
-        //		d.Select(kv => $"{kv.Value.PadRight(6)[0..6]}").Aggregate($"", (s1, s2)
-        //			=> $"{s1} {s2}").AsPreTag();
-
-        //		return new KeyValuePair<string, string>(header, body);
-        //	}
-        //	).GroupBy(gb => gb.Key, v => v.Value, (k, g) => new { Key = k, Items = string.Join("", g) })
-        //	.Select(f => $"{f.Key}{f.Items}");
-        //	var channel = Context.Client.Channel;
-        //	await channel.WriteAsync(str).ConfigFalse();
-        //	//, MissBot.Common.Types.Enums.ParseMode.Html, cancellationToken: CancellationToken.None
-        //	//ParseMode.Markdown,
-        //	//replyToMessageId: msg.MessageId,
-        //	//replyMarkup: new InlineKeyboardMarkup(
-        //	//    InlineKeyboardButton.WithCallbackData("Ping", "PONG")
-        //	//)
-        //	return;
-        //}
+            await response.Commit(default);
+        }  
     }
 }
