@@ -1,6 +1,9 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataAccess;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
+using MissDataMaiden.Queries;
+using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
@@ -14,7 +17,23 @@ namespace MissDataMaiden
 
     public class ListCommandHadler : BotCommandHandler<List>
     {
-        public override List Command { get; }
+        public ListCommandHadler(IRepository<BotCommand> repository)
+        => this.repository = repository;
+        
+        static List list;
+        private readonly IRepository<BotCommand> repository;
+
+        public override List Command
+        {
+            get
+            {
+                if (list is List cmd)
+                    return cmd;
+
+                SqlQuery<Disk>.Sample.Command ??= nameof(Disk);
+                return list = repository.GetAll<List>().FirstOrDefault(SqlQuery<List>.Sample);
+            }
+        }
 
         public override Task RunAsync(List command, IContext<List> context)
         {

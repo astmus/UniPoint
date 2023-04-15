@@ -18,29 +18,30 @@ using MissDataMaiden.Entities;
 namespace MissDataMaiden.Commands
 {
 
-    public class DataBasesList
+    public class Search
     {
-        public string Query { get; set; }
-        public record SqlQuery(string sql, int skip, int take, string filter) : SqlBotQuery<DataBase>.Query(sql, skip, take, filter);
-        public class QueryHandler : SqlQuery.Handler<SqlQuery>
+        public string EntityAction { get; set; }
+        public string Payload { get; set; }
+        public record SqlQuery(string sql, string connectionString, Filter search) : SqlBotQuery<DataBase>.Query(sql, search.skip, search.take, search.predicat);
+        public class QueryHandler : SqlBotQuery<DataBase>.Handler<SqlQuery>
         {
             public QueryHandler(IConfiguration config) : base(config)
             {
             }
-            protected override Unit<DataBase> CreateUnit(DataBase entity)
-            {
+            protected  override Unit<DataBase> CreateUnit(DataBase entity)
+            {    
                 var unit = InlineUnit<DataBase>.Instance with { Value = entity }; 
                 
                 unit[nameof(InlineUnit.Id)] = entity.Id;
                 unit[nameof(InlineUnit.Title)] = entity.Name;
-                unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb";
+                unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb\nCreated: {entity.Created} ";
 
-                unit[nameof(DBInfo)] =
-                        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
-                unit[nameof(DBDelete)] =
-                        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
-                unit[nameof(DBRestore)] =
-                        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
+                //unit[nameof(DBInfo)] =
+                //        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
+                //unit[nameof(DBDelete)] =
+                //        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
+                //unit[nameof(DBRestore)] =
+                //        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
                 return unit;
                 //.Instance with { Value = entity };
                 //Unit < DataBase>.Sample.
@@ -70,31 +71,49 @@ namespace MissDataMaiden.Commands
     {
         private readonly IConfiguration config;
         private readonly IMediator mm;
-        DataBasesList.SqlQuery CurrentRequest;
-        DataBasesList dbs;
-
+        Search.SqlQuery query;
+        SqlQuery<Search>.Request SearchPayload
+            => SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
+        static Search payload;
+        Filter resultFilter;
         public ListDiskInlineHandler(IConfiguration config, IMediator mm)
-        {
-            //var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
-
+        {            
             this.config = config;
             this.mm = mm;
-            dbs = new DataBasesList() { Query = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[2].GetValue<string>("Query") };
-            CurrentRequest = new DataBasesList.SqlQuery(dbs.Query, 0, BatchSize ?? 15, "");
+            resultFilter ??= new Filter(0, 15, "");
+            SqlQuery<Search>.Sample.EntityAction ??= nameof(Search);            
         }
 
 
-        public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string filter)
+        public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            var objs = await mm.Send(CurrentRequest with { skip = skip, filter = filter });
-            return objs;//.Select( d
-             //  => Unit<ListDBInlineUnit>.Sample  with { Value = d }).ToList();
-           
-            //ResultUnit.Create(s,filter, s.Content, Create(s.Id))) ?? new []{ ResultUnit.Empty};
+            payload ??= await SearchPayload.LoadAsync();
+            var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
+       
+            var objs = await mm.Send(query);
+            return objs;
+             
         }
+        protected Unit<DataBase> CreateUnit(DataBase entity)
+        {
 
-        //InlineKeyboardMarkup Create(string id)
-        //    =>new InlineKeyBoard(new InlineAction[]{ new DBInfo(id), new DBDelete(id), new DBRestore(id) });
+            var unit = InlineUnit<DataBase>.Instance with { Value = entity };
+
+            unit[nameof(InlineUnit.Id)] = entity.Id;
+            unit[nameof(InlineUnit.Title)] = entity.Name;
+            unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb";
+
+            //unit[nameof(DBInfo)] =
+            //        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
+            //unit[nameof(DBDelete)] =
+            //        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
+            //unit[nameof(DBRestore)] =
+            //        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
+            return unit;
+            //.Instance with { Value = entity };
+            //Unit < DataBase>.Sample.
+        }
+       
 
     }
 }
