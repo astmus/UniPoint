@@ -8,11 +8,18 @@ using MissDataMaiden.Commands;
 
 namespace MissDataMaiden.Entities
 {
+        public enum DBAction : byte
+        {
+            Details,
+            Info,
+            Restore,
+            Delete
+        }
     public record DataBase
-    {
+    {        
         public int Id { get; set; }
         public string Name { get; set; }
         public float Size { get; set; }
-        public string Created { get; set; }   
+        public string Created { get; set; }
     }
 }

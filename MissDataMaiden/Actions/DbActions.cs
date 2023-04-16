@@ -16,11 +16,12 @@ using MissBot.Abstractions.DataAccess;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore : InlineAction<DataBase>;
-    public record DBDelete : InlineAction<DataBase>;
-    public record DBInfo : InlineAction<DataBase>;
+    public record DBRestore : InlineEntityAction<DataBase>;
+    public record DBDelete : InlineEntityAction<DataBase>;
+    public record DBInfo : InlineEntityAction<DataBase>;
+    public record DBDetails(DataBase db) : InlineEntityAction<DataBase>;
 
-    public class DdActionHandler : BaseHandler<InlineAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
+    public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {
         
 
@@ -49,7 +50,7 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
 
-        public override Task HandleAsync(IContext<InlineAction<DataBase>> context)
+        public override Task HandleAsync(IContext<InlineEntityAction<DataBase>> context)
         {
             throw new NotImplementedException();
         }

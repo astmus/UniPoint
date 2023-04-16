@@ -37,7 +37,7 @@ namespace BotService.Connection
 
                     await handler.HandleAsync(ctx).ConfigFalse();
 
-                    if (update.IsHandled)
+                    if (update.IsHandled == true)
                         Factory.Remove(id);
                 };
             }

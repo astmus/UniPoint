@@ -10,12 +10,14 @@ using MissCore.DataAccess;
 namespace MissBot.Infrastructure;
 public static class ConfigureServices
 {
+    
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
        // services.AddScoped<AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<IApplicationGenericRepository, ApplicationDbContext>();
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
+             
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseInMemoryDatabase("MissBotDb"));
         }

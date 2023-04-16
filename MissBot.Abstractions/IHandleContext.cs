@@ -20,12 +20,12 @@ namespace MissBot.Abstractions
     {
         Message Message { get; }
         Chat Chat { get; }
-        bool IsHandled { get; set; }
+        bool? IsHandled { get; set; }
     }
 
     public interface IUpdateInfo
     {
         uint UpdateId { get; }
-        bool IsHandled { get; set; }
+        bool? IsHandled { get; set; }
     }
 }

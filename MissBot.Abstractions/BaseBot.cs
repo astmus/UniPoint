@@ -5,27 +5,34 @@ using Telegram.Bot.Types;
 
 namespace MissBot.Abstractions
 {
+
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public abstract class BaseBot : IBot
     {
-        private readonly IRepository<BotCommand> commandsRepository;
-
-        public BaseBot()
+        public abstract class Configurator
         {
-        }
-        public BaseBot(IRepository<BotCommand> commandsRepository)
-        {
-            this.commandsRepository = commandsRepository;
+            public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
+            public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
 
+        protected  IRepository<BotCommand> commandsRepository;
+        public virtual void Init(IServiceProvider sp)
+            => commandsRepository = sp.GetService<IRepository<BotCommand>>();
+        
+
+        public BaseBot(IRepository<BotCommand> repository = default)        
+            => commandsRepository = repository;
+
+
+        public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
-        public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
-        public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
+        
 
-        public async Task<bool> SyncCommands(IBotConnection connection)
+        public virtual async Task<bool> SyncCommands(IBotConnection connection)
         {
-            var commands = await commandsRepository.GetAllAsync();            
-            return await connection.SyncCommandsAsync(commands);
+            
+            Commands ??= await commandsRepository.GetAllAsync();            
+            return await connection.SyncCommandsAsync(Commands);
         }
 
         #region DTO
@@ -58,6 +65,7 @@ namespace MissBot.Abstractions
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? SupportsInlineQueries { get; set; }
+        
 
         /// <inheritdoc/>
         public override string ToString() =>

@@ -12,6 +12,7 @@ namespace MissDataMaiden
     [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
     public class MissChannel : BaseBot, IBot<Update<MissChannel>>
     {
+        
         public class Update : Update<MissChannel> { }
         private readonly ILogger<MissChannel> _logger;
         IServiceScope scope;
@@ -27,13 +28,13 @@ namespace MissDataMaiden
 
 
 
-        public override void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
+        public  void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
            => connectionOptions
                    .SetToken(Environment.GetEnvironmentVariable("AliseBot", EnvironmentVariableTarget.User))
                    .SetTimeout(TimeSpan.FromMinutes(2));
 
 
-        public override void ConfigureOptions(IBotOptionsBuilder botBuilder)
+        public  void ConfigureOptions(IBotOptionsBuilder botBuilder)
             => botBuilder.TrackMessgeChanges();
 
         public void SetScope(IServiceScope botScope)

@@ -6,6 +6,7 @@ using MissBot.Handlers;
 using MissCore.Entities;
 using MissCore.Handlers;
 using MissDataMaiden.Commands;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden
 {
@@ -24,7 +25,7 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };
 
-        public async Task HandleAsync<TAction>(IHandleContext context, string[] args) where TAction : InlineAction
+        public async Task HandleAsync<TAction>(IHandleContext context, string[] args) where TAction : InlineEntityAction<DataBase>
         {        
 
             var ctx = context.CreateDataContext<TAction>();

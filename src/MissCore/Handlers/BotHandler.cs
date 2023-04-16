@@ -42,6 +42,7 @@ namespace MissCore.Handlers
         {
             UpdateType.InlineQuery => ctx.Set(ctx.Data.InlineQuery),
             UpdateType.CallbackQuery => ctx.Set(ctx.Data.CallbackQuery),
+            UpdateType.ChosenInlineResult => ctx.Set(ctx.Data.ChosenInlineResult),
             _ => ctx
         };
 

@@ -7,6 +7,7 @@ using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions.DataAccess;
+using MissCore.Bot;
 using MissDataMaiden.Queries;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
@@ -41,16 +42,17 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            var query = SqlQuery<BotCommand>.Instance with { sql = "SELECT * FROM ##BotCommands FOR JSON AUTO", connectionString = config.GetConnectionString("Default") };            
-            commands = await query.Handle();
+     //       Bot.Request<BotCommand>.Query
+     //       Bot.Request<BotCommand>.
+     //commands = await query.Handle();
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
             var query = SqlQuery<TEntityType>.Instance with
-                { sql = $"select * from ##BotCommands c INNER JOIN ##BotActionPayloads a ON c.Command = a.EntityAction where Command = '/{SqlQuery<TEntityType>.Sample.Command.ToLower()}' for json path "
-                , connectionString = config.GetConnectionString("Default") };
+            { sql = Bot.Request<BotCommand>.Any.OfType<TEntityType>().Query};
+                
             var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
             lastResult = result.FirstOrDefault();
             return result;

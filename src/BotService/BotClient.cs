@@ -33,15 +33,16 @@ namespace BotService
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             botScopeServices.GetRequiredService<IBotBuilder<TBot>>().Build();
-            Bot = botScopeServices.GetRequiredService<TBot>();
-            Bot.ConfigureOptions(botScopeServices.GetRequiredService<IBotOptionsBuilder>());
-            Bot.ConfigureConnection(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>());
+            var config = botScopeServices.GetRequiredService<BaseBot.Configurator>();
+            config.ConfigureOptions(botScopeServices.GetRequiredService<IBotOptionsBuilder>());
+            config.ConfigureConnection(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>());
             var client = botScopeServices.GetRequiredService<IBotConnection>();
             try
             {
                 var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
-                var bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)                
-                await botScopeServices.GetRequiredService<TBot>().SyncCommands(client);
+                Bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)
+                Bot.Init(botScopeServices);
+                await Bot.SyncCommands(client);
                 //await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
                 _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {info}");
             }

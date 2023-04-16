@@ -5,7 +5,7 @@ namespace BotService
 {
     public interface IBotHost
     {
-        IBotBuilder<TBot> AddBot<TBot>() where TBot : BaseBot;
+        IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig : BaseBot.Configurator;
         void Start();
     }
 }

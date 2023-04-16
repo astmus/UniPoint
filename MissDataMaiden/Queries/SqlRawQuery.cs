@@ -10,12 +10,18 @@ using Newtonsoft.Json;
 namespace MissDataMaiden.Queries
 {
     public record Filter(int skip, int take, string predicat);
+    public record SingleRequest<TEntity>(string sql, string connectionString) :  IRequest<TEntity>;
     public record SqlQuery<TEntity>(string sql = default, string connectionString = default, Filter filter = default) : IRequest<IEnumerable<TEntity>> where TEntity : class
     {
-        public record Request(string sql, string connectionString) : SqlQuery<TEntity>(sql, connectionString);
+        public record Request(string sql, string connectionString) : SqlQuery<TEntity>(sql, connectionString), IRequest<TEntity>;
 
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         public static readonly SqlQuery<TEntity>.Request Instance = new Request("", "");
+        public virtual async Task<TUnit> SelectAsync<TUnit>(string ActionName, string connection,  CancellationToken cancellationToken = default) where TUnit : Unit<TEntity>
+        {        
+            var instance = new SqlQuery<TUnit>.Request($"Select * from ##BotActionPayloads where EntityAction = '{ActionName}' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER", connection);
+            return await instance.LoadAsync();
+        }
         public virtual async Task<TEntity> LoadAsync(CancellationToken cancellationToken = default)
         {            
                 TEntity result = default(TEntity);

@@ -31,6 +31,18 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                      context.GetNextHandler<IAsyncBotCommandDispatcher>().ExecuteAsync(context.SetNextHandler(context, next)));            return this;        }
 
+        public IBotBuilder<TBot> UseInlineAnswerHandler<THandler>() where THandler : class, IAsyncHandler<ChosenInlineResult>
+        {
+            Services.AddScoped<IAsyncHandler<ChosenInlineResult>, THandler>();
+            Services.AddScoped<IResponse, Response>();
+            Services.AddScoped<IResponse<ChosenInlineResult>, Response<ChosenInlineResult>>();
+            Services.AddScoped<IContext<ChosenInlineResult>, Context<ChosenInlineResult>>();
+            _components.Add(
+                next =>
+                context =>
+                     context.GetNextHandler<IAsyncHandler<ChosenInlineResult>>().AsyncHandler(context.SetNextHandler(context, next)));
+            return this;
+        }
         public IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>
         {
             Services.AddScoped<IAsyncHandler<CallbackQuery>, THandler>();
@@ -64,7 +76,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             AsyncHandler handle = context =>
                 {
                     Update upd = context.Any<Update>();
-                    upd.IsHandled = true;
+                    if (upd.IsHandled != true && upd.IsHandled != false)
+                        upd.IsHandled  = true;
 #if DEBUG                    Console.WriteLine("No handler for update {0} of type {1}.", upd.UpdateId, upd.UpdateId);
 #endif                    return Task.FromResult(1);
                 };            foreach (var component in _components.Reverse())                handle = component(handle);            return HandlerDelegate = handle;        }

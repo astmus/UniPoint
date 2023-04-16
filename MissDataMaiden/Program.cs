@@ -5,6 +5,7 @@ using MissBot.Handlers;
 using MissDataMaiden.Commands;
 using MissBot.Extensions;
 using MissDataMaiden.DataAccess;
+using MissCore.Bot;
 
 namespace MissDataMaiden
 {
@@ -14,13 +15,14 @@ namespace MissDataMaiden
         public static void Main(string[] args)
         {
             var botHost = BotHost.CreateDefault(args);
-            botHost.AddBot<MissDataMaid>()
+            botHost.AddBot<MissDataMaid, MissDataMaidConfigurator>()
                     .Use<ExceptionHandler>()                                        
                 //.UseCommndFromAttributes()
                     .UseMediator()
                     .UseLogging()                    
                     .UseCommandsRepository<BotCommandsRepository>()
                     .UseCommandDispatcher<MissDataCommandDispatcher>()
+                    .UseInlineAnswerHandler<MissDataAnswerHandler>()
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
                     .UseInlineHandler<ListDiskInlineHandler>()
                     .AddCommand<Disk, DiskCommandHandler, DiskResponse>()
@@ -31,7 +33,7 @@ namespace MissDataMaiden
                     .AddAction<DBDelete, DdActionHandler>();
 
                     
-          //  botHost.AddBot<MissChannel>();
+          //botHost.AddBot<CoreBot.HostedCore.>();
             botHost.Start();
             //  .RunBot< BotUpdate>();
         }

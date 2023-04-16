@@ -98,12 +98,12 @@ namespace MissBot.Abstractions
         static readonly MetaUnit MetaInfoUnit = new MetaUnit("");
         public record MetaUnit(string Content) : ValueUnit
         {
-            
+
             protected override bool PrintMembers(StringBuilder builder)
             {
                 var res = base.PrintMembers(builder);
                 builder.Clear();
-                builder.Append($"{ Content}\n");
+                builder.Append($"{Content}\n");
                 return res;
             }
         }
@@ -122,15 +122,12 @@ namespace MissBot.Abstractions
                                             select s);
         internal static string StringifyMeta(string[] items)
         => string.Join(" ", from s in items
-                where s.Length > 2 && !s.EndsWith("= ")
-                select s);
-
-
-
+                            where s.Length > 2 && !s.EndsWith("= ")
+                            select s);
 
         protected virtual void InvalidateMetaData(TEntity unit)
-        {
-        }
+        {}
+
         public static TEntity Sample
             => Instance.Value;
         public static readonly Unit<TEntity> Instance

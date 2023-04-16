@@ -4,6 +4,7 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>annotations</Nullable>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Bot\BotInit.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="linq2db" Version="5.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
   </ItemGroup>
@@ -22,5 +28,19 @@
     <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
     <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Bot\BotInit.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataAccess\NewFolder\" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="echo $(ProjectDir)&#xD;&#xA;echo $(ProjectPath)&#xD;&#xA;echo $(TargetDir)&#xD;&#xA;echo $(TargetDir)$(OutDir)&#xD;&#xA;xcopy /y $(ProjectDir)Bot\BotInit.sql $(TargetDir)$(OutDir)&#xD;&#xA;xcopy /y $(ProjectDir)Bot\BotInit.sql $(TargetDir)" />
+  </Target>
 
 </Project>

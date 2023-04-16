@@ -7,6 +7,6 @@ public class Update : TG, IUpdateInfo
 {
     [JsonProperty("update_id", Required = Required.Always)]
     public uint UpdateId { get; init; }
-    public bool IsHandled { get; set; }    
+    public bool? IsHandled { get; set; }    
 }
 

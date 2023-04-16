@@ -27,7 +27,7 @@ namespace BotService
             log = logger;
         }
 
-        public IBotBuilder<TBot> AddBot<TBot>() where TBot : BaseBot
+        public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig:BaseBot.Configurator
         {
             hostBuilder.ConfigureServices(services => services
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                                    
@@ -36,6 +36,7 @@ namespace BotService
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance)
+                                                                                    .AddSingleton<BaseBot.Configurator, TConfig>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             buildActions.Add(() => BotBuilder<TBot>.Instance.Build());

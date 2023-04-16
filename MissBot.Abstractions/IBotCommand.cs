@@ -14,7 +14,7 @@ namespace MissBot.Abstractions
 
     public interface IEntityAction
     {
-        object? Id { get; }
+        object? Id { get; set; }
         string Text { get; }
     }
     public interface IEntityAction<TEntity> : IEntityAction

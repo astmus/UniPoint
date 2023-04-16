@@ -15,8 +15,4 @@
     <ProjectReference Include="..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Persistance\" />
-  </ItemGroup>
-
 </Project>

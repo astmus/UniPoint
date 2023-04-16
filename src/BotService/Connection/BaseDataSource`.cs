@@ -31,7 +31,7 @@ namespace BotService.Connection
         {
             do
             {
-                if (await Updates.PopUpdateAsync(cancelToken) is TUpdate update && !update.IsHandled)
+                if (await Updates.PopUpdateAsync(cancelToken) is TUpdate update && !update.IsHandled != true)
                     yield return update;
             } while (!cancelToken.IsCancellationRequested);
             yield break;
