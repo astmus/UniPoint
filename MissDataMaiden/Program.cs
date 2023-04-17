@@ -6,6 +6,8 @@ using MissDataMaiden.Commands;
 using MissBot.Extensions;
 using MissDataMaiden.DataAccess;
 using MissCore.Bot;
+using MissBot.DataAccess;
+using MissBot.Abstractions.DataAccess;
 
 namespace MissDataMaiden
 {
@@ -30,7 +32,8 @@ namespace MissDataMaiden
                     .AddCommand<List, ListCommandHadler>()
                     .AddAction<DBInfo, DdActionHandler>()
                     .AddAction<DBRestore, DdActionHandler>()
-                    .AddAction<DBDelete, DdActionHandler>();
+                    .AddAction<DBDelete, DdActionHandler>()
+                    .AddRepository<IJsonRepository, JsonSQLRepository>();
 
                     
           //botHost.AddBot<CoreBot.HostedCore.>();

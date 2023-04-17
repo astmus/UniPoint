@@ -14,6 +14,7 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissCore.Entities;
 using Telegram.Bot.Types;
+using static MissCore.Bot.BotCore;
 
 namespace MissCore.Bot
 {
@@ -27,10 +28,10 @@ namespace MissCore.Bot
             internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
             internal void Init()
             {
-                Bot.Request<BotCommand>.Query = new Bot.Sql("SELECT * FROM ##BotCommands FOR JSON AUTO");
-                Bot.Request<BotCommand>.Any = Bot.ForAnyType<BotCommand>("select * from ##BotCommands c INNER JOIN ##BotActionPayloads a ON c.Command = a.EntityAction where Command = '/{0}' for json path ");
-                Bot.SearchRequest.Request = new Bot.Sql("select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER");
-                Bot.Request<PayloadBotCommand>.Query = new Bot.Sql("Select * from ##BotActionPayloads where EntityAction = '{0}' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER");
+                Cmd<BotCommand>.Command = new BotCore.Cmd("SELECT * FROM ##BotCommands FOR JSON AUTO");
+                Cmd<BotCommand>.Query = BotCore.RequestAny<BotCommand>("select * from ##BotCommands c INNER JOIN ##BotActionPayloads a ON c.Command = a.EntityAction where Command = '/{0}' for json path ");
+                BotCore.SearchRequest.Request = new BotCore.SearchRequest("select * from ##BotActionPayloads where EntityAction = 'Bot.Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER");
+                Cmd<ActionPayload>.Command =  Cmd<ActionPayload>.Query with { cmd = ("Select * from ##BotActionPayloads where EntityAction = '{0}.{1}' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER") };
             }
             static readonly internal ContextOptions BotContextOptions
                 = new ContextOptions(null, null, null, null);
@@ -39,9 +40,7 @@ namespace MissCore.Bot
         DbConnection Connection;
         protected BotContext Context { get; set; }
         public BaseCoreBot(IRepository<BotCommand> commandsRepository = default) : base(commandsRepository) { }
-
-
-
+        
         public override sealed void Init(IServiceProvider sp)
         {
             base.Init(sp);
@@ -58,20 +57,21 @@ namespace MissCore.Bot
                 cmd.CommandText = System.IO.File.ReadAllText(Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Bot", "BotInit.sql"));
                 cmd.ExecuteNonQuery();
             }
+            var data = Handle<ActionPayload>(BotCore.SearchRequest.Request);
+            BotCore.SearchRequest.Request = BotCore.SearchRequest.Request with { Cmd = data.Payload };
         }
         public override async Task<bool> SyncCommands(IBotConnection connection)
         {
-            Commands = await HandleAsync<List<BotCommand>>(Bot.Request<BotCommand>.Query, default);
-            await base.SyncCommands(connection);
-            return true;
+            Commands = await HandleAsync<List<BotCommand>>(Cmd<BotCommand>.Command, default);
+            return await base.SyncCommands(connection);
         }
 
-        public async Task<TEntity> HandleAsync<TEntity>(Bot.Sql sql, CancellationToken cancellationToken) where TEntity : class
+        protected async Task<TEntity> HandleAsync<TEntity>(BotCore.Cmd sql, CancellationToken cancellationToken) where TEntity : class
         {
             TEntity result = default(TEntity);
             using (var cmd = Connection.CreateCommand())
             {
-                cmd.CommandText = sql.Query;
+                cmd.CommandText = sql.cmd;
 
                 var reader = await cmd.ExecuteReaderAsync(cancellationToken);
                 if (!reader.HasRows)
@@ -82,7 +82,24 @@ namespace MissCore.Bot
 
             }
             return result;
-        }        
+        }
+        protected TEntity Handle<TEntity>(BotCore.Cmd sql) where TEntity : class
+        {
+            TEntity result = default(TEntity);
+            using (var cmd = Connection.CreateCommand())
+            {
+                cmd.CommandText = sql.cmd;
+
+                var reader = cmd.ExecuteReader();
+                if (!reader.HasRows)
+                    return default(TEntity);
+                else
+                    while (reader.Read())
+                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<TEntity>(reader.GetString(0));
+                reader.Close();
+            }
+            return result;
+        }
     }
 }
 

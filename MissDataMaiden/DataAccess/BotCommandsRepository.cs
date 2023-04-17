@@ -11,6 +11,7 @@ using MissCore.Bot;
 using MissDataMaiden.Queries;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
+using static MissCore.Bot.BotCore;
 
 namespace MissDataMaiden.DataAccess
 {
@@ -51,7 +52,7 @@ namespace MissDataMaiden.DataAccess
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
             var query = SqlQuery<TEntityType>.Instance with
-            { sql = Bot.Request<BotCommand>.Any.OfType<TEntityType>().Query};
+            { sql = Cmd<BotCommand>.Query.cmd};
                 
             var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
             lastResult = result.FirstOrDefault();

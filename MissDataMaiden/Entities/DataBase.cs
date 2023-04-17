@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MissBot.Abstractions;
+using MissBot.Handlers;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden.Entities
@@ -15,7 +16,14 @@ namespace MissDataMaiden.Entities
             Restore,
             Delete
         }
-    public record DataBase
+
+    public record InlineDataBase : InlineUnit<InlineDataBase>
+    {
+        public string Name { get=> Get<string>(); set=>Title = Set(value); }
+        public float Size { get; set; }
+        public string Created { get=> Get<string>(); set=> Description = Set(value); }
+    }
+        public record DataBase
     {        
         public int Id { get; set; }
         public string Name { get; set; }

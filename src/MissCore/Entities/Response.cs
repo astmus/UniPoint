@@ -17,7 +17,7 @@ namespace MissBot.Common
         BotClientDelegate Client;
         Message message;
         Chat channel;
-        
+
 
         public override ChatId ChatId
             => channel.Id;
@@ -30,16 +30,16 @@ namespace MissBot.Common
         {
             channel = update.Chat;
             message = update.Message;
-            Client = sender;            
+            Client = sender;
         }
         public async Task<IResponseChannel> InitAsync(T data, ICommonUpdate update, BotClientDelegate sender)
         {
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
-        }        
-        public  void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
-        {            
-            WriteUnit(unit);            
+        }
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
+        {
+            WriteUnit(unit);
         }
 
         public void WriteResult<TUnitData>(TUnitData units) where TUnitData : IEnumerable<ValueUnit>
@@ -55,7 +55,10 @@ namespace MissBot.Common
 
         protected virtual Response<T> WriteUnit(ValueUnit unit)
         {
-            Text += unit.ToString()[..^1];
+            if (unit.IsSimpleUnit())
+                Text += string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
+            else
+                Text += unit.ToString()[..^1];
             return this;
         }
     }

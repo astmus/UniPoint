@@ -71,7 +71,7 @@ namespace MissBot.Abstractions
         /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
         public ResponseMessage(string text = default) : base("sendMessage")
         {
-            Text = text ?? "Completed\n";
+            Text = text ?? "\n";
         }
     }
 }

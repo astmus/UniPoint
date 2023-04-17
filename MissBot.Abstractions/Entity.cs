@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions
 {
@@ -93,9 +94,18 @@ namespace MissBot.Abstractions
 
     public record Unit<TEntity> : ValueUnit
     {
+        public override sealed bool IsSimpleUnit()
+            => false;
+        static Unit()
+        {
+            EntityTable ??= "##" + Convert.ToString(Unit < TEntity >.Sample).Split('{', ',', '}').FirstOrDefault();
+        }
         TEntity entity;
+        static string entityTable;
         public TEntity Value { get => entity; init => entity = value; }
         static readonly MetaUnit MetaInfoUnit = new MetaUnit("");
+        public static readonly string EntityTable;
+            
         public record MetaUnit(string Content) : ValueUnit
         {
 
@@ -154,7 +164,8 @@ namespace MissBot.Abstractions
             => this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
         public object? AnyFirst(string name)
             => this.Where(x => x.Key == name).Select(s => s.Value).FirstOrDefault();
-
+        public string GetAll()
+            => string.Join(" ",this.Select(s => s.Key + " = " + s.Value));
         public T Set<T>(T value, [CallerMemberName] string name = default)
         {
             AddOrUpdate<T>(name,
@@ -167,7 +178,22 @@ namespace MissBot.Abstractions
 
     public record ValueUnit
     {
-
+        public static BotUnion Parse(JArray values)
+            =>  new BotUnion(values.Children<JObject>().Select(s => Parse(s)));
+        public bool HasMetadata()
+            => meta != null;
+        public virtual bool IsSimpleUnit()
+            => true;
+        public static ValueUnit Parse(JObject value)
+        {
+            ValueUnit parsed = new ValueUnit();
+            foreach (var item in value)
+            {
+                var replaced = Convert.ToString($"{item.Key}: {item.Value}");
+                parsed.Set(replaced, item.Key);
+            }
+            return parsed;
+        }
         MetaInfo meta;
         protected MetaInfo MetaData
             => meta ?? (meta = new MetaInfo());
@@ -179,7 +205,9 @@ namespace MissBot.Abstractions
 
         public virtual MetaInfo GetMetaData()
         {
-            MetaData.Set(Convert.ToString(this), "Content");
+            MetaData.Set(MetaData["Entity"], "Content");
+            MetaData["Entity"] = null;
+            
             return MetaData;
         }
 

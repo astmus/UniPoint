@@ -20,15 +20,27 @@ namespace MissCore.Entities
         public static implicit operator InlineKeyboardButton(InlineEntityAction s) =>
             InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Id}");
     }
-       
 
-    public record InlineEntityAction<TEntity> : Unit<TEntity>, IEntityAction<TEntity>
+    public record EntityAction<TEntity> : EntityAction
+    { }
+
+    public record EntityAction : IBotCommand
+    {
+        public string Payload { get; set; }
+        public string[] Params { get; set; }
+        public string Command { get; }
+        public string Description { get; }
+        public string WithCondition(params object[] param)
+            => string.Format(Payload, param);
+    }
+
+    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IEntityAction<TEntity>
     {
         public string Text { get; set; }
         public object? Id { get; set; }
         public virtual string Action { get; init; }
-        public virtual string Payload { get; init; }
-
+        public virtual string Data
+            => string.Format(Action, Id);
         public static implicit operator InlineEntityAction<TEntity>(string data) =>
             new InlineEntityAction<TEntity>() { Action = data };
         public static implicit operator InlineKeyboardButton(InlineEntityAction<TEntity> s) =>

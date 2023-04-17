@@ -7,7 +7,7 @@ using Telegram.Bot.Types.InlineQueryResults;
 
 namespace MissBot.Handlers
 {
-    public record InlineUnit<TEntity>(Action<InlineUnit<TEntity>> init = null) : Unit<TEntity>, IInlineUnit
+    public record InlineUnit<TEntity>(Action<InlineUnit<TEntity>> init = null) : Unit<TEntity>, IInlineUnit where TEntity : InlineUnit<TEntity>
     {
         protected override sealed void InvalidateMetaData(TEntity unit)
         {
@@ -22,7 +22,7 @@ namespace MissBot.Handlers
         //    InvalidateMetaData(this, entity);
         //}
         
-        public string Id { get => Get<string>(); set { Set(value); } }
+        public int Id { get => Get<int>(); set { Set(value); } }
         public string Title { get => Get<string>(); set => Set(value); }
         public string Content { get => Get<string>(); set => Set(value); }
         public string Description { get => Get<string>(); set => Set(value); }
@@ -32,13 +32,13 @@ namespace MissBot.Handlers
     public record InlineUnit : ValueUnit, IInlineUnit
     {
         private const string empty = "Empty";
-        public string Id { get => Get<string>(); set { Set(value); } }
+        public int Id { get => Get<int>(); set { Set(value); } }
         public string Title { get => Get<string>(); set => Set(value); }
         public string Content { get => Get<string>(); set => Set(value); }
         public string Description { get => Get<string>(); set => Set(value); }
         
         public static readonly InlineUnit Empty
-            = new InlineUnit() { Id = "", Title = "Not found", Content = empty };
+            = new InlineUnit() { Id = 0, Title = "Not found", Content = empty };
     }
 
     public abstract class InlineQueryHandler : BaseHandler<InlineQuery>

@@ -112,8 +112,12 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             if (HandlerDelegate is null)
                 BuildHandler();
         }
-
-        public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IEntityAction
+        public IBotBuilder AddRepository<TRepository, TImplementatipon>() where TRepository :class, IRepository where TImplementatipon : class, TRepository
+        {
+            Services.AddScoped<TRepository, TImplementatipon>();
+            return this;
+        }
+            public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IEntityAction
         {
             Services.AddScoped<IAsyncHandler<TAction>, THandler>();            Services.AddScoped<TAction>();
             Services.AddScoped<IResponse, Response>();

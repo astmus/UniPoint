@@ -38,8 +38,8 @@ INSERT INTO ##BotEntityAction VALUES ( 'DataBase','Restore','DataBase.Restore.{0
 INSERT INTO ##BotActions VALUES ( 'Search','Query');
 INSERT INTO ##BotActions VALUES ( 'Bot','Search');
 INSERT INTO ##BotActionPayloads VALUES ('Bot.Search','select value from OpenJson((select  Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name  OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY for JSON AUTO))');
-INSERT INTO ##BotActionPayloads VALUES ('DataBase.Delete','select * from ##Info where Id = {0}');
-INSERT INTO ##BotActionPayloads VALUES ('InlineAnswre.Info','select * from ##Info where Id = {0}');
+INSERT INTO ##BotActionPayloads VALUES ('DataBase.Delete','select value from OpenJson((select * from ##Info where Id = {0} FOR JSON PATH))');
+INSERT INTO ##BotActionPayloads VALUES ('DataBase.Info','select value from OpenJson((select * from ##DataBase where Id = {0} FOR JSON PATH))');
 INSERT INTO ##BotActionPayloads VALUES ('DataBase.Details','select value from OpenJson((select DISTINCT i.*, a.ActionName, p.* from ##DataBase d inner join ##Info i on LEN(i.dbName) > 0  INNER JOIN ##BotActions a ON d.EntityName = a.EntityName INNER JOIN ##BotActionPayloads p ON p.EntityAction =d.EntityName+''.''+a.ActionName WHERE d.Id = {0}  FOR JSON PATH))');
 INSERT INTO ##BotActionPayloads VALUES ('DataBase.Backup','SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename');
 --select value from OpenJson((select DISTINCT i.*, a.ActionName, p.* from ##DataBase d inner join ##Info i on LEN(i.dbName) > 0  INNER JOIN ##BotActions a ON d.EntityName = a.EntityName INNER JOIN ##BotActionPayloads p ON p.EntityAction =d.EntityName+'.'+a.ActionName WHERE d.Id =  25523  FOR JSON PATH))

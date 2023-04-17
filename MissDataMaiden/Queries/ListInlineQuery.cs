@@ -14,6 +14,9 @@ using Telegram.Bot.Types;
 using MissBot.Handlers;
 using Telegram.Bot.Types.InlineQueryResults;
 using MissDataMaiden.Entities;
+using MissBot.Abstractions.DataAccess;
+using MissCore.Bot;
+using MissBot.DataAccess.Sql;
 
 namespace MissDataMaiden.Commands
 {
@@ -28,9 +31,9 @@ namespace MissDataMaiden.Commands
             public QueryHandler(IConfiguration config) : base(config)
             {
             }
-            protected  override Unit<DataBase> CreateUnit(DataBase entity)
+            protected  Unit<InlineDataBase> CreateUnit(InlineDataBase entity)
             {    
-                var unit = InlineUnit<DataBase>.Instance with { Value = entity }; 
+                var unit = InlineUnit<InlineDataBase>.Instance with { Value = entity }; 
                 
                 unit[nameof(InlineUnit.Id)] = entity.Id;
                 unit[nameof(InlineUnit.Title)] = entity.Name;
@@ -72,32 +75,38 @@ namespace MissDataMaiden.Commands
         private readonly IConfiguration config;
         private readonly IMediator mm;
         Search.SqlQuery query;
+        IJsonRepository repository;
         SqlQuery<Search>.Request SearchPayload
             => SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
         static Search payload;
         Filter resultFilter;
-        public ListDiskInlineHandler(IConfiguration config, IMediator mm)
+        public ListDiskInlineHandler(IConfiguration config, IMediator mm, IJsonRepository jsonRepository)
         {            
             this.config = config;
             this.mm = mm;
             resultFilter ??= new Filter(0, 15, "");
+            repository = jsonRepository;
             SqlQuery<Search>.Sample.EntityAction ??= nameof(Search);            
         }
 
 
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            payload ??= await SearchPayload.LoadAsync();
-            var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
-       
-            var objs = await mm.Send(query);
-            return objs;
+            var searchRequest = BotCore.SearchRequest.Request.Create<Disk.Dto>(skip + resultFilter.take, 15, search);
+
+            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(searchRequest.cmd);
+            //payload ??= await repository.HandleQueryAsync<List<DataBase>>(query.Query);
+            //var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
+            //foreach (var item in items)
+            //    CreateUnit(item);
+            //var objs = await mm.Send(query);
+            return items;
              
         }
-        protected Unit<DataBase> CreateUnit(DataBase entity)
+        protected Unit<InlineDataBase> CreateUnit(InlineDataBase entity)
         {
 
-            var unit = InlineUnit<DataBase>.Instance with { Value = entity };
+            var unit = InlineUnit<InlineDataBase>.Instance with { Value = entity };
 
             unit[nameof(InlineUnit.Id)] = entity.Id;
             unit[nameof(InlineUnit.Title)] = entity.Name;

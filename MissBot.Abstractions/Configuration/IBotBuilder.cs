@@ -13,7 +13,8 @@ namespace MissBot.Abstractions.Configuration
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
 
         IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IEntityAction;
-
+        IBotBuilder AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository;
+        
         IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler;
 
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;

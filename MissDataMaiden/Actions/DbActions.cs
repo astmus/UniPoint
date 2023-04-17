@@ -19,7 +19,7 @@ namespace MissDataMaiden.Commands
     public record DBRestore : InlineEntityAction<DataBase>;
     public record DBDelete : InlineEntityAction<DataBase>;
     public record DBInfo : InlineEntityAction<DataBase>;
-    public record DBDetails(DataBase db) : InlineEntityAction<DataBase>;
+    public record DBDetails : InlineEntityAction<DataBase>;
 
     public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {

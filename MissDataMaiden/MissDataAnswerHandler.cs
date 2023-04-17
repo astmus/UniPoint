@@ -2,9 +2,11 @@ using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Attributes;
 using MissBot.Extensions.Entities;
 using MissBot.Handlers;
+using MissCore.Bot;
 using MissCore.Entities;
 using MissCore.Handlers;
 using MissDataMaiden.Commands;
@@ -13,6 +15,7 @@ using MissDataMaiden.Queries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot.Types;
+using static MissCore.Bot.BotCore;
 
 namespace MissDataMaiden
 {
@@ -21,14 +24,13 @@ namespace MissDataMaiden
         private readonly IMediator mediator;
         private readonly IConfiguration config;
         IMediator mm;
-
-        public MissDataAnswerHandler(IMediator mediator, IConfiguration config)
+        IJsonRepository repository;
+        public MissDataAnswerHandler(IJsonRepository jsonRepository, IConfiguration config)
         {
-            this.mediator = mediator;
+            repository = jsonRepository;
             this.config = config;
         }
-        string ConnectionString
-            => config.GetConnectionString("Default");
+
         //protected Task HandleAsync(IHandleContext context, string command, string[] args) => command switch
         //{
         //    nameof(DBInfo) => HandleAsync<DBInfo>(context, args),
@@ -59,24 +61,46 @@ namespace MissDataMaiden
                             {
                                 var str = reader.GetString(0);
                                 res.Add(JObject.Parse(str));
-                                
+
                                 //return JsonConvert.DeserializeObject<List<InlineEntityAction<DataBase>>>(str);
                             }
                     }
                     return JArray.FromObject(res);
-                    
+
                 }
             }
         }
 
+        record DataBaseRequest : BotCore.CmdRequest<DataBase>
+        {
+            static string query;
+            public override Cmd<DataBase> Query { get => this with { cmd = string.Format(query, Param?.Id ?? sample?.Id) }; }
+            static DataBaseRequest()
+            {
+                query = "select value from OpenJson((select * from ##Info where Id = {0} FOR JSON PATH))";
+                sample = Unit<DataBase>.Sample with { };
+            }
+        }
 
         public override async Task HandleResultAsync(ChosenInlineResult result, IContext<ChosenInlineResult> context)
         {
-            var request = SqlQuery<DataBase>.Instance with { connectionString = ConnectionString };
-            var action = await request.SelectAsync<InlineEntityAction<DataBase>>($"{nameof(DataBase)}.{nameof(DBAction.Details)}", ConnectionString);
-            var inlineUnit = new DataBaseActionQuery (
-            result.Query.Length > 0 && result.ResultId.Contains(result.Query) ? string.Format(action.Payload, result.ResultId.Replace(result.Query, "")) : string.Format(action.Payload, result.ResultId), ConnectionString);
-            var payload = await mediator.Send(inlineUnit);
+            int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
+            var request = new DataBaseRequest() { Param = Unit<DataBase>.Sample with { Id = 6 } };
+
+            var dbinco = await repository.HandleQueryGenericObjectAsync(request.Query.cmd);
+
+            var unit = ValueUnit.Parse(dbinco);
+            var response = context.CreateResponse(result);
+            response.Write(unit);
+            await response.Commit(default);
+            //request.Tempalted(Convert.ToInt32(result.ResultId).ToString()).Cmd);
+
+            //var search = await  repository.HandleQueryGenericObjectAsync(dbinco.WithCondition(id));
+            //var action = await request.SelectAsync<InlineEntityAction<DataBase>>(", ConnectionString);
+            //var inlineUnit = new DataBaseActionQuery (
+            //result.Query.Length > 0 && result.ResultId.Contains(result.Query) ? string.Format(action.Payload, result.ResultId.Replace(result.Query, "")) : string.Format(action.Payload, result.ResultId), ConnectionString);
+            //var payload = await mediator.Send(inlineUnit);
+            await Task.CompletedTask;
             int i = 0;
             //var ctx = context.CreateDataContext<TAction>();
             //ctx.Data = Unit<TAction>.Sample with { Id = args[0] };

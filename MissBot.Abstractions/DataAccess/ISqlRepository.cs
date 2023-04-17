@@ -1,13 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions.DataAccess
 {
-    public interface ISqlRepository
+    public interface ISqlRepository : IRepository
     {
-        
+        Task ExecuteCommandAsync(string sql, CancellationToken cancel = default);
+        Task<string> HandleQueryAsync(string sql, CancellationToken cancel = default);
+    }
+
+    public interface IRepository
+    { }
+
+
+    public interface IJsonRepository : IRepository
+    {
+        Task ExecuteCommandAsync<TCommand>(TCommand sql, CancellationToken cancel = default) where TCommand:class;
+        Task<TResult> HandleQueryAsync<TResult>(string sql, CancellationToken cancel = default) where TResult: class;
+        Task<IList<TResult>> HandleQueryItemsAsync<TResult>(string sql, CancellationToken cancel = default) where TResult:class;
+        Task<JArray> HandleQueryGenericItemsAsync(string sql, CancellationToken cancel = default);
+        Task<JObject> HandleQueryGenericObjectAsync(string sql, CancellationToken cancel = default);
     }
 }

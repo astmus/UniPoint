@@ -13,6 +13,8 @@ using MissBot.Extensions.Response;
 using MissBot.Abstractions.DataAccess;
 using Telegram.Bot.Types;
 using BotService;
+using MissCore.Bot;
+using static MissCore.Bot.BotCore;
 
 namespace MissDataMaiden.Commands
 {
@@ -72,6 +74,7 @@ namespace MissDataMaiden.Commands
                     return cmd;
                     
                 SqlQuery<Disk>.Sample.Command ??= nameof(Disk);
+                var diskRequest = Cmd<BotCommand>.BotCommand<Disk>(nameof(disk));
                 return disk = commandsRepository.GetAll<Disk>().FirstOrDefault(SqlQuery<Disk>.Sample);
             }
         }
