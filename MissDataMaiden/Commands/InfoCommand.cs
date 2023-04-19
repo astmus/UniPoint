@@ -8,7 +8,7 @@ namespace MissDataMaiden.Commands
 {
     public class Info : BotCommand<InfoUnit>, IBotCommand
     {
-        
+        public override string CommandName => nameof(Info);
     }
 
     public record InfoUnit(string s) : ValueUnit
@@ -22,10 +22,7 @@ namespace MissDataMaiden.Commands
         SqlRaw<InfoUnit>.Query CurrentRequest { get; set; }
    
         public IConfiguration Config { get; }
-        public override Info Command
-            => new Info() { Payload = Config.GetSection(nameof(IBotCommandInfo)).GetChildren().Skip(1).First().GetValue<string>("Payload") };
-
-        IMediator mm;
+        
         string connectionString;
         private const string CFG_KEY_COMMAND = nameof(IBotCommandInfo);
         private const string CFG_KEY_DESCRIPTION = nameof(IBotCommandInfo.Description);

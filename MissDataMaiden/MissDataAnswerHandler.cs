@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Attributes;
+using MissBot.DataAccess.Sql;
 using MissBot.Extensions.Entities;
 using MissBot.Handlers;
 using MissCore.Bot;
@@ -15,7 +16,6 @@ using MissDataMaiden.Queries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot.Types;
-using static MissCore.Bot.BotCore;
 
 namespace MissDataMaiden
 {
@@ -71,23 +71,21 @@ namespace MissDataMaiden
             }
         }
 
-        record DataBaseRequest : BotCore.CmdRequest<DataBase>
-        {
-            static string query;
-            public override Cmd<DataBase> Query { get => this with { cmd = string.Format(query, Param?.Id ?? sample?.Id) }; }
-            static DataBaseRequest()
-            {
-                query = "select value from OpenJson((select * from ##Info where Id = {0} FOR JSON PATH))";
-                sample = Unit<DataBase>.Sample with { };
-            }
+        record DataBaseRequest : SQL.Query<DataBase>
+        {            
+            public override string CreateCommand<TEntity>()
+                => $"select * from ##Info where Id = {Entity.Id}";
+            
+            //public override Cmd<DataBase> Query { get => this with { cmd = string.Format(Template, Param?.Id ?? sample?.Id) }; }
+            
         }
 
         public override async Task HandleResultAsync(ChosenInlineResult result, IContext<ChosenInlineResult> context)
         {
             int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
-            var request = new DataBaseRequest() { Param = Unit<DataBase>.Sample with { Id = 6 } };
+            var request = Unit<DataBaseRequest>.Sample with { Entity = Unit<DataBase>.Sample with { Id = 6 } };
 
-            var dbinco = await repository.HandleQueryGenericObjectAsync(request.Query.cmd);
+            var dbinco = await repository.HandleQueryGenericObjectAsync(request.Sql.Command);
 
             var unit = ValueUnit.Parse(dbinco);
             var response = context.CreateResponse(result);

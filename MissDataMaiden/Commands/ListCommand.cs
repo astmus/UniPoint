@@ -9,7 +9,7 @@ namespace MissDataMaiden
 {
     public class List : BotCommand<ListUnit>, IBotCommand
     {
-
+        public override string CommandName => nameof(List);
     }
     public record ListUnit : BotUnion
     {
@@ -23,17 +23,7 @@ namespace MissDataMaiden
         static List list;
         private readonly IRepository<BotCommand> repository;
 
-        public override List Command
-        {
-            get
-            {
-                if (list is List cmd)
-                    return cmd;
-
-                SqlQuery<Disk>.Sample.Command ??= nameof(Disk);
-                return list = repository.GetAll<List>().FirstOrDefault(SqlQuery<List>.Sample);
-            }
-        }
+      
 
         public override Task RunAsync(List command, IContext<List> context)
         {

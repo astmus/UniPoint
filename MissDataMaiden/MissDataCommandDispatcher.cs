@@ -40,12 +40,12 @@ namespace MissDataMaiden
         public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotCommandData
         {
             var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
-            var cmd = handler.Command;
-            var cmds =await commandsRepository.GetAllAsync<TCommand>();
+           
+            var cmd = await commandsRepository.GetAsync<TCommand>();
             
             var ctx = context.CreateDataContext<TCommand>();
             
-            ctx.Data ??= cmds.FirstOrDefault();
+            ctx.Data ??= cmd;
             ctx.Data.Command = data.command;
             ctx.Data.Params = data.args;
 

@@ -76,8 +76,8 @@ namespace MissDataMaiden.Commands
         private readonly IMediator mm;
         Search.SqlQuery query;
         IJsonRepository repository;
-        SqlQuery<Search>.Request SearchPayload
-            => SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
+        Queries.SqlQuery<Search>.Request SearchPayload
+            => Queries.SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
         static Search payload;
         Filter resultFilter;
         public ListDiskInlineHandler(IConfiguration config, IMediator mm, IJsonRepository jsonRepository)
@@ -86,15 +86,20 @@ namespace MissDataMaiden.Commands
             this.mm = mm;
             resultFilter ??= new Filter(0, 15, "");
             repository = jsonRepository;
-            SqlQuery<Search>.Sample.EntityAction ??= nameof(Search);            
+            SQL<Search>.Create("");// .Sample.EntityAction ??= nameof(Commands.Search);            
         }
 
 
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            var searchRequest = BotCore.SearchRequest.Request.Create<Disk.Dto>(skip + resultFilter.take, 15, search);
+            var r = new SQL<Disk.Dto>.Query();
+            
+            var e =
+            new SQL<Disk.Dto>.Pager(skip + resultFilter.take, 15, search);
+            
+              //  var searchRequest = SQL<Disk.Dto>.Pager .Query(skip + resultFilter.take, 15, search);
 
-            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(searchRequest.cmd);
+            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(SQL<Disk.Dto>.Create(""));
             //payload ??= await repository.HandleQueryAsync<List<DataBase>>(query.Query);
             //var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
             //foreach (var item in items)

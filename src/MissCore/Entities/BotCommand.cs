@@ -8,8 +8,9 @@ namespace MissCore.Entities
 
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public class BotCommand<TResult> : BotCommand, IBotCommandData, IBotCommandInfo
+    public abstract class BotCommand<TResult> : BotCommand, IBotCommand
     {
+        public abstract string CommandName { get; }
         public string Payload { get; set; }
         public string[] Params { get; set; }
     }

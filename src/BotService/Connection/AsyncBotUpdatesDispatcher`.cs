@@ -43,7 +43,7 @@ namespace BotService.Connection
             }
             catch (Exception e)
             {
-                log.LogCritical(e.Message);
+                Console.WriteLine(e.Message);
             }
             finally {
                 StartInThread();

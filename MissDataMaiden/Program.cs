@@ -18,22 +18,23 @@ namespace MissDataMaiden
         {
             var botHost = BotHost.CreateDefault(args);
             botHost.AddBot<MissDataMaid, MissDataMaidConfigurator>()
-                    .Use<ExceptionHandler>()                                        
-                //.UseCommndFromAttributes()
+                    .Use<ExceptionHandler>()
+                    //.UseCommndFromAttributes()
                     .UseMediator()
-                    .UseLogging()                    
+                    .UseLogging()
                     .UseCommandsRepository<BotCommandsRepository>()
                     .UseCommandDispatcher<MissDataCommandDispatcher>()
                     .UseInlineAnswerHandler<MissDataAnswerHandler>()
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
                     .UseInlineHandler<ListDiskInlineHandler>()
+                    .AddRepository<ISqlRepository, SqlRepository>()
+                    .AddRepository<IJsonRepository, JsonSqlRepository>()
                     .AddCommand<Disk, DiskCommandHandler, DiskResponse>()
                     .AddCommand<Info, InfoCommandHadler>()
                     .AddCommand<List, ListCommandHadler>()
                     .AddAction<DBInfo, DdActionHandler>()
                     .AddAction<DBRestore, DdActionHandler>()
-                    .AddAction<DBDelete, DdActionHandler>()
-                    .AddRepository<IJsonRepository, JsonSQLRepository>();
+                    .AddAction<DBDelete, DdActionHandler>();
 
                     
           //botHost.AddBot<CoreBot.HostedCore.>();

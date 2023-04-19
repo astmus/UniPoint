@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataAccess;
+using Telegram.Bot.Types;
 
 namespace MissCore
 {
@@ -12,6 +14,12 @@ namespace MissCore
 
         public IBotClient Client
             => GetRequiredService<IBotClient>();
+
+        //public TCommand GetCommand<TCommand>() where TCommand : BotCommand
+        //{
+        //    var repository = sp.GetRequiredService<IRepository<BotCommand>>();
+        //    repository.Get
+        //}
 
         public T GetRequiredService<T>()
             => sp.GetRequiredService<T>();

@@ -11,16 +11,16 @@ namespace MissBot.Abstractions.DataAccess
     public interface ISqlRepository : IRepository
     {
         Task ExecuteCommandAsync(string sql, CancellationToken cancel = default);
-        Task<string> HandleQueryAsync(string sql, CancellationToken cancel = default);
+        Task<TScalar> HandleScalarQueryAsync<TScalar>(string sql, CancellationToken cancel = default) where TScalar:class;
     }
+   
 
     public interface IRepository
     { }
 
 
     public interface IJsonRepository : IRepository
-    {
-        Task ExecuteCommandAsync<TCommand>(TCommand sql, CancellationToken cancel = default) where TCommand:class;
+    {        
         Task<TResult> HandleQueryAsync<TResult>(string sql, CancellationToken cancel = default) where TResult: class;
         Task<IList<TResult>> HandleQueryItemsAsync<TResult>(string sql, CancellationToken cancel = default) where TResult:class;
         Task<JArray> HandleQueryGenericItemsAsync(string sql, CancellationToken cancel = default);

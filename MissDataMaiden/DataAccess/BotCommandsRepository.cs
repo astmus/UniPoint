@@ -6,26 +6,24 @@ using System.Threading.Tasks;
 using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.DataAccess;
+using MissBot.DataAccess.Sql;
 using MissCore.Bot;
 using MissDataMaiden.Queries;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
-using static MissCore.Bot.BotCore;
 
 namespace MissDataMaiden.DataAccess
 {
-    
-    public class BotCommandsRepository : IRepository<BotCommand>
+    public class BotCommandsRepository : SqlRepository, IBotCommandsRepository
     {
-        private readonly IConfiguration config;
-        private readonly IMediator mediator;
+        
         IEnumerable<BotCommand> commands;
-        BotCommand lastResult;
-        public BotCommandsRepository(IConfiguration config, IMediator mediator)
+
+        public BotCommandsRepository(IConfiguration configuration) : base(configuration)
         {
-            this.config = config;
-            this.mediator = mediator;
         }
 
         public IEnumerable<BotCommand> GetAll()
@@ -38,28 +36,37 @@ namespace MissDataMaiden.DataAccess
         {
             if (commands == null)
                 GetAllAsync<TEntityType>().Wait();
-            return Enumerable.Empty<TEntityType>().Append(lastResult as TEntityType);
+            return commands.Where(c => c is TEntityType).Cast<TEntityType>().ToList();;
         }
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-     //       Bot.Request<BotCommand>.Query
-     //       Bot.Request<BotCommand>.
-     //commands = await query.Handle();
+            commands = await HandleScalarQueryAsync<List<BotCommand>>(BotContext.AllCommands);
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
-            var query = SqlQuery<TEntityType>.Instance with
-            { sql = Cmd<BotCommand>.Query.cmd};
-                
-            var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
-            lastResult = result.FirstOrDefault();
+            //var query = SqlQuery<TEntityType>.Instance with
+            //{ sql = SQL<BotCommand>.Sample.Command };//  .Query.cmd};
+
+            var result = await HandleScalarQueryAsync<List<TEntityType>>(BotContext.AllCommands);
+            //var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
+            //lastResult = result.FirstOrDefault();
             return result;
         }
 
-        
+        public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
+        {            
+            var sql = BotContext.Command<TEntityType>();
+            var cmd = await HandleScalarQueryAsync<TEntityType>(sql);
+            return cmd;
+        }
+
+        public TCommand GetByName<TCommand>(string name) where TCommand : BotCommand
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

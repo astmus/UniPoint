@@ -28,7 +28,7 @@ namespace MissCore.Entities
     {
         public string Payload { get; set; }
         public string[] Params { get; set; }
-        public string Command { get; }
+        public string CommandName { get; }
         public string Description { get; }
         public string WithCondition(params object[] param)
             => string.Format(Payload, param);
