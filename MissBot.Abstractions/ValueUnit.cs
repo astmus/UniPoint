@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions
@@ -22,21 +23,29 @@ namespace MissBot.Abstractions
             return parsed;
         }
         MetaData meta;
-        protected MetaData Meta
+        protected MetaData MetaInformation
             => meta ?? (meta = new MetaData());
-
+        
         protected T Set<T>(T value, [CallerMemberName] string name = default)
-            => Meta.Set(value, name);
+            => MetaInformation.Set(value, name);
         protected T Get<T>([CallerMemberName] string name = default)
-            => Meta.Get<T>(name);
+            => MetaInformation.Get<T>(name);
 
         public virtual MetaData GetMetaData()
-        {
-            Meta.Set(Meta["Entity"], "Content");
-            Meta["Entity"] = null;
-            
-            return Meta;
-        }
+            => meta;
+        
+        
 
+        public record MetaUnit(string Content = default, MetaData Data = default) : Unit
+        {
+            //string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
+            protected override bool PrintMembers(StringBuilder builder)
+            {
+                var res = base.PrintMembers(builder);
+                builder.Clear();
+                builder.Append($"{Data?.ToString() ?? Convert.ToString(this)}");
+                return res;
+            }
+        }
     }
 }

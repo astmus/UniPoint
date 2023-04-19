@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
 namespace MissBot.Abstractions
@@ -11,7 +11,10 @@ namespace MissBot.Abstractions
                 return value;
             return default(T);
         }
-
+        public override string ToString()
+            =>
+                Count > 0 ? string.Join('\n', this.Select(s => Convert.ToString(s.Value).Replace("]", "").Replace(",", " = "))) : base.ToString() ;
+        
         public TAny FirstOrNull<TAny>(string name)
             => this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
         public object? AnyFirst(string name)

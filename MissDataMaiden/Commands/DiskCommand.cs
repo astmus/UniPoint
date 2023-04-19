@@ -21,6 +21,10 @@ namespace MissDataMaiden.Commands
     [JsonObject]
     public class Disk : BotCommand<Disk>, IBotCommand
     {
+        static  Disk()
+        {
+            
+        }
         public override string CommandName => nameof(Disk);
 
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
@@ -45,7 +49,7 @@ namespace MissDataMaiden.Commands
         };
 
         Response<Disk> WriteDataUnit(Disk.Dto data)
-        {
+        {            
             Text += $"{data.Name.Shrink(10)}{data.Drive}  {data.Free}  {data.Used}   {data.Total}    {data.Perc}".AsCodeTag().LineTag();
             return this;
         }
@@ -55,20 +59,19 @@ namespace MissDataMaiden.Commands
     {
         private readonly IConfiguration config;
         private readonly IJsonRepository repository;
-        SqlQuery<Disk.Dto> query;
-        static Disk disk;
-        public DiskCommandHandler(IJsonRepository repository)
-        {            
-            this.repository = repository;
-        }
+        SQL<Disk.Dto> query;
 
-        public override Task BeforeComamandHandle(IContext<Disk> context)
+        public DiskCommandHandler(IJsonRepository repository)
         {
-            Disk.Dto.MetaData =
-            Disk.Dto.MetaData with { Content =
-                $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}"
-                };
-            return base.BeforeComamandHandle(context);
+            //SQL < Disk.Dto >.
+                this.repository = repository;
+        }
+        static DiskCommandHandler()
+        {
+            Unit<Disk>.Meta.Data["2"] =
+            //Disk.Dto.MetaData = Content => 
+            $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
+            Unit<Disk>.Meta.Data["1"] = nameof(Disk);
         }
 
 
@@ -79,15 +82,17 @@ namespace MissDataMaiden.Commands
         //    await response.SendHandlingStart(); 
         //}
 
-        public override async Task RunAsync(Disk command, IContext<Disk> context)
+        public override async Task HandleCommandAsync(Disk command, IContext<Disk> context)
         {
             IResponse<Disk> response = context.CreateResponse(command);
-
+            //Unit<Disk>.MetaData
+            response.WriteMetadata(Unit<Disk>.Meta);
             IList<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(command.Payload);
             //query = SqlQuery<Disk.Dto>.Instance with { sql = command.Payload, connectionString = config.GetConnectionString("Default") };
             //var results = await query.Handle().ConfigFalse();
             foreach (var obj in results)
             {
+                //obj.AddMetaData();
                 response.Write(obj);
             }
             await response.Commit(default);

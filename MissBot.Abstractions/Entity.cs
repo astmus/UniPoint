@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -96,57 +97,51 @@ namespace MissBot.Abstractions
         static Unit()
         {
             var meta = Convert.ToString(Unit<TEntity>.Sample).Split('{', ',', '}').FirstOrDefault();
-            EntityTable ??= "##" + meta;
-            MetaData = CreateMetaUnit(meta);
+            // MetaUnit.EntityName ??= /*"##" +*/ meta;
+            EntityName = meta;
+            _metaUnit = InitMetaUnit();
         }
         TEntity entity;
-        static string entityTable;
         public TEntity Value { get => entity; init => entity = value; }
-        
-        public static readonly string EntityTable;
+        internal static string EntityName;
+        static MetaUnit _metaUnit;
+
+        public MetaUnit MetaData
+            => _metaUnit with { Data  = GetMetaData()  };
+
+        static MetaUnit InitMetaUnit(MetaData meta = null)
+            => new MetaUnit(EntityName, meta);
             
-        public record MetaUnit(string Content) : Unit
-        {
-            protected override bool PrintMembers(StringBuilder builder)
-            {
-                var res = base.PrintMembers(builder);
-                builder.Clear();
-                builder.Append($"{Content}\n");
-                return res;
-            }
-        }
-
-        public static MetaUnit MetaData { get; set; }
-        public static MetaUnit CreateMetaUnit(string content)
-            => new MetaUnit(content);
-
-        public override MetaData GetMetaData()
-        {
-            Meta.Set(Stringify((Value?.ToString() ?? this.ToString()).Split('{', ',', '}')), "Content");
-            InvalidateMetaData(Value);
-            return Meta;
-        }
+        //public override MetaData GetMetaData()
+        //{
+        //    //Meta.Set(Stringify((Value?.ToString() ?? this.ToString()).Split('{', ',', '}')), "Content");
+        //    InvalidateMetaData(Value);
+        //    return Meta;
+        //}
         internal static string Stringify(string[] items)
         => string.Join(Environment.NewLine, from s in items
                                             where s.Length > 2 && !s.EndsWith("= ")
                                             select s);
+
         internal static string StringifyMeta(string[] items)
         => string.Join(" ", from s in items
                             where s.Length > 2 && !s.EndsWith("= ")
                             select s);
 
         protected virtual void InvalidateMetaData(TEntity unit)
-        {}
+        { }
 
         public static TEntity Sample
             => Instance.Value;
         public static readonly Unit<TEntity> Instance
             = new Unit<TEntity>() { Value = Activator.CreateInstance<TEntity>() };
+        public static readonly Unit<TEntity>.MetaUnit Meta
+            = new Unit<TEntity>.MetaUnit(EntityName, new MetaData());
 
         public object this[string key]
         {
-            get => Meta[key];
-            set => Meta.Set(value, key);
+            get => MetaInformation[key];
+            set => MetaInformation.Set(value, key);
         }
 
     }

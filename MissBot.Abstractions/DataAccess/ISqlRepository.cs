@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions.DataAccess
 {
@@ -17,13 +16,4 @@ namespace MissBot.Abstractions.DataAccess
 
     public interface IRepository
     { }
-
-
-    public interface IJsonRepository : IRepository
-    {        
-        Task<TResult> HandleQueryAsync<TResult>(string sql, CancellationToken cancel = default) where TResult: class;
-        Task<IList<TResult>> HandleQueryItemsAsync<TResult>(string sql, CancellationToken cancel = default) where TResult:class;
-        Task<JArray> HandleQueryGenericItemsAsync(string sql, CancellationToken cancel = default);
-        Task<JObject> HandleQueryGenericObjectAsync(string sql, CancellationToken cancel = default);
-    }
 }

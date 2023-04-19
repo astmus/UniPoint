@@ -20,7 +20,7 @@ namespace MissBot.Abstractions
             try
             {
                 await BeforeComamandHandle(context).ConfigureAwait(false);
-                await RunAsync(context.Data, context);
+                await HandleCommandAsync(context.Data, context);
                 await AfterComamandHandle(context).ConfigureAwait(false);
             }
             catch (Exception error)
@@ -30,6 +30,6 @@ namespace MissBot.Abstractions
             }
         }
 
-        public abstract Task RunAsync(TCommand command, IContext<TCommand> context);
+        public abstract Task HandleCommandAsync(TCommand command, IContext<TCommand> context);
     }
 }

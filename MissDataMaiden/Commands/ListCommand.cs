@@ -25,7 +25,7 @@ namespace MissDataMaiden
 
       
 
-        public override Task RunAsync(List command, IContext<List> context)
+        public override Task HandleCommandAsync(List command, IContext<List> context)
         {
             throw new NotImplementedException();
         }

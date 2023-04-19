@@ -16,7 +16,7 @@ namespace MissCore.Bot
         public string Placeholder { get; set; }
 
     }
-    public record Search<TEntity> : ISQL
+    public record Search<TEntity>
     {
         public string Cmd { get; init; }
         public object[]? Params { get; init; }

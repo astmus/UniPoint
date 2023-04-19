@@ -34,7 +34,7 @@ namespace MissDataMaiden.Commands
             
         }
 
-        public override Task RunAsync(Info command, IContext<Info> context)
+        public override Task HandleCommandAsync(Info command, IContext<Info> context)
         {
             throw new NotImplementedException();
         }

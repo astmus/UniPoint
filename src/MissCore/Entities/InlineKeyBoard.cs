@@ -22,7 +22,12 @@ namespace MissCore.Entities
     }
 
     public record EntityAction<TEntity> : EntityAction
-    { }
+    {
+        static EntityAction()
+        {
+           // Unit<TEntity>.MetaData
+        }
+    }
 
     public record EntityAction : IBotCommand
     {

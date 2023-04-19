@@ -53,7 +53,7 @@ namespace MissBot.Common
         public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {
             var meta = unit.GetMetaData();
-                var content = meta.AnyFirst("Content");
+            var content = Unit<TUnitData>.Meta.Content;// meta.AnyFirst("Content");
             InlineQueryResult result = InitResult(content);
           
 
@@ -101,6 +101,11 @@ namespace MissBot.Common
         {
             foreach (var item in unit)
                 Write(item);            
+        }
+
+        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : Unit<T>.MetaUnit
+        {
+            throw new NotImplementedException();
         }
     }
 
