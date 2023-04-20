@@ -1,5 +1,5 @@
 using MissBot.Abstractions.DataAccess;
-
+using MissBot.Abstractions.Entities;
 namespace MissBot.Abstractions
 {
     public interface IAsyncHandler

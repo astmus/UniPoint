@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using Telegram.Bot.Types;
+using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace MissBot.Abstractions.Configuration
 {

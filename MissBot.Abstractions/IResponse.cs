@@ -1,3 +1,4 @@
+using TG = Telegram.Bot.Types;
 namespace MissBot.Abstractions
 {
     public interface IResponse
@@ -16,7 +17,7 @@ namespace MissBot.Abstractions
     {
         Task ShowPopupAsync(string message, CancellationToken cancel = default);
         Task SendTextAsync(string message, CancellationToken cancel = default);
-        void Init(ICommonUpdate update, BotClientDelegate sender, CallbackQuery unit);        
+        void Init(ICommonUpdate update, BotClientDelegate sender, TG.CallbackQuery unit);        
     }
 
     public interface IResponse<TUnit> : IResponseChannel

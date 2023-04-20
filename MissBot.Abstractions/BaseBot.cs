@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using Telegram.Bot.Types;
+using TG = Telegram.Bot.Types;
+using MissBot.Abstractions.Entities;
+using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace MissBot.Abstractions
 {
@@ -77,10 +79,10 @@ namespace MissBot.Abstractions
     internal static class BotExtensoin
     {
         #region Extensions
-        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient,  IEnumerable<BotCommand> commands, BotCommandScope scope = default, string languageCode = default,
+        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient,  IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
                  CancellationToken cancellationToken = default)       
         => await botClient.MakeRequestAsync(
-                     request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands)
+                     request: new SetMyCommandsRequest(commands)
                      {
                          Scope = scope,
                          LanguageCode = languageCode
@@ -88,7 +90,29 @@ namespace MissBot.Abstractions
                      cancellationToken
                  )
                  .ConfigureAwait(false);
-        
+
+        [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+        record SetMyCommandsRequest : BaseRequest<bool>
+        {
+
+            [JsonProperty(Required = Required.Always)]
+            public IEnumerable<BotCommand> Commands { get; }
+
+
+            [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+            public TG.BotCommandScope? Scope { get; set; }
+
+
+            [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+            public string? LanguageCode { get; set; }
+
+            public SetMyCommandsRequest(IEnumerable<BotCommand> commands)
+                : base("setMyCommands")
+            {
+                Commands = commands;
+            }
+        }
+
         #endregion
     }
 }

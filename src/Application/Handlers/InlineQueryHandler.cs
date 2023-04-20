@@ -50,7 +50,7 @@ namespace MissBot.Handlers
             var response = context.CreateResponse(data);
 
             var items = await LoadAsync(data.Offset.IsNullOrEmpty() ? 0 : int.Parse(data.Offset), data.Query);
-            if (items.Count() != 0)
+            if (items?.Count() > 0)
                 response.WriteResult(items);
             else
                 response.Write(InlineUnit.Empty);

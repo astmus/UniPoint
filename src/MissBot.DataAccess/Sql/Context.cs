@@ -4,13 +4,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using LinqToDB;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.DataAccess.Interfacet;
-
+using Newtonsoft.Json;
 
 namespace MissBot.DataAccess.Sql
 {
@@ -83,9 +82,8 @@ namespace MissBot.DataAccess.Sql
                 {
                     cmd.CommandText = sql;
                     if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
-                        result = JsonSerializer.Deserialize<TScalar>(res);
-                    else
-                        result = JsonSerializer.Deserialize<TScalar>(JsonSerializer.Serialize(Unit<TScalar>.EmptyContent));
+                        result = JsonConvert.DeserializeObject<TScalar>(res);
+                  
                     //result = des.Content.FirstOrDefault();
                 }
                 await connection.CloseAsync();

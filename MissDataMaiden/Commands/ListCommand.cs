@@ -1,15 +1,15 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
 using MissDataMaiden.Queries;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
     public class List : BotCommand<ListUnit>, IBotCommand
     {
-        public override string EntityAction => nameof(List);
+        public override string Command => nameof(List);
     }
     public record ListUnit : BotUnion
     {

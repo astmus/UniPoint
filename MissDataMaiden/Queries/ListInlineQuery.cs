@@ -21,29 +21,29 @@ using MissBot.DataAccess.Sql;
 namespace MissDataMaiden.Commands
 {
 
-    public class Search
-    {
-        public string EntityAction { get; set; }
-        public string Payload { get; set; }
+    //public class Search
+    //{
+    //    public string EntityAction { get; set; }
+    //    public string Payload { get; set; }
  
-        //public record DbListInlineUnit : InlineUnit<DataBase>
-        //{
-        //    protected override DataBase InvalidateMetadata(InlineUnit<DataBase> unit, DataBase entity)
-        //    {
-        //        //InlineUnit<DataBase>.
-        //        //unit.Description = nameof(InvalidateMetadata);
-        //        Set(Info);
-        //        Set(Delete);
-        //        return entity;
-        //    }
-        //    public DBInfo Info
-        //        => Set(Unit<DBInfo>.Sample with { Id = this.Id, Action = nameof(DBInfo) });
-        //    public DBDelete Delete
-        //        => Set(Unit<DBDelete>.Sample with { Id = this.Id, Action = nameof(DBDelete) });
-        //    public DBRestore Restore
-        //        => Set(Unit<DBRestore>.Sample with { Id = this.Id, Action = nameof(DBRestore) });
-        //}
-    }
+    //    //public record DbListInlineUnit : InlineUnit<DataBase>
+    //    //{
+    //    //    protected override DataBase InvalidateMetadata(InlineUnit<DataBase> unit, DataBase entity)
+    //    //    {
+    //    //        //InlineUnit<DataBase>.
+    //    //        //unit.Description = nameof(InvalidateMetadata);
+    //    //        Set(Info);
+    //    //        Set(Delete);
+    //    //        return entity;
+    //    //    }
+    //    //    public DBInfo Info
+    //    //        => Set(Unit<DBInfo>.Sample with { Id = this.Id, Action = nameof(DBInfo) });
+    //    //    public DBDelete Delete
+    //    //        => Set(Unit<DBDelete>.Sample with { Id = this.Id, Action = nameof(DBDelete) });
+    //    //    public DBRestore Restore
+    //    //        => Set(Unit<DBRestore>.Sample with { Id = this.Id, Action = nameof(DBRestore) });
+    //    //}
+    //}
 
 
     public class ListDiskInlineHandler : InlineQueryHandler
@@ -52,36 +52,25 @@ namespace MissDataMaiden.Commands
         private readonly IMediator mm;
 
         IJsonRepository repository;
-        Queries.SqlQuery<Search>.Request SearchPayload
-            => Queries.SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
-        static Search payload;
+        static Search<DataBase> payload;
         Filter resultFilter;
         public ListDiskInlineHandler(IConfiguration config, IMediator mm, IJsonRepository jsonRepository)
         {            
             this.config = config;
             this.mm = mm;
-            resultFilter ??= new Filter(0, 15, "");
-            repository = jsonRepository;
-             
+            repository = jsonRepository;            
         }
-
 
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            //var r = BotContext.Search;// with { initFunc = u => $" select * from ##BotActionPayloads where EntityAction = 'Bot.{nameof(Search)}'" };
-           // var query = BotContext.Search.CreateCommand<Search<DataBase>>();
-            var r =   await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.Request);
-            //  var searchRequest = SQL<Disk.Dto>.Pager .Query(skip + resultFilter.take, 15, search);
-            var sql = r.Content.FirstOrDefault();
-           
+          
+            payload ??=  (await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.Request)).Content.FirstOrDefault();
+
+            resultFilter = payload.Filter;
             var items = await repository.HandleQueryItemsAsync<InlineDataBase>(
-                sql.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search }));
-            //payload ??= await repository.HandleQueryAsync<List<DataBase>>(query.Query);
-            //var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
-            //foreach (var item in items)
-            //    CreateUnit(item);
-            //var objs = await mm.Send(query);
-            return items.Content;
+                payload.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search ?? "" }));
+         
+            return items?.Content;
              
         }
      

@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace MissBot.Abstractions
 {
-    public record ValueUnit : Unit
+    public record ValueUnit : Unit, IFormattable
     {
         //public static BotUnion Parse(JArray values)
         //    =>  new BotUnion(values.Children<JObject>().Select(s => Parse(s)));
@@ -44,14 +44,19 @@ namespace MissBot.Abstractions
         public virtual MetaData GetMetaData()
             => meta;
 
-
+        public virtual string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            var s = Parse(this);
+            return string.Join("     ", s.GetAll().Select(s => s.Item2))+"\n";
+            
+        }
 
         public record MetaUnit(string Content = default, MetaData Data = default) : Unit
         {
             //string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
             public override string ToString()
             {
-                return Data?.ToString() ?? base.ToString();
+                return $"{Data.ToString() ?? base.ToString()}";
             }
             protected override bool PrintMembers(StringBuilder builder)
             {

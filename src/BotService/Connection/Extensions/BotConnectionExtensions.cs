@@ -32,9 +32,9 @@ namespace BotService.Connection.Extensions
                 CancellationToken cancellationToken = default
             ) 
             {
-            var s = JsonConvert.SerializeObject(new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.EntityAction, Description = s.Description })));
+            var s = JsonConvert.SerializeObject(new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.Command, Description = s.Description })));
                await botClient.MakeRequestAsync(
-                        request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s=> new BotCommand() { Command = s.EntityAction, Description = s.Description }))
+                        request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s=> new BotCommand() { Command = s.Command, Description = s.Description }))
                         {
                             Scope = scope,
                             LanguageCode = languageCode

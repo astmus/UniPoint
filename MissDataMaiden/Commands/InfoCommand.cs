@@ -8,7 +8,7 @@ namespace MissDataMaiden.Commands
 {
     public class Info : BotCommand<InfoUnit>, IBotCommand
     {
-        public override string EntityAction => nameof(Info);
+        public override string Command => nameof(Info);
     }
 
     public record InfoUnit(string s) : ValueUnit

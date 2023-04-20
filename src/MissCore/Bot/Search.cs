@@ -19,9 +19,12 @@ namespace MissCore.Bot
     public record Filter(int skip, int take, string predicat);
     public record Search<TEntity> : Search
     {
-        public Filter Filter { get; init; }
+        public Filter Filter { get; protected set; } = new Filter(0, 15, "");
 
         public SQL ToQuery(Filter filter)
-            => string.Format(Payload, filter.skip, filter.take, filter.predicat);
+        {
+            Filter = filter;
+            return string.Format(Payload, Filter.skip, Filter.take, Filter.predicat);
+        }
     }
 }

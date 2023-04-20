@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Requests;
+using TG = Telegram.Bot.Types;
 
 namespace MissBot.Abstractions.Response
 {
@@ -11,7 +12,7 @@ namespace MissBot.Abstractions.Response
     {
         private ICommonUpdate update;
         private BotClientDelegate sender;
-        private CallbackQuery query;
+        private TG.CallbackQuery query;
 
         public CallBackNotification() : base(null)
         {
@@ -20,7 +21,7 @@ namespace MissBot.Abstractions.Response
         public new string CallbackQueryId
             => query.Id;
 
-        public void Init(ICommonUpdate update, BotClientDelegate sender, CallbackQuery query)
+        public void Init(ICommonUpdate update, BotClientDelegate sender, TG.CallbackQuery query)
         {
             this.update = update;
             this.sender = sender;

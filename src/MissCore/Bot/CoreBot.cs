@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.DataAccess.Sql;
 using MissCore.Entities;
-using Telegram.Bot.Types;
-
+using Newtonsoft.Json;
 namespace MissCore.Bot
 {
     #region Context
@@ -21,24 +21,24 @@ namespace MissCore.Bot
     {
         public static SQL<TCommand> Command<TCommand>(TCommand cmd = default, SQLJson type = SQLJson.Path) where TCommand : BotCommand
                 => new SQL<TCommand>(u
-                => u is IBotCommand cmd ? $@"select * from ##BotCommands c
-                INNER JOIN ##BotActionPayloads a ON c.Command = a.EntityAction where Command = '/{cmd.EntityAction.ToLower()}'" : throw new ArgumentException())
+                => u is IBotCommand cmd ? $@"SELECT * FROM ##{nameof(BotAction)}s  WHERE Command = '/{cmd.Command.ToLower()}'" : throw new ArgumentException())
                 ;
 
-        public readonly static SQL<BotCommand> AllCommands
-            = SQL<BotCommand>.Create(s =>  "SELECT * FROM ##BotCommands");
+        public readonly static SQL<BotAction> AllCommands
+            = SQL<BotAction>.Create(s =>  $"SELECT {nameof(s.Command)}, {nameof(s.Description)} FROM ##{nameof(BotAction)}s WHERE Entity = '{nameof(BotCommand)}'");
             
 
         public static SQL<Search> Search;
-        public static SQL<ActionPayload> EntityActions;
+        public static SQL<BotAction> EntityActions;
         public BotContext() { }
         internal BotContext(ContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
         internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
         internal void Init()
         {        
             
-            Search = SQLQuery<Search>.Create( s => "select * from ##BotActionPayloads where EntityAction = 'Bot.Search'");
-            EntityActions = SQLQuery<ActionPayload>.Create( e=> $"Select * from ##BotActionPayloads where EntityAction = '{e.EntityAction}.{e.Payload}' ");
+            Search = SQLQuery<Search>.Create( s => $"SELECT * FROM ##{nameof(BotAction)}s WHERE Command = 'Search'");
+            EntityActions = SQLQuery<BotAction>.Create(
+                e=> $"SELECT * FROM ##{nameof(BotAction)} WHERE 'Entity' = '{e.Entity}' AND Command = '{e.Command}' ");
         }       
 
             static readonly internal ContextOptions BotContextOptions
@@ -72,8 +72,8 @@ namespace MissCore.Bot
         }
         public override async Task<bool> SyncCommands(IBotConnection connection)
         {
-            var unit = await HandleListAsync<BotCommand>(BotContext.AllCommands, default);
-            Commands = unit.Content.ToArray();
+            var unit = await HandleListAsync<BotAction>(BotContext.AllCommands, default);
+            Commands = unit.Content.ToList();
             return await base.SyncCommands(connection);
         }
         protected async Task<Unit<TEntity>> HandleListAsync<TEntity>(SQL<TEntity> sql, CancellationToken cancellationToken = default) where TEntity : class
@@ -90,7 +90,17 @@ namespace MissCore.Bot
                 else
                 {
                     await reader.ReadAsync();
-                    result = JsonSerializer.Deserialize<Unit<TEntity>>(reader.GetString(0));
+                    try
+                    {
+                    if (reader.GetString(0) is string str)
+                        result = JsonConvert.DeserializeObject<Unit<TEntity>>(str);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw;
+                    }
                 }
                 await reader.CloseAsync();
             }
@@ -108,7 +118,7 @@ namespace MissCore.Bot
                     return default(TEntity);
                 else
                     while (await reader.ReadAsync())
-                        result = JsonSerializer.Deserialize<TEntity>(reader.GetString(0));
+                        result = System.Text.Json.JsonSerializer.Deserialize<TEntity>(reader.GetString(0));
 
             }
             return result;

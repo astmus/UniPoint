@@ -26,7 +26,7 @@ namespace MissDataMaiden.Commands
         {
             //Unit<Disk>.Meta.Instance["Title"] = $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
         }
-        public override string EntityAction => nameof(Disk);
+        public override string Command => nameof(Disk);
 
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
         public record Dto : Unit<Disk>
@@ -75,13 +75,7 @@ namespace MissDataMaiden.Commands
             Unit<Disk>.Instance["1"] = nameof(Disk);
         }
 
-
-        //public override async  Task BeforeComamandHandle(IContext<Disk> context)
-        //{
-        //    Disk.CommandResult response = context.Scope.Result;
-
-        //    await response.SendHandlingStart(); 
-        //}
+        
 
         public override async Task HandleCommandAsync(Disk command, IContext<Disk> context)
         {

@@ -8,7 +8,7 @@ namespace MissBot.DataAccess.Sql
         Auto,
         Path,
     }
-
+    
     public struct SQL : IFormattable, IFormatProvider, ICustomFormatter
     {
         public SQL(string value)
@@ -33,14 +33,16 @@ namespace MissBot.DataAccess.Sql
               _ => Sql
             };
         public static SQL Parse<TEntity>(TEntity entity)
-            => Stringify( Convert.ToString(entity).Split('{', ',', '}').AsMemory());
+            => Stringify(Convert.ToString(entity).Split('{', ',', '}').AsMemory());
         internal static string Stringify(Memory<string> items)
          => string.Format(SelectAllFrom, items.Span[0]);
+
         // => string.Format(SelectFrom, string.Join(',', items[1..].ToArray()), items.Span[0]).Replace(" = ", "").Replace(" , "," ");
         //)
         //from s in items
         //                                where s.Length > 2 && !s.EndsWith("= ")
         //                                select s);
+
         internal static string Stringify(string[] items)
         => string.Join(Environment.NewLine, from s in items
                                             where s.Length > 2 && !s.EndsWith("= ")

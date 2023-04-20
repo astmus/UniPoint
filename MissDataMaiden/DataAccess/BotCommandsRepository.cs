@@ -8,12 +8,12 @@ using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.DataAccess;
 using MissBot.DataAccess.Sql;
 using MissCore.Bot;
 using MissDataMaiden.Queries;
 using Newtonsoft.Json;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden.DataAccess
 {
@@ -41,7 +41,7 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            commands = await HandleScalarQueryAsync<List<BotCommand>>(BotContext.AllCommands.Request);
+            commands = await HandleScalarQueryAsync<Unit<BotCommand>>(BotContext.AllCommands.Request);
             return commands;
         }
 
@@ -50,7 +50,7 @@ namespace MissDataMaiden.DataAccess
             //var query = SqlQuery<TEntityType>.Instance with
             //{ sql = SQL<BotCommand>.Sample.Command };//  .Query.cmd};
 
-            var result = await HandleScalarQueryAsync<List<TEntityType>>(BotContext.AllCommands.Request);
+            var result = await HandleScalarQueryAsync<Unit<TEntityType>>(BotContext.AllCommands.Request);
             //var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
             //lastResult = result.FirstOrDefault();
             return result;
@@ -61,7 +61,7 @@ namespace MissDataMaiden.DataAccess
             var sql = BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Request;
             sql.Type = SQLJson.Path;
             var cmd = await HandleScalarQueryAsync<Unit<TEntityType>>(sql);
-            return cmd.Content.FirstOrDefault();
+            return cmd.FirstOrDefault();
         }
 
         public TCommand GetByName<TCommand>(string name) where TCommand : BotCommand

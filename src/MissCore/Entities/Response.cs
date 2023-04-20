@@ -54,18 +54,15 @@ namespace MissBot.Common
         }
 
         protected virtual Response<T> WriteUnit(ValueUnit unit)
-        {
+        {          
             
-            //if (unit.IsSimpleUnit())
-            //    Text += string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
-            //else
-            Text += unit.ToString()[..^1];
+            Text += Unit<T>.ParseTyped(unit);
             return this;
         }
 
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : Unit<TMetaData>.MetaUnit
         {
-            Text += meta.Data.ToString()+'\n';
+            Text += Unit < T >.ParseTyped(meta.Data)+"\n";
         }
     }
 

@@ -9,19 +9,19 @@ using Newtonsoft.Json;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlBotQuery<TEntity> : IRequest<BotUnion<TEntity>> where TEntity : class
+    public record SqlBotQuery<TEntity> : IRequest<Union<TEntity>> where TEntity : class
     {
         public record Query(string sql, int skip, int take, string filter) : SqlBotQuery<TEntity>;
-        public class Handler<TQuery> : IRequestHandler<TQuery, BotUnion<TEntity>> where TQuery : SqlBotQuery<TEntity>.Query
+        public class Handler<TQuery> : IRequestHandler<TQuery, Union<TEntity>> where TQuery : SqlBotQuery<TEntity>.Query
         {
             string connectionString;
             public Handler(IConfiguration config)
                 => connectionString = config.GetConnectionString("Default");
-            public async Task<BotUnion<TEntity>> Handle(TQuery request, CancellationToken cancellationToken)
+            public async Task<Union<TEntity>> Handle(TQuery request, CancellationToken cancellationToken)
             {
                 var queryWithForJson = string.Format(request.sql, request.skip, request.take, request.filter);
 
-                BotUnion<TEntity> single = new BotUnion<TEntity>();
+                Union<TEntity> single = new Union<TEntity>();
                 using (var conn = new SqlConnection(connectionString))
                 {
                     using (var cmd = new SqlCommand(queryWithForJson, conn))

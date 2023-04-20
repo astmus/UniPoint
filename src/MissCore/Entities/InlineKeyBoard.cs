@@ -34,7 +34,7 @@ namespace MissCore.Entities
         public string Payload { get; set; }
         public string[] Params { get; set; }
         public string Description { get; }
-        public string EntityAction { get; set; }
+        public string Command { get; set; }
 
         public string WithCondition(params object[] param)
             => string.Format(Payload, param);

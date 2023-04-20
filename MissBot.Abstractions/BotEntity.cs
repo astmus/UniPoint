@@ -7,79 +7,90 @@ namespace MissBot.Abstractions
         public static TEntityUnit Instance<TEntityUnit>() where TEntityUnit : Unit<TUnit>
             => Unit<TEntityUnit>.Sample;
         public abstract record Response : ResponseMessage<TUnit>;
-        public record Union : Unit<List<TUnit>>, IList<TUnit>
+        #region MyRegion
+        [JsonArray]
+        public record Union : Unit, IList<TUnit>
         {
+            public Union()
+            {
+                
+            }
             public Union(IEnumerable<TUnit> units = default)
             {
                 if (units != null)
-                    Units.AddRange(units);
+                    Content.AddRange(units);
             }
             List<TUnit> union;
-            protected List<TUnit> Units
+            protected List<TUnit> Content
                 => union ?? (union = new List<TUnit>());
-            public int Count => Units?.Count ?? 0;
-            public bool IsReadOnly
-                => false;
 
-            TUnit IList<TUnit>.this[int index] { get => ((IList<TUnit>)Units)[index]; set => ((IList<TUnit>)Units)[index] = value; }
-            public BotUnion this[int index] { get => ((IList<BotUnion>)Units)[index]; set => ((IList<BotUnion>)Units)[index] = value; }
+            public int Count => ((ICollection<TUnit>)Content).Count;
 
-            public static implicit operator List<TUnit>(Union unit)
-                => unit.Units;
-            public static implicit operator Union(List<TUnit> units)
-                => new Union(units);
-            public void Add(TUnit obj)
-                => this.Units.Add(obj);
-            public Union Add(params TUnit[] units)
-            {
-                Units.AddRange(units);
-                return this;
-            }
+            public bool IsReadOnly => ((ICollection<TUnit>)Content).IsReadOnly;
+
+            public TUnit this[int index] { get => ((IList<TUnit>)Content)[index]; set => ((IList<TUnit>)Content)[index] = value; }
 
             public int IndexOf(TUnit item)
             {
-                return ((IList<TUnit>)Units).IndexOf(item);
+                return ((IList<TUnit>)Content).IndexOf(item);
             }
 
             public void Insert(int index, TUnit item)
             {
-                ((IList<TUnit>)Units).Insert(index, item);
+                ((IList<TUnit>)Content).Insert(index, item);
             }
 
             public void RemoveAt(int index)
             {
-                Units?.RemoveAt(index);
+                Content?.RemoveAt(index);
             }
 
             public void Clear()
             {
-                ((ICollection<TUnit>)Units).Clear();
+                ((ICollection<TUnit>)Content).Clear();
             }
 
             public bool Contains(TUnit item)
             {
-                return ((ICollection<TUnit>)Units).Contains(item);
+                return ((ICollection<TUnit>)Content).Contains(item);
             }
 
             public void CopyTo(TUnit[] array, int arrayIndex)
             {
-                ((ICollection<TUnit>)Units).CopyTo(array, arrayIndex);
+                ((ICollection<TUnit>)Content).CopyTo(array, arrayIndex);
             }
 
             public bool Remove(TUnit item)
             {
-                return ((ICollection<TUnit>)Units).Remove(item);
+                return ((ICollection<TUnit>)Content).Remove(item);
             }
 
             public IEnumerator<TUnit> GetEnumerator()
             {
-                return Units?.GetEnumerator() ?? Enumerable.Empty<TUnit>().GetEnumerator();
+                return Content?.GetEnumerator() ?? Enumerable.Empty<TUnit>().GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()
                 => GetEnumerator();
 
+            //public static implicit operator List<TUnit>(Union unit)
+            //    => unit.Units;
+            //public static implicit operator Union(List<TUnit> units)
+            //    => new Union(units);
 
-        }
+            public Union Add(params TUnit[] units)
+            {
+                Content.AddRange(units);
+                return this;
+            }
+                    
+            public void Add(TUnit item)
+            {
+                ((ICollection<TUnit>)Content).Add(item);
+            }
+
+     
+        } 
+        #endregion
     }
 }

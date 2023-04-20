@@ -1,11 +1,11 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissCore.Bot;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {

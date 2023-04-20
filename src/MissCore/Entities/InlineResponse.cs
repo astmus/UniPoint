@@ -60,7 +60,7 @@ namespace MissBot.Common
           
 
             foreach (var item in meta/* ?? ValueUnit.Parse(JObject.FromObject(unit)*/)            
-                SetContent(item.Key, item.Value, result);
+                SetContent(item.Key, item.Value, result, meta);
 
             result.ReplyMarkup = Keyboard?.GetKeyboard;
             results.Add(result);
@@ -82,14 +82,15 @@ namespace MissBot.Common
         }
 
     
-        object SetContent(string key, object value, InlineQueryResult result) => result switch
+        object SetContent(string key, object value, InlineQueryResult result , MetaData meta) => result switch
             {
-                InlineQueryResultArticle article when key == nameof(article.Id) => article.Id = value +Query.Query,
+                InlineQueryResultArticle article when key == nameof(article.Id) => result.Id=  article.Id = value +Query.Query,
                 InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
                 InlineQueryResultArticle article when key == nameof(article.Description) => article.Description = (string)value,
                 InlineQueryResultArticle article when value is InlineEntityAction action => Keyboard.Append(action),
+               InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta.Get<string>("Name"),
                 //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
-                _ => result
+               _ => result
             };           
         
     

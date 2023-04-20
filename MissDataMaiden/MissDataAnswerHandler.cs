@@ -37,39 +37,8 @@ namespace MissDataMaiden
         //    nameof(DBDelete) => HandleAsync<DBDelete>(context, args),
         //    nameof(DBRestore) => HandleAsync<DBRestore>(context, args),
         //    _ => context.Get<AsyncHandler>()(context)
-        //};      
-        public record DataBaseActionQuery(string sql, string connectionString) : SingleRequest<JArray>(sql, connectionString);
-
-        public class DataBaseActionQueryHandler : IRequestHandler<DataBaseActionQuery, JArray>
-        {
-            public async Task<JArray> Handle(DataBaseActionQuery request, CancellationToken cancellationToken)
-            {
-                //InlineEntityAction<DataBase> result = default(InlineEntityAction<DataBase>);
-                using (var conn = new SqlConnection(request.connectionString))
-                {
-                    List<JObject> res = new List<JObject>();
-                    using (var cmd = new SqlCommand(request.sql, conn))
-                    {
-                        await conn.OpenAsync(cancellationToken).ConfigFalse();
-
-                        var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-
-                        if (!reader.HasRows)
-                            return null;
-                        else
-                            while (await reader.ReadAsync())
-                            {
-                                var str = reader.GetString(0);
-                                res.Add(JObject.Parse(str));
-
-                                //return JsonConvert.DeserializeObject<List<InlineEntityAction<DataBase>>>(str);
-                            }
-                    }
-                    return JArray.FromObject(res);
-
-                }
-            }
-        }
+        //};                 
+        
 
         record DataBaseRequest : SQLQuery<DataBase>
         {            
@@ -87,9 +56,11 @@ namespace MissDataMaiden
 
             var dbinco = await repository.HandleQueryItemsAsync<InlineDataBase>(request.GetCommand());
 
-            var unit = dbinco.MetaData;//;/ Unit<InlineDataBase>.Meta; //  ValueUnit.Parse(dbinco);
+            var unit = Unit<DataBase>.Meta;
+
             var response = context.CreateResponse(result);
-            response.WriteMetadata(unit);
+            response.WriteMetadata(unit with { Data = Unit < DataBase >.Parse(unit) } );
+            response.WriteResult(dbinco.Content);
             await response.Commit(default);
             //request.Tempalted(Convert.ToInt32(result.ResultId).ToString()).Cmd);
 

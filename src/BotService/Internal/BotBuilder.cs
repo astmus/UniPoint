@@ -2,12 +2,15 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Response;
 using MissBot.Common;
 using MissBot.Infrastructure;
 using MissBot.Response;
 using MissCore;using MissCore.Data.Context;
-using MissCore.Entities;using Telegram.Bot.Types;
+using MissCore.Entities;
+using Telegram.Bot.Types;
+using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal static BotBuilder<TBot> instance;        internal static BotBuilder<TBot> Instance { get => instance; }        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;        static IHostBuilder host;        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {            host = rootHost;            host.ConfigureServices((h, s) => { instance.Services.AddTransient(sp => h.Configuration); });            return Instance;        }        static BotBuilder()        {            instance = new BotBuilder<TBot>();            instance.Services = new ServiceCollection();
         }        internal BotBuilder()

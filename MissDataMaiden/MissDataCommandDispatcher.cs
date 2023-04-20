@@ -1,12 +1,12 @@
 using MediatR;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.Extensions.Entities;
 using MissBot.Handlers;
 using MissCore.Entities;
 using MissCore.Handlers;
 using MissDataMaiden.Commands;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {

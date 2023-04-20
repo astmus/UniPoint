@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace MissBot.Abstractions
 {
-    public record BotUnion<TUnit> : BotEntity<TUnit>.Union, IList<TUnit>
+    [JsonArray]
+    public record Union<TUnit> : BotEntity<TUnit>.Union , IList<TUnit>
     {
         public void Add<TEntity>(TEntity obj) where TEntity : TUnit
-                => Units.Add(obj);        
+                => Content.Add(obj);
     }
-    [JsonObject]
     public record BotUnion : ValueUnit, IList<ValueUnit>
     {
         public BotUnion(IEnumerable<ValueUnit> units = default)
@@ -94,115 +94,115 @@ namespace MissBot.Abstractions
     }
 
     [JsonObject]
-    public record Unit<TEntity> : ValueUnit
+    public record Unit<TEntity> : ValueUnit, IFormattable, ICollection<TEntity>
     {
-        public override sealed bool IsSimpleUnit()
-            => false;
-        static Unit()
-        {
-
-            // MetaUnit.EntityName ??= /*"##" +*/ meta;
-            EntityName = typeof(TEntity).Name;
-            
-        }
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         internal static string EntityName;
         static readonly Unit<TEntity>.MetaUnit _metaUnit;
-        public virtual BotUnion<TEntity> Content { get; set; }
-        public Unit<TEntity>.MetaUnit MetaData
-            => Meta  with { Content = EntityName, Data  = Meta.Data ?? GetMetaData() };
+        Union<TEntity> content;
 
-      
+        public override sealed bool IsSimpleUnit()
+            => false;
+        protected virtual void InvalidateMetaData(TEntity unit){ }
+
+        static Unit()
+        {        
+            EntityName = typeof(TEntity).Name;
+        }
+        public Union<TEntity> Content
+        {
+            get =>
+                content ?? (content = new Union<TEntity>());
+                set => content = value;
+        }
+        public Unit<TEntity>.MetaUnit MetaData
+            => Meta with { Content = EntityName, Data = Meta.Data ?? GetMetaData() };
+
         public static readonly Empty EmptyContent = new Empty();
-        public record Empty : Unit
+        public record Empty(string Id = "0", string Text = "Empty", string Title = "Not found") : Unit(Id, Text,Title)
         {
             public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
         }
 
-        protected virtual void InvalidateMetaData(TEntity unit)
-        { }
-
-        public int IndexOf(TEntity item)
-        =>Content.IndexOf(item);
-        
-
-        public void Insert(int index, TEntity item)
-        =>
-            Content.Insert(index, item);
-        
-
-        public void RemoveAt(int index)
-        =>
-            Content.RemoveAt(index);
-        
-
-        public void Add(TEntity item)
-        {
-            ((ICollection<TEntity>)Content).Add(item);
-        }
-
-        public void Clear()
-            => Content?.Clear();
-        
-
-        public bool Contains(TEntity item)
-        {
-            return Content?.Contains(item) ?? false;
-        }
-
-        public void CopyTo(TEntity[] array, int arrayIndex)
-        {
-            ((ICollection<TEntity>)Content).CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(TEntity item)
-        {
-            return ((ICollection<TEntity>)Content).Remove(item);
-        }
-
-        public IEnumerator<TEntity> GetEnumerator()
-        {
-            return ((IEnumerable<TEntity>)Content).GetEnumerator();
-        }
-
-        public int Count => Content?.Count ?? 0;
-
-        public bool IsReadOnly => Content?.IsReadOnly ?? false;
-
-        public TEntity this[int index] { get => ((IList<TEntity>)Content)[index]; set => ((IList<TEntity>)Content)[index] = value; }
 
         public static readonly Unit<TEntity> Instance
             = new Unit<TEntity>();
         public static readonly Unit<TEntity>.MetaUnit Meta
-            = _metaUnit ??= new MetaUnit(EntityName, ParseTyped(Sample));
+            = _metaUnit ??= new MetaUnit(EntityName, ValueUnit.Parse(Sample));
 
         public object this[string key]
         {
             get => MetaInformation[key];
             set => MetaInformation.Set(value, key);
         }
-        public static MetaData ParseTyped(TEntity value)
+        public override string ToString(string? format, IFormatProvider? formatProvider)
         {
-            var p = System.Text.Json.JsonSerializer.SerializeToDocument<TEntity>(value);
+            return string.Join('\n', Content.Select(s => $"{EntityName}\n{Stringify(Convert.ToString(s).Split('{', ',', '}'))}"));
 
-            MetaData parsed = new MetaData();
-            try
-            {
-                if (p.RootElement.ValueKind is JsonValueKind.Array)
-                {
-                    var item = Activator.CreateInstance(value.GetType().GetGenericArguments()[0]);                    
-                    p = System.Text.Json.JsonSerializer.SerializeToDocument(item);
-                }
-                
-                    foreach (var item in p.RootElement.EnumerateObject())
-                        parsed.Set(item.Value.ToString(), item.Name);
-                return parsed;
-            }
-            catch (Exception e)
-            {
-                int i = 0;
-            }
-            return parsed;
         }
+           public static string Stringify(string[] items)
+        => string.Join('\t', from s in items
+                                            where s.Length > 2 && !s.EndsWith("= ")
+                                            select s);
+        public static string ParseTyped(object value)
+            => Stringify(value.ToString().Split('{', ':',',', '}'));
+
+           
+        
+        #region IList
+
+        IEnumerator IEnumerable.GetEnumerator()
+        =>
+            Content.GetEnumerator();
+
+
+
+        public int IndexOf(TEntity item)
+        => Content.IndexOf(item);
+
+
+        public void Insert(int index, TEntity item)
+        =>
+            Content.Insert(index, item);
+
+
+        public void RemoveAt(int index)
+        =>
+            Content.RemoveAt(index);
+
+
+        public void Add(TEntity item)
+        =>
+            Content.Add(item);
+
+
+        public void Clear()
+            => Content?.Clear();
+
+
+        public bool Contains(TEntity item)
+       => Content?.Contains(item) ?? false;
+
+
+        public void CopyTo(TEntity[] array, int arrayIndex)
+        =>
+            Content.CopyTo(array, arrayIndex);
+
+
+        public bool Remove(TEntity item)
+        =>
+          Content.Remove(item);
+
+
+        public IEnumerator<TEntity> GetEnumerator()
+            => Content.GetEnumerator();
+
+
+        public int Count => Content?.Count ?? 0;
+
+        public bool IsReadOnly =>false;
+
+        public TEntity this[int index] { get => Content[index]; set => Content[index] = value; } 
+        #endregion
     }
 }

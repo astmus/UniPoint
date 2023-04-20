@@ -31,7 +31,7 @@ namespace MissBot.Abstractions
     }
     public interface IBotCommandInfo
     {
-        string EntityAction { get; }
+        string Command { get; }
         string Description { get; }
     }
 }
