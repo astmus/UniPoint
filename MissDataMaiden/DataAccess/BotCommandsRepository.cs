@@ -58,9 +58,9 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
         {            
-            var sql = BotContext.Command<TEntityType>(Unit<TEntityType>.Sample);
-            sql.Request.Type = SQLJson.Path;
-            var cmd = await HandleScalarQueryAsync<Unit<TEntityType>>(sql.Request);
+            var sql = BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Request;
+            sql.Type = SQLJson.Path;
+            var cmd = await HandleScalarQueryAsync<Unit<TEntityType>>(sql);
             return cmd.Content.FirstOrDefault();
         }
 

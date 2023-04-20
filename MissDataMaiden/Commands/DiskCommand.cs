@@ -15,6 +15,7 @@ using Telegram.Bot.Types;
 using BotService;
 using MissCore.Bot;
 using MissBot.DataAccess.Sql;
+using System.Security.Cryptography;
 
 namespace MissDataMaiden.Commands
 {
@@ -23,7 +24,7 @@ namespace MissDataMaiden.Commands
     {
         static  Disk()
         {
-            
+            //Unit<Disk>.Meta.Instance["Title"] = $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
         }
         public override string EntityAction => nameof(Disk);
 
@@ -87,11 +88,13 @@ namespace MissDataMaiden.Commands
             IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
             response.WriteMetadata(Unit<Disk>.Meta);
-            var sql = (SQL)command.Payload;
+            var sqlQuery = SQL<Disk>.Unit with { Entity = command };
+            //    sqlQuery.
+            
+            var sql = sqlQuery.ToQuery(f => f.Payload);
             sql.Type = SQLJson.Path;
             Unit<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(sql);
-            //query = SqlQuery<Disk.Dto>.Instance with { sql = command.Payload, connectionString = config.GetConnectionString("Default") };
-            //var results = await query.Handle().ConfigFalse();
+
             foreach (var obj in results)
             {
                 //obj.AddMetaData();

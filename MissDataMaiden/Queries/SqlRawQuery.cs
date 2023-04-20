@@ -5,11 +5,11 @@ using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
+using MissCore.Bot;
 using Newtonsoft.Json;
 
 namespace MissDataMaiden.Queries
 {
-    public record Filter(int skip, int take, string predicat);
     public record SingleRequest<TEntity>(string sql, string connectionString) :  IRequest<TEntity>;
     public record SqlQuery<TEntity>(string sql = default, string connectionString = default, Filter filter = default) : IRequest<IEnumerable<TEntity>> where TEntity : class
     {

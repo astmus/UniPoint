@@ -53,7 +53,8 @@ namespace MissBot.Common
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {
-            var meta = ValueUnit.Parse(JObject.FromObject(unit));
+            var meta = ValueUnit.Parse(unit);
+            //ValueUnit.Parse(JObject.FromObject(unit));
             var content = unit;// meta.AnyFirst("Content");
             InlineQueryResult result = InitResult(content.ToString());
           

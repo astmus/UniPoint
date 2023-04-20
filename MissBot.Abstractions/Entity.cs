@@ -6,7 +6,9 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+
 
 namespace MissBot.Abstractions
 {
@@ -101,28 +103,21 @@ namespace MissBot.Abstractions
 
             // MetaUnit.EntityName ??= /*"##" +*/ meta;
             EntityName = typeof(TEntity).Name;
-            _metaUnit = InitMetaUnit();
+            
         }
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         internal static string EntityName;
-        static MetaUnit _metaUnit;
-        public BotUnion<TEntity> Content { get; set; }
-        public MetaUnit MetaData
-            => _metaUnit with { Data  = MetaInformation };
+        static readonly Unit<TEntity>.MetaUnit _metaUnit;
+        public virtual BotUnion<TEntity> Content { get; set; }
+        public Unit<TEntity>.MetaUnit MetaData
+            => Meta  with { Content = EntityName, Data  = Meta.Data ?? GetMetaData() };
 
-        static MetaUnit InitMetaUnit(MetaData meta = null)
-            => new MetaUnit(EntityName, meta);
-            
-
-        internal static string Stringify(string[] items)
-        => string.Join(Environment.NewLine, from s in items
-                                            where s.Length > 2 && !s.EndsWith("= ")
-                                            select s);
-
-        internal static string StringifyMeta(string[] items)
-        => string.Join(" ", from s in items
-                            where s.Length > 2 && !s.EndsWith("= ")
-                            select s);
+      
+        public static readonly Empty EmptyContent = new Empty();
+        public record Empty : Unit
+        {
+            public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
+        }
 
         protected virtual void InvalidateMetaData(TEntity unit)
         { }
@@ -179,13 +174,35 @@ namespace MissBot.Abstractions
         public static readonly Unit<TEntity> Instance
             = new Unit<TEntity>();
         public static readonly Unit<TEntity>.MetaUnit Meta
-            = InitMetaUnit(ValueUnit.Parse(Unit<TEntity>.Sample));
+            = _metaUnit ??= new MetaUnit(EntityName, ParseTyped(Sample));
 
         public object this[string key]
         {
             get => MetaInformation[key];
             set => MetaInformation.Set(value, key);
         }
+        public static MetaData ParseTyped(TEntity value)
+        {
+            var p = System.Text.Json.JsonSerializer.SerializeToDocument<TEntity>(value);
 
+            MetaData parsed = new MetaData();
+            try
+            {
+                if (p.RootElement.ValueKind is JsonValueKind.Array)
+                {
+                    var item = Activator.CreateInstance(value.GetType().GetGenericArguments()[0]);                    
+                    p = System.Text.Json.JsonSerializer.SerializeToDocument(item);
+                }
+                
+                    foreach (var item in p.RootElement.EnumerateObject())
+                        parsed.Set(item.Value.ToString(), item.Name);
+                return parsed;
+            }
+            catch (Exception e)
+            {
+                int i = 0;
+            }
+            return parsed;
+        }
     }
 }

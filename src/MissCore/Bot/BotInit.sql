@@ -37,7 +37,7 @@ INSERT INTO ##BotEntityAction VALUES ( 'DataBase','Info','DataBase.Info.{0}');
 INSERT INTO ##BotEntityAction VALUES ( 'DataBase','Restore','DataBase.Restore.{0}');
 INSERT INTO ##BotActions VALUES ( 'Search','Query');
 INSERT INTO ##BotActions VALUES ( 'Bot','Search');
-INSERT INTO ##BotActionPayloads VALUES ('Bot.Search','select value from OpenJson((select  Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name  OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY for JSON AUTO))');
+INSERT INTO ##BotActionPayloads VALUES ('Bot.Search','select CAST( Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name  OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
 INSERT INTO ##BotActionPayloads VALUES ('DataBase.Delete','select value from OpenJson((select * from ##Info where Id = {0} FOR JSON PATH))');
 INSERT INTO ##BotActionPayloads VALUES ('DataBase.Info','select value from OpenJson((select * from ##DataBase where Id = {0} FOR JSON PATH))');
 INSERT INTO ##BotActionPayloads VALUES ('DataBase.Details','select value from OpenJson((select DISTINCT i.*, a.ActionName, p.* from ##DataBase d inner join ##Info i on LEN(i.dbName) > 0  INNER JOIN ##BotActions a ON d.EntityName = a.EntityName INNER JOIN ##BotActionPayloads p ON p.EntityAction =d.EntityName+''.''+a.ActionName WHERE d.Id = {0}  FOR JSON PATH))');
@@ -67,7 +67,7 @@ from (select 'DataBase' as EntityName , D.database_id as Id, D.name as Name, cas
 SELECT * 
 INTO ##Info
 FROM(
-SELECT database_id as Id,
+SELECT CAST(database_id as VARCHAR(15)) as Id,
 'DataBase' as Entity,
 CONVERT(VARCHAR(25), DB.name) AS dbName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],

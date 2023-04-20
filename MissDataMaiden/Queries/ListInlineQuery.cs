@@ -68,11 +68,14 @@ namespace MissDataMaiden.Commands
 
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            var r = BotContext.Search with { initFunc = u => $" select * from ##BotActionPayloads where EntityAction = 'Bot.{nameof(Search)}'" };
-            
-              //  var searchRequest = SQL<Disk.Dto>.Pager .Query(skip + resultFilter.take, 15, search);
-
-            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(r.Request);
+            //var r = BotContext.Search;// with { initFunc = u => $" select * from ##BotActionPayloads where EntityAction = 'Bot.{nameof(Search)}'" };
+           // var query = BotContext.Search.CreateCommand<Search<DataBase>>();
+            var r =   await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.Request);
+            //  var searchRequest = SQL<Disk.Dto>.Pager .Query(skip + resultFilter.take, 15, search);
+            var sql = r.Content.FirstOrDefault();
+           
+            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(
+                sql.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search }));
             //payload ??= await repository.HandleQueryAsync<List<DataBase>>(query.Query);
             //var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
             //foreach (var item in items)

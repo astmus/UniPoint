@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LinqToDB;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.DataAccess.Sql;
 using MissCore.Entities;
 
 namespace MissCore.Bot
@@ -15,13 +16,12 @@ namespace MissCore.Bot
         public string Placeholder { get; set; }
 
     }
-    public record Search<TEntity>
+    public record Filter(int skip, int take, string predicat);
+    public record Search<TEntity> : Search
     {
-        public string Cmd { get; init; }
-        public object[]? Params { get; init; }
-        public string Entity
-            => this.ToString();
+        public Filter Filter { get; init; }
 
-        public string Command { get; init; }
+        public SQL ToQuery(Filter filter)
+            => string.Format(Payload, filter.skip, filter.take, filter.predicat);
     }
 }

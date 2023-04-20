@@ -13,7 +13,7 @@ namespace MissBot.Abstractions
         }
         public override string ToString()
             =>
-                Count > 0 ? string.Join('\n', this.Select(s => Convert.ToString(s.Value).Replace("]", "").Replace(",", " = "))) : base.ToString() ;
+                Count > 0 ? string.Join('\n', this.OrderBy(ob=> ob.Key).Select(s => Convert.ToString(s.Key ?? s.Value))) : base.ToString() ;
         
         public TAny FirstOrNull<TAny>(string name)
             => this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
