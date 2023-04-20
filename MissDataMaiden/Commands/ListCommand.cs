@@ -9,7 +9,7 @@ namespace MissDataMaiden
 {
     public class List : BotCommand<ListUnit>, IBotCommand
     {
-        public override string CommandName => nameof(List);
+        public override string EntityAction => nameof(List);
     }
     public record ListUnit : BotUnion
     {

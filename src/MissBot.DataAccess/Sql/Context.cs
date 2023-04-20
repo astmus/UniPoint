@@ -3,58 +3,33 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using LinqToDB;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.DataAccess.Interfacet;
-using Newtonsoft.Json;
+
 
 namespace MissBot.DataAccess.Sql
 {
-    public record SQL<TUnit>(SQL Request = default, TUnit Entity = default)
+    public record SQL<TUnit>(Func<TUnit, string> initFunc = default)
     {
-        public static implicit operator string(SQL<TUnit> cmd)
-            => cmd.Request.Command;
-
+        public TUnit Entity { get; init; } = Unit<TUnit>.Sample;
         public virtual string CreateCommand<TEntity>() where TEntity : TUnit
-            => Request.Command;
+            => Request?.Command ?? initFunc(Entity);
+        public SQL Request
+            => request ?? (request =  (SQL)initFunc(Entity));
+        SQL request;
 
-
-        public static SQL<TUnit> Create(string sql)
-            => new SQL<TUnit>(new SQL() { Command = sql });/*, Activator.CreateInstance<TUnit>()*/
-
-        //public static Query Initialize(SqlBuilder sqlfunc)
-        //    => new Query(sqlfunc());
-
-        public delegate SQL SqlBuilder(TUnit entity);
-        public record Pager(int skip, int take, string search, Predicate<TUnit> filter = default) : SQL.Query<TUnit>;
-        public record Query(SQL builder = default) : SQL.Query<TUnit>(builder, default)
+        public static SQL<TUnit> Create(Func<TUnit, string> init)
+             => new SQL<TUnit>(init);
+        public record Query(Func<TUnit, string> initFunc) : SQLQuery<TUnit>(initFunc, default)
         {
             
         }
-        public SQL<TUnit> JsonAuto()
-        {
-            Request.Command = $"{CreateCommand<TUnit>()} FOR JSON AUTO";
-            return this;
-        }
-        public SQL<TUnit> JsonPath(string wrapArray = ", WITHOUT_ARRAY_WRAPPER")
-        {
-            Request.Command = $"{CreateCommand<TUnit>()} FOR JSON PATH{wrapArray}";
-            return this;
-        }
-        public SQL<TUnit> JsonItems()
-        {
-            Request.Command = $"select value from OpenJson(({Request.Command} FOR JSON AUTO))";
-            return this;
-        }
-    }
-    public  record SQL : Unit
-    {
-        public string Command { get; set; }
         
-        public static implicit operator string(SQL cmd)
-            => cmd.Command;
+    }
 
         public abstract class SQLContext : LinqToDB.DataContext, ISqlHandler
         {
@@ -103,7 +78,8 @@ namespace MissBot.DataAccess.Sql
                     {
                         cmd.CommandText = sql;
                         string res = (string)await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false);
-                        result = JsonConvert.DeserializeObject<TScalar>(res);                    
+                    result = JsonSerializer.Deserialize<TScalar>(res);
+                    //result = des.Content.FirstOrDefault();
                     }
                     await connection.CloseAsync();
                 }
@@ -112,7 +88,7 @@ namespace MissBot.DataAccess.Sql
             protected abstract string GetConnectionString();
         }
 
-        public record Query<TEntity>(SQL Sql = default, TEntity Entity = default) : SQL<TEntity>(Sql, Entity)
+        public record SQLQuery<TEntity>(Func<TEntity, string> initFunc = default, TEntity Entity = default) : SQL<TEntity>(initFunc)
         {
             //public override SqlBuilder Request { get => base.Request; protected set => base.Request = value; }
             //public override SQL Request { get; protected set; } = new SQL(Command);
@@ -121,5 +97,5 @@ namespace MissBot.DataAccess.Sql
         }
 
 
-    }
+    
 }

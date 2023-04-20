@@ -21,7 +21,7 @@ namespace MissCore.Entities
             InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Id}");
     }
 
-    public record EntityAction<TEntity> : EntityAction
+    public record EntityAction<TEntity> : BotEntityAction
     {
         static EntityAction()
         {
@@ -29,12 +29,13 @@ namespace MissCore.Entities
         }
     }
 
-    public record EntityAction : IBotCommand
+    public record BotEntityAction : IBotCommand
     {
         public string Payload { get; set; }
         public string[] Params { get; set; }
-        public string CommandName { get; }
         public string Description { get; }
+        public string EntityAction { get; set; }
+
         public string WithCondition(params object[] param)
             => string.Format(Payload, param);
     }

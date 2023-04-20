@@ -1,24 +1,36 @@
 using System.Runtime.CompilerServices;
 using System.Text;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+
 
 namespace MissBot.Abstractions
 {
     public record ValueUnit : Unit
     {
-        public static BotUnion Parse(JArray values)
-            =>  new BotUnion(values.Children<JObject>().Select(s => Parse(s)));
+        //public static BotUnion Parse(JArray values)
+        //    =>  new BotUnion(values.Children<JObject>().Select(s => Parse(s)));
         public bool HasMetadata()
             => meta != null;
         public virtual bool IsSimpleUnit()
             => true;
-        public static ValueUnit Parse(JObject value)
+        public static MetaData Parse(object value)
         {
-            ValueUnit parsed = new ValueUnit();
-            foreach (var item in value)
+            var p = System.Text.Json.JsonSerializer.SerializeToDocument(value);
+            
+            MetaData parsed = new MetaData();
+            try
             {
-                var replaced = Convert.ToString($"{item.Key}: {item.Value}");
-                parsed.Set(replaced, item.Key);
+                if (p.RootElement.ValueKind is JsonValueKind.Array)
+                    foreach (var item in p.RootElement.EnumerateArray())
+                        foreach (var item2 in item.EnumerateObject())
+                            parsed.Set(item2.Value.ToString(), item2.Name);
+                else
+                    foreach (var item in p.RootElement.EnumerateObject())
+                        parsed.Set(item.Value.ToString(), item.Name);
+                return parsed;
+            }catch(Exception e)
+            {
+                int i = 0;
             }
             return parsed;
         }
@@ -39,11 +51,12 @@ namespace MissBot.Abstractions
         public record MetaUnit(string Content = default, MetaData Data = default) : Unit
         {
             //string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
+            
             protected override bool PrintMembers(StringBuilder builder)
             {
                 var res = base.PrintMembers(builder);
                 builder.Clear();
-                builder.Append($"{Data?.ToString() ?? Convert.ToString(this)}");
+                builder.Append($"{Data?.ToString() ?? nameof(Content)}");
                 return res;
             }
         }

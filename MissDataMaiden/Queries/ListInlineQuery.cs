@@ -25,31 +25,7 @@ namespace MissDataMaiden.Commands
     {
         public string EntityAction { get; set; }
         public string Payload { get; set; }
-        public record SqlQuery(string sql, string connectionString, Filter search) : SqlBotQuery<DataBase>.Query(sql, search.skip, search.take, search.predicat);
-        public class QueryHandler : SqlBotQuery<DataBase>.Handler<SqlQuery>
-        {
-            public QueryHandler(IConfiguration config) : base(config)
-            {
-            }
-            protected  Unit<InlineDataBase> CreateUnit(InlineDataBase entity)
-            {    
-                var unit = InlineUnit<InlineDataBase>.Instance with { Value = entity }; 
-                
-                unit[nameof(InlineUnit.Id)] = entity.Id;
-                unit[nameof(InlineUnit.Title)] = entity.Name;
-                unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb\nCreated: {entity.Created} ";
-
-                //unit[nameof(DBInfo)] =
-                //        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
-                //unit[nameof(DBDelete)] =
-                //        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
-                //unit[nameof(DBRestore)] =
-                //        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
-                return unit;
-                //.Instance with { Value = entity };
-                //Unit < DataBase>.Sample.
-            }
-        }
+ 
         //public record DbListInlineUnit : InlineUnit<DataBase>
         //{
         //    protected override DataBase InvalidateMetadata(InlineUnit<DataBase> unit, DataBase entity)
@@ -74,7 +50,7 @@ namespace MissDataMaiden.Commands
     {
         private readonly IConfiguration config;
         private readonly IMediator mm;
-        Search.SqlQuery query;
+
         IJsonRepository repository;
         Queries.SqlQuery<Search>.Request SearchPayload
             => Queries.SqlQuery<Search>.Request.Instance with { connectionString = config.GetConnectionString("Default"), sql = "select * from ##BotActionPayloads where EntityAction = 'Search' FOR JSON PATH, WITHOUT_ARRAY_WRAPPER" };
@@ -86,48 +62,27 @@ namespace MissDataMaiden.Commands
             this.mm = mm;
             resultFilter ??= new Filter(0, 15, "");
             repository = jsonRepository;
-            SQL<Search>.Create("");// .Sample.EntityAction ??= nameof(Commands.Search);            
+             
         }
 
 
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
-            var r = new SQL<Disk.Dto>.Query();
-            
-            var e =
-            new SQL<Disk.Dto>.Pager(skip + resultFilter.take, 15, search);
+            var r = BotContext.Search with { initFunc = u => $" select * from ##BotActionPayloads where EntityAction = 'Bot.{nameof(Search)}'" };
             
               //  var searchRequest = SQL<Disk.Dto>.Pager .Query(skip + resultFilter.take, 15, search);
 
-            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(SQL<Disk.Dto>.Create(""));
+            var items = await repository.HandleQueryItemsAsync<InlineDataBase>(r.Request);
             //payload ??= await repository.HandleQueryAsync<List<DataBase>>(query.Query);
             //var query =  new  Search.SqlQuery(payload.Payload, SearchPayload.connectionString, resultFilter with { skip = skip+resultFilter.take, predicat = search });
             //foreach (var item in items)
             //    CreateUnit(item);
             //var objs = await mm.Send(query);
-            return items;
+            return items.Content;
              
         }
-        protected Unit<InlineDataBase> CreateUnit(InlineDataBase entity)
-        {
-
-            var unit = InlineUnit<InlineDataBase>.Instance with { Value = entity };
-
-            unit[nameof(InlineUnit.Id)] = entity.Id;
-            unit[nameof(InlineUnit.Title)] = entity.Name;
-            unit[nameof(InlineUnit.Description)] = $"{entity.Size / 1024.0} Mb";
-
-            //unit[nameof(DBInfo)] =
-            //        Unit<DBInfo>.Sample with { Id = entity.Id, Action = nameof(DBInfo) };
-            //unit[nameof(DBDelete)] =
-            //        Unit<DBDelete>.Sample with { Id = entity.Id, Action = nameof(DBDelete) };
-            //unit[nameof(DBRestore)] =
-            //        Unit<DBRestore>.Sample with { Id = entity.Id, Action = nameof(DBRestore) };
-            return unit;
-            //.Instance with { Value = entity };
-            //Unit < DataBase>.Sample.
+     
         }
        
 
     }
-}

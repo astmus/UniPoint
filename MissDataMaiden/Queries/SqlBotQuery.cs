@@ -38,15 +38,14 @@ namespace MissDataMaiden.Queries
                                 TEntity item = default(TEntity);
                                 item = Newtonsoft.Json.JsonConvert.DeserializeObject<TEntity>(reader.GetString(0));
 
-                                single.Add(CreateUnit(item));
+                                single.Add(item);
                             }
                     }
                     return single;
                 }
             }
 
-            protected virtual Unit<TEntity> CreateUnit(TEntity entity)
-                => Unit<TEntity>.Instance with { Value = entity };
+
 
         }
     }

@@ -21,58 +21,26 @@ namespace MissBot.DataAccess
         {
         }
 
-        //protected async Task<TEntity> HandleAsync<TEntity>(string sql, IList<TEntity> isCollection, CancellationToken cancellationToken = default) where TEntity:class
-        //{
-        //    //var str = await base.HandleAsync<TEntity>(sql, cancellationToken);
-            
-        //    DbCommand cmd;
-        //    TEntity result = default(TEntity);
-        //    using (var connection = DataProvider.CreateConnection(GetConnectionString()))//  OpenConnection(sql, out cmd))
-        //    {
-        //        cmd = connection.CreateCommand();
-        //        var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-
-        //        if (!reader.HasRows)
-        //            return result;
-        //        else
-        //        {
-        //            if (isCollection == null)
-        //            {
-        //                await reader.ReadAsync();
-        //                var item = reader.GetString(0);
-        //                result = JsonConvert.DeserializeObject<TEntity>(item);
-        //            }
-        //            else
-        //                while (await reader.ReadAsync())
-        //                {
-        //                    var item = reader.GetString(0);
-        //                    isCollection.Add(JsonConvert.DeserializeObject<TEntity>(item));
-        //                }
-        //        }
-        //    }
-        //    return result;
-        //}
-
        
-        public override async Task<TResult> HandleQueryAsync<TResult>(string sql, CancellationToken cancel = default) where TResult : class
+        public override async Task<TResult> HandleQueryAsync<TResult>(SQL sql, CancellationToken cancel = default) where TResult : class
         {
             return await HandleScalarQueryAsync<TResult>(sql, cancel);            
         }
 
-        public async Task<IList<TResult>> HandleQueryItemsAsync<TResult>(string sql, CancellationToken cancel) where TResult:class
+        public async Task<Unit<TResult>> HandleQueryItemsAsync<TResult>(SQL sql, CancellationToken cancel) where TResult:class
         {            
-            return await HandleScalarQueryAsync<List<TResult>>(sql, cancel);
+            return await HandleScalarQueryAsync<Unit<TResult>>(sql, cancel);
         }
 
-        public async Task<JArray> HandleQueryGenericItemsAsync(string sql, CancellationToken cancel = default)
+        public async Task<JArray> HandleQueryGenericItemsAsync(SQL sql, CancellationToken cancel = default)
         {
-            string raw = await HandleAsync(sql, cancel);
+            string raw = await HandleAsync(sql.Command, cancel);
             return JArray.Parse(raw);
         }
 
-        public async Task<JObject> HandleQueryGenericObjectAsync(string sql, CancellationToken cancel = default)
+        public async Task<JObject> HandleQueryGenericObjectAsync(SQL sql, CancellationToken cancel = default)
         {
-            string raw = await HandleAsync(sql, cancel);
+            string raw = await HandleAsync(sql.Command, cancel);
             return JObject.Parse(raw);
         }
 

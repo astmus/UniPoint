@@ -25,7 +25,7 @@ namespace MissDataMaiden.Commands
         {
             
         }
-        public override string CommandName => nameof(Disk);
+        public override string EntityAction => nameof(Disk);
 
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
         public record Dto : Unit<Disk>
@@ -68,10 +68,10 @@ namespace MissDataMaiden.Commands
         }
         static DiskCommandHandler()
         {
-            Unit<Disk>.Meta.Data["2"] =
+            Unit<Disk>.Instance["2"] =
             //Disk.Dto.MetaData = Content => 
             $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
-            Unit<Disk>.Meta.Data["1"] = nameof(Disk);
+            Unit<Disk>.Instance["1"] = nameof(Disk);
         }
 
 
@@ -87,7 +87,9 @@ namespace MissDataMaiden.Commands
             IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
             response.WriteMetadata(Unit<Disk>.Meta);
-            IList<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(command.Payload);
+            var sql = (SQL)command.Payload;
+            sql.Type = SQLJson.Path;
+            Unit<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(sql);
             //query = SqlQuery<Disk.Dto>.Instance with { sql = command.Payload, connectionString = config.GetConnectionString("Default") };
             //var results = await query.Handle().ConfigFalse();
             foreach (var obj in results)

@@ -10,9 +10,8 @@ using MissCore.Entities;
 
 namespace MissCore.Bot
 {
-    public record Search : ValueUnit
+    public record Search : BotEntityAction
     {
-        public string Action { get; set; }
         public string Placeholder { get; set; }
 
     }

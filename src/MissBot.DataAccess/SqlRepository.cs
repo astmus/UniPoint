@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MissBot.DataAccess
 {
-    public class SqlRepository : SQL.SQLContext, ISqlRepository, ISqlHandler
+    public class SqlRepository : SQLContext, ISqlRepository, ISqlHandler
     {
         private readonly IConfiguration config;
 
@@ -25,7 +25,7 @@ namespace MissBot.DataAccess
             => config = configuration;  
        
 
-        public async Task<TScalar> HandleScalarQueryAsync<TScalar>(string sql, CancellationToken cancel = default) where TScalar:class
+        public async Task<TScalar> HandleScalarQueryAsync<TScalar>(SQL sql, CancellationToken cancel = default) where TScalar:class
         {
             return await base.HandleQueryAsync<TScalar>(sql, cancel);
         }

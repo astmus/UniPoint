@@ -5,13 +5,15 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MissBot.Abstractions
 {
-    public record BotUnion<TUnit> : BotEntity<Unit<TUnit>>.Union where TUnit : class
+    public record BotUnion<TUnit> : BotEntity<TUnit>.Union, IList<TUnit>
     {
-
+        public void Add<TEntity>(TEntity obj) where TEntity : TUnit
+                => Units.Add(obj);        
     }
     [JsonObject]
     public record BotUnion : ValueUnit, IList<ValueUnit>
@@ -89,35 +91,29 @@ namespace MissBot.Abstractions
 
     }
 
-
+    [JsonObject]
     public record Unit<TEntity> : ValueUnit
     {
         public override sealed bool IsSimpleUnit()
             => false;
         static Unit()
         {
-            var meta = Convert.ToString(Unit<TEntity>.Sample).Split('{', ',', '}').FirstOrDefault();
+
             // MetaUnit.EntityName ??= /*"##" +*/ meta;
-            EntityName = meta;
+            EntityName = typeof(TEntity).Name;
             _metaUnit = InitMetaUnit();
         }
-        TEntity entity;
-        public TEntity Value { get => entity; init => entity = value; }
+        public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         internal static string EntityName;
         static MetaUnit _metaUnit;
-
+        public BotUnion<TEntity> Content { get; set; }
         public MetaUnit MetaData
-            => _metaUnit with { Data  = GetMetaData()  };
+            => _metaUnit with { Data  = MetaInformation };
 
         static MetaUnit InitMetaUnit(MetaData meta = null)
             => new MetaUnit(EntityName, meta);
             
-        //public override MetaData GetMetaData()
-        //{
-        //    //Meta.Set(Stringify((Value?.ToString() ?? this.ToString()).Split('{', ',', '}')), "Content");
-        //    InvalidateMetaData(Value);
-        //    return Meta;
-        //}
+
         internal static string Stringify(string[] items)
         => string.Join(Environment.NewLine, from s in items
                                             where s.Length > 2 && !s.EndsWith("= ")
@@ -131,12 +127,59 @@ namespace MissBot.Abstractions
         protected virtual void InvalidateMetaData(TEntity unit)
         { }
 
-        public static TEntity Sample
-            => Instance.Value;
+        public int IndexOf(TEntity item)
+        =>Content.IndexOf(item);
+        
+
+        public void Insert(int index, TEntity item)
+        =>
+            Content.Insert(index, item);
+        
+
+        public void RemoveAt(int index)
+        =>
+            Content.RemoveAt(index);
+        
+
+        public void Add(TEntity item)
+        {
+            ((ICollection<TEntity>)Content).Add(item);
+        }
+
+        public void Clear()
+            => Content?.Clear();
+        
+
+        public bool Contains(TEntity item)
+        {
+            return Content?.Contains(item) ?? false;
+        }
+
+        public void CopyTo(TEntity[] array, int arrayIndex)
+        {
+            ((ICollection<TEntity>)Content).CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(TEntity item)
+        {
+            return ((ICollection<TEntity>)Content).Remove(item);
+        }
+
+        public IEnumerator<TEntity> GetEnumerator()
+        {
+            return ((IEnumerable<TEntity>)Content).GetEnumerator();
+        }
+
+        public int Count => Content?.Count ?? 0;
+
+        public bool IsReadOnly => Content?.IsReadOnly ?? false;
+
+        public TEntity this[int index] { get => ((IList<TEntity>)Content)[index]; set => ((IList<TEntity>)Content)[index] = value; }
+
         public static readonly Unit<TEntity> Instance
-            = new Unit<TEntity>() { Value = Activator.CreateInstance<TEntity>() };
+            = new Unit<TEntity>();
         public static readonly Unit<TEntity>.MetaUnit Meta
-            = new Unit<TEntity>.MetaUnit(EntityName, new MetaData());
+            = InitMetaUnit(ValueUnit.Parse(Unit<TEntity>.Sample));
 
         public object this[string key]
         {

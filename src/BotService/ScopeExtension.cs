@@ -7,7 +7,7 @@ namespace BotService
 {
     public static class BotCommandExtension
     { 
-        record CommandData(string CommandName, Type CmdType, string Description) : IBotCommandInfo;
+        record CommandData(string EntityAction, Type CmdType, string Description) : IBotCommandInfo;
         public static IEnumerable<HasBotCommandAttribute> GetCommandAttributes<TBot>(this Type botType) where TBot : class, IBot
             => botType.GetCustomAttributes<HasBotCommandAttribute>();      
         public static IEnumerable<IBotCommandInfo> GetCommandsFromAttributes(this object bot)

@@ -3,6 +3,7 @@ using MissBot.Abstractions.Results.Inline;
 using MissBot.Commands.Results.Inline;
 using MissCore.Entities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -52,12 +53,12 @@ namespace MissBot.Common
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
         {
-            var meta = unit.GetMetaData();
-            var content = Unit<TUnitData>.Meta.Content;// meta.AnyFirst("Content");
-            InlineQueryResult result = InitResult(content);
+            var meta = ValueUnit.Parse(JObject.FromObject(unit));
+            var content = unit;// meta.AnyFirst("Content");
+            InlineQueryResult result = InitResult(content.ToString());
           
 
-            foreach (var item in meta)            
+            foreach (var item in meta/* ?? ValueUnit.Parse(JObject.FromObject(unit)*/)            
                 SetContent(item.Key, item.Value, result);
 
             result.ReplyMarkup = Keyboard?.GetKeyboard;

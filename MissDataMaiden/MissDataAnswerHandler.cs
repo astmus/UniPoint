@@ -71,7 +71,7 @@ namespace MissDataMaiden
             }
         }
 
-        record DataBaseRequest : SQL.Query<DataBase>
+        record DataBaseRequest : SQLQuery<DataBase>
         {            
             public override string CreateCommand<TEntity>()
                 => $"select * from ##Info where Id = {Entity.Id}";
@@ -83,13 +83,13 @@ namespace MissDataMaiden
         public override async Task HandleResultAsync(ChosenInlineResult result, IContext<ChosenInlineResult> context)
         {
             int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
-            var request = Unit<DataBaseRequest>.Sample with { Entity = Unit<DataBase>.Sample with { Id = 6 } };
+            var request = Unit<DataBaseRequest>.Sample with { Entity = Unit<DataBase>.Sample with { Id = "6" } };
 
-            var dbinco = await repository.HandleQueryGenericObjectAsync(request.Sql.Command);
+            var dbinco = await repository.HandleQueryGenericObjectAsync(request.Request);
 
-            var unit = ValueUnit.Parse(dbinco);
+            var unit = Unit<ChosenInlineResult>.Meta; //  ValueUnit.Parse(dbinco);
             var response = context.CreateResponse(result);
-            response.Write(unit);
+            response.WriteMetadata(unit);
             await response.Commit(default);
             //request.Tempalted(Convert.ToInt32(result.ResultId).ToString()).Cmd);
 
