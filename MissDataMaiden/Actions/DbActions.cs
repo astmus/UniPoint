@@ -20,8 +20,8 @@ namespace MissDataMaiden.Commands
     public record DBDelete : EntityAction<DataBase>;
     public record DBInfo : EntityAction<DataBase>;
     public record DataBaseDetail(string DBName, string Status, string State, int DataFiles, int DataMB,
-                                            int LogFiles, int LogMB, string RecoveryModel, string Created, string LastBackup, string IsReadOnly,
-                                            List<EntityAction<DataBase>> Commands
+                                            [JsonProperty] int LogFiles, int LogMB, string RecoveryModel, string Created, string LastBackup, string IsReadOnly,
+                                            [JsonProperty] List<EntityAction<DataBase>> Commands
     ) : EntityAction<DataBase>
     {
         public DataBaseDetail() : this(default,default, default, default, default, default, default, default, default, default, default,default)        {
@@ -67,77 +67,5 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
     }
-
-    //public class DiskCommandHandler : BotCommandHandler<Disk>
-    //{
-    //    private readonly IConfiguration config;
-    //    SqlRaw<Disk.DataUnit>.Query CurrentRequest;        
-
-    //    public DiskCommandHandler(IConfiguration config)
-    //    {
-    //        //var disk = config.GetSection(nameof(IBotCommandInfo)).GetChildren().ToList()[1].Get<Disk>();
-            
-    //        this.config = config;
-    //    }
-
-    //    public override Disk Command
-    //        => config.GetSection(nameof(IBotCommandInfo)).GetChildren().First().Get<Disk>();
-
-    //    //public override async  Task BeforeComamandHandle(IContext<Disk> context)
-    //    //{
-    //    //    Disk.CommandResult response = context.Scope.Result;
-
-    //    //    await response.SendHandlingStart(); 
-    //    //}
-
-    //    public override async Task RunAsync(Disk command, IContext<Disk> context)
-    //    {
-    //        IResponse response = context.Response;
-  
-    //        var mm = context.Root.BotServices.GetService<IMediator>();
-  
-    //        var result = response.Create(command);
-
-    //        await foreach (var obj in mm.CreateStream(new Disk.Query(command.Payload)))
-    //        {
-    //            //context.Data.Result.Write(obj);
-    //            result.Write(obj);
-    //        }
-    //        await result.Commit(default);            
-    //    }     
-
-    //    //public override BotCommand<Disk> GetDataForHandle()
-    //    //    => new BotCommand<Disk>() { Command = Context.Data.Get<Message>().Command };
-
-    //    //public override async Task HandleCommandAsync(DiskCommand command, string[] args)
-    //    //{
-
-    //    //	var mm = Context.Current.Get<IMediator>();
-    //    //	var diskInfo = await mm.Send(CurrentRequest).ConfigFalse();
-    //    //	var result = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(diskInfo);
-
-    //    //	var str = result.Select(d =>
-    //    //	{
-    //    //		var header =
-    //    //		d.Select(kv => $"{kv.Key.PadRight(6)[0..6].AsBTag()}").Aggregate($"", (s1, s2)
-    //    //			=> $"{s1} {s2}").AsPreTag();
-    //    //		var body =
-    //    //		d.Select(kv => $"{kv.Value.PadRight(6)[0..6]}").Aggregate($"", (s1, s2)
-    //    //			=> $"{s1} {s2}").AsPreTag();
-
-    //    //		return new KeyValuePair<string, string>(header, body);
-    //    //	}
-    //    //	).GroupBy(gb => gb.Key, v => v.Value, (k, g) => new { Key = k, Items = string.Join("", g) })
-    //    //	.Select(f => $"{f.Key}{f.Items}");
-    //    //	var channel = Context.Client.Channel;
-    //    //	await channel.WriteAsync(str).ConfigFalse();
-    //    //	//, MissBot.Common.Types.Enums.ParseMode.Html, cancellationToken: CancellationToken.None
-    //    //	//ParseMode.Markdown,
-    //    //	//replyToMessageId: msg.MessageId,
-    //    //	//replyMarkup: new InlineKeyboardMarkup(
-    //    //	//    InlineKeyboardButton.WithCallbackData("Ping", "PONG")
-    //    //	//)
-    //    //	return;
-    //    //}
-    //}
+    
 }

@@ -40,7 +40,7 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotAction>> GetAllAsync()
         {
-            commands = await HandleScalarQueryAsync<Unit<BotAction>>(BotContext.AllCommands.Request);
+            commands = await HandleScalarQueryAsync<Unit<BotAction>>(BotContext.AllCommands.SQLTemplate);
             return commands;
         }
 
@@ -49,7 +49,7 @@ namespace MissDataMaiden.DataAccess
             //var query = SqlQuery<TEntityType>.Instance with
             //{ sql = SQL<BotCommand>.Sample.Command };//  .Query.cmd};
 
-            var result = await HandleScalarQueryAsync<Unit<TEntityType>>(BotContext.AllCommands.Request);
+            var result = await HandleScalarQueryAsync<Unit<TEntityType>>(BotContext.AllCommands.SQLTemplate);
             //var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
             //lastResult = result.FirstOrDefault();
             return result;
@@ -57,7 +57,7 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotAction
         {            
-            var sql = BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Request;
+            var sql = BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).SQLTemplate;
             sql.Type = SQLJson.Path;
             var cmd = await HandleScalarQueryAsync<Unit<TEntityType>>(sql);
             return cmd.FirstOrDefault();

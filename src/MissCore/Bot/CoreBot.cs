@@ -25,23 +25,23 @@ namespace MissCore.Bot
                 ;
 
         public readonly static SQL<BotAction> AllCommands
-            = SQL<BotAction>.Create(s =>  $"SELECT {nameof(s.Command)}, {nameof(s.Description)} FROM ##{nameof(BotAction)}s WHERE Entity = '{nameof(BotCommand)}'");
-            
+            = SQL<BotAction>.Create(s => $"SELECT {nameof(s.Command)}, {nameof(s.Description)} FROM ##{nameof(BotAction)}s WHERE Entity = '{nameof(BotCommand)}'");
+
 
         public static SQL<Search> Search;
-       
+
         public BotContext() { }
         internal BotContext(ContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
         internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
         internal void Init()
-        {        
-            
-            Search = SQLQuery<Search>.Create( s => $"SELECT * FROM ##{nameof(BotAction)}s WHERE Command = 'Search'");
-            
-        }       
+        {
 
-            static readonly internal ContextOptions BotContextOptions
-                = new ContextOptions(null, null, null, null);
+            Search = SQL<Search>.Create(s => $"SELECT * FROM ##{nameof(BotAction)}s WHERE Command = 'Search'");
+
+        }
+
+        static readonly internal ContextOptions BotContextOptions
+            = new ContextOptions(null, null, null, null);
     }
     #endregion
     public abstract class BaseCoreBot : BaseBot
@@ -66,7 +66,7 @@ namespace MissCore.Bot
                 cmd.CommandText = System.IO.File.ReadAllText(Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Bot", "BotInit.sql"));
                 cmd.ExecuteNonQuery();
             }
-           // var data = HandleListAsync<BotCommand>(SQL.Query<BotCommand>.Sample);
+            // var data = HandleListAsync<BotCommand>(SQL.Query<BotCommand>.Sample);
             // BotCore.SearchRequest.Request = BotCore.SearchRequest.Request with { Cmd = data.Payload };
         }
         public override async Task<bool> SyncCommands(IBotConnection connection)
@@ -80,8 +80,8 @@ namespace MissCore.Bot
             Unit<TEntity> result = default(Unit<TEntity>);
             using (var cmd = Connection.CreateCommand())
             {
-                var c = sql.Request;
-                cmd.CommandText = sql.Request.Command;
+                var c = sql.SQLTemplate;
+                cmd.CommandText = sql.SQLTemplate.Command;
 
                 var reader = await cmd.ExecuteReaderAsync(cancellationToken);
                 if (!reader.HasRows)
@@ -91,8 +91,8 @@ namespace MissCore.Bot
                     await reader.ReadAsync();
                     try
                     {
-                    if (reader.GetString(0) is string str)
-                        result = JsonConvert.DeserializeObject<Unit<TEntity>>(str);
+                        if (reader.GetString(0) is string str)
+                            result = JsonConvert.DeserializeObject<Unit<TEntity>>(str);
 
                     }
                     catch (Exception e)
@@ -110,19 +110,20 @@ namespace MissCore.Bot
             TEntity result = default(TEntity);
             using (var cmd = Connection.CreateCommand())
             {
-                cmd.CommandText = sql.Request.Command;
+                cmd.CommandText = sql.SQLTemplate.Command;
 
                 var reader = await cmd.ExecuteReaderAsync(cancellationToken);
                 if (!reader.HasRows)
                     return default(TEntity);
                 else
                     while (await reader.ReadAsync())
-                        result = System.Text.Json.JsonSerializer.Deserialize<TEntity>(reader.GetString(0));
+                        if (reader.GetString(0) is string str)
+                            result = JsonConvert.DeserializeObject<TEntity>(str);
 
             }
             return result;
         }
-        
+
     }
 }
 

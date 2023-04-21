@@ -83,10 +83,10 @@ namespace MissDataMaiden.Commands
             IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
             response.WriteMetadata(Unit<Disk>.Meta);
-            var sqlQuery = SQL<Disk>.Unit with { Entity = command };
+            var sqlQuery = new  SQL<Disk>.Query(f => f.Payload) { Entity = command };
             //    sqlQuery.
-            
-            var sql = sqlQuery.ToQuery(f => f.Payload);
+
+            var sql = sqlQuery.SQLTemplate;
             sql.Type = SQLJson.Path;
             Unit<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(sql);
 

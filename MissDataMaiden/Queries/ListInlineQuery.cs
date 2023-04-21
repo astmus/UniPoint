@@ -64,7 +64,7 @@ namespace MissDataMaiden.Commands
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
           
-            payload ??=  (await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.Request)).Content.FirstOrDefault();
+            payload ??=  (await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.SQLTemplate)).Content.FirstOrDefault();
 
             resultFilter = payload.Filter;
             var items = await repository.HandleQueryItemsAsync<InlineDataBase>(

@@ -14,31 +14,31 @@ using Newtonsoft.Json;
 
 namespace MissBot.DataAccess.Sql
 {
-    public record SQL<TUnit>(Func<TUnit, string> initFunc = default) : ValueUnit
+    public record SQL<TUnit>(Func<TUnit, string> initFunc = default)
     {
         public TUnit Entity { get; init; } = Unit<TUnit>.Sample;
-        public virtual SQL<IEntityAction<TEntity>> CreateCommand<TEntity>(IEntityAction<TEntity> entity) where TEntity : class
-            => new SQL<IEntityAction<TEntity>>() { Entity = entity };
+
         public virtual SQL GetCommand()
-            => Request;
-        public SQL Request
+            => SQLTemplate;
+        public SQL SQLTemplate
             => !request.IsEmpty ? (request) : request = initFunc?.Invoke(Entity)  ?? SQL.Parse<TUnit>(Entity);
         SQL request;
 
-        public static SQL<TUnit> Create(Func<TUnit, string> init)
-             => new SQL<TUnit>(init);
+
+
+        public static SQL<TUnit> Create(Func<TUnit, string> init) => new SQL<TUnit>(init);
+
         public record Query(Func<TUnit, string> initFunc = default) : SQL<TUnit>(initFunc)
+        {
+            
+        }
+        public record Query<TResult> : SQL<TUnit> where TResult: TUnit
         {
 
         }
-
-        public static SQLQuery<TUnit> Unit
-            => SQLQuery<TUnit>.Instance;
-        public static class Select
+        public record Request : SQL<TUnit>
         {
-            //public static SQL<TAction> Actions<TAction>() where TAction:class, IBotAction
-                
-            public static Func<TUnit, string> Request { get; set; }
+
         }
     }
 
@@ -52,14 +52,7 @@ namespace MissBot.DataAccess.Sql
 
         internal virtual ContextOptions BotContextOptions
             => new ContextOptions(GetConnectionString());
-        public DbConnection OpenConnection(string sql, out DbCommand cmd)
-        {
-            var c = DataProvider.CreateConnection(GetConnectionString());
-            cmd = c.CreateCommand();
-            cmd.CommandText = sql;
-            c.Open();
-            return c;
-        }
+       
         public async Task ExecuteCommandAsync(SQL sql, CancellationToken cancel = default)
             => await ExecuteCommandAsync(sql.Command, cancel);
 
@@ -90,8 +83,6 @@ namespace MissBot.DataAccess.Sql
                     cmd.CommandText = sql;
                     if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
                         result = JsonConvert.DeserializeObject<TScalar>(res);
-                  
-                    //result = des.Content.FirstOrDefault();
                 }
                 await connection.CloseAsync();
             }
@@ -100,17 +91,7 @@ namespace MissBot.DataAccess.Sql
         protected abstract string GetConnectionString();
     }
 
-    public record SQLQuery<TEntity> : SQL<TEntity>.Query
-    {
-        public static readonly SQLQuery<TEntity> Instance = new SQLQuery<TEntity>();
-        //public override SqlBuilder Request { get => base.Request; protected set => base.Request = value; }
-        //public override SQL Request { get; protected set; } = new SQL(Command);
-        //=> this with { Command = SqlQuery };
-        
-        public SQL ToQuery(Func<TEntity, string> init)
-            => (SQL)init(Entity);
-
-    }
+    
 
 
 

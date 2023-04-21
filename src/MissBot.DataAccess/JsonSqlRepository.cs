@@ -33,40 +33,47 @@ namespace MissBot.DataAccess
 
         public async Task<JArray> HandleQueryGenericItemsAsync(SQL sql, CancellationToken cancel = default)
         {
-            string raw = await HandleAsync(sql.Command, cancel);
-            return JArray.Parse(raw);
+            StringBuilder result = new StringBuilder("[");
+            await HandleAsync(sql.Command,  result, cancel);
+            result.Append("]");
+            return JArray.Parse(result.ToString());
         }
 
         public async Task<JObject> HandleQueryGenericObjectAsync(SQL sql, CancellationToken cancel = default)
         {
-            string raw = await HandleAsync(sql.Command, cancel);
-            return JObject.Parse(raw);
+            StringBuilder result = new StringBuilder();
+            await HandleAsync(sql.Command, result, cancel);
+            return JObject.Parse(result.ToString());
         }
 
-        protected virtual async Task<string> HandleAsync(string sql, CancellationToken cancellationToken = default)
+        protected virtual async Task HandleAsync(string sql, StringBuilder result, CancellationToken cancellationToken = default)
         {
-            DbCommand cmd;
-            StringBuilder result = new StringBuilder("[");
+            
 
-            using (var conn = OpenConnection(sql, out cmd))
+
+            using (var conn = DataProvider.CreateConnection(GetConnectionString()))
             {
-                var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-
-                if (!reader.HasRows)
-                    reader.Close();
-                else
+                using (var cmd = conn.CreateCommand())
                 {
-                    while (await reader.ReadAsync())
+                    cmd.CommandText = sql;
+                    var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+                    if (!reader.HasRows)
+                        reader.Close();
+                    else
                     {
-                        object[] arr = new object[reader.FieldCount];
-                        reader.GetValues(arr);
-                        result.AppendJoin(',', arr);
+                        while (await reader.ReadAsync())
+                        {
+                            result.Append(reader.GetString(0));
+                            //object[] arr = new object[reader.FieldCount];
+                            //reader.GetValues(arr);
+                          //  result.AppendJoin(',', arr);
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
+  
             }
-            result.Append("]");
-            return result.ToString();
             //return JsonConvert.DeserializeObject<TEntity>(result.ToString());
         }
     }

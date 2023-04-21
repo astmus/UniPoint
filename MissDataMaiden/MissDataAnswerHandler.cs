@@ -42,7 +42,7 @@ namespace MissDataMaiden
         //};                 
         
         [JsonObject(MemberSerialization = MemberSerialization.OptOut)]
-        record DataBaseRequest : SQLQuery<DataBase>
+        record DataBaseRequest : SQL<DataBase>.Query
         {
             public DataBaseRequest()
             {
@@ -69,7 +69,8 @@ namespace MissDataMaiden
                 => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6);
 
             //public override Cmd<DataBase> Query { get => this with { cmd = string.Format(Template, Param?.Id ?? sample?.Id) }; }
-
+            public SQL ToQuery(Func<DataBase, string> init)
+                     => (SQL)init(Entity);
         }
         public static SQL<TEntity> EntityActions<TEntity>(string commandName) where TEntity : EntityAction<DataBase>
            => new  SQL<TEntity>( d=> 
@@ -87,15 +88,15 @@ namespace MissDataMaiden
             //var detailsRequest =  EntityActions<DBDetails>(nameof(DBAction.Restore));
             //DataBaseRequest.Unit.
             var sql = DataBaseRequest.Create(f
-                   => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6)).Request;
-
-            sql.Type = SQLJson.Custom;
-            sql.UseContentRoot = false;
+                   => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6));
+            var template = sql.SQLTemplate;
+            template.Type = SQLJson.Custom;
+            template.UseContentRoot = false;
             //sql.ContentPropertyName = nameof(DataBase.Detail);
-            var details =  await repository.HandleQueryAsync<DataBaseRequest>(sql);
+            var details =  await repository.HandleQueryAsync<DataBaseRequest>(template);
             var response = context.CreateResponse(result);
             response.WriteMetadata(unit with { Data = Unit <DataBaseDetail>.Parse(unit) } );
-            response.Write(details);
+           // response.Write(details);
             await response.Commit(default);
             //request.Tempalted(Convert.ToInt32(result.ResultId).ToString()).Cmd);
 
