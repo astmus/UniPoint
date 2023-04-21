@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using LinqToDB;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.DataAccess.Sql;
 using MissCore.Entities;
 
 namespace MissCore.Bot

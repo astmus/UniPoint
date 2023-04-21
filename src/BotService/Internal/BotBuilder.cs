@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
@@ -16,11 +17,11 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         }        internal BotBuilder()
         {            Services = Instance?.Services;        }        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.GetType()));            return this;        }        public IBotServicesProvider BotServicesProvider()            => new BotServicesProvider(Instance.Services.BuildServiceProvider());
 
-        public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
+        public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotAction>
         {
-            Services.AddSingleton<IRepository<BotCommand>, THandler>();
+            Services.AddSingleton<IRepository<BotAction>, THandler>();
             host.ConfigureServices((h, s)
-                => s.AddSingleton<IRepository<BotCommand>, THandler>());
+                => s.AddSingleton<IRepository<BotAction>, THandler>());
             return this;        }        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
             return this;        }
@@ -122,7 +123,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 BuildHandler();
         }
         
-            public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IEntityAction
+            public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IBotAction
         {
             Services.AddScoped<IAsyncHandler<TAction>, THandler>();            Services.AddScoped<TAction>();
             Services.AddScoped<IResponse, Response>();

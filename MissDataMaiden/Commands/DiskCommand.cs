@@ -16,11 +16,12 @@ using BotService;
 using MissCore.Bot;
 using MissBot.DataAccess.Sql;
 using System.Security.Cryptography;
+using MissBot.Abstractions.Entities;
 
 namespace MissDataMaiden.Commands
 {
     [JsonObject]
-    public class Disk : BotCommand<Disk>, IBotCommand
+    public record Disk : BotCommand<Disk>, IBotCommand
     {
         static  Disk()
         {

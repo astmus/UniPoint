@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 using MissBot.Abstractions;
 using MissBot.Handlers;
 using MissDataMaiden.Commands;
+using Newtonsoft.Json;
 
 namespace MissDataMaiden.Entities
 {
-        public enum DBAction : byte
+    [JsonConverter(typeof(DBActionConverter))]
+    public enum DBAction : byte
         {
+            Unknown = 0,
             Details,
             Info,
             Restore,

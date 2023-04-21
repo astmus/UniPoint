@@ -12,8 +12,8 @@ namespace MissDataMaiden
 {
     internal class MissDataCommandDispatcher :  IAsyncBotCommandDispatcher
     {
-        IRepository<BotCommand> commandsRepository;
-        public MissDataCommandDispatcher(IRepository<BotCommand> mediator)
+        IRepository<BotAction> commandsRepository;
+        public MissDataCommandDispatcher(IRepository<BotAction> mediator)
             => commandsRepository = mediator;
 
         bool isCommand;        
@@ -37,7 +37,7 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };  
 
-        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotCommandData
+        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand : BotAction, IBotCommandData
         {
             var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
            

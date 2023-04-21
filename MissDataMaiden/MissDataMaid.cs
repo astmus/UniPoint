@@ -28,7 +28,7 @@ namespace MissDataMaiden
 
 
 
-        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IRepository<BotCommand> commands) : base(commands)
+        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IRepository<BotAction> commands) : base(commands)
         {
             log = logger;
         }

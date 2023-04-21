@@ -25,7 +25,7 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };
 
-        public async Task HandleAsync<TAction>(IHandleContext context, string[] args) where TAction : InlineEntityAction<DataBase>
+        public async Task HandleAsync<TAction>(IHandleContext context, string[] args) where TAction : EntityAction<DataBase>
         {        
 
             var ctx = context.CreateDataContext<TAction>();

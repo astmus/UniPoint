@@ -1,3 +1,4 @@
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 namespace MissBot.Abstractions
@@ -10,7 +11,7 @@ namespace MissBot.Abstractions
     public interface IAsyncBotCommandDispatcher
     {
         Task ExecuteAsync(IHandleContext context);
-        Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotCommandData;
+        Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotAction, IBotCommandData;
     
     }
     
@@ -18,7 +19,7 @@ namespace MissBot.Abstractions
     {
         Task HandleAsync(IContext<T> context);
     }
-    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction:class, IEntityAction
+    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction:class, IBotAction
     {
         Task HandleActionAsync(TAction action, IHandleContext context, CancellationToken cancel = default);
     }

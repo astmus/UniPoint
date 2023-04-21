@@ -9,7 +9,6 @@ using LinqToDB.Linq.Builder;
 using Microsoft.Extensions.Configuration;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.DataAccess.Sql;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

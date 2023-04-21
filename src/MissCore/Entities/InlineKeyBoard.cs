@@ -4,29 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Entities;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record InlineEntityAction : ValueUnit, IEntityAction
+    public record EntityAction<TEntity> : BotAction, IEntityAction<TEntity> where TEntity : class
     {
-        public string Text { get; set; }
-        public object? Id { get; set; }
+        public string Text { get; set; }        
         public virtual string Action { get; init; }
      
-        public static implicit operator InlineEntityAction(string data) =>
-            new InlineEntityAction() { Action = data };
-        public static implicit operator InlineKeyboardButton(InlineEntityAction s) =>
+        public static implicit operator EntityAction<TEntity>(string data) =>
+            new EntityAction<TEntity>() { Action = data };
+        public static implicit operator InlineKeyboardButton(EntityAction<TEntity> s) =>
             InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Id}");
-    }
-
-    public record EntityAction<TEntity> : BotEntityAction
-    {
-        static EntityAction()
-        {
-           // Unit<TEntity>.MetaData
-        }
     }
 
     public record BotEntityAction : IBotCommand
@@ -40,7 +33,7 @@ namespace MissCore.Entities
             => string.Format(Payload, param);
     }
 
-    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IEntityAction<TEntity>
+    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IEntityAction<TEntity> where TEntity:ValueUnit
     {
         public string Text { get; set; }
         public object? Id { get; set; }
@@ -59,7 +52,7 @@ namespace MissCore.Entities
         public InlineKeyboardMarkup GetKeyboard
             => new InlineKeyboardMarkup(this);               
 
-        public InlineKeyBoard Append(InlineEntityAction action)
+        public InlineKeyBoard Append(BotAction action)
         {
             Add(action);
             return this;

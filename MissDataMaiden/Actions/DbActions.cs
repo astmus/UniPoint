@@ -16,10 +16,22 @@ using MissBot.Abstractions.DataAccess;
 
 namespace MissDataMaiden.Commands
 {
-    public record DBRestore : InlineEntityAction<DataBase>;
-    public record DBDelete : InlineEntityAction<DataBase>;
-    public record DBInfo : InlineEntityAction<DataBase>;
-    public record DBDetails : InlineEntityAction<DataBase>;
+    public record DBRestore : EntityAction<DataBase>;
+    public record DBDelete : EntityAction<DataBase>;
+    public record DBInfo : EntityAction<DataBase>;
+    public record DataBaseDetail(string DBName, string Status, string State, int DataFiles, int DataMB,
+                                            int LogFiles, int LogMB, string RecoveryModel, string Created, string LastBackup, string IsReadOnly,
+                                            List<EntityAction<DataBase>> Commands
+    ) : EntityAction<DataBase>
+    {
+        public DataBaseDetail() : this(default,default, default, default, default, default, default, default, default, default, default,default)        {
+            
+        }
+        public DataBaseDetail(DataBaseDetail d) : base (d)
+        {
+
+        }
+    }
 
     public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {

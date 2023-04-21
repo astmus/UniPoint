@@ -1,4 +1,5 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Results.Inline;
 using MissBot.Commands.Results.Inline;
 using MissCore.Entities;
@@ -87,7 +88,7 @@ namespace MissBot.Common
                 InlineQueryResultArticle article when key == nameof(article.Id) => result.Id=  article.Id = value +Query.Query,
                 InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
                 InlineQueryResultArticle article when key == nameof(article.Description) => article.Description = (string)value,
-                InlineQueryResultArticle article when value is InlineEntityAction action => Keyboard.Append(action),
+                InlineQueryResultArticle article when value is BotAction action => Keyboard.Append(action),
                InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta.Get<string>("Name"),
                 //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
                _ => result

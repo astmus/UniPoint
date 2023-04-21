@@ -7,7 +7,7 @@ using MissDataMaiden.Queries;
 
 namespace MissDataMaiden
 {
-    public class List : BotCommand<ListUnit>, IBotCommand
+    public record List : BotCommand<ListUnit>, IBotCommand
     {
         public override string Command => nameof(List);
     }
@@ -17,11 +17,11 @@ namespace MissDataMaiden
 
     public class ListCommandHadler : BotCommandHandler<List>
     {
-        public ListCommandHadler(IRepository<BotCommand> repository)
+        public ListCommandHadler(IRepository<BotAction> repository)
         => this.repository = repository;
         
         static List list;
-        private readonly IRepository<BotCommand> repository;
+        private readonly IRepository<BotAction> repository;
 
       
 

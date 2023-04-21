@@ -8,18 +8,18 @@ using LinqToDB.DataProvider;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.DataAccess.Sql;
-using MissCore.Entities;
 using Newtonsoft.Json;
 namespace MissCore.Bot
 {
     #region Context
     public class BotContext : LinqToDB.DataContext
     {
-        public static SQL<TCommand> Command<TCommand>(TCommand cmd = default, SQLJson type = SQLJson.Path) where TCommand : BotCommand
+        public static SQL<TCommand> Command<TCommand>(TCommand cmd = default, SQLJson type = SQLJson.Path) where TCommand : BotAction
                 => new SQL<TCommand>(u
                 => u is IBotCommand cmd ? $@"SELECT * FROM ##{nameof(BotAction)}s  WHERE Command = '/{cmd.Command.ToLower()}'" : throw new ArgumentException())
                 ;
@@ -29,7 +29,7 @@ namespace MissCore.Bot
             
 
         public static SQL<Search> Search;
-        public static SQL<BotAction> EntityActions;
+       
         public BotContext() { }
         internal BotContext(ContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
         internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
@@ -37,8 +37,7 @@ namespace MissCore.Bot
         {        
             
             Search = SQLQuery<Search>.Create( s => $"SELECT * FROM ##{nameof(BotAction)}s WHERE Command = 'Search'");
-            EntityActions = SQLQuery<BotAction>.Create(
-                e=> $"SELECT * FROM ##{nameof(BotAction)} WHERE 'Entity' = '{e.Entity}' AND Command = '{e.Command}' ");
+            
         }       
 
             static readonly internal ContextOptions BotContextOptions
@@ -49,7 +48,7 @@ namespace MissCore.Bot
     {
         DbConnection Connection;
         protected BotContext Context { get; set; }
-        public BaseCoreBot(IRepository<BotCommand> commandsRepository = default) : base(commandsRepository) { }
+        public BaseCoreBot(IRepository<BotAction> commandsRepository = default) : base(commandsRepository) { }
 
         public override sealed void Init(IServiceProvider sp)
         {

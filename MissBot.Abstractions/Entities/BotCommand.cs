@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace MissBot.Abstractions.Entities
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class BotCommand
+    public abstract record BotCommand
     {
         /// <summary>
         /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
-        /// </summary>
-        [JsonProperty("command", Required = Required.Always)]
-        public virtual string Command { get; set; }
+        /// </summary>  
+        [JsonProperty("command")]
+        public abstract string Command { get; set; }
 
         /// <summary>
         /// Description of the command, 3-256 characters.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string Description { get; set; } = default!;
+        [JsonProperty("description")]
+        public string Description { get; set; }
     }
 }

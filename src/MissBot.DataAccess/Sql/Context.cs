@@ -7,17 +7,18 @@ using System.Text;
 using System.Threading.Tasks;
 using LinqToDB;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.DataAccess.Interfacet;
 using Newtonsoft.Json;
 
 namespace MissBot.DataAccess.Sql
 {
-    public record SQL<TUnit>(Func<TUnit, string> initFunc = default)
+    public record SQL<TUnit>(Func<TUnit, string> initFunc = default) : ValueUnit
     {
         public TUnit Entity { get; init; } = Unit<TUnit>.Sample;
-        public virtual SQL CreateCommand<TEntity>() where TEntity : TUnit
-            => Request;
+        public virtual SQL<IEntityAction<TEntity>> CreateCommand<TEntity>(IEntityAction<TEntity> entity) where TEntity : class
+            => new SQL<IEntityAction<TEntity>>() { Entity = entity };
         public virtual SQL GetCommand()
             => Request;
         public SQL Request
@@ -30,9 +31,15 @@ namespace MissBot.DataAccess.Sql
         {
 
         }
+
         public static SQLQuery<TUnit> Unit
             => SQLQuery<TUnit>.Instance;
-
+        public static class Select
+        {
+            //public static SQL<TAction> Actions<TAction>() where TAction:class, IBotAction
+                
+            public static Func<TUnit, string> Request { get; set; }
+        }
     }
 
     public abstract class SQLContext : LinqToDB.DataContext, ISqlHandler
@@ -99,7 +106,7 @@ namespace MissBot.DataAccess.Sql
         //public override SqlBuilder Request { get => base.Request; protected set => base.Request = value; }
         //public override SQL Request { get; protected set; } = new SQL(Command);
         //=> this with { Command = SqlQuery };
-        public Func<TEntity, string> Init { get; set; }
+        
         public SQL ToQuery(Func<TEntity, string> init)
             => (SQL)init(Entity);
 

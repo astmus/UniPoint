@@ -47,22 +47,16 @@ VALUES ('Bot', 'Search', '', null,
         'select CAST(Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
 
 INSERT INTO ##BotActions
-VALUES ('DataBase', '
-Delete ', '{0}.{1}.{2} ', null, '
-select *
-from ##Info where Id = {0} ');
+VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'select * from ##Info where Id = {0} ');
 INSERT INTO ##BotActions
-VALUES (' DataBase ', ' Info ', '{0}.{1}.{2} ', null, 'select *
-from ##DataBase where Id = {0} ');
+VALUES ('DataBase ', 'Info ', '{0}.{1}.{2} ', null, 'select * from ##DataBase where Id = {0} ');
 INSERT INTO ##BotActions
-VALUES (' DataBase ', ' Details ', '{0}.{1}.{2} ', null, '
-select *
-from ##Info a
-         inner join ##BotActions Commands on Commands.Entity = a.Entity
-Where a.Id = {0} ');
+VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'select * from ##Info a inner join ##BotActions Commands on Commands.Entity = a.Info Where a.Id = {0} ');
 INSERT INTO ##BotActions
-VALUES (' DataBase ', '
-Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
+VALUES ('DataBase ', ' Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
+
+  IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
+    DROP TABLE ##DataBase
 
 SELECT *
 INTO ##DataBase
@@ -78,12 +72,14 @@ WHEN NOT MATCHED BY Target THEN
     VALUES ('DataBase',S.Id,S.Title, GetDate());
 
 
+    IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
+    DROP TABLE ##Info
 
 SELECT * 
 INTO ##Info
 FROM(
 SELECT CAST(database_id as VARCHAR(15)) as Id,
-'DataBase' as Entity,
+'DataBase' as Info,
 CONVERT(VARCHAR(25), DB.name) AS DBName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],
 state_desc as State,

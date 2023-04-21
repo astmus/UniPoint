@@ -3,7 +3,8 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using TG = Telegram.Bot.Types;
 using MissBot.Abstractions.Entities;
-using BotCommand = MissBot.Abstractions.Entities.BotCommand;
+using BotAction = MissBot.Abstractions.Entities.BotAction;
+using MissBot.Abstractions.Actions;
 
 namespace MissBot.Abstractions
 {
@@ -17,16 +18,16 @@ namespace MissBot.Abstractions
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
 
-        protected  IRepository<BotCommand> commandsRepository;
+        protected  IRepository<BotAction> commandsRepository;
         public virtual void Init(IServiceProvider sp)
-            => commandsRepository = sp.GetService<IRepository<BotCommand>>();
+            => commandsRepository = sp.GetService<IRepository<BotAction>>();
         
 
-        public BaseBot(IRepository<BotCommand> repository = default)        
+        public BaseBot(IRepository<BotAction> repository = default)        
             => commandsRepository = repository;
 
 
-        public IEnumerable<BotCommand> Commands { get; protected set; }
+        public IEnumerable<BotAction> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
         
 
@@ -79,7 +80,7 @@ namespace MissBot.Abstractions
     internal static class BotExtensoin
     {
         #region Extensions
-        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient,  IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
+        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient,  IEnumerable<BotAction> commands, TG.BotCommandScope scope = default, string languageCode = default,
                  CancellationToken cancellationToken = default)       
         => await botClient.MakeRequestAsync(
                      request: new SetMyCommandsRequest(commands)
@@ -96,7 +97,7 @@ namespace MissBot.Abstractions
         {
 
             [JsonProperty(Required = Required.Always)]
-            public IEnumerable<BotCommand> Commands { get; }
+            public IEnumerable<BotAction> Commands { get; }
 
 
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -106,7 +107,7 @@ namespace MissBot.Abstractions
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public string? LanguageCode { get; set; }
 
-            public SetMyCommandsRequest(IEnumerable<BotCommand> commands)
+            public SetMyCommandsRequest(IEnumerable<BotAction> commands)
                 : base("setMyCommands")
             {
                 Commands = commands;

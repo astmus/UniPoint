@@ -6,7 +6,7 @@ using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
-    public class Info : BotCommand<InfoUnit>, IBotCommand
+    public record Info : BotCommand<InfoUnit>, IBotCommand
     {
         public override string Command => nameof(Info);
     }
