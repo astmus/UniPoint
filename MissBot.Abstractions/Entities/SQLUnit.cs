@@ -7,9 +7,9 @@ using MissBot.Abstractions.DataAccess;
 
 namespace MissBot.Abstractions.Entities
 {
-    public abstract record SQLEntity : BotEntity,  ISQL
+    public abstract record SQLEntity : BotEntity,  ISQLUnit
     {
         public abstract SQLCommand Command { get; }
-        public SQLResult Result { get; internal set; }
+        public SQLResult Result { get; set; }
     }
 }

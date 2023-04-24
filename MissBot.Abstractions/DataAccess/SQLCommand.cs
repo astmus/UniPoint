@@ -75,16 +75,18 @@ namespace MissBot.Abstractions.DataAccess
             public const string JSONPath = "{0} FOR JSON PATH";
             public const string JSONRoot = ", ROOT('{0}')";
         }
-        public static SQLCommand Entities<TEntity>(FieldNamesSelector<TEntity> fields = default)
-            => new SQLCommand($"{SQL.AllUnits} WHERE Entity = '{Unit<TEntity>.EntityName}'", fields?.Invoke(default(TEntity)));// .Replace("*", fields.SqlFields()));
+
+        public static SQLUnit<TEntity> Entities<TEntity>(FieldNamesSelector<TEntity> fields = default) where TEntity:class
+            => new SQLUnit<TEntity>(new SQLCommand($"{AllUnits} WHERE Entity = '{Unit<TEntity>.EntityName}'", fields?.Invoke(default(TEntity))));
         public static SQLCommand Entity<TEntity>(FieldNamesSelector<TEntity> fields = default)
-            => new SQLCommand($"{SQL.FirstUnit} WHERE Entity = '{Unit<TEntity>.EntityName}'", fields?.Invoke(default(TEntity)), SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new SQLCommand($"{FirstUnit} WHERE Entity = '{Unit<TEntity>.EntityName}'", fields?.Invoke(default(TEntity)), SQLType.JSONPath | SQLType.JSONNoWrap);
         public static SQLCommand Command<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
-            => new SQLCommand($"{SQL.FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields);
+            => new SQLCommand($"{FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields);
         public static SQLUnit<TCommand> CommandUnit<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
-            => new SQLUnit<TCommand>(new SQLCommand($"{SQL.FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields));
+            => new SQLUnit<TCommand>(new SQLCommand($"{FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields));
         public static SQLCommand Parse(string sql)
             => sql;
+
         public static string Templated(string template, string sql)
             => string.Format(template, sql);
         public static SQLCommand Parse<TEntity>(TEntity entity)
@@ -98,9 +100,11 @@ namespace MissBot.Abstractions.DataAccess
     }
     public static class SQLExtensions
     {
-        public static string SqlFields(this IEnumerable<string> selectFields)
+        //public static SQLUnit<TUnit> ToUnit<TUnit>(this SQLCommand command) where TUnit:class
+        //    => new SQLUnit<TUnit>(command);
+        internal static string SqlFields(this IEnumerable<string> selectFields)
             => string.Join(',', selectFields);
-        public static string ApplySqlFields(this IEnumerable<string> selectFields, string sql)
+        internal static string ApplySqlFields(this IEnumerable<string> selectFields, string sql)
             => sql.Replace("*", selectFields.SqlFields());
         internal static string ApplyFields(this string sql, IEnumerable<string> fields) => fields?.Count() switch
         {

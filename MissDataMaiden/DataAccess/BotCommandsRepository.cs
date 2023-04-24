@@ -1,19 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BotService;
-using MediatR;
-using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.DataAccess;
-using MissBot.DataAccess.Sql;
-using MissCore.Bot;
-using MissDataMaiden.Queries;
-using Newtonsoft.Json;
 
 namespace MissDataMaiden.DataAccess
 {
@@ -47,21 +35,17 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
-            //var query = SqlQuery<TEntityType>.Instance with
-            //{ sql = SQL<BotCommand>.Sample.Command };//  .Query.cmd};
-
-            var result = await HandleSqlQueryAsync<Unit<TEntityType>.Collection>(BotContext.AllCommands.Command);
-            //var result = (await query.Handle()).Where(w => w is TEntityType).Cast<TEntityType>().ToList();
-            //lastResult = result.FirstOrDefault();
+            
+            var result = await HandleSqlQueryAsync<Unit<TEntityType>.Collection>(SQL.Entities<TEntityType>());
+           
             return result;
         }
 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
-        {
-            
-            var sql = SQL.Command<TEntityType>(); // BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Command;
-            var cmd = await HandleSqlQueryAsync<BotEntity<TEntityType>.Collection>(sql);
-            return cmd.FirstOrDefault();
+        {            
+            var sql = SQL.CommandUnit<TEntityType>(); // BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Command;
+            var cmd = await HandleSqlQueryAsync<TEntityType>(sql);
+            return cmd;
         }
 
         public TCommand GetByName<TCommand>(string name) where TCommand : BotCommand

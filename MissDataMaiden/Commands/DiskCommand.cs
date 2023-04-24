@@ -76,10 +76,7 @@ namespace MissDataMaiden.Commands
             //Unit<Disk>.MetaData
             response.WriteMetadata(Unit<Disk>.Meta);
             var sqlQuery = SQL.CommandUnit<Disk>();//.Query<Disk>.Instance with { Entity = command };
-            //    sqlQuery.
-
-            var sql = sqlQuery.Command;
-            sql.Type = SQLType.JSONPath;
+            
             var results = await repository.HandleQueryItemsAsync<Disk.Dto>(sqlQuery);
 
             foreach (var obj in results)

@@ -14,45 +14,6 @@ using Newtonsoft.Json;
 
 namespace MissBot.DataAccess.Sql
 {
-    //public delegate IEnumerable<string> FieldNamesSelector<TUnit>(TUnit entity);
-    public record SQL<TUnit>(string rawSql = default) : SQLUnit
-    {
-        public TUnit Entity { get; init; } = Unit<TUnit>.Sample;
-        public static readonly string EntityName = typeof(TUnit).Name;
-
-        public virtual SQLUnit GetCommand()
-            => this;
-        public override SQLCommand Command
-            => rawSql != null ? rawSql : SQL.Parse<TUnit>(Entity);
-        SQLCommand request;
-
-        public static SQL<TUnit> Create(FieldNamesSelector<TUnit> selector)
-            => new Query(selector);
-
-        public record Query(FieldNamesSelector<TUnit> selector) : SQL<TUnit>
-        {
-            IEnumerable<string> selectFields
-                => selector(default(TUnit));
-
-            public override SQLCommand Command
-                => SQL.Entities<TUnit>(selector);
-        }
-        public record Query<TResult>(FieldNamesSelector<TResult> selector = default) : SQL<TUnit> where TResult: TUnit
-        {
-            IEnumerable<string> selectFields
-                => selector(default(TResult));
-
-            public static readonly Query<TResult> Instance = new Query<TResult>();
-            public override SQLCommand Command
-                => SQL.Entity<TResult>(selector);//  $"{SQL.SelectFromUnits} WHERE Entity = '{typeof(TUnit).Name}'".Replace("*", string.Join(',', selectFields));
-        }
-        public record Request : SQL<TUnit>
-        {
-            public override SQLCommand Command
-                => $"{SQL.AllUnits} WHERE Entity = '{typeof(TUnit).Name}'";
-        }
-    }
-
     public abstract class SQLContext : SQLDataContext
     {
         public SQLContext() 
@@ -80,22 +41,28 @@ namespace MissBot.DataAccess.Sql
                 await connection.CloseAsync();
             }
         }
-        //public virtual async Task<int> HandleSqlQueryAsync(SQLCommand sql, CancellationToken cancel = default)
-        //    => await HandleQueryAsync<TScalar>(sql.Command, cancel);
 
-        public virtual async Task<TResult> HandleQueryAsync<TResult>(string sql, CancellationToken cancel = default) where TResult : class
+
+        public virtual async Task<TResult> HandleQueryAsync<TResult>(ISQLUnit sql, CancellationToken cancel = default) where TResult : class
         {
             TResult result = default(TResult);
-            using (var connection = DataProvider.CreateConnection(GetConnectionString()))
+            try
             {
-                await connection.OpenAsync();
-                using (var cmd = connection.CreateCommand())
+                using (var connection = DataProvider.CreateConnection(GetConnectionString()))
                 {
-                    cmd.CommandText = sql;
-                    if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
-                        result = JsonConvert.DeserializeObject<TResult>(res);
+                    await connection.OpenAsync();
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = sql.Command;
+                        if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
+                            result = JsonConvert.DeserializeObject<TResult>(res);
+                    }
+                    await connection.CloseAsync();
                 }
-                await connection.CloseAsync();
+            }
+            catch (Exception error)
+            {
+                sql.Result = new SQLResult(Convert.ToUInt32(result), error.HResult, error.Message);
             }
             return result;
         }        

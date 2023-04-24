@@ -25,7 +25,7 @@ namespace MissBot.DataAccess
             => config = configuration;  
        
 
-        public async Task<TResult> HandleSqlQueryAsync<TResult>(SQLCommand sql, CancellationToken cancel = default) where TResult:class
+        public async Task<TResult> HandleSqlQueryAsync<TResult>(ISQLUnit sql, CancellationToken cancel = default) where TResult:class
         {
             return await base.HandleQueryAsync<TResult>(sql, cancel);
         }

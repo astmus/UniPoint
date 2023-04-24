@@ -11,7 +11,7 @@ namespace MissBot.Abstractions.DataAccess
     public interface ISqlRepository : IRepository
     {
         Task ExecuteCommandAsync(SQLUnit sql, CancellationToken cancel = default);
-        Task<TResult> HandleSqlQueryAsync<TResult>(SQLCommand sql, CancellationToken cancel = default) where TResult:class;
+        Task<TResult> HandleSqlQueryAsync<TResult>(ISQLUnit sql, CancellationToken cancel = default) where TResult:class;
     }
    
 

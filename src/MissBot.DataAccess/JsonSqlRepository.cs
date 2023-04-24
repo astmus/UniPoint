@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using LinqToDB.Common.Internal;
-using LinqToDB.Linq.Builder;
 using Microsoft.Extensions.Configuration;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MissBot.DataAccess
@@ -21,17 +13,17 @@ namespace MissBot.DataAccess
         }
 
        
-        public async Task<TResult> HandleQueryAsync<TResult>(SQLUnit sql, CancellationToken cancel = default) where TResult : class
+        public override async Task<TResult> HandleQueryAsync<TResult>(ISQLUnit sql, CancellationToken cancel = default) where TResult : class
         {
-            return await HandleSqlQueryAsync<TResult>(sql.Command, cancel);            
+            return await HandleSqlQueryAsync<TResult>(sql, cancel);            
         }
 
-        public async Task<ICollection<TResult>> HandleQueryItemsAsync<TResult>(SQLUnit sql, CancellationToken cancel) where TResult:class
+        public async Task<ICollection<TResult>> HandleQueryItemsAsync<TResult>(ISQLUnit sql, CancellationToken cancel) where TResult:class
         {            
-            return await HandleSqlQueryAsync<Unit<TResult>.Collection>(sql.Command, cancel);
+            return await HandleSqlQueryAsync<Unit<TResult>.Collection>(sql, cancel);
         }
 
-        public async Task<JArray> HandleQueryGenericItemsAsync(SQLUnit sql, CancellationToken cancel = default)
+        public async Task<JArray> HandleQueryGenericItemsAsync(ISQLUnit sql, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder("[");
             await HandleAsync(sql.Command,  result, cancel);
@@ -39,7 +31,7 @@ namespace MissBot.DataAccess
             return JArray.Parse(result.ToString());
         }
 
-        public async Task<JObject> HandleQueryGenericObjectAsync(SQLUnit sql, CancellationToken cancel = default)
+        public async Task<JObject> HandleQueryGenericObjectAsync(ISQLUnit sql, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder();
             await HandleAsync(sql.Command, result, cancel);
@@ -48,9 +40,6 @@ namespace MissBot.DataAccess
 
         protected virtual async Task HandleAsync(string sql, StringBuilder result, CancellationToken cancellationToken = default)
         {
-            
-
-
             using (var conn = DataProvider.CreateConnection(GetConnectionString()))
             {
                 using (var cmd = conn.CreateCommand())

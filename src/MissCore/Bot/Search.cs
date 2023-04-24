@@ -17,7 +17,7 @@ namespace MissCore.Bot
 
     }
     public record Filter(int skip, int take, string predicat);
-    public record Search<TEntity> : SQL<TEntity>
+    public record Search<TEntity> : SQL<TEntity> where TEntity:class
     {
         public Filter Filter { get; protected set; } = new Filter(0, 15, "");
         public override SQLCommand Command
