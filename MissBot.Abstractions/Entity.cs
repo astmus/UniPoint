@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace MissBot.Abstractions
 {
+    public delegate IEnumerable<string> FieldNamesSelector<TUnit>(TUnit entity);
     [JsonArray]
     public record Union<TUnit> : BotEntity<TUnit>.Union , IList<TUnit>
     {
@@ -94,35 +95,49 @@ namespace MissBot.Abstractions
     }
 
     [JsonObject]
+    public record ContentUnit<TEntity> : Unit
+    {
+        Union<TEntity> content;
+        public Union<TEntity> Content
+        {
+            get =>
+                content ?? (content = new Union<TEntity>());
+            set => content = value;
+        }
+
+        public static readonly Empty Default = new Empty("0");
+        public record Empty(object Id, string Text = "Empty", string Title = "Not found") : Unit(Id)
+        {
+            public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
+        }
+    }
+
+    [JsonObject]
     public record Unit<TEntity> : ValueUnit, IFormattable, ICollection<TEntity>
     {
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
-        internal static string EntityName;
+        internal static readonly string EntityName = typeof(TEntity).Name;
         static readonly Unit<TEntity>.MetaUnit _metaUnit;
+        public record Collection : Union<TEntity>;
+
         Union<TEntity> content;
-
-        public override sealed bool IsSimpleUnit()
-            => false;
-        protected virtual void InvalidateMetaData(TEntity unit){ }
-
-        static Unit()
-        {        
-            EntityName = typeof(TEntity).Name;
-        }
         public Union<TEntity> Content
         {
             get =>
                 content ?? (content = new Union<TEntity>());
                 set => content = value;
         }
+
+        public override sealed bool IsSimpleUnit()
+            => false;
+        protected virtual void InvalidateMetaData(TEntity unit){ }
+
+        
         public Unit<TEntity>.MetaUnit MetaData
             => Meta with { Content = EntityName, Data = Meta.Data ?? GetMetaData() };
 
-        public static readonly Empty EmptyContent = new Empty();
-        public record Empty(string Id = "0", string Text = "Empty", string Title = "Not found") : Unit(Id, Text,Title)
-        {
-            public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
-        }
+        
+        
 
 
         public static readonly Unit<TEntity> Instance

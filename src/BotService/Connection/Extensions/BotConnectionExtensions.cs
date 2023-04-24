@@ -26,15 +26,15 @@ namespace BotService.Connection.Extensions
         //            .ConfigureAwait(false);
         public static async Task SyncCommandsAsync(
                 this IBotConnection botClient,
-                IEnumerable<IBotCommandInfo> commands,
+                IEnumerable<IBotCommand> commands,
                 BotCommandScope scope = default,
                 string languageCode = default,
                 CancellationToken cancellationToken = default
             ) 
             {
-            var s = JsonConvert.SerializeObject(new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.Command, Description = s.Description })));
+            var s = JsonConvert.SerializeObject(new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description })));
                await botClient.MakeRequestAsync(
-                        request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s=> new BotCommand() { Command = s.Command, Description = s.Description }))
+                        request: new Telegram.Bot.Requests.SetMyCommandsRequest(commands.Select(s=> new BotCommand() { Command = s.CommandAction, Description = s.Description }))
                         {
                             Scope = scope,
                             LanguageCode = languageCode

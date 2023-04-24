@@ -16,8 +16,8 @@ namespace MissBot.Abstractions.DataAccess
         Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : TEntity;
     }
 
-    public interface IBotCommandsRepository : IRepository<BotAction>
+    public interface IBotCommandsRepository : IRepository<BotCommand>
     {
-        TCommand GetByName<TCommand>(string name) where TCommand : BotAction;
+        TCommand GetByName<TCommand>(string name) where TCommand : BotCommand;
     }
 }

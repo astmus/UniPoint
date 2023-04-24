@@ -1,33 +1,25 @@
-using MissBot.Attributes;
 using MissBot.Abstractions;
-using MissDataMaiden.Queries;
-using Duende.IdentityServer.Services;
-using Telegram.Bot.Types.ReplyMarkups;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using MissCore.Entities;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using MediatR;
-using MissBot.Common;
-using MissBot.Extensions.Response;
 using MissBot.Abstractions.DataAccess;
-using Telegram.Bot.Types;
-using BotService;
-using MissCore.Bot;
-using MissBot.DataAccess.Sql;
-using System.Security.Cryptography;
 using MissBot.Abstractions.Entities;
+using MissBot.Common;
+using MissBot.DataAccess.Sql;
+using MissBot.Extensions.Response;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden.Commands
 {
     [JsonObject]
-    public record Disk : BotCommand<Disk>, IBotCommand
+    public record Disk : BotCommandUnit
     {
         static  Disk()
         {
             //Unit<Disk>.Meta.Instance["Title"] = $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
         }
-        public override string Command => nameof(Disk);
+        public override string CommandAction => nameof(Disk);
+
+        public override string Entity
+            => nameof(BotCommand);
 
         [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
         public record Dto : Unit<Disk>
@@ -83,12 +75,12 @@ namespace MissDataMaiden.Commands
             IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
             response.WriteMetadata(Unit<Disk>.Meta);
-            var sqlQuery = new  SQL<Disk>.Query(f => f.Payload) { Entity = command };
+            var sqlQuery = SQL.CommandUnit<Disk>();//.Query<Disk>.Instance with { Entity = command };
             //    sqlQuery.
 
-            var sql = sqlQuery.SQLTemplate;
-            sql.Type = SQLJson.Path;
-            Unit<Disk.Dto> results = await repository.HandleQueryItemsAsync<Disk.Dto>(sql);
+            var sql = sqlQuery.Command;
+            sql.Type = SQLType.JSONPath;
+            var results = await repository.HandleQueryItemsAsync<Disk.Dto>(sqlQuery);
 
             foreach (var obj in results)
             {

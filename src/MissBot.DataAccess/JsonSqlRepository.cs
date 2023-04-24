@@ -21,17 +21,17 @@ namespace MissBot.DataAccess
         }
 
        
-        public override async Task<TResult> HandleQueryAsync<TResult>(SQL sql, CancellationToken cancel = default) where TResult : class
+        public async Task<TResult> HandleQueryAsync<TResult>(SQLUnit sql, CancellationToken cancel = default) where TResult : class
         {
-            return await HandleScalarQueryAsync<TResult>(sql, cancel);            
+            return await HandleSqlQueryAsync<TResult>(sql.Command, cancel);            
         }
 
-        public async Task<Unit<TResult>> HandleQueryItemsAsync<TResult>(SQL sql, CancellationToken cancel) where TResult:class
+        public async Task<ICollection<TResult>> HandleQueryItemsAsync<TResult>(SQLUnit sql, CancellationToken cancel) where TResult:class
         {            
-            return await HandleScalarQueryAsync<Unit<TResult>>(sql, cancel);
+            return await HandleSqlQueryAsync<Unit<TResult>.Collection>(sql.Command, cancel);
         }
 
-        public async Task<JArray> HandleQueryGenericItemsAsync(SQL sql, CancellationToken cancel = default)
+        public async Task<JArray> HandleQueryGenericItemsAsync(SQLUnit sql, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder("[");
             await HandleAsync(sql.Command,  result, cancel);
@@ -39,7 +39,7 @@ namespace MissBot.DataAccess
             return JArray.Parse(result.ToString());
         }
 
-        public async Task<JObject> HandleQueryGenericObjectAsync(SQL sql, CancellationToken cancel = default)
+        public async Task<JObject> HandleQueryGenericObjectAsync(SQLUnit sql, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder();
             await HandleAsync(sql.Command, result, cancel);

@@ -1,6 +1,6 @@
-  IF OBJECT_ID(N'tempdb..##BotActions') IS NOT NULL
-    DROP TABLE ##BotActions
-CREATE table ##BotActions
+  IF OBJECT_ID(N'tempdb..##BotUnits') IS NOT NULL
+    DROP TABLE ##BotUnits
+CREATE table ##BotUnits
 (
     Entity      varchar(32),
     Command     varchar(32),
@@ -8,17 +8,16 @@ CREATE table ##BotActions
     Description varchar(256)  null,
     Payload     varchar(2048) null
 )
-SELECT *
-FROM ##BotActions
 
-INSERT INTO ##BotActions
+
+INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/info', '/{0}', 'Basic DBs information',
         'select CAST(Id as VARCHAR(15)) as Id, Name, Size, DaysAgo, Created as Description
         from ##DataBase
         where Title like '' %{2}%''
         ORDER BY Title OFFSET {0} ROWS
         FETCH NEXT {1} ROWS ONLY');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/list', '/{0}', 'List of data bases with info', '
         SELECT D.database_id                                               as Id,
                D.name                                                      as Name,
@@ -30,7 +29,7 @@ VALUES ('BotCommand', '/list', '/{0}', 'List of data bases with info', '
         WHERE D.name NOT IN ("model", "tempdb", "msdb", "master")
         GROUP BY create_date, D.name, d.database_id
         ');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
         'SELECT DISTINCT dovs.logical_volume_name                                                                                                      AS Name,
                         dovs.volume_mount_point                                                                                                       AS Drive,
@@ -40,19 +39,19 @@ VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
                         CONVERT(varchar, (CONVERT(NUMERIC(5, 1), 100.0 - ((dovs.available_bytes / CAST(dovs.total_bytes as real) * 100))))) + '' % '' as Perc
         FROM sys.master_files mf
                  CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/test', '/{0}', 'test Command', '');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('Bot', 'Search', '', null,
         'select CAST(Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
 
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'select * from ##Info where Id = {0} ');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
 VALUES ('DataBase ', 'Info ', '{0}.{1}.{2} ', null, 'select * from ##DataBase where Id = {0} ');
-INSERT INTO ##BotActions
-VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'select * from ##Info a inner join ##BotActions Commands on Commands.Entity = a.Info Where a.Id = {0} ');
-INSERT INTO ##BotActions
+INSERT INTO ##BotUnits
+VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'select * from ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
+INSERT INTO ##BotUnits
 VALUES ('DataBase ', ' Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
 
   IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL

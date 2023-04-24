@@ -1,17 +1,12 @@
 
+using MissBot.Abstractions.Actions;
+
 namespace MissBot.Abstractions
 {
     public interface IBotCommandData
     {
-        string Payload { get; set; }
-        string[] Params { get; set; }
+        string Payload { get; set; }        
     }
-
-    public interface IBotCommand : IBotCommandData, IBotCommandInfo
-    {
-
-    }
-
 
     public interface IInlineUnit
     {
@@ -20,9 +15,8 @@ namespace MissBot.Abstractions
         string Title { get;  }
         string Description { get; }
     }
-    public interface IBotCommandInfo
-    {
-        string Command { get; }
+    public interface IBotCommand : IBotAction
+    {        
         string Description { get; }
     }
 }

@@ -25,11 +25,15 @@ namespace MissBot.DataAccess
             => config = configuration;  
        
 
-        public async Task<TScalar> HandleScalarQueryAsync<TScalar>(SQL sql, CancellationToken cancel = default) where TScalar:class
+        public async Task<TResult> HandleSqlQueryAsync<TResult>(SQLCommand sql, CancellationToken cancel = default) where TResult:class
         {
-            return await base.HandleQueryAsync<TScalar>(sql, cancel);
+            return await base.HandleQueryAsync<TResult>(sql, cancel);
         }
-        
+
+        public Task ExecuteCommandAsync(SQLUnit sql, CancellationToken cancel = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions.DataAccess
 {
     public interface ISqlRepository : IRepository
     {
-        Task ExecuteCommandAsync(SQL sql, CancellationToken cancel = default);
-        Task<TScalar> HandleScalarQueryAsync<TScalar>(SQL sql, CancellationToken cancel = default) where TScalar:class;
+        Task ExecuteCommandAsync(SQLUnit sql, CancellationToken cancel = default);
+        Task<TResult> HandleSqlQueryAsync<TResult>(SQLCommand sql, CancellationToken cancel = default) where TResult:class;
     }
    
 

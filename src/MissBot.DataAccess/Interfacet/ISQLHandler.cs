@@ -9,7 +9,6 @@ namespace MissBot.DataAccess.Interfacet
 {
     public interface ISqlHandler
     {
-        Task ExecuteCommandAsync(SQL sql, CancellationToken cancel = default);
-        Task<TScalar> HandleQueryAsync<TScalar>(SQL sql, CancellationToken cancel = default) where TScalar : class;
+        Task<int> HandleSqlCommandAsync(SQLCommand sql, CancellationToken cancel = default);
     }
 }

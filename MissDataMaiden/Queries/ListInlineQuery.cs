@@ -1,22 +1,9 @@
-using MissBot.Attributes;
-using MissBot.Abstractions;
-using MissDataMaiden.Queries;
-using Duende.IdentityServer.Services;
-using Telegram.Bot.Types.ReplyMarkups;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using MissCore.Entities;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
 using MediatR;
-using MissBot.Common;
-using MissBot.Extensions.Response;
-using Telegram.Bot.Types;
-using MissBot.Handlers;
-using Telegram.Bot.Types.InlineQueryResults;
-using MissDataMaiden.Entities;
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Handlers;
 using MissCore.Bot;
-using MissBot.DataAccess.Sql;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.Commands
 {
@@ -25,7 +12,7 @@ namespace MissDataMaiden.Commands
     //{
     //    public string EntityAction { get; set; }
     //    public string Payload { get; set; }
- 
+
     //    //public record DbListInlineUnit : InlineUnit<DataBase>
     //    //{
     //    //    protected override DataBase InvalidateMetadata(InlineUnit<DataBase> unit, DataBase entity)
@@ -64,13 +51,13 @@ namespace MissDataMaiden.Commands
         public async override Task<IEnumerable<ValueUnit>> LoadAsync(int skip, string search)
         {
           
-            payload ??=  (await  repository.HandleQueryAsync<Unit<Search<DataBase>>>(BotContext.Search.SQLTemplate)).Content.FirstOrDefault();
+            payload ??=  (await  repository.HandleQueryAsync<Search<DataBase>>(BotContext.Search));
 
             resultFilter = payload.Filter;
             var items = await repository.HandleQueryItemsAsync<InlineDataBase>(
                 payload.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search ?? "" }));
          
-            return items?.Content;
+            return items;
              
         }
      

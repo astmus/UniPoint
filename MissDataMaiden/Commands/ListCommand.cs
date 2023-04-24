@@ -1,15 +1,12 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissCore.Entities;
-using MissDataMaiden.Commands;
-using MissDataMaiden.Queries;
 
 namespace MissDataMaiden
 {
-    public record List : BotCommand<ListUnit>, IBotCommand
+    public record List : BotCommandUnit
     {
-        public override string Command => nameof(List);
+        public override string CommandAction => nameof(List);
     }
     public record ListUnit : BotUnion
     {

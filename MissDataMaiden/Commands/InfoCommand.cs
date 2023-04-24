@@ -1,14 +1,14 @@
 using MediatR;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 using MissCore.Entities;
 using MissDataMaiden.Queries;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden.Commands
 {
-    public record Info : BotCommand<InfoUnit>, IBotCommand
+    public record Info : BotCommandUnit
     {
-        public override string Command => nameof(Info);
+        public override string CommandAction => nameof(Info);
     }
 
     public record InfoUnit(string s) : ValueUnit
@@ -24,9 +24,9 @@ namespace MissDataMaiden.Commands
         public IConfiguration Config { get; }
         
         string connectionString;
-        private const string CFG_KEY_COMMAND = nameof(IBotCommandInfo);
-        private const string CFG_KEY_DESCRIPTION = nameof(IBotCommandInfo.Description);
-        private const string CFG_KEY_PARAMS = nameof(IBotCommandData.Params);
+        private const string CFG_KEY_COMMAND = nameof(IBotCommand);
+        private const string CFG_KEY_DESCRIPTION = nameof(IBotCommand.Description);
+        //private const string CFG_KEY_PARAMS = nameof(IBotCommand.Params);
         public InfoCommandHadler(IConfiguration config)
         {
            

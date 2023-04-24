@@ -10,9 +10,11 @@ namespace MissCore.Entities
 
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BotCommand<TOfEntity> : BotAction, IBotAction, IBotCommand, IEntityAction<TOfEntity> where TOfEntity:class
+    public abstract record BotEntityAction<TEntity> : BotAction<TEntity>, IBotAction<BotCommand> where TEntity:class
     {
         public string[] Params { get; set; }
+        public string Placeholder { get; set; }
+        public string Payload { get; set; }
     }
 
   

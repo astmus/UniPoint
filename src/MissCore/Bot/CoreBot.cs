@@ -17,38 +17,41 @@ using Newtonsoft.Json;
 namespace MissCore.Bot
 {
     #region Context
-    public class BotContext : LinqToDB.DataContext
+    public class BotContext : SQLDataContext
     {
-        public static SQL<TCommand> Command<TCommand>(TCommand cmd = default, SQLJson type = SQLJson.Path) where TCommand : BotAction
-                => new SQL<TCommand>(u
-                => u is IBotCommand cmd ? $@"SELECT * FROM ##{nameof(BotAction)}s  WHERE Command = '/{cmd.Command.ToLower()}'" : throw new ArgumentException())
-                ;
+        //public static SQL<TCommand> Command<TCommand>(TCommand cmd = default) where TCommand : BotCommand
+        //        => new SQL<TCommand>(u
+        //        => u is IBotCommand cmd ? $@"SELECT * FROM ##{nameof(BotCommand)}s  WHERE Command = '/{cmd.Command.ToLower()}'" : throw new ArgumentException())
+        //        ;
 
-        public readonly static SQL<BotAction> AllCommands
-            = SQL<BotAction>.Create(s => $"SELECT {nameof(s.Command)}, {nameof(s.Description)} FROM ##{nameof(BotAction)}s WHERE Entity = '{nameof(BotCommand)}'");
+        public readonly static SQL<BotCommand> AllCommands
+            = new SQL<BotCommand>.Query(cmd => new[] { nameof(cmd.Command), nameof(cmd.Description) });
 
 
         public static SQL<Search> Search;
 
         public BotContext() { }
-        internal BotContext(ContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
-        internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
-        internal void Init()
+        public BotContext(ContextOptions ctxOptions) : base(ctxOptions) { }
+        //internal record ContextOptions(string? connectionString, string? driverName, Func<DataOptions, DbConnection>? ConnectionFactory, Func<ConnectionOptions, IDataProvider>? DataProviderFactory);
+        internal virtual void Init()
         {
+            Search = new SQL<Search>.Request();// <DataBase> .Create(s => $"SELECT * FROM ##{nameof(BotUnit)}s WHERE Command = 'Search'");
+        }
 
-            Search = SQL<Search>.Create(s => $"SELECT * FROM ##{nameof(BotAction)}s WHERE Command = 'Search'");
-
+        protected override string GetConnectionString()
+        {
+            throw new NotImplementedException();
         }
 
         static readonly internal ContextOptions BotContextOptions
-            = new ContextOptions(null, null, null, null);
+            = new ContextOptions(null, null);
     }
     #endregion
     public abstract class BaseCoreBot : BaseBot
     {
         DbConnection Connection;
         protected BotContext Context { get; set; }
-        public BaseCoreBot(IRepository<BotAction> commandsRepository = default) : base(commandsRepository) { }
+        public BaseCoreBot(IRepository<BotCommand> commandsRepository = default) : base(commandsRepository) { }
 
         public override sealed void Init(IServiceProvider sp)
         {
@@ -71,17 +74,16 @@ namespace MissCore.Bot
         }
         public override async Task<bool> SyncCommands(IBotConnection connection)
         {
-            var unit = await HandleListAsync<BotAction>(BotContext.AllCommands, default);
-            Commands = unit.Content.ToList();
+            Commands = await HandleListAsync<Unit<BotCommand>.Collection>(SQL.Entities<BotCommand>(c => new[] { nameof(c.Command), nameof(c.Description) }));            
             return await base.SyncCommands(connection);
         }
-        protected async Task<Unit<TEntity>> HandleListAsync<TEntity>(SQL<TEntity> sql, CancellationToken cancellationToken = default) where TEntity : class
+        protected async Task<TEntity> HandleListAsync<TEntity>(SQLCommand sql, CancellationToken cancellationToken = default) where TEntity : class
         {
-            Unit<TEntity> result = default(Unit<TEntity>);
+            TEntity result = default(TEntity);
             using (var cmd = Connection.CreateCommand())
             {
-                var c = sql.SQLTemplate;
-                cmd.CommandText = sql.SQLTemplate.Command;
+                
+                cmd.CommandText = sql.Command;
 
                 var reader = await cmd.ExecuteReaderAsync(cancellationToken);
                 if (!reader.HasRows)
@@ -92,7 +94,7 @@ namespace MissCore.Bot
                     try
                     {
                         if (reader.GetString(0) is string str)
-                            result = JsonConvert.DeserializeObject<Unit<TEntity>>(str);
+                            result = JsonConvert.DeserializeObject<TEntity>(str);
 
                     }
                     catch (Exception e)
@@ -110,7 +112,7 @@ namespace MissCore.Bot
             TEntity result = default(TEntity);
             using (var cmd = Connection.CreateCommand())
             {
-                cmd.CommandText = sql.SQLTemplate.Command;
+                cmd.CommandText = sql.Command.Command;
 
                 var reader = await cmd.ExecuteReaderAsync(cancellationToken);
                 if (!reader.HasRows)

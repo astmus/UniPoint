@@ -1,31 +1,20 @@
-using BotService;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using MissBot.Attributes;
-using MissBot.DataAccess.Sql;
-using MissBot.Extensions.Entities;
 using MissBot.Handlers;
 using MissCore.Bot;
 using MissCore.Entities;
-using MissCore.Handlers;
 using MissDataMaiden.Commands;
 using MissDataMaiden.Entities;
-using MissDataMaiden.Queries;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
     internal class MissDataAnswerHandler : InlineAnswerHandler
     {
-        private readonly IMediator mediator;
+
         private readonly IConfiguration config;
-        IMediator mm;
+
         IJsonRepository repository;
         public MissDataAnswerHandler(IJsonRepository jsonRepository, IConfiguration config)
         {
@@ -42,7 +31,7 @@ namespace MissDataMaiden
         //};                 
         
         [JsonObject(MemberSerialization = MemberSerialization.OptOut)]
-        record DataBaseRequest : SQL<DataBase>.Query
+        record DataBaseRequest : Search<DataBase>
         {
             public DataBaseRequest()
             {
@@ -63,37 +52,38 @@ namespace MissDataMaiden
             public string IsReadOnly { get; set; }
 
             public List<EntityAction<DataBase>> Commands { get; set; }
-            public static SQL GetCommand(params object[] args)
+            public static SQLCommand GetCommand(params object[] args)
                 => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", args);
-            public override SQL GetCommand()
-                => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6);
+            //public SQLCommand GetCommand()
+            //    => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6);
 
             //public override Cmd<DataBase> Query { get => this with { cmd = string.Format(Template, Param?.Id ?? sample?.Id) }; }
-            public SQL ToQuery(Func<DataBase, string> init)
-                     => (SQL)init(Entity);
+            public SQLCommand ToQuery(Func<DataBase, string> init)
+                     => init(Entity);
         }
-        public static SQL<TEntity> EntityActions<TEntity>(string commandName) where TEntity : EntityAction<DataBase>
-           => new  SQL<TEntity>( d=> 
-                    $"SELECT * FROM ##{nameof(BotAction)} WHERE Entity = '{nameof(DataBase)}' AND Command = '{commandName}' ");
+        //public static SQL<TEntity> EntityActions<TEntity>(string commandName) where TEntity : EntityAction<DataBase>
+        //   => new  SQL<TEntity>( d=> 
+        //            $"SELECT * FROM ##{nameof(BotAction)} WHERE Entity = '{nameof(DataBase)}' AND Command = '{commandName}' ");
         public override async Task HandleResultAsync(ChosenInlineResult result, IContext<ChosenInlineResult> context)
         {
             int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
             //var request = Unit<DataBaseRequest>.Sample with { Entity = Unit<DataBase>.Sample with { Id = id.ToString() } };
             //Unit<DataBase>.Sample.Id = id.ToString();
                 
-            var dbinco = await repository.HandleQueryItemsAsync<DataBase>(DataBaseRequest.GetCommand(id));
+            //var dbinco = await repository.HandleQueryItemsAsync<DataBase>(DataBaseRequest.GetCommand(id));
 
             var unit = Unit<DataBase>.Meta;
-            
+
             //var detailsRequest =  EntityActions<DBDetails>(nameof(DBAction.Restore));
             //DataBaseRequest.Unit.
-            var sql = DataBaseRequest.Create(f
-                   => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6));
-            var template = sql.SQLTemplate;
-            template.Type = SQLJson.Custom;
-            template.UseContentRoot = false;
+
+            var sql = new DataBaseRequest();//f
+            //       => string.Format($"SELECT * FROM ##Info a  INNER JOIN ##BotActions Commands ON Commands.Entity = a.Info WHERE a.Id = {{0}}", 6));
+            var template = sql.Command;
+            template.Type = SQLType.JSONPath;
+            
             //sql.ContentPropertyName = nameof(DataBase.Detail);
-            var details =  await repository.HandleQueryAsync<DataBaseRequest>(template);
+            var details =  await repository.HandleQueryAsync<DataBaseRequest>(sql);
             var response = context.CreateResponse(result);
             response.WriteMetadata(unit with { Data = Unit <DataBaseDetail>.Parse(unit) } );
            // response.Write(details);

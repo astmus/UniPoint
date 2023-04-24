@@ -9,8 +9,11 @@
 
   <ItemGroup>
     <Compile Remove="Abstractions\**" />
+    <Compile Remove="DataAccess\NewFolder\**" />
     <EmbeddedResource Remove="Abstractions\**" />
+    <EmbeddedResource Remove="DataAccess\NewFolder\**" />
     <None Remove="Abstractions\**" />
+    <None Remove="DataAccess\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,10 +37,6 @@
     <Content Include="Bot\BotInit.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DataAccess\NewFolder\" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

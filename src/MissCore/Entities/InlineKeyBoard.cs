@@ -12,26 +12,19 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record EntityAction<TEntity> : BotAction, IEntityAction<TEntity> where TEntity : class
+    public record EntityAction<TEntity> : BotUnit<TEntity>, IBotAction<TEntity> where TEntity : class
     {
+        public string CommandAction { get; }
+
         public static implicit operator EntityAction<TEntity>(string data)
             => JsonConvert.DeserializeObject< EntityAction<TEntity>>(data );
         public static implicit operator InlineKeyboardButton(EntityAction<TEntity> s) =>
             InlineKeyboardButton.WithCallbackData(s.Command ?? string.Format(s.Placeholder, s.Entity, s.Command, s.Id));
     }
 
-    public record BotEntityAction : IBotCommand
-    {
-        public string Payload { get; set; }
-        public string[] Params { get; set; }
-        public string Description { get; }
-        public string Command { get; set; }
+   
 
-        public string WithCondition(params object[] param)
-            => string.Format(Payload, param);
-    }
-
-    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IEntityAction<TEntity> where TEntity:ValueUnit
+    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IBotAction<TEntity> where TEntity:ValueUnit
     {
         public string Text { get; set; }
         public virtual string Action { get; init; }
@@ -51,7 +44,7 @@ namespace MissCore.Entities
 
         public InlineKeyBoard Append(BotAction action)
         {
-            Add(action);
+           // Add(action);
             return this;
         }        
     }

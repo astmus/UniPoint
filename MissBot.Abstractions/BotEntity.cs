@@ -2,8 +2,10 @@ using System.Collections;
 
 namespace MissBot.Abstractions
 {
-    public static partial class BotEntity<TUnit>
+    public static class BotEntity<TUnit>
     {
+        public record Collection : Union<TUnit>;
+        public record Content : ContentUnit<TUnit>;
         public static TEntityUnit Instance<TEntityUnit>() where TEntityUnit : Unit<TUnit>
             => Unit<TEntityUnit>.Sample;
         public abstract record Response : ResponseMessage<TUnit>;
