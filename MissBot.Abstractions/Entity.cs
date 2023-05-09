@@ -8,216 +8,182 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-
+using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions
 {
     public delegate IEnumerable<string> FieldNamesSelector<TUnit>(TUnit entity);
+    public delegate (string field, string value) WhereSelector<TUnit>(TUnit entity);
+    public delegate void LoadSelector<TUnit>(TUnit entity);
     [JsonArray]
-    public record Union<TUnit> : BotEntity<TUnit>.Union , IList<TUnit>
+    public record Union<TUnit> : Unit<TUnit>.Union, IList<TUnit>
     {
         public void Add<TEntity>(TEntity obj) where TEntity : TUnit
                 => Content.Add(obj);
     }
-    public record BotUnion : ValueUnit, IList<ValueUnit>
-    {
-        public BotUnion(IEnumerable<ValueUnit> units = default)
+
+        public interface IUnitCollection
         {
-            if (units != null)
-                Union.AddRange(units);
+            string ToString();
         }
-        List<ValueUnit> union;
-        protected List<ValueUnit> Union
-            => union ?? (union = new List<ValueUnit>());
-        public int Count => Union?.Count ?? 0;
-        public bool IsReadOnly
-            => false;
-
-        ValueUnit IList<ValueUnit>.this[int index] { get => ((IList<ValueUnit>)Union)[index]; set => ((IList<ValueUnit>)Union)[index] = value; }
-        public BotUnion this[int index] { get => ((IList<BotUnion>)Union)[index]; set => ((IList<BotUnion>)Union)[index] = value; }
-
-        public static implicit operator List<ValueUnit>(BotUnion unit)
-            => unit.Union;
-        public static implicit operator BotUnion(List<ValueUnit> units)
-            => new BotUnion(units);
-        public void Add(ValueUnit obj)
-            => this.Union.Add(obj);
-        public BotUnion Add(params ValueUnit[] units)
-        {
-            Union.AddRange(units);
-            return this;
-        }
-
-
-        public int IndexOf(ValueUnit item)
-        {
-            return ((IList<ValueUnit>)Union).IndexOf(item);
-        }
-
-        public void Insert(int index, ValueUnit item)
-        {
-            ((IList<ValueUnit>)Union).Insert(index, item);
-        }
-
-        public void RemoveAt(int index)
-        {
-            Union?.RemoveAt(index);
-        }
-
-        public void Clear()
-        {
-            ((ICollection<ValueUnit>)Union).Clear();
-        }
-
-        public bool Contains(ValueUnit item)
-        {
-            return ((ICollection<ValueUnit>)Union).Contains(item);
-        }
-
-        public void CopyTo(ValueUnit[] array, int arrayIndex)
-        {
-            ((ICollection<ValueUnit>)Union).CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(ValueUnit item)
-        {
-            return ((ICollection<ValueUnit>)Union).Remove(item);
-        }
-
-        public IEnumerator<ValueUnit> GetEnumerator()
-        {
-            return Union?.GetEnumerator() ?? Enumerable.Empty<ValueUnit>().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
-
-    }
 
     [JsonObject]
-    public record ContentUnit<TEntity> : Unit
-    {
-        Union<TEntity> content;
-        public Union<TEntity> Content
-        {
-            get =>
-                content ?? (content = new Union<TEntity>());
-            set => content = value;
-        }
-
-        public static readonly Empty Default = new Empty("0");
-        public record Empty(object Id, string Text = "Empty", string Title = "Not found") : Unit(Id)
-        {
-            public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
-        }
-    }
-
-    [JsonObject]
-    public record Unit<TEntity> : ValueUnit, IFormattable, ICollection<TEntity>
+    public record Unit<TEntity> : ValueUnit//, //<TEntity>
     {
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
-        internal static readonly string EntityName = typeof(TEntity).Name;
-        static readonly Unit<TEntity>.MetaUnit _metaUnit;
-        public record Collection : Union<TEntity>;
+        internal static readonly string UnitName = typeof(TEntity).Name;
 
-        Union<TEntity> content;
-        public Union<TEntity> Content
-        {
-            get =>
-                content ?? (content = new Union<TEntity>());
-                set => content = value;
-        }
-
-        public override sealed bool IsSimpleUnit()
-            => false;
-        protected virtual void InvalidateMetaData(TEntity unit){ }
-
-        
-        public Unit<TEntity>.MetaUnit MetaData
-            => Meta with { Content = EntityName, Data = Meta.Data ?? GetMetaData() };
-
-        
-        
-
-
-        public static readonly Unit<TEntity> Instance
-            = new Unit<TEntity>();
-        public static readonly Unit<TEntity>.MetaUnit Meta
-            = _metaUnit ??= new MetaUnit(EntityName, ValueUnit.Parse(Sample));
-
-        public object this[string key]
-        {
-            get => MetaInformation[key];
-            set => MetaInformation.Set(value, key);
-        }
-        public override string ToString(string? format, IFormatProvider? formatProvider)
-        {
-            return string.Join('\n', Content.Select(s => $"{EntityName}\n{Stringify(Convert.ToString(s).Split('{', ',', '}'))}"));
-
-        }
-           public static string Stringify(string[] items)
-        => string.Join('\t', from s in items
-                                            where s.Length > 2 && !s.EndsWith("= ")
-                                            select s);
+        public record Collection : Union<TEntity>, IUnitCollection;
+       // public class ContentUnit<TContent> where TContent : Unit<TEntity> { }
+        //public virtual ContentUnit<TEntity> Content { get; set; }
+        public static string Stringify(string[] items)
+            => string.Join('\t', from s in items
+                          where s.Length > 2 && !s.EndsWith("= ")
+                          select s);
         public static string ParseTyped(object value)
-            => Stringify(value.ToString().Split('{', ':',',', '}'));
+            => Stringify(value.ToString().Split('{', ':', ',', '}'));
 
-           
-        
+        #region Union
+        [JsonArray]
+        public record Union : Unit, IList<TEntity>
+        {
+            public Union()
+            {
+
+            }
+            public Union(IEnumerable<TEntity> units = default)
+            {
+                if (units != null)
+                    Content.AddRange(units);
+            }
+            List<TEntity> union;
+            protected List<TEntity> Content
+                => union ?? (union = new List<TEntity>());
+
+            public int Count => ((ICollection<TEntity>)Content).Count;
+
+            public bool IsReadOnly => ((ICollection<TEntity>)Content).IsReadOnly;
+
+            public TEntity this[int index] { get => ((IList<TEntity>)Content)[index]; set => ((IList<TEntity>)Content)[index] = value; }
+
+            public int IndexOf(TEntity item)
+            {
+                return ((IList<TEntity>)Content).IndexOf(item);
+            }
+
+            public void Insert(int index, TEntity item)
+            {
+                ((IList<TEntity>)Content).Insert(index, item);
+            }
+
+            public void RemoveAt(int index)
+            {
+                Content?.RemoveAt(index);
+            }
+
+            public void Clear()
+            {
+                ((ICollection<TEntity>)Content).Clear();
+            }
+
+            public bool Contains(TEntity item)
+            {
+                return ((ICollection<TEntity>)Content).Contains(item);
+            }
+
+            public void CopyTo(TEntity[] array, int arrayIndex)
+            {
+                ((ICollection<TEntity>)Content).CopyTo(array, arrayIndex);
+            }
+
+            public bool Remove(TEntity item)
+            {
+                return ((ICollection<TEntity>)Content).Remove(item);
+            }
+
+            public IEnumerator<TEntity> GetEnumerator()
+            {
+                return Content?.GetEnumerator() ?? Enumerable.Empty<TEntity>().GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
+
+            //public static implicit operator List<TUnit>(Union unit)
+            //    => unit.Units;
+            //public static implicit operator Union(List<TUnit> units)
+            //    => new Union(units);
+
+            public Union Add(params TEntity[] units)
+            {
+                Content.AddRange(units);
+                return this;
+            }
+
+            public void Add(TEntity item)
+            {
+                ((ICollection<TEntity>)Content).Add(item);
+            }
+
+
+        }
+        #endregion
+
         #region IList
 
-        IEnumerator IEnumerable.GetEnumerator()
-        =>
-            Content.GetEnumerator();
+       // IEnumerator IEnumerable.GetEnumerator()
+       // =>
+       //     Content?.GetEnumerator();
 
 
 
-        public int IndexOf(TEntity item)
-        => Content.IndexOf(item);
+       // public int IndexOf(TEntity item)
+       // => Content?.IndexOf(item) ?? -1;
 
 
-        public void Insert(int index, TEntity item)
-        =>
-            Content.Insert(index, item);
+       // public void Insert(int index, TEntity item)
+       // =>
+       //     Content.Insert(index, item);
 
 
-        public void RemoveAt(int index)
-        =>
-            Content.RemoveAt(index);
+       // public void RemoveAt(int index)
+       // =>
+       //     Content.RemoveAt(index);
 
 
-        public void Add(TEntity item)
-        =>
-            Content.Add(item);
+       // public void Add(TEntity item)
+       // =>
+       //     Content.Add(item);
 
 
-        public void Clear()
-            => Content?.Clear();
+       // public void Clear()
+       //     => Content?.Clear();
 
 
-        public bool Contains(TEntity item)
-       => Content?.Contains(item) ?? false;
+       // public bool Contains(TEntity item)
+       //=> Content?.Contains(item)  == true;
 
 
-        public void CopyTo(TEntity[] array, int arrayIndex)
-        =>
-            Content.CopyTo(array, arrayIndex);
+       // public void CopyTo(TEntity[] array, int arrayIndex)
+       // =>
+       //     Content.CopyTo(array, arrayIndex);
 
 
-        public bool Remove(TEntity item)
-        =>
-          Content.Remove(item);
+       // public bool Remove(TEntity item)
+       // =>
+       //   Content.Remove(item);
 
 
-        public IEnumerator<TEntity> GetEnumerator()
-            => Content.GetEnumerator();
+       // public IEnumerator<TEntity> GetEnumerator()
+       //     => Content?.GetEnumerator();
 
 
-        public int Count => Content?.Count ?? 0;
+       // public int Count => Content?.Count ?? 0;
 
-        public bool IsReadOnly =>false;
+       // public bool IsReadOnly => false;
 
-        public TEntity this[int index] { get => Content[index]; set => Content[index] = value; } 
+       // public TEntity this[int index] { get => Content[index]; set => Content[index] = value; }
         #endregion
     }
 }

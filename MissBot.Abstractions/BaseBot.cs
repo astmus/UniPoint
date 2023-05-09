@@ -1,22 +1,22 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using TG = Telegram.Bot.Types;
-using MissBot.Abstractions.Entities;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
-using MissBot.Abstractions.Actions;
+using TG = Telegram.Bot.Types;
 
 namespace MissBot.Abstractions
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract class BaseBot : IBot
+    public abstract class BaseBot :  IBot
     {
         public abstract class Configurator
         {
             public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
+
+
 
         protected  IRepository<BotCommand> commandsRepository;
         public virtual void Init(IServiceProvider sp)

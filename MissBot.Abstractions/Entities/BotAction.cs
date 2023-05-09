@@ -4,13 +4,13 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissBot.Abstractions.Entities
 {
-    public record BotAction<TUnit> : BotEntity, IBotAction<TUnit>
+    public record BotAction<TEntity> : BotEntity, IBotAction<TEntity>
     {
-        public static readonly string UnitName = typeof(TUnit).Name;
+        public static readonly string UnitName = typeof(TEntity).Name;
 
-        public static implicit operator BotAction<TUnit>(string data) =>
-            new BotAction<TUnit>() /*{ Command = data }*/;
-        public static implicit operator InlineKeyboardButton(BotAction<TUnit> s) =>
+        public static implicit operator BotAction<TEntity>(string data) =>
+            new BotAction<TEntity>() /*{ Command = data }*/;
+        public static implicit operator InlineKeyboardButton(BotAction<TEntity> s) =>
             InlineKeyboardButton.WithCallbackData(s.CommandAction, string.Format(s.Placeholder, $"{s.Entity}.{s.CommandAction}.{s.Id}"));
         [JsonProperty]
         public string Id { get; init; }

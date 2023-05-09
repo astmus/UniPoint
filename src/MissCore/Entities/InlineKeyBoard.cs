@@ -12,7 +12,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Entities
 {
-    public record EntityAction<TEntity> : BotUnit<TEntity>, IBotAction<TEntity> where TEntity : class
+    public record EntityAction<TEntity> : MissBot.Abstractions.Entities.BotUnit2<TEntity>, IBotAction<TEntity> where TEntity : class
     {
         public string CommandAction { get; }
 

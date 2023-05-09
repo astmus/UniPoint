@@ -22,13 +22,8 @@ namespace MissBot.Abstractions.Entities
             => Command;
     }
 
-    public class BotCommandList : List<BotCommand>
-    { }
 
-    public static class BotCommand<TCommand> where TCommand : BotCommand
-    {
-        public static readonly string Name = typeof(TCommand).Name.ToLower();
-    }
+
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record BotCommandUnit : BotCommand, IBotUnit

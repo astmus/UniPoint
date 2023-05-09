@@ -20,18 +20,18 @@ namespace MissBot.Abstractions.Entities
 
     public record BotUnit : Unit, IBotUnit
     {
-        //public string Entity { get; set; }        
+        public virtual string Entity { get; }        
         public string Command { get; set; }
         public string Placeholder { get; set; }
         public string Description { get; set; }
         public string Payload { get; set; }
     }
 
-    public abstract record BotUnit<TEntity>(TEntity Unit = default) : BotUnit
+    public  record BotUnit2<TEntity>(TEntity Unit = default) : BotUnit
     {
         public static readonly string EntityName = typeof(TEntity).Name;
         [JsonProperty]
-        public string Entity
+        public override string Entity
             => EntityName;
 
     }

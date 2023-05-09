@@ -27,7 +27,6 @@ namespace BotService
         { get; init; }
         
 
-        protected User info;
         TBot Bot;
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -44,7 +43,7 @@ namespace BotService
                 Bot.Init(botScopeServices);
                 await Bot.SyncCommands(client);
                 //await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
-                _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {info}");
+                _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {Bot}");
             }
             catch (Exception ex)
             {

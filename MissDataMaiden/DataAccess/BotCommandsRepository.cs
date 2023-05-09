@@ -5,7 +5,7 @@ using MissBot.DataAccess;
 
 namespace MissDataMaiden.DataAccess
 {
-    public class BotCommandsRepository : SqlRepository, IBotCommandsRepository
+    public class BotCommandsRepository : BotRepository, IBotCommandsRepository
     {
         
         IEnumerable<BotCommand> commands;
@@ -29,22 +29,22 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            commands = await HandleSqlQueryAsync<Unit<BotCommand>.Collection>(SQL.Entities<BotCommand>());
+            commands = await HandleCommandAsync<Unit<BotCommand>.Collection>(MissBot.Abstractions.DataAccess.Unit.Entities<BotCommand>());
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
             
-            var result = await HandleSqlQueryAsync<Unit<TEntityType>.Collection>(SQL.Entities<TEntityType>());
+            var result = await HandleCommandAsync<Unit<TEntityType>.Collection>(MissBot.Abstractions.DataAccess.Unit.Entities<TEntityType>());
            
             return result;
         }
 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
         {            
-            var sql = SQL.CommandUnit<TEntityType>(); // BotContext.Command<TEntityType>(Unit<TEntityType>.Sample).Command;
-            var cmd = await HandleSqlQueryAsync<TEntityType>(sql);
+            var sql = MissBot.Abstractions.DataAccess.Unit.Command<TEntityType>();
+            var cmd = await HandleCommandAsync<TEntityType>(sql);
             return cmd;
         }
 

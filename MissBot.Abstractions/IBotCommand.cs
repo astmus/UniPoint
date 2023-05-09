@@ -10,8 +10,8 @@ namespace MissBot.Abstractions
 
     public interface IInlineUnit
     {
-        string Content { get; }
-        int Id { get; }
+        object Content { get; }
+        string Id { get; }
         string Title { get;  }
         string Description { get; }
     }

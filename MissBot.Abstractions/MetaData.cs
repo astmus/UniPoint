@@ -1,33 +1,42 @@
 using System.Collections.Concurrent;
+using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 
 namespace MissBot.Abstractions
 {
-    public class MetaData : ConcurrentDictionary<string, object>
+    public class MetaData : NameValueCollection
     {
-        public T Get<T>([CallerMemberName] string name = default)
+        ConcurrentDictionary<string, object> dictionary = new ConcurrentDictionary<string, object>();
+        internal IEnumerable<KeyValuePair<string, object>> KeyPairs
+                => dictionary;
+        public string GetByName([CallerMemberName] string name = default)
         {
-            if (TryGetValue(name, out var r) && r is T value)
-                return value;
-            return default(T);
+           return this[name];
         }
         public override string ToString()
             =>
-                Count > 0 ? string.Join(':', this.OrderBy(ob => ob.Key).Select(s => Convert.ToString(s.Key + "     ").PadRight(10)[0..10])) : base.ToString() ;
-        
-        public TAny FirstOrNull<TAny>(string name)
-            => this.Where(x => x.Key == name && x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();
-        public object? AnyFirst(string name)
-            => this.Where(x => x.Key == name).Select(s => s.Value).FirstOrDefault();
-        public IEnumerable<(string, string)> GetAll()
-            => this.OrderBy(ob => ob.Key).Select(s => (s.Key, Convert.ToString(s.Value)));
-        public T Set<T>(T value, [CallerMemberName] string name = default)
+                Count > 0 ? string.Join(':', this.AllKeys.Select(key => key)) : base.ToString();
+
+        //public void Set<T>(string name, T value)
+        //    =>  this[name] = Convert.ToString(value);
+
+        public T Get<T>(string name)
         {
-            AddOrUpdate<T>(name,
-                (k, w) => w,
-                (k, o, w) => this[k] = w,
-                value);
-            return value;
+            var result = default(T);
+            if (dictionary.TryGetValue(name, out var r) && r is T reference)
+                result = reference;
+            return result;
         }
+        //public object Get(string name)
+        //{
+        //    if (dictionary.TryGetValue(name, out var r) && r is not null)
+        //        return r;
+        //    else return string.Empty;
+        //}
+
+        public T Set<T>(string name, T value)
+            => (T)dictionary.AddOrUpdate(name,
+                    (k, w) => w,
+                    (k, o, w) => dictionary[k] = w, value);
     }
 }

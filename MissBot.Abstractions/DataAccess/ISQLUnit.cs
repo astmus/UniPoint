@@ -1,20 +1,10 @@
 namespace MissBot.Abstractions.DataAccess
 {
-    public interface ISQL<in TUnit> : ISQLUnit
+    
+    public interface IQueryUnit<in TResultUnit>
     {
-        TResult GetResponse<TResult>(ISQLQuery<TUnit>query, CancellationToken cancel = default) where TResult:TUnit ;
+        Task<TResult> GetResponseAsync<TResult>(IRepository repository, CancellationToken cancel = default) where TResult: TResultUnit;
+        Task<ICollection<TResult>> GetResponseItemsAsync<TResult>(IRepository repository, CancellationToken cancel = default) where TResult : TResultUnit;
     }
-
-    public interface ISQLQuery<out TResult> : ISQLUnit
-    {
-        TResult Response { get; }
-    }
-
-    public interface ISQLUnit
-    {
-        //ISQLResponse<TResult> GetResponse<TResult>(TResult result = default);
-        //void SetResult<TResult>(TResult result = default, int errorCode = 0, string description = default);
-        SQLResult Result { get; set; }
-        SQLCommand Command { get; }
-    }
+    
 }

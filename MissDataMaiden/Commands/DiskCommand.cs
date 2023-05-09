@@ -60,12 +60,15 @@ namespace MissDataMaiden.Commands
             //SQL < Disk.Dto >.
                 this.repository = repository;
         }
+        public readonly record struct Id(object id);
         static DiskCommandHandler()
         {
-            Unit<Disk>.Instance["2"] =
+            
+            //Unit<Disk>.Instance.MetaData["2"] =
             //Disk.Dto.MetaData = Content => 
-            $"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
-            Unit<Disk>.Instance["1"] = nameof(Disk);
+            //$"{nameof(Disk.Dto.Name).Shrink(10)}    {nameof(Disk.Dto.Drive)}    {nameof(Disk.Dto.Free)}    {nameof(Disk.Dto.Used)}    {nameof(Disk.Dto.Total)}    {nameof(Disk.Dto.Perc)}";
+            //Unit<Disk>.Instance.MetaData["1"] = nameof(Disk);
+
         }
 
         
@@ -74,16 +77,19 @@ namespace MissDataMaiden.Commands
         {
             IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
-            response.WriteMetadata(Unit<Disk>.Meta);
-            var sqlQuery = SQL.CommandUnit<Disk>();//.Query<Disk>.Instance with { Entity = command };
-            
-            var results = await repository.HandleQueryItemsAsync<Disk.Dto>(sqlQuery);
-
-            foreach (var obj in results)
+            //response.WriteMetadata(Unit<Disk.Dto>.TypeMeta);
+            var sqlQuery = SQLUnit<Disk.Dto>.Instance with { Command = command.Payload };
+            if (await sqlQuery.GetResponseItemsAsync<Disk.Dto>(repository) is ICollection<Disk.Dto> result)
             {
-                //obj.AddMetaData();
-                response.Write(obj);
+                foreach (var obj in result)
+                {
+                    //obj.AddMetaData();
+                    response.Write(obj);
+                }
             }
+            else if (sqlQuery.Result is RequestResult error)
+                response.WriteError(error);
+            
             await response.Commit(default);
         }  
     }

@@ -37,32 +37,36 @@ namespace MissBot.Common
             Init(update, sender);
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
         {
             WriteUnit(unit);
         }
 
         public void WriteResult<TUnitData>(TUnitData units) where TUnitData : IEnumerable<ValueUnit>
         {
-            foreach (var unit in units)
-                Write(unit);
+            //foreach (var unit in units)
+            //    Write(unit);
         }
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : ValueUnit
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
         {
-            foreach (var unit in units)
-                Write(unit);
+            //foreach (var unit in units)
+            //    Write(unit);
         }
 
         protected virtual Response<T> WriteUnit(ValueUnit unit)
-        {          
-            
-            Text += Unit<T>.ParseTyped(unit);
+        {            
+            Text += unit?.ToString();
             return this;
         }
 
-        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : Unit<TMetaData>.MetaUnit
+        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : MetaData
         {
-            Text += Unit < T >.ParseTyped(meta.Data)+"\n";
+            Text += Unit < T >.ParseTyped(meta)+"\n";
+        }
+
+        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : Unit
+        {
+            Text += unit.ToString();
         }
     }
 

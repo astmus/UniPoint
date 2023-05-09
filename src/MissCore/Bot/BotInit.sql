@@ -42,24 +42,24 @@ VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/test', '/{0}', 'test Command', '');
 INSERT INTO ##BotUnits
-VALUES ('Bot', 'Search', '', null,
-        'select CAST(Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
+VALUES ('Feature', 'SearchDataBase', '', null,
+        'SELECT CAST(Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
 
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'select * from ##Info where Id = {0} ');
+VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info where Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', 'Info ', '{0}.{1}.{2} ', null, 'select * from ##DataBase where Id = {0} ');
+VALUES ('DataBase ', 'Info ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##DataBase where Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'select * from ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
+VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', ' Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
+VALUES ('DataBase ', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
 
   IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase
 
 SELECT *
 INTO ##DataBase
-from (select 'DataBase' as EntityName , D.database_id as Id, D.name as Name, cast(D.create_date as varchar(17)) as Created, CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo], CONVERT(decimal(10,2), round(SUM(F.size*8)/1024.0,1)) AS Size  FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master') GROUP BY create_date, D.name, d.database_id) dbs
+FROM (select 'DataBase' as EntityName , D.database_id as Id, D.name as Name, cast(D.create_date as varchar(17)) as Created, CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo], CONVERT(decimal(10,2), round(SUM(F.size*8)/1024.0,1)) AS Size  FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master') GROUP BY create_date, D.name, d.database_id) dbs
 
 USE      DBs
 

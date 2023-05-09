@@ -1,24 +1,27 @@
 using LinqToDB;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataModel;
 using MissBot.DataAccess.Interfacet;
 
 namespace MissBot.DataAccess.Sql
 {
-    public abstract class SQLDataContext : LinqToDB.DataContext, ISqlHandler
+    public record BotContextOptions(string? connectionString, string? driverName = ProviderName.SqlServer2022);
+    public class BotDataContext : LinqToDB.DataContext, IBotDataContext
     {
-        public SQLDataContext() : base(ProviderName.SqlServer2022, "")
-        { }
+        public BotDataContext() : base(ProviderName.SqlServer2022, "")
+        {
 
-        public SQLDataContext(ContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
-        public record ContextOptions(string? connectionString, string? driverName = ProviderName.SqlServer2022);
+        }
 
-        internal virtual ContextOptions BotContextOptions
-            => new ContextOptions(GetConnectionString());
-       
-        protected abstract string GetConnectionString();
+        public BotDataContext(BotContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
 
-        public async Task<int> HandleSqlCommandAsync(ISQLUnit sql, CancellationToken cancel = default)
+        internal virtual BotContextOptions ContextOptions
+            => new BotContextOptions(GetConnectionString());
+
+        protected virtual string GetConnectionString() => "";
+
+        public async Task<int> HandleRequestCommandAsync(string sql, CancellationToken cancel = default)
         {
             int result = 0;
             try
@@ -28,7 +31,7 @@ namespace MissBot.DataAccess.Sql
                     await connection.OpenAsync();
                     using (var cmd = connection.CreateCommand())
                     {
-                        cmd.CommandText = sql.Command;
+                        cmd.CommandText = sql;
                         result = await cmd.ExecuteNonQueryAsync(cancel).ConfigureAwait(false);
                     }
                     await connection.CloseAsync();
@@ -36,13 +39,14 @@ namespace MissBot.DataAccess.Sql
             }
             catch (Exception error)
             {
-                sql.Result = new SQLResult(Convert.ToUInt32(result), error.HResult, error.Message);
+                // sql.Result.AffectedRows = Convert.ToUInt32(result);
+                //      sql.Result.ErrorCode = , error.HResult, error.Message);
             }
             return result;
-        }        
+        }
     }
 
-    
+
 
 
 

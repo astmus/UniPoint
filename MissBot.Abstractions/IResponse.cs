@@ -25,9 +25,10 @@ namespace MissBot.Abstractions
         Task Commit(CancellationToken cancel);
         void Init(ICommonUpdate update, BotClientDelegate sender, TUnit unit = default);
         Task<IResponseChannel> InitAsync(TUnit data, ICommonUpdate update, BotClientDelegate sender);
-        void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : Unit<TUnit>.MetaUnit;
-        void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit;
+        void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : MetaData;
+        void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<TUnit>;
+        void WriteError<TUnitData>(TUnitData unit) where TUnitData : Unit;
         void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<ValueUnit> ;
-        void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : ValueUnit;
+        void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<TUnit>;
     }
 }

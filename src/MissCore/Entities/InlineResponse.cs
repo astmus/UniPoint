@@ -52,33 +52,32 @@ namespace MissBot.Common
             return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : ValueUnit
+        public void Write<TUnitData>(TUnitData unit) where TUnitData: Unit<T>
         {
-            var meta = ValueUnit.Parse(unit);
-            //ValueUnit.Parse(JObject.FromObject(unit));
-            var content = unit;// meta.AnyFirst("Content");
-            InlineQueryResult result = InitResult(content.ToString());
-          
+            
+            var meta = Unit<TUnitData>.Get(unit);
+            //IInlineUnit inline = unit as IInlineUnit;
+            //var content = inline.Content;// meta.AnyFirst("Content");
+           // InlineQueryResult result = InitResult(content);
 
-            foreach (var item in meta/* ?? ValueUnit.Parse(JObject.FromObject(unit)*/)            
-                SetContent(item.Key, item.Value, result, meta);
 
-            result.ReplyMarkup = Keyboard?.GetKeyboard;
-            results.Add(result);
+            //foreach (var item in unit)
+            //{
+            //    //var key = item.ToString();
+                
+            //    SetContent(item.ToString(), unit, result, meta);
+            //}
+
+           // result.ReplyMarkup = Keyboard?.GetKeyboard;
+            //results.Add(result);
             keyboard = null;          
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : ValueUnit
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
         {
             foreach (var unit in units)
             {
-                //   results.Add(GetContent(unit));
-
-                //new InlineQueryResultArticle(u.Id, u.Title, new InputTextMessageContent((string)u.Content[0]))
-                //{ ReplyMarkup = u.Content[1] as InlineKeyboardMarkup }); ;
-                //InlineKeyboardMarkup n = new InlineKeyboardMarkup();
-                
-
+                Write(unit);
             }
         }
 
@@ -89,27 +88,34 @@ namespace MissBot.Common
                 InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
                 InlineQueryResultArticle article when key == nameof(article.Description) => article.Description = (string)value,
                 InlineQueryResultArticle article when value is BotAction action => Keyboard.Append(action),
-               InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta.Get<string>("Name"),
+                InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta.Get("Name"),
                 //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
                _ => result
             };           
         
     
-    InlineQueryResult InitResult(object? data) => data switch
+        InlineQueryResult InitResult(object? data) => data switch
         {
              string weak => new InlineQueryResultArticle(null, null, new InputTextMessageContent(weak)),
+            IInlineUnit unit => new InlineQueryResultArticle(null, null, new InputTextMessageContent(Convert.ToString(unit))),
+            Unit error => new InlineQueryResultArticle(Convert.ToString(error.Id) ?? "-1", "Error", new InputTextMessageContent(error.ToString())),
             _ => null
         };
 
         public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<ValueUnit>
         {
-            foreach (var item in unit)
-                Write(item);            
+            //foreach (var item in unit)
+            //    Write(item);
         }
 
-        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : Unit<T>.MetaUnit
+        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : MetaData
         {
             throw new NotImplementedException();
+        }
+
+        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : Unit
+        {
+            results.Add(InitResult(unit));
         }
     }
 

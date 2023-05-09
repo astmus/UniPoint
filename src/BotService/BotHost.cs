@@ -10,7 +10,9 @@ using Microsoft.Extensions.Options;
 using MissBot.Infrastructure;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-
+using MissCore.Bot;
+using MissBot.DataAccess.Sql;
+using MissBot.Abstractions.DataModel;
 
 namespace BotService
 {
@@ -27,16 +29,18 @@ namespace BotService
             log = logger;
         }
 
-        public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig:BaseBot.Configurator
+        public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig: BaseBot.Configurator
         {
             hostBuilder.ConfigureServices(services => services
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                                    
                                                                                     .AddScoped<TBot>()
+                                                                                    .AddScoped<BotDataContext>()
+                                                                                   // .AddTransient<ContextOptions>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance)
-                                                                                    .AddSingleton<BaseBot.Configurator, TConfig>()
+                                                                                    .AddSingleton<MissBot.Abstractions.BaseBot.Configurator, TConfig>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             buildActions.Add(() => BotBuilder<TBot>.Instance.Build());

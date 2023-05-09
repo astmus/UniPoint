@@ -1,70 +1,90 @@
+using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using MissBot.Abstractions.DataAccess;
 
 namespace MissBot.Abstractions
 {
-    public record ValueUnit : Unit, IFormattable
+    [JsonObject]
+    public record ValueUnit : Unit
     {
-        //public static BotUnion Parse(JArray values)
-        //    =>  new BotUnion(values.Children<JObject>().Select(s => Parse(s)));
+
         public bool HasMetadata()
             => meta != null;
-        public virtual bool IsSimpleUnit()
-            => true;
-        public static MetaData Parse(object value)
-        {
-            var p = System.Text.Json.JsonSerializer.SerializeToDocument(value);
 
-            MetaData parsed = new MetaData();
-            
-                if (p.RootElement.ValueKind is JsonValueKind.Array)
+        static readonly ListDictionary Cache = new ListDictionary();
+        
+        public static MetaData Get<TUnit>(TUnit value)
+        {
+            var key = Unit<TUnit>.UnitName;            
+            if (!Cache.Contains(key))
+            {
+                var root = System.Text.Json.JsonSerializer.SerializeToDocument(value);
+
+                MetaData parsed = new MetaData();
+
+                if (root.RootElement.ValueKind is JsonValueKind.Array)
                 {
-                    var item = Activator.CreateInstance(value.GetType().GetGenericArguments()[0]);
-                    p = System.Text.Json.JsonSerializer.SerializeToDocument(item);
+                    var type = value.GetType();
+                    var item = Activator.CreateInstance(type.GetGenericArguments()?.FirstOrDefault() ?? type);
+                    root = System.Text.Json.JsonSerializer.SerializeToDocument(item);
                 }
 
-                foreach (var item in p.RootElement.EnumerateObject())
-                    parsed.Set(item.Value.ToString(), item.Name);
+                    Enumerate(root.RootElement);
+
+                    void Enumerate(JsonElement element)
+                    {
+                        if (element.ValueKind == JsonValueKind.Object)
+                        {
+                            foreach (var item in element.EnumerateObject())
+                            {
+                            parsed[item.Name] = item.Value.GetRawText();
+                            if (item.Value.ValueKind == JsonValueKind.Object)
+                                {
+                                    Enumerate(item.Value);
+                                }
+                                else
+                                if (item.Value.ValueKind == JsonValueKind.Number)
+                                {
+                                //    parsed.Set(item.Name, item.Value.GetRawText());
+                                parsed[item.Name]=item.Value.GetRawText();
+                                }
+                            }
+                        }
+                    }
+                
+
+                //foreach (var item in root.RootElement.EnumerateObject())
+                //    parsed.Set(item.Name, item.Value.GetRawText());
+                Cache.Add(key, parsed);
                 return parsed;
-            
             }
+            return Cache[key] as MetaData;
+
+        }
 
 
         MetaData meta;
-        protected MetaData MetaInformation
+        protected MetaData Meta
             => meta ?? (meta = new MetaData());
 
-        protected T Set<T>(T value, [CallerMemberName] string name = default)
-            => MetaInformation.Set(value, name);
-        protected T Get<T>([CallerMemberName] string name = default)
-            => MetaInformation.Get<T>(name);
+        public void Set<T>(T value, [CallerMemberName] string name = default)
+            => Meta.Set(name, Meta.Set<T>(name, value));
+        public T Get<T>([CallerMemberName] string name = default)
+            => Meta.Get<T>(name) ?? (T)this[name];
 
         public virtual MetaData GetMetaData()
             => meta;
-
-        public virtual string ToString(string? format, IFormatProvider? formatProvider)
+        public object this[string index]
         {
-            var s = Parse(this);
-            return string.Join("     ", s.GetAll().Select(s => s.Item2))+"\n";
-            
+            get => Meta.Get(index);
         }
 
-        public record MetaUnit(string Content = default, MetaData Data = default) : Unit
-        {
-            //string.Join(Environment.NewLine, unit.GetMetaData().Select(s => Convert.ToString(s.Value).Replace("]","").Replace(",", " = ")));
-            public override string ToString()
-            {
-                return $"{Data.ToString() ?? base.ToString()}";
-            }
-            protected override bool PrintMembers(StringBuilder builder)
-            {
-                var res = base.PrintMembers(builder);
-                builder.Clear();
-                builder.Append($"{nameof(Content)}: {Content}");
-                return res;
-            }
-        }
+        //public string Serialize()
+        //    => string.Join('\n', Data.Select(s => $"{s.Key} = {s.Value}"));
+
+       
     }
 }
