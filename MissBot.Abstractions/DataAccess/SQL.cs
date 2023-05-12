@@ -9,7 +9,7 @@ namespace MissBot.Abstractions.DataAccess
     public record BotActionRequest : BotAction<BotRequest>;
     public record SQLUnit<TUnit>(SQLCommand Command) : IQueryUnit<TUnit>
     {
-        public static readonly SQLUnit<TUnit> Instance = new SQLUnit<TUnit>(Unit.Empty);
+        public static readonly SQLUnit<TUnit> Instance = new SQLUnit<TUnit>(SqlUnit.Empty);
 
         public async Task<TResult> GetResponseAsync<TResult>(IRepository repository, CancellationToken cancel = default) where TResult : TUnit
         => await repository.HandleCommandAsync<TResult>(this.Command, cancel);

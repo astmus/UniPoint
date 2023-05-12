@@ -15,13 +15,8 @@ namespace MissBot.Abstractions.DataAccess
     {
         string Name { get; }
         int ID { get; }
-        string? ConnectionNamespace { get; }
-
-        IDataConnection DataProvider { get; }
-        
-
-       
-
+        string? ConnectionNamespace { get; }  
+        IDataConnection DataProvider { get; }    
     }
 
 

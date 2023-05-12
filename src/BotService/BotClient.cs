@@ -40,9 +40,8 @@ namespace BotService
             {
                 var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
                 Bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)
-                Bot.Init(botScopeServices);
-                await Bot.SyncCommands(client);
-                //await client.SyncCommandsAsync(Bot.GetCommandsFromAttributes());
+                Bot.Initialize();
+                await Bot.SyncCommands(client);                
                 _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {Bot}");
             }
             catch (Exception ex)

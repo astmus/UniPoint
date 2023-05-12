@@ -1,6 +1,9 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataModel;
+using Newtonsoft.Json.Converters;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 using TG = Telegram.Bot.Types;
 
@@ -8,7 +11,7 @@ namespace MissBot.Abstractions
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract class BaseBot :  IBot
+    public abstract class BaseBot : IBot
     {
         public abstract class Configurator
         {
@@ -16,27 +19,36 @@ namespace MissBot.Abstractions
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
 
+        public BaseBot(IBotDataContext botDataContext, IRepository<BotCommand> repository = default)
+        {
+            dataContext = botDataContext;
+            commandsRepository = repository;
+        }
 
+        public void Initialize()
+        {
+            dataContext.LoadBotInfrastructure();
+        }
 
-        protected  IRepository<BotCommand> commandsRepository;
-        public virtual void Init(IServiceProvider sp)
-            => commandsRepository = sp.GetService<IRepository<BotCommand>>();
-        
-
-        public BaseBot(IRepository<BotCommand> repository = default)        
-            => commandsRepository = repository;
-
+        protected IRepository<BotCommand> commandsRepository;
+        private readonly IBotDataContext dataContext;        
 
         public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
-        
+
 
         public virtual async Task<bool> SyncCommands(IBotConnection connection)
         {
-            
-            Commands ??= await commandsRepository.GetAllAsync();            
+
+            Commands ??= await commandsRepository.GetAllAsync();
             return await connection.SyncCommandsAsync(Commands);
         }
+        //public async Task<bool> SyncCommands(IBotConnection connection)
+        //{
+
+        //    Commands = await botDataContext.LoadCommandsAsync();
+        //    return await connection.SyncCommandsAsync(Commands);
+        //}
 
         #region DTO
         [JsonProperty(Required = Required.Always)]
@@ -68,7 +80,7 @@ namespace MissBot.Abstractions
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? SupportsInlineQueries { get; set; }
-        
+
 
         /// <inheritdoc/>
         public override string ToString() =>
@@ -80,8 +92,8 @@ namespace MissBot.Abstractions
     internal static class BotExtensoin
     {
         #region Extensions
-        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient,  IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
-                 CancellationToken cancellationToken = default)       
+        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient, IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
+                 CancellationToken cancellationToken = default)
         => await botClient.MakeRequestAsync(
                      request: new SetMyCommandsRequest(commands)
                      {
@@ -116,4 +128,5 @@ namespace MissBot.Abstractions
 
         #endregion
     }
+    
 }

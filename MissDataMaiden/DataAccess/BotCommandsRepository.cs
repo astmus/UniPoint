@@ -1,19 +1,20 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.DataAccess;
-using MissBot.DataAccess.Sql;
 
 namespace MissDataMaiden.DataAccess
 {
-    public class BotCommandsRepository : BotRepository, IBotCommandsRepository
+    public class BotCommandsRepository : IBotCommandsRepository
     {
         
         IEnumerable<BotCommand> commands;
 
-        public BotCommandsRepository(IConfiguration configuration, BotDataContext context) : base(configuration, context)
+        public BotCommandsRepository(IJsonRepository context)
         {
+            Context = context;
         }
+
+        public IJsonRepository Context { get; }
 
         public IEnumerable<BotCommand> GetAll()
         {
@@ -30,22 +31,22 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            commands = await HandleCommandAsync<Unit<BotCommand>.Collection>(MissBot.Abstractions.DataAccess.Unit.Entities<BotCommand>());
+            commands = await Context.HandleQueryAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(c => new[] { nameof(c.Command), nameof(c.Description) }));
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
             
-            var result = await HandleCommandAsync<Unit<TEntityType>.Collection>(MissBot.Abstractions.DataAccess.Unit.Entities<TEntityType>());
+            var result = await Context.HandleQueryAsync<Unit<TEntityType>.Collection>(SqlUnit.Entities<TEntityType>());
            
             return result;
         }
 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
         {            
-            var sql = MissBot.Abstractions.DataAccess.Unit.Command<TEntityType>();
-            var cmd = await HandleCommandAsync<TEntityType>(sql);
+            var sql = MissBot.Abstractions.DataAccess.SqlUnit.Command<TEntityType>();
+            var cmd = await Context.HandleQueryAsync<TEntityType>(sql);
             return cmd;
         }
 

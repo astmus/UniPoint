@@ -5,7 +5,6 @@ using MissBot.Abstractions.DataModel;
 using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissBot.DataAccess.Sql;
-using MissCore.Bot;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
 
@@ -15,7 +14,7 @@ namespace MissDataMaiden
     //[HasBotCommand(Name = nameof(List), CmdType = typeof(List), Description = "List of data bases with info")]
     //[HasBotCommand(Name = nameof(Info), CmdType = typeof(Info), Description = "Inforamtion about current server state")]
     //[HasBotCommand(Name = nameof(Disk), CmdType = typeof(Disk), Description = "Disk space information")]
-    public class MissDataMaid : BaseBotContext
+    public class MissDataMaid : BaseBot
     {
         private readonly ILogger<MissDataMaid> _logger;
         private IServiceScope scope;
@@ -29,11 +28,9 @@ namespace MissDataMaiden
              };
 
 
-        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IRepository<BotCommand> commands) : base(commands)
+        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IBotDataContext context, IRepository<BotCommand> commands) : base(context, commands)
         {
-            log = logger;
-
-            // Context = context;
+            log = logger;             
         }
 
 

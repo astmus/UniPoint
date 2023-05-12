@@ -17,29 +17,13 @@ namespace MissBot.DataAccess
         public int ID { get; }
         public string? ConnectionNamespace { get; }
         public IDataConnection DataProvider { get; }
-        public BotDataContext Context { get; }
+        public IBotDataContext Context { get; }   
 
-        protected  string GetConnectionString()
-            => config.GetConnectionString("Default");
-        public BotRepository(IConfiguration configuration,/* IDataConnection dataProvider,*/ BotDataContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
-        {
-            config = configuration;
-           // this.DataProvider = dataProvider;
+        public BotRepository(IBotDataContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
+        {         
             Context = context;
         }
-
-        public BotRepository(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
-
-
-        //public async Task<TResult> HandleSqlQueryAsync<TResult>(IRepositoryCommand sql, CancellationToken cancel = default) where TResult : class
-        //{
-        //    return await base.HandleQueryAsync<TResult>(sql, cancel);
-        //}
-
-
+        
         public Task ExecuteCommandAsync(IRepositoryCommand query, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
@@ -52,9 +36,8 @@ namespace MissBot.DataAccess
         public async Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default)
         {
             TResult result = default(TResult);
-            using (var connection = Context.DataProvider.CreateConnection(GetConnectionString()))
-            {
-
+            using (var connection = Context.NewConnection())
+            {                                                                                
                 await connection.OpenAsync();
                 using (var cmd = connection.CreateCommand())
                 {
@@ -62,34 +45,16 @@ namespace MissBot.DataAccess
                     try
                     {
                         if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
-                            result = JsonConvert.DeserializeObject<TResult>(res);
-                        await connection.CloseAsync();
+                            result = JsonConvert.DeserializeObject<TResult>(res);                        
                     }
-                    catch
+                    finally
                     {
                         await connection.CloseAsync();
-                        throw;
                     }
                 }
             }
             return result;
-        }
-
-
-        //public void InitContext(IBotDataContext dataContext)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public IBotConnection CreateConnection(string connectionString)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public object? GetConnectionInfo(IDataConnection dataConnection, string parameterName)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        }         
     }
 }
 

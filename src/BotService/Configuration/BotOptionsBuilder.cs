@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
+using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using Newtonsoft.Json;
 using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration
@@ -12,13 +14,14 @@ namespace BotService.Configuration
         public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
         List<Action> updItems;
 
-        public BotOptionsBuilder()
+        public BotOptionsBuilder(JsonConverter botConverter)
         {
             updItems = new List<Action>();
             With = action
                 =>
             { updItems.Add(action); return this; };
             Options = new();
+            Options.SerializeSettings.Converters.Add(botConverter);
             updates = updates.Append(UpdateType.Message);
         }
 

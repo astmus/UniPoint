@@ -10,9 +10,9 @@ using Microsoft.Extensions.Options;
 using MissBot.Infrastructure;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissCore.Bot;
 using MissBot.DataAccess.Sql;
 using MissBot.Abstractions.DataModel;
+using Newtonsoft.Json;
 
 namespace BotService
 {
@@ -34,13 +34,14 @@ namespace BotService
             hostBuilder.ConfigureServices(services => services                                                                                    
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                                    
                                                                                     .AddScoped<TBot>()
-                                                                                    .AddScoped<BotDataContext>()
+                                                                                    .AddScoped<IBotDataContext, BotDataContext>()
                                                                                     // .AddTransient<ContextOptions>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance)
                                                                                     .AddSingleton<BaseBot.Configurator, TConfig>()
+                                                                                    .AddTransient<JsonConverter, BotConverter<TBot>>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             hostBuilder.ConfigureServices((host,services) =>
@@ -71,6 +72,7 @@ namespace BotService
                 services.AddScoped(typeof(IContext<>), typeof(Context<>));
                 services.AddScoped(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());
                 services.AddScoped<IBotConnectionOptionsBuilder, BotOptionsBuilder>();
+                
                 services.AddScoped<IBotOptionsBuilder>(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>());
                 services.AddHttpContextAccessor();
                 services.AddHealthChecks()

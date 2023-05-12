@@ -20,7 +20,7 @@ namespace MissBot.Abstractions.DataAccess
         public SQLType Type;
         public string WHERE;
         string Template
-            => $"{Unit.Templated(Unit.Templates.Entity,Entity)} {WHERE}";
+            => $"{SqlUnit.Templated(SqlUnit.Templates.Entity,Entity)} {WHERE}";
         public SQLCommand(string where, SQLType type = SQLType.JSONAuto | SQLType.JSONNoWrap)
         {
             WHERE = $" WHERE {where} ";
@@ -33,11 +33,11 @@ namespace MissBot.Abstractions.DataAccess
             => Type switch
             {
 
-                SQLType.JSONAuto => Unit.Templated(Unit.Templates.JSONAuto, Template),//.ApplyFields(Fields),
-                SQLType.Raw => Unit.Templated(Unit.Templates.JSONAuto, Template),//.ApplyFields(Fields),
-                SQLType.JSONPath | SQLType.JSONNoWrap => Unit.Templated(Unit.Templates.JSONPath + Unit.JSONNoWrap, Template),//.ApplyFields(Fields),
-                SQLType.JSONAuto | SQLType.JSONNoWrap => Unit.Templated(Unit.Templates.JSONAuto + Unit.JSONNoWrap, Template),
-                SQLType.JSONPath => Unit.Templated(Unit.Templates.JSONPath, Template),//.ApplyFields(Fields),
+                SQLType.JSONAuto => SqlUnit.Templated(SqlUnit.Templates.JSONAuto, Template),//.ApplyFields(Fields),
+                SQLType.Raw => SqlUnit.Templated(SqlUnit.Templates.JSONAuto, Template),//.ApplyFields(Fields),
+                SQLType.JSONPath | SQLType.JSONNoWrap => SqlUnit.Templated(SqlUnit.Templates.JSONPath + SqlUnit.JSONNoWrap, Template),//.ApplyFields(Fields),
+                SQLType.JSONAuto | SQLType.JSONNoWrap => SqlUnit.Templated(SqlUnit.Templates.JSONAuto + SqlUnit.JSONNoWrap, Template),
+                SQLType.JSONPath => SqlUnit.Templated(SqlUnit.Templates.JSONPath, Template),//.ApplyFields(Fields),
                 _ => Entity
             };
     }
@@ -51,7 +51,7 @@ namespace MissBot.Abstractions.DataAccess
             Type = type;
         }
         public IEnumerable<string> Fields { get; set; }
-        public string Sql { get; set; } = Unit.Empty;
+        public string Sql { get; set; } = SqlUnit.Empty;
         public SQLType Type;
 
         public static implicit operator SQLCommand(string sql)
@@ -61,10 +61,10 @@ namespace MissBot.Abstractions.DataAccess
         public string Command
             => Type switch
             {
-                SQLType.JSONAuto => Unit.Templated(Unit.Templates.JSONAuto, Sql).ApplyFields(Fields),
-                SQLType.Raw => Unit.Templated(Unit.Templates.JSONAuto, Sql).ApplyFields(Fields),
-                SQLType.JSONPath | SQLType.JSONNoWrap => Unit.Templated(Unit.Templates.JSONPath + Unit.JSONNoWrap, Sql).ApplyFields(Fields),
-                SQLType.JSONPath => Unit.Templated(Unit.Templates.JSONPath, Sql).ApplyFields(Fields),
+                SQLType.JSONAuto => SqlUnit.Templated(SqlUnit.Templates.JSONAuto, Sql).ApplyFields(Fields),
+                SQLType.Raw => SqlUnit.Templated(SqlUnit.Templates.JSONAuto, Sql).ApplyFields(Fields),
+                SQLType.JSONPath | SQLType.JSONNoWrap => SqlUnit.Templated(SqlUnit.Templates.JSONPath + SqlUnit.JSONNoWrap, Sql).ApplyFields(Fields),
+                SQLType.JSONPath => SqlUnit.Templated(SqlUnit.Templates.JSONPath, Sql).ApplyFields(Fields),
                 _ => Sql
             };
 
@@ -86,7 +86,7 @@ namespace MissBot.Abstractions.DataAccess
         #endregion
     }
 
-    public static class Unit
+    public static class SqlUnit
     {
         public const string Empty = "SELECT 1";
         public const string SelectFrom = "SELECT * FROM ##";

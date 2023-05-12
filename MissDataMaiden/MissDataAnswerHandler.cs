@@ -1,12 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.DataAccess.Sql;
 using MissBot.Handlers;
-using MissCore.Bot;
-using MissCore.Entities;
-using MissDataMaiden.Commands;
 using MissDataMaiden.Entities;
-using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
 namespace MissDataMaiden

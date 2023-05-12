@@ -1,9 +1,11 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataModel;
+using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissCore.Entities;
 using MissDataMaiden.Commands;
-using Telegram.Bot.Types;
 
 namespace MissDataMaiden
 {
@@ -16,7 +18,7 @@ namespace MissDataMaiden
         public class Update : Update<MissChannel> { }
         private readonly ILogger<MissChannel> _logger;
         IServiceScope scope;
-        public MissChannel(ILogger<MissChannel> logger)
+        public MissChannel(ILogger<MissChannel> logger, IBotDataContext botDataContext, IRepository<BotCommand> repository = default) : base(botDataContext, repository)
         {
             _logger = logger;       
         }
