@@ -21,10 +21,10 @@ namespace MissBot.DataAccess
 
         protected  string GetConnectionString()
             => config.GetConnectionString("Default");
-        public BotRepository(IConfiguration configuration, IDataConnection dataProvider, BotDataContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
+        public BotRepository(IConfiguration configuration,/* IDataConnection dataProvider,*/ BotDataContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
         {
             config = configuration;
-            this.DataProvider = dataProvider;
+           // this.DataProvider = dataProvider;
             Context = context;
         }
 

@@ -31,18 +31,20 @@ namespace BotService
 
         public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig: BaseBot.Configurator
         {
-            hostBuilder.ConfigureServices(services => services
+            hostBuilder.ConfigureServices(services => services                                                                                    
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                                    
                                                                                     .AddScoped<TBot>()
                                                                                     .AddScoped<BotDataContext>()
-                                                                                   // .AddTransient<ContextOptions>()
+                                                                                    // .AddTransient<ContextOptions>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance)
-                                                                                    .AddSingleton<MissBot.Abstractions.BaseBot.Configurator, TConfig>()
+                                                                                    .AddSingleton<BaseBot.Configurator, TConfig>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
+            hostBuilder.ConfigureServices((host,services) =>
+                                                                services.AddOptions<BotContextOptions>().Bind(host.Configuration.GetSection(BotContextOptions.ContextOptions)));
             buildActions.Add(() => BotBuilder<TBot>.Instance.Build());
             var builder = BotBuilder<TBot>.GetInstance(hostBuilder);
             builder.Services.AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>());   

@@ -19,9 +19,9 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
 
         public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
         {
-            Services.AddSingleton<IRepository<BotCommand>, THandler>();
+            Services.AddScoped<IRepository<BotCommand>, THandler>();
             host.ConfigureServices((h, s)
-                => s.AddSingleton<IRepository<BotCommand>, THandler>());
+                => s.AddScoped<IRepository<BotCommand>, THandler>());
             return this;        }        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {            Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
             Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
             return this;        }

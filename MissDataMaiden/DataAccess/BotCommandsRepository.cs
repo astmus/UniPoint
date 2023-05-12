@@ -2,6 +2,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.DataAccess;
+using MissBot.DataAccess.Sql;
 
 namespace MissDataMaiden.DataAccess
 {
@@ -10,7 +11,7 @@ namespace MissDataMaiden.DataAccess
         
         IEnumerable<BotCommand> commands;
 
-        public BotCommandsRepository(IConfiguration configuration) : base(configuration)
+        public BotCommandsRepository(IConfiguration configuration, BotDataContext context) : base(configuration, context)
         {
         }
 

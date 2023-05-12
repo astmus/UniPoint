@@ -1,4 +1,6 @@
 using LinqToDB;
+using LinqToDB.Common;
+using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.DataModel;
@@ -6,18 +8,24 @@ using MissBot.DataAccess.Interfacet;
 
 namespace MissBot.DataAccess.Sql
 {
-    public record BotContextOptions(string? connectionString, string? driverName = ProviderName.SqlServer2022);
+    //public record BotContextOptions(string? connectionString, string? driverName = ProviderName.SqlServer2022);
+    public class BotContextOptions
+    {
+        public const string ContextOptions = nameof(BotContextOptions);
+        public string ConnectionString { get; set; } = String.Empty;
+        public string DataProvider { get; set; } = String.Empty;
+    }
+
     public class BotDataContext : LinqToDB.DataContext, IBotDataContext
     {
         public BotDataContext() : base(ProviderName.SqlServer2022, "")
         {
-
         }
 
-        public BotDataContext(BotContextOptions ctxOptions) : base(ctxOptions.driverName, ctxOptions.connectionString) { }
+        public BotDataContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString) { }
 
-        internal virtual BotContextOptions ContextOptions
-            => new BotContextOptions(GetConnectionString());
+        //internal virtual BotContextOptions ContextOptions
+        //    => new BotContextOptions(GetConnectionString());
 
         protected virtual string GetConnectionString() => "";
 
