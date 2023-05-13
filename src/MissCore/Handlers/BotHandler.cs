@@ -24,7 +24,7 @@ namespace MissCore.Handlers
 
         public async Task HandleAsync(Update<TBot> data, IHandleContext context)
         {
-            handleDelegate = context.Get<AsyncHandler>();
+            handleDelegate = context.Handler;
 
             if (handleDelegate == null)
             {

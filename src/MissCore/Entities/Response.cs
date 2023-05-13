@@ -12,30 +12,31 @@ namespace MissBot.Common
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record Response<T> : ResponseMessage<T>, IResponse<T>
+    public record Response<T>(IHandleContext Context = default) : ResponseMessage<T>, IResponse<T>
     {
-        BotClientDelegate Client;
-        Message message;
-        Chat channel;
+        BotClientDelegate Client
+        => ()=> Context.BotServices.Client;
+        Message message
+            => Context.Get<Message>();
+        Chat chat
+            => Context.Get<Chat>();
 
 
         public override ChatId ChatId
-            => channel.Id;
+            => chat.Id;
 
         public async Task Commit(CancellationToken cancel)
         {
-            message = Result = await Client().SendQueryRequestAsync(this, cancel);
+           Result = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
         }
         public void Init(ICommonUpdate update, BotClientDelegate sender, T data = default)
         {
-            channel = update.Chat;
-            message = update.Message;
-            Client = sender;
+            
         }
         public async Task<IResponseChannel> InitAsync(T data, ICommonUpdate update, BotClientDelegate sender)
         {
             Init(update, sender);
-            return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(channel.Id));
+            return await Client().SendQueryRequestAsync(new GetChannelQuery<T>(chat.Id));
         }
         public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
         {

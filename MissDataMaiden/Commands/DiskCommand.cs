@@ -35,7 +35,7 @@ namespace MissDataMaiden.Commands
        
     }
 
-    public record DiskResponse : Response<Disk>
+    public record DiskResponse(IHandleContext c = default) : Response<Disk>(c)
     {
         protected override Response<Disk> WriteUnit(ValueUnit unit) => unit switch
         {
@@ -80,9 +80,10 @@ namespace MissDataMaiden.Commands
 
         public override async Task HandleCommandAsync(Disk command, IHandleContext context)
         {
-            //IResponse<Disk> response = context.CreateResponse(command);
+            //IResponse<Disk> response = context.BotServices.GetRequiredService<IResponse<Disk>>();// CreateResponse(command);
             //Unit<Disk>.MetaData
-            
+            var response = new Response<Disk>(context);
+
             //response.WriteMetadata(Unit<Disk.Dto>.TypeMeta);
             //var sqlQuery = SQLUnit<Disk.Dto>.Instance with { Command = command.Payload };
             var res = await repository.GetUnitDataAsync(command);
@@ -92,7 +93,7 @@ namespace MissDataMaiden.Commands
             foreach (var item in res)
             {
                 var da = MetaData.Parse(item);
-                Console.WriteLine(da.Value);
+                response.Text += da.Value;
                 var data = ValueUnit.Get(item);
                // var unit = item.ToObject<Unit<Disk>>();
                 //response.Write(unit);
@@ -108,7 +109,7 @@ namespace MissDataMaiden.Commands
             //else if (sqlQuery.Result is RequestResult error)
             //    response.WriteError(error);
             
-           // await response.Commit(default);
+           await response.Commit(default);
         }  
     }
 }

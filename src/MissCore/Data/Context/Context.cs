@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using MissBot.Abstractions;
 using MissCore.Data.Identity;
@@ -9,23 +10,15 @@ namespace MissCore.Data.Context
     public class Context : ConcurrentDictionary<string, object>, IContext
     {
         public DataMap Map { get; protected set; }
-        public T Get<T>(string name)
-        {
-            var result = default(T);
-            if (TryGetValue(name, out var r) && r is T reference)
-                result = reference;
-            return result;
-        }
-
-        public T Get<T>()
-        {
-            var id = Id.Of<T>();
+        public T Get<T>([CallerMemberName] string name = default)
+        {                        
+            var id = name ?? Id.Of<T>();
             var result = default(T);
             if (TryGetValue(id, out var r) && r is JToken reference)
-                result = reference.ToObject<T>();
+                return  reference.ToObject<T>();
             if (TryGetValue(id, out var o) && o is T val)
-                result = val;
-
+                return val;
+            result = Map.Read<T>(name);
             return result;
         }
 
@@ -34,7 +27,7 @@ namespace MissCore.Data.Context
             return this.Where(x=> x.Value is TAny).Select(s=> s.Value).Cast<TAny>().FirstOrDefault();
         }
 
-        public T Get<T>(Predicate<string> filter = null)
+        public T Get<T>(Predicate<string> filter)
         {
             var result = default(T);
             if (filter == null)

@@ -51,7 +51,7 @@ namespace MissDataMaiden
 
             await handler.HandleAsync(cmd, context);
 
-            AsyncHandler next = context.Get<AsyncHandler>();            
+            AsyncHandler next = context.Handler;            
             await next(context).ConfigureAwait(false);
         }
     }

@@ -26,7 +26,7 @@ namespace MissBot.Abstractions
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Text { get; protected set; }
+        public string Text { get;  set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]

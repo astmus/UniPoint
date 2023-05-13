@@ -3,7 +3,9 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissCore.Data.Identity;
 using Newtonsoft.Json.Linq;
+using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
 
 namespace MissCore.Data.Context
 {
@@ -70,5 +72,8 @@ namespace MissCore.Data.Context
             => Get<ICommonUpdate>();
         public BotClientDelegate ClientDelegate
             => Root.BotServices.GetRequiredService<IBotClient>;
+
+        public AsyncHandler Handler
+            => Get<AsyncHandler>(Id.Of<AsyncHandler>());
     }
 }
