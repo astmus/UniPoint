@@ -82,9 +82,9 @@ namespace BotService.Connection
                 _receiver = receiver;
                 _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
                 _token = _cts.Token;
-                _messageOffset = receiver.botConnection.options?.Offset ?? 0;
-                _limit = receiver.botConnection.options?.Limit ?? default;
-                _allowedUpdates = receiver.botConnection.options?.AllowedUpdates;
+                _messageOffset = receiver.botConnection.Options?.Offset ?? 0;
+                _limit = receiver.botConnection.Options?.Limit ?? default;
+                _allowedUpdates = receiver.botConnection.Options?.AllowedUpdates;
 
                 _channel = Channel.CreateUnbounded<TUpdate>(
                     new()
@@ -177,7 +177,7 @@ namespace BotService.Connection
                         Debug.Assert(_uncaughtException is null);
 
                         // If there is no errorHandler or the errorHandler throws, stop receiving
-                        if (_receiver.botConnection.options.ConnectionErrorHandler is null)
+                        if (_receiver.botConnection.Options.ConnectionErrorHandler is null)
                         {
                             _uncaughtException = ex;
                             _cts.Cancel();
@@ -186,7 +186,7 @@ namespace BotService.Connection
                         {
                             try
                             {
-                                await _receiver.botConnection.options.ConnectionErrorHandler(ex, _token).ConfigureAwait(false);
+                                await _receiver.botConnection.Options.ConnectionErrorHandler(ex, _token).ConfigureAwait(false);
                             }
 #pragma warning disable CA1031
                             catch (Exception errorHandlerException)

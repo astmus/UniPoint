@@ -1,6 +1,9 @@
+using System.IO;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Context
 {
@@ -11,19 +14,23 @@ namespace MissCore.Data.Context
             get => Root.Get<TScope>();
             set => Root.Set(value);
         }
-
-        public void SetServices(IBotServicesProvider botServices)
-        {
-            this.botServices = botServices;
+        
+        public void SetData(TScope data)
+        { 
+            Map = Unit<TScope>.Parse(data);
+            Data = data;
         }
+
+        
 
         IServiceProvider scoped;
         IBotServicesProvider botServices;
         public IBotServicesProvider BotServices
             => botServices ?? Root.BotServices;
 
-        public Context(IServiceProvider scopedProvider)
+        public Context(IServiceProvider scopedProvider, IBotServicesProvider botServices)
         {
+            this.botServices = botServices;
             scoped = scopedProvider;
             Root = this;
         }

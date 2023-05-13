@@ -11,7 +11,7 @@ namespace BotService.Connection
         {
             public AsyncUpdatesQueue()
             {
-                QueueId = Identity.Of(this);
+ 
             }
 
             public Identifier QueueId { get; protected set; }

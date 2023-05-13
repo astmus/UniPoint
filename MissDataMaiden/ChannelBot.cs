@@ -1,7 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.DataModel;
 using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissCore.Entities;
@@ -18,7 +17,7 @@ namespace MissDataMaiden
         public class Update : Update<MissChannel> { }
         private readonly ILogger<MissChannel> _logger;
         IServiceScope scope;
-        public MissChannel(ILogger<MissChannel> logger, IBotDataContext botDataContext, IRepository<BotCommand> repository = default) : base(botDataContext, repository)
+        public MissChannel(ILogger<MissChannel> logger, IBotContext botDataContext, IRepository<BotCommand> repository = default) : base(botDataContext, repository)
         {
             _logger = logger;       
         }

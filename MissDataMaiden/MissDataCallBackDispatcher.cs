@@ -34,7 +34,7 @@ namespace MissDataMaiden
             var handler = context.GetAsyncHandler<TAction>();
             try
             {
-                await handler.HandleAsync(ctx);
+                await handler.HandleAsync(ctx.Data, context);
             }
             catch (Exception ex)
             {

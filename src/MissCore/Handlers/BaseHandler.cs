@@ -21,11 +21,11 @@ namespace MissCore.Handlers
         async Task HandleAsync(IHandleContext context)
         {
             if (context.Get<TData>() is TData data)
-                await HandleAsync(context.CreateDataContext<TData>(data));
+                await HandleAsync(data, context);
             else
                 await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
         }
 
-        public abstract Task HandleAsync(IContext<TData> context);
+        public abstract Task HandleAsync(TData data, IHandleContext context);
     }
 }

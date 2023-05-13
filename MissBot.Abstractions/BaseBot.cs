@@ -1,9 +1,5 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.DataModel;
-using Newtonsoft.Json.Converters;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 using TG = Telegram.Bot.Types;
 
@@ -19,19 +15,19 @@ namespace MissBot.Abstractions
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
 
-        public BaseBot(IBotDataContext botDataContext, IRepository<BotCommand> repository = default)
+        public BaseBot(IBotContext botContext, IRepository<BotCommand> repository = default)
         {
-            dataContext = botDataContext;
+            Context = botContext;
             commandsRepository = repository;
         }
 
         public void Initialize()
         {
-            dataContext.LoadBotInfrastructure();
+            Context.LoadBotInfrastructure();
         }
 
         protected IRepository<BotCommand> commandsRepository;
-        private readonly IBotDataContext dataContext;        
+        private readonly IBotContext Context;        
 
         public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }

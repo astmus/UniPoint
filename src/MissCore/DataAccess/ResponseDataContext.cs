@@ -8,10 +8,7 @@ namespace MissCore.DataAccess
     {
 
         
-        protected override string GetId<T>()
-        {
-            return base.GetId<T>();
-        }
+
 
     }
 }

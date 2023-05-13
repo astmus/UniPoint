@@ -31,16 +31,16 @@ namespace MissBot.Extensions
     }
     public static class BotBuilderExtension
     {
-        public static IBotBuilder<TBot> UseMediator<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
-        {
-            botBuilder.BotServices.AddMediatR(Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly());
-            return botBuilder;
-        }
-        public static IBotBuilder<TBot> UseLogging<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
-        {
-            botBuilder.BotServices.AddLogging();
-            return botBuilder;
-        }        
+        //public static IBotBuilder<TBot> UseMediator<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
+        //{
+        //    botBuilder.BotServices.AddMediatR(Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly());
+        //    return botBuilder;
+        //}
+        //public static IBotBuilder<TBot> UseLogging<TBot>(this IBotBuilder<TBot> botBuilder) where TBot : class, IBot
+        //{
+        //    botBuilder.BotServices.AddLogging();
+        //    return botBuilder;
+        //}        
     }
 }
 

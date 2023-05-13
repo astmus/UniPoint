@@ -26,7 +26,7 @@ namespace MissBot.Handlers
             throw new NotImplementedException();
         }
 
-        public override Task HandleAsync(IContext<Message> context)
+        public override Task HandleAsync(Message data, IHandleContext context)
         {
             throw new NotImplementedException();
         }

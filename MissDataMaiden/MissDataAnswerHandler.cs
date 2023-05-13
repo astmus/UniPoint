@@ -28,7 +28,7 @@ namespace MissDataMaiden
         //    }
         //}
 
-        public override async Task HandleResultAsync(ChosenInlineResult result, IContext<ChosenInlineResult> context)
+        public override async Task HandleResultAsync(ChosenInlineResult result,IHandleContext context)
         {
             int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
             string strid = result.Query.Length > 0 ? result.ResultId.Replace(result.Query, "") : result.ResultId;
@@ -41,10 +41,10 @@ namespace MissDataMaiden
 
             //sql.ContentPropertyName = nameof(DataBase.Detail);
             var details =  await repository.HandleCommandAsync<DataBase>(cmd);
-            var response = context.CreateResponse(result);
-            //response.WriteMetadata(unit);
-            response.Write(details );
-            await response.Commit(default);
+            //var response = context.CreateResponse(result);
+            ////response.WriteMetadata(unit);
+            //response.Write(details );
+            //await response.Commit(default);
 
             int i = 0;            
         }

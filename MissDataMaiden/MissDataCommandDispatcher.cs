@@ -43,13 +43,13 @@ namespace MissDataMaiden
            
             var cmd = await commandsRepository.GetAsync<TCommand>();
             
-            var ctx = context.CreateDataContext<TCommand>();
-            ctx.Data ??= cmd;
-            var Data = ctx.Data as BotCommandUnit;
-            Data.Command = data.command;
-            Data.Params = data.args;
+            //var ctx = context.CreateDataContext<TCommand>();
+            //ctx.Data ??= cmd;
+            //var Data = ctx.Data as BotCommandUnit;
+            //Data.Command = data.command;
+            //Data.Params = data.args;
 
-            await handler.HandleAsync(ctx);
+            await handler.HandleAsync(cmd, context);
 
             AsyncHandler next = context.Get<AsyncHandler>();            
             await next(context).ConfigureAwait(false);

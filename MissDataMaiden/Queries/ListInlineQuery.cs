@@ -26,13 +26,9 @@ namespace MissDataMaiden.Commands
         
         public async override Task LoadAsync(int skip, string search, IResponse<InlineQuery> response, InlineQuery query)
         {
-            searchResutst ??= (await repository.HandleCommandAsync<Search<DataBase>>(MissBot.Abstractions.DataAccess.SqlUnit.Entity<Search>()));
+            searchResutst ??= (await repository.HandleQueryAsync<Search<DataBase>>(SqlUnit.Entity<Search>()));
             
             resultFilter = searchResutst.Filter;
-           // BotContext.Actions<BotActionRequest>(
-           
- 
-
 
             var items = await repository.HandleQueryItemsAsync<InlineUnit<DataBase>>(new BotRequest());
                // searchResutst.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search ?? "" }));

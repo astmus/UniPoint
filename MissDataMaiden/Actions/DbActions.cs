@@ -62,7 +62,22 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
 
-        public override Task HandleAsync(IContext<InlineEntityAction<DataBase>> context)
+        public Task HandleAsync(DBDelete data, IHandleContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task HandleAsync(DBRestore data, IHandleContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task HandleAsync(DBInfo data, IHandleContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task HandleAsync(InlineEntityAction<DataBase> data, IHandleContext context)
         {
             throw new NotImplementedException();
         }

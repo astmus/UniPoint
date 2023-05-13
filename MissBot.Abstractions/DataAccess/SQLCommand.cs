@@ -90,8 +90,8 @@ namespace MissBot.Abstractions.DataAccess
     {
         public const string Empty = "SELECT 1";
         public const string SelectFrom = "SELECT * FROM ##";
-        public const string RootUnit = $"SELECT * FROM ##{nameof(Abstractions.Entities.BotUnit)}s ";
-        public const string SelectFirst = $"SELECT TOP 1 * FROM ##{nameof(Abstractions.Entities.BotUnit)}s ";
+        public const string RootUnit = $"SELECT * FROM ##{nameof(BotUnit)}s ";
+        public const string SelectFirst = $"SELECT TOP 1 * FROM ##{nameof(BotUnit)}s ";
         public const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
 
         public static readonly string[] AllFileds = { "*" };
@@ -134,8 +134,8 @@ namespace MissBot.Abstractions.DataAccess
     }
     public static class SQLExtensions
     {
-        public static string ToWhere(this MetaData data)
-            => string.Join("AND", data.KeyPairs.Select(s => s.WhereTemplate()));
+        //public static string ToWhere(this MetaData data)
+        //    => string.Join("AND", data.KeyPairs.Select(s => s.WhereTemplate()));
 
         internal static string WhereTemplate(this KeyValuePair<string, object> keyValue) => keyValue.Value switch
         {

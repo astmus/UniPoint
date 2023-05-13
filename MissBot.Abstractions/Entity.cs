@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection.Emit;
@@ -10,12 +11,35 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions
 {
     public delegate IEnumerable<string> FieldNamesSelector<TUnit>(TUnit entity);
     public delegate (string field, string value) WhereSelector<TUnit>(TUnit entity);
     public delegate void LoadSelector<TUnit>(TUnit entity);
+        public class DataMap : NameValueCollection {
+            public void Parse<TData>(TData value)
+                => ParseTokens(JToken.FromObject(value));
+            private void ParseTokens(JToken containerToken)
+            {
+                if (containerToken.Type == JTokenType.Object)
+                {
+                    foreach (JProperty child in containerToken.Children<JProperty>())
+                    {
+                        this.Add(child.Name, child.Path);
+                        ParseTokens(child.Value);
+                    }
+                }
+                else if (containerToken.Type == JTokenType.Array)
+                {
+                    foreach (JToken child in containerToken.Children())
+                    {
+                        ParseTokens(child);
+                    }
+                }
+            }
+        }
     [JsonArray]
     public record Union<TUnit> : Unit<TUnit>.Union, IList<TUnit>
     {
@@ -29,11 +53,16 @@ namespace MissBot.Abstractions
         }
 
     [JsonObject]
-    public record Unit<TEntity> : ValueUnit//, //<TEntity>
+    public record Unit<TEntity>(TEntity Entity = default) : ValueUnit//, //<TEntity>
     {
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         internal static readonly string UnitName = typeof(TEntity).Name;
-
+        public static DataMap Parse(TEntity entity)
+        {
+            var m = new DataMap();
+            m.Parse(entity);
+            return m;
+        }
         public record Collection : Union<TEntity>, IUnitCollection;
        // public class ContentUnit<TContent> where TContent : Unit<TEntity> { }
         //public virtual ContentUnit<TEntity> Content { get; set; }

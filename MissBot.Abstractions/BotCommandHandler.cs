@@ -8,20 +8,20 @@ namespace MissBot.Abstractions
         public AsyncGenericHandler<TCommand> GenericHandler
             => HandleAsync;
 
-        public virtual Task BeforeComamandHandle(IContext<TCommand> context)
+        public virtual Task BeforeComamandHandle(TCommand data, IHandleContext context)
                 => Task.CompletedTask;
-        public virtual Task AfterComamandHandle(IContext<TCommand> context)
+        public virtual Task AfterComamandHandle(TCommand data, IHandleContext context)
             => Task.CompletedTask;
-        public virtual Task OnComamandFailed(IContext<TCommand> context, Exception error)
+        public virtual Task OnComamandFailed(IHandleContext context, Exception error)
             => Task.CompletedTask;
 
-        public async Task HandleAsync(IContext<TCommand> context)
+        public async Task HandleAsync(TCommand data, IHandleContext context)
         {
             try
             {
-                await BeforeComamandHandle(context).ConfigureAwait(false);
-                await HandleCommandAsync(context.Data, context);
-                await AfterComamandHandle(context).ConfigureAwait(false);
+                await BeforeComamandHandle(data, context).ConfigureAwait(false);
+                await HandleCommandAsync(data, context);
+                await AfterComamandHandle(data, context).ConfigureAwait(false);
             }
             catch (Exception error)
             {
@@ -30,6 +30,6 @@ namespace MissBot.Abstractions
             }
         }
 
-        public abstract Task HandleCommandAsync(TCommand command, IContext<TCommand> context);
+        public abstract Task HandleCommandAsync(TCommand command, IHandleContext context);
     }
 }

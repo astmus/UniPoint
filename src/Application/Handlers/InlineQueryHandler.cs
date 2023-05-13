@@ -31,14 +31,14 @@ namespace MissBot.Handlers
     public abstract class InlineQueryHandler : BaseHandler<InlineQuery>
     {       
 
-        public async override Task HandleAsync(IContext<InlineQuery> context)
+        public async override Task HandleAsync(InlineQuery data, IHandleContext context)
         {
-            var data = context.Data;
-            var response = context.CreateResponse(data);
+    
+           // var response = context.CreateResponse(data);
 
-            await LoadAsync(data.Offset.IsNullOrEmpty() ? 0 : int.Parse(data.Offset), data.Query, response, data);
+            await LoadAsync(data.Offset.IsNullOrEmpty() ? 0 : int.Parse(data.Offset), data.Query, null, data);
             
-            await response.Commit(default);
+            //await response.Commit(default);
 
         }
         public virtual int? BatchSize { get; }

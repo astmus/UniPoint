@@ -5,6 +5,7 @@ using MissBot.Common;
 using MissBot.DataAccess.Sql;
 using MissBot.Extensions.Response;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden.Commands
@@ -71,26 +72,43 @@ namespace MissDataMaiden.Commands
 
         }
 
-        
 
-        public override async Task HandleCommandAsync(Disk command, IContext<Disk> context)
+        record RCommand : IRepositoryCommand
         {
-            IResponse<Disk> response = context.CreateResponse(command);
+            public string Command { get; set; }
+        }
+
+        public override async Task HandleCommandAsync(Disk command, IHandleContext context)
+        {
+            //IResponse<Disk> response = context.CreateResponse(command);
             //Unit<Disk>.MetaData
-            //response.WriteMetadata(Unit<Disk.Dto>.TypeMeta);
-            var sqlQuery = SQLUnit<Disk.Dto>.Instance with { Command = command.Payload };
-            if (await sqlQuery.GetResponseItemsAsync<Disk.Dto>(repository) is ICollection<Disk.Dto> result)
-            {
-                foreach (var obj in result)
-                {
-                    //obj.AddMetaData();
-                    response.Write(obj);
-                }
-            }
-            else if (sqlQuery.Result is RequestResult error)
-                response.WriteError(error);
             
-            await response.Commit(default);
+            //response.WriteMetadata(Unit<Disk.Dto>.TypeMeta);
+            //var sqlQuery = SQLUnit<Disk.Dto>.Instance with { Command = command.Payload };
+            var res = await repository.GetUnitDataAsync(command);
+            //var res = await repository.HandleQueryAsync<Unit<Disk>.Collection>(new RCommand() { Command = command.Payload });
+            //var res  = await repository.GetUnitDataAsync(command);
+           var r =  new MetaCollection(res);
+            foreach (var item in res)
+            {
+                var da = MetaData.Parse(item);
+                Console.WriteLine(da.Value);
+                var data = ValueUnit.Get(item);
+               // var unit = item.ToObject<Unit<Disk>>();
+                //response.Write(unit);
+            }
+            //if (await sqlQuery.GetResponseItemsAsync<Disk.Dto>(repository) is ICollection<Disk.Dto> result)
+            //{
+            //    foreach (var obj in result)
+            //    {
+            //        //obj.AddMetaData();
+            //        response.Write(obj);
+            //    }
+            //}
+            //else if (sqlQuery.Result is RequestResult error)
+            //    response.WriteError(error);
+            
+           // await response.Commit(default);
         }  
     }
 }

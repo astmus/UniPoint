@@ -22,27 +22,28 @@ namespace MissCore.Handlers
         public override Task ExecuteAsync(IHandleContext context)
             => Task.CompletedTask;
 
-        public async Task HandleAsync(IContext<Update<TBot>> context)
+        public async Task HandleAsync(Update<TBot> data, IHandleContext context)
         {
             handleDelegate = context.Get<AsyncHandler>();
 
             if (handleDelegate == null)
             {
-                context.SetServices(builder.BotServicesProvider());
+                //context.SetServices(builder.BotServicesProvider());
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
 
-            SetUpdateObject(context, context.Data.Type);
+            SetUpdateObject(context, data.Type);
             
-            await handleDelegate(context.Root).ConfigureAwait(false);            
+            await handleDelegate(context).ConfigureAwait(false);            
         }
 
-        object SetUpdateObject(IContext<Update<TBot>> ctx, UpdateType type) => type switch
+
+        object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch
         {
-            UpdateType.InlineQuery => ctx.Set(ctx.Data.InlineQuery),
-            UpdateType.CallbackQuery => ctx.Set(ctx.Data.CallbackQuery),
-            UpdateType.ChosenInlineResult => ctx.Set(ctx.Data.ChosenInlineResult),
+            UpdateType.InlineQuery => ctx.Set(ctx["InlineQuery"]),
+            UpdateType.CallbackQuery => ctx.Set(ctx["CallbackQuery"]),
+            UpdateType.ChosenInlineResult => ctx.Set(ctx["ChosenInlineResult"]),
             _ => ctx
         };
 

@@ -1,13 +1,12 @@
 using System.Data.Common;
 using MissBot.Abstractions.Entities;
 
-namespace MissBot.Abstractions.DataModel
+namespace MissBot.Abstractions.DataAccess
 {
-    public interface IBotDataContext
+    public interface IBotContext
     {
         void LoadBotInfrastructure();
-        DbConnection NewConnection();        
-        Task<IEnumerable<BotCommand>> LoadCommandsAsync();
+        DbConnection NewConnection();
         Task<int> HandleRequestCommandAsync(string sql, CancellationToken cancel = default);
     }
 }

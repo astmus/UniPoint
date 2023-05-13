@@ -2,11 +2,13 @@ using System.Collections.Concurrent;
 using System.Transactions;
 using MissBot.Abstractions;
 using MissCore.Data.Identity;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Context
 {
     public class Context : ConcurrentDictionary<string, object>, IContext
-    {  
+    {
+        public DataMap Map { get; protected set; }
         public T Get<T>(string name)
         {
             var result = default(T);
@@ -17,10 +19,12 @@ namespace MissCore.Data.Context
 
         public T Get<T>()
         {
-            var id = GetId<T>();
+            var id = Id.Of<T>();
             var result = default(T);
-            if (TryGetValue(id, out var r) && r is T reference)
-                result = reference;
+            if (TryGetValue(id, out var r) && r is JToken reference)
+                result = reference.ToObject<T>();
+            if (TryGetValue(id, out var o) && o is T val)
+                result = val;
 
             return result;
         }
@@ -41,12 +45,11 @@ namespace MissCore.Data.Context
         }
 
         public T Set<T>(T value, string name = null)
-            => (T)AddOrUpdate(name ?? GetId<T>(),
+            => (T)AddOrUpdate(name ?? Id.Of<T>(),
                     (k, w) => w,
                     (k, o, w) => this[k] = w, value);
 
-        protected virtual string GetId<T>()
-            => Identifier<T>.TypeId;
+
     }
 
 }

@@ -17,7 +17,7 @@ namespace MissBot.Abstractions
     
     public interface IAsyncHandler<T> : IAsyncHandler
     {
-        Task HandleAsync(IContext<T> context);
+        Task HandleAsync(T data, IHandleContext context);
     }
     public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction:class, IBotAction
     {

@@ -1,6 +1,9 @@
 using BotService.Common;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissCore.Data.Context;
+using Newtonsoft.Json.Linq;
+using Telegram.Bot.Types;
 
 namespace BotService.Connection
 {
@@ -26,16 +29,15 @@ namespace BotService.Connection
             try
             {
                 await foreach (var update in PendingUpdates(src.Token))
-                {
+                {          
                     var id = ScopePredicate(update);
                     var scope = Factory.Init(id);
                     var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-
-                    ctx.Data = update;
+                    ctx.SetData(update);                    
                     ctx.Set(scope.ServiceProvider);
 
-                    await handler.HandleAsync(ctx).ConfigFalse();
+                    await handler.HandleAsync(update, ctx as IHandleContext).ConfigFalse();
 
                     if (update.IsHandled == true)
                         Factory.Remove(id);

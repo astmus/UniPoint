@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.DataModel;
 using MissBot.DataAccess.Interfacet;
 using MissBot.DataAccess.Sql;
 using Newtonsoft.Json;
@@ -17,9 +16,9 @@ namespace MissBot.DataAccess
         public int ID { get; }
         public string? ConnectionNamespace { get; }
         public IDataConnection DataProvider { get; }
-        public IBotDataContext Context { get; }   
+        public IBotContext Context { get; }   
 
-        public BotRepository(IBotDataContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
+        public BotRepository(IBotContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
         {         
             Context = context;
         }

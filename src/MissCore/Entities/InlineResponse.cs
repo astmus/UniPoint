@@ -88,7 +88,7 @@ namespace MissBot.Common
                 InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = (string)value,
                 InlineQueryResultArticle article when key == nameof(article.Description) => article.Description = (string)value,
                 InlineQueryResultArticle article when value is BotAction action => Keyboard.Append(action),
-                InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta.Get("Name"),
+                InlineQueryResultArticle article when key == nameof(article.Title) => article.Title = meta["Name"].ToString(),
                 //InlineQueryResultArticle article when value is InlineKeyBoard mark => article.ReplyMarkup = mark.GetKeyboard,
                _ => result
             };           

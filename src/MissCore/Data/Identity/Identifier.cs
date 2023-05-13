@@ -9,21 +9,21 @@ namespace MissCore.Data.Identity
     {
         public Type IdentityType { get; protected set; }
         public static explicit operator string(Id<T> id)
-            => $"{(id.value as Type).Name.Replace("'", "[]")}: {id.GetHashCode()}";
+            => $"{(id.value as Type).Name.Replace("'", "[]").ToLower()}";
         public static implicit operator Type(Id<T> id)
             => id.value as Type;
         public static implicit operator long(Id<T> id)
             => Convert.ToInt64(id.value?.GetHashCode() ?? typeof(T).GUID.GetHashCode());
     }
 
-    public static class Identity
+    public static class Id
     {
-        public static Id<T> Of<T>(T data = default)
-            => Identifier<T>.Current.Next;
+        public static string Of<T>(T data = default)
+            => typeof(T).Name.ToLower();
         public static string Of(object data)
             => new Identifier(data);
     }
-
+             
     public class Identifier<T>
     {
         protected Identifier(object data = null)
@@ -40,8 +40,8 @@ namespace MissCore.Data.Identity
         private Id<T> Id;
         public static Type Type
             => Current.Id;
-        public static string TypeId
-            => (string)Current.Id;
+        public static Id<T> TypeId
+            => Current.Id;
 
         public Id<T> this[T data]
             => new Id<T>(data);

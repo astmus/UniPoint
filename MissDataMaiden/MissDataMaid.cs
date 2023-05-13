@@ -1,7 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.DataModel;
 using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissBot.DataAccess.Sql;
@@ -28,7 +27,7 @@ namespace MissDataMaiden
              };
 
 
-        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IBotDataContext context, IRepository<BotCommand> commands) : base(context, commands)
+        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IBotContext context, IRepository<BotCommand> commands) : base(context, commands)
         {
             log = logger;             
         }

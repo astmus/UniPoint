@@ -14,15 +14,17 @@ namespace MissDataMaiden
 
     public class ListCommandHadler : BotCommandHandler<List>
     {
-        public ListCommandHadler(IRepository<BotAction> repository)
+        public ListCommandHadler(IRepository<BotCommand> repository)
         => this.repository = repository;
         
         static List list;
-        private readonly IRepository<BotAction> repository;
+        private readonly IRepository<BotCommand> repository;
 
       
 
-        public override Task HandleCommandAsync(List command, IContext<List> context)
+
+
+        public override Task HandleCommandAsync(List command, IHandleContext context)
         {
             throw new NotImplementedException();
         }

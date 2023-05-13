@@ -14,21 +14,21 @@ namespace MissBot.Handlers
         (string command, string[] args) data;
         protected readonly IResponseNotification notifier;
 
-        public async override Task HandleAsync(IContext<CallbackQuery> context)
+        public async override Task HandleAsync(CallbackQuery query, IHandleContext context)
         {
-            var query = context.Data;
+       
             data = query.GetCommandAndArgs();           
-            notifier.Init(null, context.ClientDelegate, context.Data);
+            //notifier.Init(null, context.ClientDelegate, context.Data);
 
             try
             {                
-                await HandleAsync(context.Root, data.command, data.args);
+                await HandleAsync(context, data.command, data.args);
             }
             catch (Exception ex)
             {
                 await notifier.ShowPopupAsync(ex.Message);
             }
-            context.CommonUpdate.IsHandled = true;
+            //context.CommonUpdate.IsHandled = true;
         }
 
         protected abstract Task HandleAsync(IHandleContext context, string query, string[] args);
