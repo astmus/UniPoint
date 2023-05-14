@@ -1,15 +1,14 @@
 
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions;
-using Newtonsoft.Json;
+using MissBot.Entities;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlBotQuery<TEntity> : IRequest<Union<TEntity>> where TEntity : class
+    public record SqlBotQuery<TEntity> : MediatR.IRequest<Union<TEntity>> where TEntity : class
     {
         public record Query(string sql, int skip, int take, string filter) : SqlBotQuery<TEntity>;
         public class Handler<TQuery> : IRequestHandler<TQuery, Union<TEntity>> where TQuery : SqlBotQuery<TEntity>.Query
@@ -49,9 +48,9 @@ namespace MissDataMaiden.Queries
 
         }
     }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : ValueUnit
+    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissBot.Entities.Common.Unit
     {
-        
+
         public record Query(string sql, string connection = null) : SqlRaw<TUnion>;
         public class StreamHandler<TQuery> : IStreamRequestHandler<TQuery, TUnion> where TQuery : SqlRaw<TUnion>.Query
         {

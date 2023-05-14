@@ -3,7 +3,7 @@
 // ReSharper disable once CheckNamespace
 using Telegram.Bot.Types;
 
-namespace MissBot.Abstractions.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// This object represents the content of a message to be sent as a result of an

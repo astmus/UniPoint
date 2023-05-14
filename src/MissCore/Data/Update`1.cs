@@ -2,7 +2,7 @@ using MissBot.Abstractions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace MissCore.Entities
+namespace MissBot.Entities
 {
     public class Update<TEntity> : Update, IUpdateInfo, IUpdate<TEntity>, ICommonUpdate
     {
@@ -17,8 +17,12 @@ namespace MissCore.Entities
         public TEntity Data { get; set; }
         public bool IsCommand => this switch
         {
-            { Message: { } } when Message.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,            
+            { Message: { } } when Message.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,
             _ => false
         };
+
+        
+        public uint UpdateId { get; }
+        public bool? IsHandled { get; set; }
     }
 }

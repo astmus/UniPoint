@@ -1,5 +1,4 @@
 using System.Data.Common;
-using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions.DataAccess
 {
@@ -7,6 +6,6 @@ namespace MissBot.Abstractions.DataAccess
     {
         void LoadBotInfrastructure();
         DbConnection NewConnection();
-        Task<int> HandleRequestCommandAsync(string sql, CancellationToken cancel = default);
+        Task<TResult> HandleRequestAsync<TResult>(SQLCommand sql, CancellationToken cancel = default);
     }
 }

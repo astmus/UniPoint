@@ -1,18 +1,9 @@
-using MissBot.Attributes;
 using MissBot.Abstractions;
-using MissDataMaiden.Queries;
-using Duende.IdentityServer.Services;
-using Telegram.Bot.Types.ReplyMarkups;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using MissCore.Entities;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using MediatR;
-using MissBot.Common;
-using MissBot.Extensions.Response;
+using MissBot.Entities;
 using MissCore.Handlers;
 using MissDataMaiden.Entities;
-using MissBot.Abstractions.DataAccess;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden.Commands
 {
@@ -24,10 +15,11 @@ namespace MissDataMaiden.Commands
                                             [JsonProperty] List<EntityAction<DataBase>> Commands
     ) : EntityAction<DataBase>
     {
-        public DataBaseDetail() : this(default,default, default, default, default, default, default, default, default, default, default,default)        {
-            
+        public DataBaseDetail() : this(default, default, default, default, default, default, default, default, default, default, default, default)
+        {
+
         }
-        public DataBaseDetail(DataBaseDetail d) : base (d)
+        public DataBaseDetail(DataBaseDetail d) : base(d)
         {
 
         }
@@ -35,18 +27,18 @@ namespace MissDataMaiden.Commands
 
     public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {
-        
+
 
         public Task HandleActionAsync(DBInfo action, IHandleContext context, CancellationToken cancel = default)
         {
-           
+
             throw new NotImplementedException();
         }
 
-        public async  Task HandleAsync(IContext<DBInfo> context)
+        public async Task HandleAsync(IContext<DBInfo> context)
         {
-            var response = context.CreateResponse();
-            
+            var response = context.CreateResponse<DBInfo>();
+
             //response.Write(new DBInfo.Response("0"));
 
             await response.Commit(default);
@@ -82,5 +74,5 @@ namespace MissDataMaiden.Commands
             throw new NotImplementedException();
         }
     }
-    
+
 }

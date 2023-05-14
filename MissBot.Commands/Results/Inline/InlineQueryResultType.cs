@@ -1,8 +1,6 @@
 // ReSharper disable once CheckNamespace
 
-using Newtonsoft.Json;
-
-namespace MissBot.Abstractions.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Type of the InlineQueryResult

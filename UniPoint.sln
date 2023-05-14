@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissCore", "src\MissCore\Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Extensions.Entities", "MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj", "{E9EB6953-A065-48B3-9C13-9726C181241B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Commands", "MissBot.Commands\MissBot.Commands.csproj", "{138D1439-A20B-4BF7-8E94-558214FC6817}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Entities", "MissBot.Commands\MissBot.Entities.csproj", "{138D1439-A20B-4BF7-8E94-558214FC6817}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Abstractions", "MissBot.Abstractions\MissBot.Abstractions.csproj", "{51B33F67-77DB-4AD2-9647-4D23E1A01711}"
 EndProject

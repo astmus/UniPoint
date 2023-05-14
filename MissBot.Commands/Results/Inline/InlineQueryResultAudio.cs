@@ -1,11 +1,7 @@
-using MissBot.Abstractions.Results.Inline;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 // ReSharper disable once CheckNamespace
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a link to an MP3 audio file. By default, this audio file will be sent by the user.

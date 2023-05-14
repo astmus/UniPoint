@@ -11,9 +11,9 @@ namespace MissCore.Handlers
             => ExecuteAsync;
 
         public AsyncHandler AsyncHandler
-            => HandleAsync;    
+            => HandleAsync;
 
-        public AsyncGenericHandler<TData> GenericHandler { get; }        
+        public AsyncGenericHandler<TData> GenericHandler { get; }
 
         public virtual Task ExecuteAsync(CancellationToken cancel = default)
             => Task.CompletedTask;
@@ -23,7 +23,7 @@ namespace MissCore.Handlers
             if (context.Get<TData>() is TData data)
                 await HandleAsync(data, context);
             else
-                await context.Get<AsyncHandler>()(context).ConfigureAwait(false);
+                await context.Handler(context).ConfigureAwait(false);
         }
 
         public abstract Task HandleAsync(TData data, IHandleContext context);

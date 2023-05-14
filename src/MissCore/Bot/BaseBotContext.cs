@@ -13,24 +13,24 @@
 //{
 //    public abstract class BaseBotContext
 //    {
-        
+
 //        BotDataContext Context;
 //        public BaseBotContext( IRepository<BotCommand> commandsRepository = default)
 //        {
-            
+
 //        }
 
 
 //        void Init(IServiceProvider sp)
 //        {
 //            base.Init(sp);
-         
-            
-            
+
+
+
 //            //Context.Init();
-           
+
 //        }
-        
+
 //    }
 //}
 

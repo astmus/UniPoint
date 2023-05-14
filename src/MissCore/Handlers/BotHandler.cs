@@ -1,18 +1,18 @@
-using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissCore.Entities;
-using Telegram.Bot.Types.Enums;
+using MissBot.Entities;
+using MissBot.Entities.Query;
+using MissBot.Entities.Results;
 
 namespace MissCore.Handlers
 {
-    public class BotUpdateHandler<TBot> : BaseHandleComponent, IAsyncHandler<Update<TBot>> where TBot:class, IBot
+    public class BotUpdateHandler<TBot> : BaseHandleComponent, IAsyncHandler<Update<TBot>> where TBot : class, IBot
     {
         private readonly IBotBuilder<TBot> builder;
         AsyncHandler handleDelegate;
-      
+
         public BotUpdateHandler(IBotBuilder<TBot> builder)
-        {               
+        {
             this.builder = builder;
         }
 
@@ -34,18 +34,18 @@ namespace MissCore.Handlers
             }
 
             SetUpdateObject(context, data.Type);
-            
-            await handleDelegate(context).ConfigureAwait(false);            
+
+            await handleDelegate(context).ConfigureAwait(false);
         }
 
 
         object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch
         {
-            UpdateType.InlineQuery => ctx.Set(ctx["InlineQuery"]),
-            UpdateType.CallbackQuery => ctx.Set(ctx["CallbackQuery"]),
-            UpdateType.ChosenInlineResult => ctx.Set(ctx["ChosenInlineResult"]),
+            UpdateType.InlineQuery => ctx.Set(ctx.Get<InlineQuery>()),
+            UpdateType.CallbackQuery => ctx.Set(ctx.Get<CallbackQuery>()),
+            UpdateType.ChosenInlineResult => ctx.Set(ctx.Get<ChosenInlineResult>()),
             _ => ctx
         };
 
-    }    
+    }
 }

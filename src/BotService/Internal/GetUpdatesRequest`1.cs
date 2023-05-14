@@ -1,12 +1,13 @@
 using MissBot.Abstractions;
+using MissBot.Entities;
+using MissBot.Entities.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Types.Enums;
 
 namespace BotService.Internal
 {
     [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    internal record GetUpdatesRequest<T> : BaseRequest<T[]> where T : class, IUpdateInfo
+    internal record GetUpdatesRequest<T> : BaseRequest<T[]> where T : Update
     {
         /// <summary>
         /// Identifier of the first update to be returned

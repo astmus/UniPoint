@@ -16,11 +16,11 @@ namespace MissDataMaiden
     {
         public ListCommandHadler(IRepository<BotCommand> repository)
         => this.repository = repository;
-        
+
         static List list;
         private readonly IRepository<BotCommand> repository;
 
-      
+
 
 
 

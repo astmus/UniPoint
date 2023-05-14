@@ -1,13 +1,9 @@
-using System.Data;
 using System.Data.Common;
 using LinqToDB;
-using LinqToDB.Common;
 using LinqToDB.Data;
 using Microsoft.Extensions.Options;
-using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.DataAccess.Interfacet;
 using Newtonsoft.Json;
 
 namespace MissBot.DataAccess.Sql
@@ -21,7 +17,7 @@ namespace MissBot.DataAccess.Sql
 
 
         public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
-        {     
+        {
         }
 
         public void LoadBotInfrastructure()
@@ -57,27 +53,21 @@ namespace MissBot.DataAccess.Sql
             }
             return result;
         }
-        protected async Task<TEntity> HandleAsync<TEntity>(SQLCommand sql, CancellationToken cancellationToken = default) where TEntity : class
+        public async Task<TEntity> HandleRequestAsync<TEntity>(SQLCommand sql, CancellationToken cancel = default)
         {
             TEntity result = default(TEntity);
 
             using (var cmd = Connection.CreateCommand())
             {
-                cmd.CommandText = sql.Command;
-                if (await cmd.ExecuteScalarAsync(cancellationToken) is string res)
+                cmd.CommandText = sql.Request;
+                if (await cmd.ExecuteScalarAsync(cancel) is string res)
                     result = JsonConvert.DeserializeObject<TEntity>(res);
             }
 
             return result;
-        }                            
+        }
 
         public DbConnection NewConnection()
-            => DataProvider.CreateConnection(ConnectionString);
-
-    }
-
-
-
-
-
+            => DataProvider.CreateConnection(ConnectionString);    
+    }                                                                                              
 }

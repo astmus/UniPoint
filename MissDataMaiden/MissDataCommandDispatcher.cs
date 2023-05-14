@@ -1,30 +1,27 @@
-using MediatR;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 using MissBot.Extensions.Entities;
-using MissBot.Handlers;
-using MissCore.Entities;
-using MissCore.Handlers;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCommandDispatcher :  IAsyncBotCommandDispatcher
+    internal class MissDataCommandDispatcher : IAsyncBotCommandDispatcher
     {
         IRepository<BotCommand> commandsRepository;
         public MissDataCommandDispatcher(IRepository<BotCommand> mediator)
             => commandsRepository = mediator;
 
-        bool isCommand;        
+        bool isCommand;
         (string command, string[] args) data;
 
         public Task ExecuteAsync(IHandleContext context)
         {
             var update = context.Any<Update<MissDataMaid>>();
-            
-            if (isCommand = update.IsCommand)            
-                data = update.Message.GetCommandAndArgs();            
+
+            if (isCommand = update.IsCommand)
+                data = context.Take<Message>().GetCommandAndArgs();
 
             return HandleAsync(context, data.command);
         }
@@ -35,14 +32,14 @@ namespace MissDataMaiden
             nameof(List) => HandleAsync<List>(context),
             nameof(Info) => HandleAsync<Info>(context),
             _ => context.Get<AsyncHandler>()(context)
-        };  
+        };
 
         public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand : BotCommand, IBotUnit
         {
             var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
-           
+
             var cmd = await commandsRepository.GetAsync<TCommand>();
-            
+
             //var ctx = context.CreateDataContext<TCommand>();
             //ctx.Data ??= cmd;
             //var Data = ctx.Data as BotCommandUnit;
@@ -51,7 +48,7 @@ namespace MissDataMaiden
 
             await handler.HandleAsync(cmd, context);
 
-            AsyncHandler next = context.Handler;            
+            AsyncHandler next = context.Handler;
             await next(context).ConfigureAwait(false);
         }
     }

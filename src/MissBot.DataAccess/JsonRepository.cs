@@ -1,3 +1,5 @@
+using System.Data;
+using System.Data.Common;
 using System.Text;
 using System.Threading.Channels;
 using LinqToDB;
@@ -5,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,8 +29,8 @@ namespace MissBot.DataAccess
         }
 
         public async Task<JArray> GetUnitDataAsync<TUnit>(TUnit unit, CancellationToken cancel = default) where TUnit : IBotUnit
-            => await HandlePayloadAsync(unit.Payload, cancel);
-       
+            => await HandleSqlAsync(unit.Payload, cancel);
+
 
         public Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default)
         {
@@ -42,26 +45,35 @@ namespace MissBot.DataAccess
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = query.Command;
-                    if (await cmd.ExecuteScalarAsync(cancel) is string res)
-                        result = JsonConvert.DeserializeObject<TResult>(res);
+                    cmd.CommandText = query.Request + JSONAuto;                      
+                    var json = await ReadAsync(cmd, cancel);
+                    result = JsonConvert.DeserializeObject<TResult>(json);
                 }
             }
             return result;
         }
 
-        public async Task<JArray> HandleQueryGenericItemsAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
+        private static async Task<string> ReadAsync(DbCommand cmd, CancellationToken cancel)
         {
-            StringBuilder result = new StringBuilder("[");
-            await HandleAsync(cmd.Command, result, cancel);
-            result.Append("]");
-            return JArray.Parse(result.ToString());
+            using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancel))
+            {
+                StringBuilder b = new StringBuilder();
+                while (await reader.ReadAsync(cancel))
+                    b.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
+                reader.Close();
+                return b.ToString();
+            }
         }
 
-        public async Task<JObject> HandleQueryGenericObjectAsync(IRepositoryCommand sql, CancellationToken cancel = default)
+        public async Task<JArray> HandleQueryGenericItemsAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
+        {                                                                    
+            return await HandleSqlAsync(cmd.Request, cancel);
+        }
+
+        public async Task<JObject> HandleQueryGenericObjectAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder();
-            await HandleAsync(sql.Command, result, cancel);
+            await HandleAsync(cmd.Request, result, cancel);
             return JObject.Parse(result.ToString());
         }
 
@@ -70,7 +82,7 @@ namespace MissBot.DataAccess
             return await HandleQueryAsync<Unit<TResult>.Collection>(cmd, cancel);
         }
 
-        protected virtual async Task<JArray> HandlePayloadAsync(string sql, CancellationToken cancellationToken = default)
+        protected virtual async Task<JArray> HandleSqlAsync(string sql, CancellationToken cancellationToken = default)
         {
             JArray result = default;
             using (var conn = DataProvider.CreateConnection(ConnectionString))
@@ -78,10 +90,11 @@ namespace MissBot.DataAccess
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = sql+JSONAuto;    
-                    if (await cmd.ExecuteScalarAsync(cancellationToken) is string res)
-                        result = JArray.Parse(res);
+                    cmd.CommandText = sql + JSONAuto;
+                    var json = await ReadAsync(cmd, cancellationToken);
+                    result = JArray.Parse(json);
                 }
+                conn.Close();
             }
             return result;
 
@@ -89,9 +102,10 @@ namespace MissBot.DataAccess
 
         protected virtual async Task HandleAsync(string sql, StringBuilder result, CancellationToken cancellationToken = default)
         {
-            using (var conn = DataProvider.CreateConnection(ConnectionString))
+            using (var connection = DataProvider.CreateConnection(ConnectionString))
             {
-                using (var cmd = conn.CreateCommand())
+                await connection.OpenAsync(cancellationToken);
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = sql;
                     var reader = await cmd.ExecuteReaderAsync(cancellationToken);
@@ -100,7 +114,7 @@ namespace MissBot.DataAccess
                         reader.Close();
                     else
                     {
-                        while (await reader.ReadAsync())
+                        while (await reader.ReadAsync(cancellationToken))
                         {
                             result.Append(reader.GetString(0));
                             //object[] arr = new object[reader.FieldCount];

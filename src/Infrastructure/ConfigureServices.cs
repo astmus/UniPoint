@@ -1,23 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MissBot.Common.Interfaces;
 using MissBot.Infrastructure.Persistence;
-using MissBot.Infrastructure.Persistence.Interceptors;
-using MissBot.Infrastructure.Services;
 using MissCore.DataAccess;
 
 namespace MissBot.Infrastructure;
 public static class ConfigureServices
 {
-    
+
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-       // services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+        // services.AddScoped<AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<IApplicationGenericRepository, ApplicationDbContext>();
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
-             
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseInMemoryDatabase("MissBotDb"));
         }
@@ -26,7 +23,7 @@ public static class ConfigureServices
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                     builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-        }                
+        }
 
         //services
         //    .AddDefaultIdentity<ApplicationUser>()
@@ -38,7 +35,7 @@ public static class ConfigureServices
 
         //services.AddTransient<IDateTime, DateTimeService>();
         // services.AddTransient<IIdentityService, IdentityService>();
-       // services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
+        // services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
         //services.AddAuthentication()
         //    .AddIdentityServerJwt();

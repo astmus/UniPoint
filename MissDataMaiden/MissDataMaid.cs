@@ -2,10 +2,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Attributes;
-using MissBot.DataAccess.Sql;
-using MissCore.Entities;
-using MissDataMaiden.Commands;
+using MissBot.Entities;
 
 namespace MissDataMaiden
 {
@@ -17,19 +14,19 @@ namespace MissDataMaiden
     {
         private readonly ILogger<MissDataMaid> _logger;
         private IServiceScope scope;
-        private ILogger<MissDataMaid> log;  
+        private ILogger<MissDataMaid> log;
 
         public override Func<ICommonUpdate, string> ScopePredicate
              => (update) => update switch
              {
-                 Update upd when upd.Type is Telegram.Bot.Types.Enums.UpdateType.InlineQuery => $"{upd.InlineQuery.Id}",
+                 Update upd when upd.Type is UpdateType.InlineQuery => $"{upd.InlineQuery.Id}",
                  _ => $"{nameof(update.Chat)}: {update.Chat.Id}"
              };
 
 
         public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IBotContext context, IRepository<BotCommand> commands) : base(context, commands)
         {
-            log = logger;             
+            log = logger;
         }
 
 

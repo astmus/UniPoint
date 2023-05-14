@@ -1,7 +1,7 @@
 using MissBot.Abstractions.Configuration;
+using MissBot.Entities;
 using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration
 {
@@ -29,7 +29,7 @@ namespace BotService.Configuration
         }
         public string Token { get; internal set; }
         public TimeSpan Timeout { get; internal set; }
-        
+
         /// <summary>
         ///  Setup custom parser of success response
         /// </summary>
@@ -87,6 +87,6 @@ namespace BotService.Configuration
         /// Handler of connection exception
         /// </summary>
         public Func<Exception, CancellationToken, Task> ConnectionErrorHandler { get; internal set; }
-        
+
     }
 }

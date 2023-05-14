@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.DataAccess.Interfacet;
-using MissBot.DataAccess.Sql;
+using MissBot.Abstractions.Entities;
 using Newtonsoft.Json;
 
 namespace MissBot.DataAccess
@@ -16,35 +15,36 @@ namespace MissBot.DataAccess
         public int ID { get; }
         public string? ConnectionNamespace { get; }
         public IDataConnection DataProvider { get; }
-        public IBotContext Context { get; }   
+        public IBotContext Context { get; }
+        public IEnumerable<BotCommand> Commands { get; }
 
         public BotRepository(IBotContext context)// : base(new BotContextOptions(configuration.GetConnectionString("Default")))
-        {         
+        {
             Context = context;
         }
-        
+
         public Task ExecuteCommandAsync(IRepositoryCommand query, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
 
         public async Task<TResult> HandleQueryAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default) where TResult : class
-        {            
+        {
             return await HandleCommandAsync<TResult>(query, cancel);
         }
         public async Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default)
         {
             TResult result = default(TResult);
             using (var connection = Context.NewConnection())
-            {                                                                                
-                await connection.OpenAsync();
+            {
+                await connection.OpenAsync(cancel);
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = query.Command;
+                    cmd.CommandText = query.Request;
                     try
                     {
                         if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)
-                            result = JsonConvert.DeserializeObject<TResult>(res);                        
+                            result = JsonConvert.DeserializeObject<TResult>(res);
                     }
                     finally
                     {
@@ -53,7 +53,7 @@ namespace MissBot.DataAccess
                 }
             }
             return result;
-        }         
+        }
     }
 }
 

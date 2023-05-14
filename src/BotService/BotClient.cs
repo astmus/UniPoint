@@ -1,9 +1,8 @@
-using BotService.Connection.Extensions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Entities;
 using MissBot.Extensions;
-using MissCore.Entities;
-using Telegram.Bot.Types;
+using MissCore.DataAccess.Async;
 
 namespace BotService
 {
@@ -17,7 +16,7 @@ namespace BotService
         IBotBuilder<TBot> builder;
         public BotClient(ILogger<BotClient<TBot>> logger, IHostApplicationLifetime hostLifeTime, IHandleContextFactory scopeFactory)
         {
-            _logger = logger;            
+            _logger = logger;
             factory = scopeFactory;
             _hostLifeTime = hostLifeTime;
             botScopeServices = (scope = factory.ScopeFactory.CreateScope()).ServiceProvider;
@@ -25,7 +24,7 @@ namespace BotService
 
         IServiceProvider botScopeServices
         { get; init; }
-        
+
 
         TBot Bot;
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -41,7 +40,7 @@ namespace BotService
                 var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
                 Bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)
                 Bot.Initialize();
-                await Bot.SyncCommands(client);                
+                await Bot.SyncCommands(client);
                 _logger.LogInformation($"Worker runned at: {DateTimeOffset.Now} {Bot}");
             }
             catch (Exception ex)

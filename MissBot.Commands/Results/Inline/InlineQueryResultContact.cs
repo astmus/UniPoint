@@ -1,9 +1,6 @@
 // ReSharper disable once CheckNamespace
 
-using MissBot.Abstractions.Results.Inline;
-using Newtonsoft.Json;
-
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a contact with a phone number. By default, this contact will be sent by the user.

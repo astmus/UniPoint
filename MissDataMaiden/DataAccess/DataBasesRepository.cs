@@ -1,22 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BotService;
-using MediatR;
-using Microsoft.Data.SqlClient;
-using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissDataMaiden.Entities;
-using MissDataMaiden.Queries;
 
 namespace MissDataMaiden.DataAccess
 {
     internal class DataBasesRepository : IRepository<DataBase>
     {
-       
-        
+
+
 
         public Task<IEnumerable<DataBase>> GetAllAsync()
         {

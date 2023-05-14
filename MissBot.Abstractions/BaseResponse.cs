@@ -1,22 +1,18 @@
-using System.Collections.Generic;
-using MissBot.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Types;
+using MissBot.Entities;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Commands
+namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponseChannel
+    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage")
     {
-        [JsonIgnore]
-        public TResponse ResponseData { get; set; }
-		/// <inheritdoc />
+        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public ChatId ChatId { get; }
-
+        public ChatId ChatId
+            => chat.Id;
+        Chat chat
+            => Context.Take<Chat>();
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
         /// </summary>
@@ -27,11 +23,17 @@ namespace MissBot.Commands
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Text { get; }
+        public string Text { get; set; }
+
+        /// <summary>
+        /// New caption of the message, 0-1024 characters after entities parsing
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string? Caption { get; set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; }
+        public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
 
         /// <inheritdoc cref="Abstractions.Documentation.Entities"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -70,11 +72,6 @@ namespace MissBot.Commands
         /// (in the format <c>@channelusername</c>)
         /// </param>
         /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
-        public ResponseRequest(ChatId chatId)
-            : base("sendMessage")
-        {
-            ChatId = chatId;
-            Text = nameof(TResponse);
-        }
+
     }
 }

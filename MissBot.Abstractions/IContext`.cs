@@ -7,8 +7,6 @@ namespace MissBot.Abstractions
         TScope Data { get; set; }
         DataMap Map { get; }
         IHandleContext Root { get; }
-        IResponse<TScope> CreateResponse(TScope scopeData = default);
-        ICommonUpdate CommonUpdate { get; }
-        BotClientDelegate ClientDelegate { get; }
+        IResponse<TSub> CreateResponse<TSub>(TScope scopeData = default) where TSub : TScope;
     }
 }

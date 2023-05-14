@@ -1,8 +1,7 @@
 using System.Runtime.CompilerServices;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Entities;
 using Newtonsoft.Json;
-using Telegram.Bot.Types.Enums;
 
 namespace BotService.Configuration
 {
@@ -110,6 +109,6 @@ namespace BotService.Configuration
         {
             Options.UseCustomParser = true;
             return this;
-        }       
+        }
     }
 }

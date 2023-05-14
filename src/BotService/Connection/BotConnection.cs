@@ -1,8 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using Telegram.Bot.Requests;
-using Telegram.Bot.Requests.Abstractions;
-using Telegram.Bot.Types;
+using MissBot.Entities;
+using MissBot.Entities.Common;
 
 namespace BotService.Connection
 {
@@ -22,24 +21,24 @@ namespace BotService.Connection
             => (uint)Options.Timeout.TotalSeconds;
 
 
-        public async Task<TBot> GetBotAsync<TBot>(IBotConnectionOptions options, CancellationToken cancellationToken = default) where TBot:BaseBot
+        public async Task<TBot> GetBotAsync<TBot>(IBotConnectionOptions options, CancellationToken cancellationToken = default) where TBot : BaseBot
         {
             Options = options;
-            var info = await MakeRequestAsync<TBot>(request: new ParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
+            var info = await MakeRequestAsync<TBot>(request: new BaseParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
             return info;
         }
 
-        public async Task SendCommandAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IRequest
+        public async Task SendCommandAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IBotRequest
         {
             await SendRequestAsync(request, cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
         }
 
-        public async Task<TResponse> SendQueryRequestAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<TResponse> SendQueryRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
-           return  await MakeRequestAsync<TResponse>(request, cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
+            return await MakeRequestAsync<TResponse>(request, cancellationToken: cancellationToken)
+                         .ConfigureAwait(false);
         }
     }
 }

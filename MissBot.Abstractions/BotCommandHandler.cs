@@ -1,6 +1,6 @@
 namespace MissBot.Abstractions
 {
-   public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : MissBot.Abstractions.Entities.BotCommand
+    public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : MissBot.Abstractions.Entities.BotCommand
     {
 
         public AsyncHandler AsyncHandler { get; }

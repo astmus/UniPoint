@@ -1,6 +1,7 @@
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
+
 namespace MissBot.Abstractions
 {
     public interface IAsyncHandler
@@ -11,15 +12,15 @@ namespace MissBot.Abstractions
     public interface IAsyncBotCommandDispatcher
     {
         Task ExecuteAsync(IHandleContext context);
-        Task HandleAsync<TCommand>(IHandleContext context) where TCommand :BotCommand, IBotUnit;
-    
+        Task HandleAsync<TCommand>(IHandleContext context) where TCommand : BotCommand, IBotUnit;
+
     }
-    
+
     public interface IAsyncHandler<T> : IAsyncHandler
     {
         Task HandleAsync(T data, IHandleContext context);
     }
-    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction:class, IBotAction
+    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction : class, IBotAction
     {
         Task HandleActionAsync(TAction action, IHandleContext context, CancellationToken cancel = default);
     }
@@ -27,7 +28,7 @@ namespace MissBot.Abstractions
 
     public interface IAsyncUpdateHandler<T>
     {
-        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U:IUpdate<T>,IUpdateInfo;
+        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U : IUpdate<T>, IUpdateInfo;
     }
 
 
@@ -36,7 +37,7 @@ namespace MissBot.Abstractions
         void Initialize(CancellationToken cancel = default);
     }
 
-    public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate : IUpdateInfo
+    public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate : Update
     {
         Func<TUpdate, string> ScopePredicate { get; set; }
         void PushUpdate(TUpdate update);

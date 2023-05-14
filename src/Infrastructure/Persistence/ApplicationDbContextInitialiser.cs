@@ -9,8 +9,8 @@ public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext? _context;
-   // private readonly UserManager<ApplicationUser> _userManager;
-   // private readonly RoleManager<IdentityRole> _roleManager;
+    // private readonly UserManager<ApplicationUser> _userManager;
+    // private readonly RoleManager<IdentityRole> _roleManager;
 
     public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext? context/*, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager*/)
     {
@@ -49,7 +49,7 @@ public class ApplicationDbContextInitialiser
         }
     }
 
-    public  Task TrySeedAsync()
+    public Task TrySeedAsync()
     {
         // Default roles
         var administratorRole = new IdentityRole("Administrator");
@@ -85,7 +85,7 @@ public class ApplicationDbContextInitialiser
         //    });
 
         //    await _context?.SaveChangesAsync();
-      //  }
+        //  }
     }
 }
 #nullable disable

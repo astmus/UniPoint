@@ -1,11 +1,7 @@
-using System.IO;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissCore.Data.Identity;
-using Newtonsoft.Json.Linq;
-using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
+using MissBot.Entities.Common;
 
 namespace MissCore.Data.Context
 {
@@ -16,14 +12,14 @@ namespace MissCore.Data.Context
             get => Root.Get<TScope>();
             set => Root.Set(value);
         }
-        
+
         public void SetData(TScope data)
-        { 
-            Map = Unit<TScope>.Parse(data);
+        {
+            Map = Unit<TScope>.MapData(data);
             Data = data;
         }
 
-        
+
 
         IServiceProvider scoped;
         IBotServicesProvider botServices;
@@ -58,22 +54,18 @@ namespace MissCore.Data.Context
         public IAsyncHandler<T> GetAsyncHandler<T>()
             => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-      
-
-        public IResponse<TScope> CreateResponse(TScope scopeData = default)
+        public IResponse<TSub> CreateResponse<TSub>(TScope scopeData = default) where TSub : TScope
         {
-            var res = Root.BotServices.GetRequiredService<IResponse>();
-            Data ??= scopeData ?? ActivatorUtilities.GetServiceOrCreateInstance<TScope>(BotServices);
-            return res.Init(Data, this);
+            return ActivatorUtilities.GetServiceOrCreateInstance<IResponse<TSub>>(BotServices);
         }
 
         public IHandleContext Root { get; protected set; }
-        public ICommonUpdate CommonUpdate
-            => Get<ICommonUpdate>();
+
         public BotClientDelegate ClientDelegate
             => Root.BotServices.GetRequiredService<IBotClient>;
 
         public AsyncHandler Handler
-            => Get<AsyncHandler>(Id.Of<AsyncHandler>());
+            => Get<AsyncHandler>();
+
     }
 }

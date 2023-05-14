@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MissBot.Commands\MissBot.Entities.csproj" />
     <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />

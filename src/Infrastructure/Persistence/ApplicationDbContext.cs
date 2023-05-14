@@ -1,11 +1,9 @@
 using System.Reflection;
 using MediatR;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using MissBot.Infrastructure.Common;
+using MissBot.Entities;
 using MissBot.Infrastructure.Persistence.Interceptors;
 using MissCore.DataAccess;
-using Telegram.Bot.Types;
 
 namespace MissBot.Infrastructure.Persistence;
 public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<ApplicationUser>*/, IApplicationGenericRepository
@@ -39,16 +37,16 @@ public class ApplicationDbContext : DbContext/*ApiAuthorizationDbContext<Applica
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-     //   optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
+        //   optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-     //   await _mediator.DispatchDomainEvents(this);
+        //   await _mediator.DispatchDomainEvents(this);
 
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public IEnumerable<TEntity> GetRepository<TEntity>() where TEntity:class
+    public IEnumerable<TEntity> GetRepository<TEntity>() where TEntity : class
         => Set<TEntity>().AsNoTracking();
 }

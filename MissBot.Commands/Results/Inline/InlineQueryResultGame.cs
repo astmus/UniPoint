@@ -1,9 +1,8 @@
 // ReSharper disable once CheckNamespace
 
-using MissBot.Abstractions.Results.Inline;
 using Telegram.Bot.Types;
 
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a <see cref="Game"/>.

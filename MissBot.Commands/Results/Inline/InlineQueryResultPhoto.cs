@@ -1,9 +1,7 @@
-using MissBot.Abstractions.Results.Inline;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 // ReSharper disable once CheckNamespace
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a link to a photo. By default, this photo will be sent by the user with optional caption.

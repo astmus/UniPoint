@@ -1,8 +1,6 @@
 // ReSharper disable once CheckNamespace
 
-using MissBot.Abstractions.Results.Inline;
-
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a location on a map. By default, the location will be sent by the user. Alternatively,

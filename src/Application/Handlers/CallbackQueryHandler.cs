@@ -1,8 +1,7 @@
 using MissBot.Abstractions;
+using MissBot.Entities.Query;
 using MissBot.Extensions;
-using MissCore;
 using MissCore.Handlers;
-using Telegram.Bot.Types;
 
 namespace MissBot.Handlers
 {
@@ -10,18 +9,18 @@ namespace MissBot.Handlers
     {
         public CallbackQueryHandler(IResponseNotification notifier)
             => this.notifier = notifier;
-        
+
         (string command, string[] args) data;
         protected readonly IResponseNotification notifier;
 
         public async override Task HandleAsync(CallbackQuery query, IHandleContext context)
         {
-       
-            data = query.GetCommandAndArgs();           
+
+            data = query.GetCommandAndArgs();
             //notifier.Init(null, context.ClientDelegate, context.Data);
 
             try
-            {                
+            {
                 await HandleAsync(context, data.command, data.args);
             }
             catch (Exception ex)

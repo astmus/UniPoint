@@ -42,8 +42,8 @@ VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/test', '/{0}', 'test Command', '');
 INSERT INTO ##BotUnits
-VALUES ('Feature', 'SearchDataBase', '', null,
-        'SELECT CAST(Id as VARCHAR(15)) as Id, Name, Created, DaysAgo, Size from ##DataBase where Name like ''%{2}%'' ORDER BY Name OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY');
+VALUES ('Search', 'DataBase', '', null,
+        'SELECT * from ##{0} WHERE Name LIKE ''%{1}%'' ORDER BY Name OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY');
 
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info where Id = {0} ');

@@ -1,18 +1,15 @@
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Response;
-using MissBot.Common;
-using MissBot.Infrastructure;
+using MissBot.Entities;
+using MissBot.Entities.Query;
+using MissBot.Entities.Response;
+using MissBot.Entities.Results;
 using MissBot.Response;
 using MissCore;using MissCore.Data.Context;
-using MissCore.Entities;
-using Telegram.Bot.Types;
-using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;               internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {
 
@@ -114,9 +111,9 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             AsyncHandler handle = context =>
                 {
                     Update upd = context.Any<Update>();
-                    if (upd.IsHandled != true && upd.IsHandled != false)
-                        upd.IsHandled  = true;
-#if DEBUG                    Console.WriteLine("No handler for update {0} of type {1}.", upd.UpdateId, upd.UpdateId);
+                    if (context.IsHandled != true && context.IsHandled != false)
+                        context.IsHandled  = true;
+#if DEBUG                    Console.WriteLine("No handler for update {0} of type {1}.", upd.Id, upd.Id);
 #endif                    return Task.FromResult(1);
                 };            foreach (var component in _components.Reverse())                handle = component(handle);            return HandlerDelegate = handle;        }
 

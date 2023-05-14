@@ -1,16 +1,15 @@
-using MissBot.Abstractions.Results.Inline;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 // ReSharper disable once CheckNamespace
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents the content of a text message to be sent as the result of an
 /// <see cref="InlineQuery">inline query</see>.
 /// </summary>
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-public class InputTextMessageContent : InputMessageContent
+public class InputTextMessageContent : InputMessageContent, IInlineContent
 {
     /// <summary>
     /// Text of the message to be sent, 1-4096 characters

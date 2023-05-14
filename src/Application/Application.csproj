@@ -31,7 +31,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
         <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
-        <ProjectReference Include="..\..\MissBot.Commands\MissBot.Commands.csproj" />
+        <ProjectReference Include="..\..\MissBot.Commands\MissBot.Entities.csproj" />
         <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
         <ProjectReference Include="..\MissCore\MissCore.csproj" />
     </ItemGroup>

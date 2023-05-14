@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Threading.Channels;
 using BotService.Internal;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using Telegram.Bot.Types.Enums;
+using MissBot.Entities;
+using MissCore.DataAccess.Async;
 
 namespace BotService.Connection
 {
@@ -14,7 +14,7 @@ namespace BotService.Connection
     /// <para>Updates are received on a different thread and enqueued.</para>
     /// </summary>
 
-    public class AsyncBotUpdatesReceiver<TUpdate> : IBotUpdatesReceiver<TUpdate> where TUpdate : class, IUpdateInfo
+    public class AsyncBotUpdatesReceiver<TUpdate> : IBotUpdatesReceiver<TUpdate> where TUpdate : Update
     {
         readonly IBotConnection botConnection;
         //readonly ReceiverOptions _receiverOptions;
@@ -153,7 +153,7 @@ namespace BotService.Connection
 
                         if (updateArray.Length > 0)
                         {
-                            _messageOffset = updateArray[^1].UpdateId + 1;
+                            _messageOffset = updateArray[^1].Id + 1;
 
                             Interlocked.Add(ref _pendingUpdates, updateArray.Length);
 

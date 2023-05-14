@@ -1,19 +1,14 @@
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Telegram.Bot.Types;
-using TG = Telegram.Bot.Types.Message;
+using MissBot.Entities;
 /// <summary>
 /// This object represents a message.
 /// </summary>
 namespace MissBot.Abstractions
 {
-    public class Message<TEntity> : TG
+    public class Message<TEntity> : Message
     {
         public UpdateDataRequest<TEntity> Update()
             => new UpdateDataRequest<TEntity>(Chat.Id, MessageId, Result);
 
-        [JsonProperty(Required = Required.Always)]
-        public new Chat Chat { get; set; }
         public TEntity Result { get; set; }
     }
 }

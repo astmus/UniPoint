@@ -1,11 +1,11 @@
-using Telegram.Bot.Requests.Abstractions;
+using MissBot.Entities;
 
 namespace MissBot.Abstractions.Configuration
 {
     public interface IBotClient : IBotConnection
     {
-        Task SendCommandAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IRequest;
-        Task<TResponse> SendQueryRequestAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
+        Task SendCommandAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IBotRequest;
+        Task<TResponse> SendQueryRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default);
     }
 
     public interface IBotClient<TBot> : IBotClient where TBot : IBot

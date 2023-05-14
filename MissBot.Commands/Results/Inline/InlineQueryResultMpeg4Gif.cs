@@ -1,9 +1,7 @@
-using MissBot.Abstractions.Results.Inline;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 // ReSharper disable once CheckNamespace
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this

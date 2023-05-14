@@ -1,12 +1,7 @@
-using System;
-using System.IO;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using BotService.Connect.Extensions;
 
 using Newtonsoft.Json;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions;
 
 namespace BotService.Connection.Extensions

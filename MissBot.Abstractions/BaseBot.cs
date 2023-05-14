@@ -27,7 +27,7 @@ namespace MissBot.Abstractions
         }
 
         protected IRepository<BotCommand> commandsRepository;
-        private readonly IBotContext Context;        
+        private readonly IBotContext Context;
 
         public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
@@ -124,5 +124,5 @@ namespace MissBot.Abstractions
 
         #endregion
     }
-    
+
 }

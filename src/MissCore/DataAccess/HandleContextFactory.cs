@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 
-namespace MissCore.Handlers
+namespace MissCore.DataAccess
 {
     public class HandleContextFactory : IHandleContextFactory
     {
@@ -11,11 +11,11 @@ namespace MissCore.Handlers
         public IServiceScope this[string scopeHash]
             => scopes[scopeHash];
 
-        ConcurrentDictionary<string, IServiceScope> scopes = new ConcurrentDictionary<string, IServiceScope>();        
+        ConcurrentDictionary<string, IServiceScope> scopes = new ConcurrentDictionary<string, IServiceScope>();
 
         public HandleContextFactory(IServiceScopeFactory clientRoot)
         {
-            ScopeFactory = clientRoot;          
+            ScopeFactory = clientRoot;
         }
 
         public IServiceScope Init(string identifier)

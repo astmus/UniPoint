@@ -1,4 +1,3 @@
-using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -19,7 +18,7 @@ namespace MissBot.Abstractions.Entities
             => UnitName;
         [JsonProperty]
         public string CommandAction
-            { get;  }
+        { get; }
         public string Placeholder { get; set; }
         public string Payload { get; set; }
         public string[] Params { get; set; }

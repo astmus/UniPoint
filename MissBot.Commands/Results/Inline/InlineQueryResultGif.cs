@@ -1,9 +1,7 @@
-using MissBot.Abstractions.Results.Inline;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 // ReSharper disable once CheckNamespace
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the

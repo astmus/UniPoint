@@ -3,9 +3,8 @@
 #pragma warning disable CA1823
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-using MissBot.Commands.Results.Inline;
 
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 // ReSharper disable once UnusedType.Global
 internal static class Documentation

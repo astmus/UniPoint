@@ -1,14 +1,17 @@
-using Telegram.Bot.Types;
+
+
+using MissBot.Entities;
 
 namespace MissBot.Abstractions
 {
     public interface IHandleContext : IContext
     {
-        IBotServicesProvider BotServices { get; }        
+        IBotServicesProvider BotServices { get; }
         IAsyncHandler<T> GetAsyncHandler<T>();
         T GetNextHandler<T>() where T : class;
         AsyncHandler Handler { get; }
-        IHandleContext SetNextHandler<T>(IContext context, T data) where T:class;
+        
+        IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
         IContext<T> CreateDataContext<T>(T data = default);
     }
 

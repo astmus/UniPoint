@@ -1,6 +1,5 @@
-using AsyncAwaitBestPractices;
-
 using System.Runtime.CompilerServices;
+using AsyncAwaitBestPractices;
 
 
 namespace BotService

@@ -1,8 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataAccess;
-using Telegram.Bot.Types;
 
 namespace MissCore
 {

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using Telegram.Bot.Types;
 
 public static class ContextExtension
 {
@@ -13,9 +12,7 @@ public static class ContextExtension
         => factory.ServiceProvider.CreateScope();
     internal static IServiceScope CreateMessageScope(this IServiceScope factory)
         => factory.ServiceProvider.CreateScope();
-    internal static IContext<User> GetUserContext(this MissCore.DataAccess.ResponseDataContext contextFactory, IUpdateInfo update)
-        => contextFactory.Get<IContext<User>>(update.ToString());    
-   
+
 
     internal static T CreateContext<T>(this IServiceScope scope) where T : IContext
         => ActivatorUtilities.GetServiceOrCreateInstance<T>(scope.ServiceProvider);

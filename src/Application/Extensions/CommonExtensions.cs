@@ -1,9 +1,5 @@
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MissBot.Abstractions.Configuration;
 
 namespace MissBot.Extensions
 {

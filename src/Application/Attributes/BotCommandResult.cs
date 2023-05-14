@@ -4,7 +4,7 @@ namespace MissBot.Attributes
     public class BotCommandResultAttribute : Attribute
     {
         public string Name { get; init; }
-        public object Value { get; set; }        
+        public object Value { get; set; }
         //public IBotCommandData Command { get; set; }
     }
 }

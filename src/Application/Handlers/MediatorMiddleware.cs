@@ -14,7 +14,7 @@ namespace MissBot.Handlers
         public AsyncHandler AsyncHandler { get; }
 
         public Task ExecuteAsync(IHandleContext context, AsyncHandler next)
-        {            
+        {
             context.Set(mm);
             return next(context);
         }

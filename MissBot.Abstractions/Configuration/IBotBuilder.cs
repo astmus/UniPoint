@@ -1,9 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using Telegram.Bot.Types;
+using MissBot.Entities.Query;
+using MissBot.Entities.Results;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace MissBot.Abstractions.Configuration
@@ -16,8 +14,8 @@ namespace MissBot.Abstractions.Configuration
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
 
         IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotAction;
-        
-        
+
+
         IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler;
 
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;

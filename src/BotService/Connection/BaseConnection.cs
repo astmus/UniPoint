@@ -1,12 +1,11 @@
 using System.Net;
 using System.Runtime.CompilerServices;
 using BotService.Connection.Extensions;
+using MissBot.Abstractions.Args;
 using MissBot.Abstractions.Configuration;
-using Telegram.Bot.Args;
+using MissBot.Entities;
+using MissBot.Entities.Common;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Requests;
-using Telegram.Bot.Requests.Abstractions;
-using Telegram.Bot.Types;
 
 namespace BotService.Connection
 {
@@ -32,7 +31,7 @@ namespace BotService.Connection
             //Options = options ?? throw new ArgumentNullException(nameof(options));
             _httpClient = httpClient ?? new HttpClient();
         }
-        public virtual async Task SendRequestAsync(IRequest request, CancellationToken cancellationToken = default)
+        public virtual async Task SendRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
         {
             /// <inheritdoc />
             if (request is null) { throw new ArgumentNullException(nameof(request)); }
@@ -78,11 +77,11 @@ namespace BotService.Connection
             }
 
             var apiResponse = await httpResponse
-                .DeserializeContentAsync<ApiResponse<object>>(
+                .DeserializeContentAsync<Telegram.Bot.Types.ApiResponse<object>>(
                     guard: response => response.Ok == false ||
                                        response.Result is null, Options.SerializeSettings
                 )
-                .ConfigureAwait(false);           
+                .ConfigureAwait(false);
 
             [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
             static async Task<HttpResponseMessage> SendRequestAsync(
@@ -117,8 +116,8 @@ namespace BotService.Connection
                 return httpResponse;
             }
         }
-        public virtual async Task<TResponse> MakeRequestAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
-        {       
+        public virtual async Task<TResponse> MakeRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
+        {
             /// <inheritdoc />
             if (request is null) { throw new ArgumentNullException(nameof(request)); }
 
@@ -167,7 +166,7 @@ namespace BotService.Connection
             }
 
             var apiResponse = await httpResponse
-                .DeserializeContentAsync<ApiResponse<TResponse>>(
+                .DeserializeContentAsync<Telegram.Bot.Types.ApiResponse<TResponse>>(
                     guard: response => response.Ok == false ||
                                        response.Result is null, Options.SerializeSettings
                 )
@@ -217,7 +216,7 @@ namespace BotService.Connection
         {
             try
             {
-                await MakeRequestAsync<User>(request: new ParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+                await MakeRequestAsync<User>(request: new BaseParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
                 return true;
             }

@@ -1,10 +1,6 @@
 // ReSharper disable once CheckNamespace
 
-using MissBot.Abstractions.Results.Inline;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
-namespace MissBot.Commands.Results.Inline;
+namespace MissBot.Entities.Results.Inline;
 
 /// <summary>
 /// Represents a link to an article or web page.

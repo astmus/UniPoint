@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions.DataAccess
@@ -16,11 +14,11 @@ namespace MissBot.Abstractions.DataAccess
     public struct SQLCommand<TEntity> : IRepositoryCommand
     {
         public string Entity
-             => Unit<TEntity>.UnitName;
+             => Unit<TEntity>.Key;
         public SQLType Type;
         public string WHERE;
         string Template
-            => $"{SqlUnit.Templated(SqlUnit.Templates.Entity,Entity)} {WHERE}";
+            => $"{SqlUnit.Templated(SqlUnit.Templates.Entity, Entity)} {WHERE}";
         public SQLCommand(string where, SQLType type = SQLType.JSONAuto | SQLType.JSONNoWrap)
         {
             WHERE = $" WHERE {where} ";
@@ -28,8 +26,8 @@ namespace MissBot.Abstractions.DataAccess
         }
 
         public static implicit operator string(SQLCommand<TEntity> cmd)
-            => cmd.Command;
-        public string Command
+            => cmd.Request;
+        public string Request
             => Type switch
             {
 
@@ -57,8 +55,8 @@ namespace MissBot.Abstractions.DataAccess
         public static implicit operator SQLCommand(string sql)
             => new SQLCommand(sql);
         public static implicit operator string(SQLCommand cmd)
-            => cmd.Command;
-        public string Command
+            => cmd.Request;
+        public string Request
             => Type switch
             {
                 SQLType.JSONAuto => SqlUnit.Templated(SqlUnit.Templates.JSONAuto, Sql).ApplyFields(Fields),
@@ -106,15 +104,15 @@ namespace MissBot.Abstractions.DataAccess
         }
 
         public static SQLCommand Entities<TEntity>(FieldNamesSelector<TEntity> fields = default) where TEntity : class
-            => new SQLCommand($"{RootUnit} WHERE Entity = '{Unit<TEntity>.UnitName}'", fields?.Invoke(default(TEntity)));
+            => new SQLCommand($"{RootUnit} WHERE Entity = '{Unit<TEntity>.Key}'", fields?.Invoke(default(TEntity)));
         public static BotRequest Actions<TAction>() where TAction : BotActionRequest
-            => new BotRequest($"{RootUnit} WHERE Entity = '{Unit<TAction>.UnitName}'", SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new BotRequest($"{RootUnit} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
         public static SQLCommand Entity<TEntity>(FieldNamesSelector<TEntity> fields = default)
-            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<TEntity>.UnitName}'", fields?.Invoke(default(TEntity)), SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<TEntity>.Key}'", fields?.Invoke(default(TEntity)), SQLType.JSONPath | SQLType.JSONNoWrap);
         public static SQLCommand Command<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
-            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<BotCommand>.UnitName}' AND Command = '/{Abstractions.Entities.BotUnit2<TCommand>.EntityName}'", fields, SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Abstractions.Entities.BotUnit2<TCommand>.EntityName}'", fields, SQLType.JSONPath | SQLType.JSONNoWrap);
         public static SQLCommand Select<TUnitData>(string field, string value)
-            => new SQLCommand($"{SelectFrom}{Unit<TUnitData>.UnitName} WHERE {field} = '{value}'", null, SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new SQLCommand($"{SelectFrom}{Unit<TUnitData>.Key} WHERE {field} = '{value}'", null, SQLType.JSONPath | SQLType.JSONNoWrap);
 
         //public static SQLUnit<TCommand> CommandUnit<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
         //    => new SQLUnit<TCommand>(new SQLCommand($"{FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields, SQLType.JSONPath | SQLType.JSONNoWrap));

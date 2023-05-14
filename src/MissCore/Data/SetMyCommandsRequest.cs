@@ -1,11 +1,7 @@
-
-using System.Collections.Generic;
-using MissBot.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using MissBot.Entities.Common;
 using Telegram.Bot.Types;
 
-namespace MissBot.Commands;
+namespace MissBot.Entities;
 
 /// <summary>
 /// Use this method to change the list of the bot’s commands. See

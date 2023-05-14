@@ -1,4 +1,4 @@
-using TG = Telegram.Bot.Types.Message;
+using TG = MissBot.Entities.Message;
 /// <summary>
 /// This object represents a message.
 /// </summary>

@@ -1,7 +1,6 @@
-using MediatR;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
-using MissCore.Entities;
+using MissBot.Entities.Common;
 using MissDataMaiden.Queries;
 
 namespace MissDataMaiden.Commands
@@ -11,7 +10,7 @@ namespace MissDataMaiden.Commands
         public override string CommandAction => nameof(Info);
     }
 
-    public record InfoUnit(string s) : ValueUnit
+    public record InfoUnit(string s) : Unit
     {
 
     }
@@ -20,18 +19,18 @@ namespace MissDataMaiden.Commands
     {
 
         SqlRaw<InfoUnit>.Query CurrentRequest { get; set; }
-   
+
         public IConfiguration Config { get; }
-        
+
         string connectionString;
         private const string CFG_KEY_COMMAND = nameof(IBotCommand);
         private const string CFG_KEY_DESCRIPTION = nameof(IBotCommand.Description);
         //private const string CFG_KEY_PARAMS = nameof(IBotCommand.Params);
         public InfoCommandHadler(IConfiguration config)
         {
-           
+
             Config = config;
-            
+
         }
 
 

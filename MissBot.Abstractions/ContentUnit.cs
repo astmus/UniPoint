@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 
-
 namespace MissBot.Abstractions
 {
     [JsonObject]

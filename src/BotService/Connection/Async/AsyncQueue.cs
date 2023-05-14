@@ -14,7 +14,7 @@ namespace BotService.Connection.Async
         /// <param name="update"></param>
 
         public void QueueItem(T update)
-        {        
+        {
             update.ThrowIfNull(nameof(update));
             items.Enqueue(update);
             signal.Release();

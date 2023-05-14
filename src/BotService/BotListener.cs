@@ -1,4 +1,6 @@
 using MissBot.Abstractions;
+using MissBot.Entities;
+using MissCore.DataAccess.Async;
 
 namespace BotService
 {
@@ -24,9 +26,9 @@ namespace BotService
         {
             using (var scope = root.CreateScope())
             {
-                var dispatcher=  scope.ServiceProvider.GetRequiredService<IBotUpdatesDispatcher<Update>>();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<IBotUpdatesDispatcher<Update>>();
                 var updatesQueue = scope.ServiceProvider.GetRequiredService<IBotUpdatesReceiver<Update>>();
-                
+
                 dispatcher.Initialize(stoppingToken);
                 await foreach (var update in updatesQueue.WithCancellation(stoppingToken))
                     dispatcher.PushUpdate(update);

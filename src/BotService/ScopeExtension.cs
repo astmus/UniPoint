@@ -9,13 +9,13 @@ namespace BotService
     {
         record CommandData(string CommandAction, Type CmdType, string Description) : IBotCommand
         {
-            public string Command { get; set; }            
+            public string Command { get; set; }
         }
 
         public static IEnumerable<HasBotCommandAttribute> GetCommandAttributes<TBot>(this Type botType) where TBot : class, IBot
-            => botType.GetCustomAttributes<HasBotCommandAttribute>();      
+            => botType.GetCustomAttributes<HasBotCommandAttribute>();
         public static IEnumerable<IBotCommand> GetCommandsFromAttributes(this object bot)
             => bot.GetType().GetCustomAttributes<HasBotCommandAttribute>().Select(s => new CommandData($"/{s.Name.ToLower()}", s.CmdType, s.Description));
     }
-   
+
 }

@@ -1,17 +1,19 @@
 using System.Runtime.CompilerServices;
 using BotService.Connection.Async;
 using MissBot.Abstractions;
-using MissCore.Data.Identity;
+using MissBot.Abstractions.DataAccess;
+using MissBot.Entities;
+using MissCore.DataAccess.Async;
 
 namespace BotService.Connection
 {
-    public abstract class BaseDataSource<TUpdate> where TUpdate : class, IUpdateInfo
+    public abstract class BaseDataSource<TUpdate> where TUpdate : Update
     {
         public class AsyncUpdatesQueue<T> : AsyncQueue<T>, IAsyncUpdatesQueue<T> where T : class, TUpdate
         {
             public AsyncUpdatesQueue()
             {
- 
+
             }
 
             public Identifier QueueId { get; protected set; }
@@ -31,7 +33,7 @@ namespace BotService.Connection
         {
             do
             {
-                if (await Updates.PopUpdateAsync(cancelToken) is TUpdate update && !update.IsHandled != true)
+                if (await Updates.PopUpdateAsync(cancelToken) is TUpdate update)
                     yield return update;
             } while (!cancelToken.IsCancellationRequested);
             yield break;

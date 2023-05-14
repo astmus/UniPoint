@@ -1,51 +1,48 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities.Common;
 using Newtonsoft.Json;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissCore.Entities
+namespace MissBot.Entities
 {
-    public record EntityAction<TEntity> : MissBot.Abstractions.Entities.BotUnit2<TEntity>, IBotAction<TEntity> where TEntity : class
+    public record EntityAction<TEntity> : BotUnit2<TEntity>, IBotAction<TEntity> where TEntity : class
     {
         public string CommandAction { get; }
 
         public static implicit operator EntityAction<TEntity>(string data)
-            => JsonConvert.DeserializeObject< EntityAction<TEntity>>(data );
+            => JsonConvert.DeserializeObject<EntityAction<TEntity>>(data);
         public static implicit operator InlineKeyboardButton(EntityAction<TEntity> s) =>
-            InlineKeyboardButton.WithCallbackData(s.Command ?? string.Format(s.Placeholder, s.Entity, s.Command, s.Id));
+            InlineKeyboardButton.WithCallbackData(s.Command ?? string.Format(s.Placeholder, s.Entity, s.Command, s.Unit));
+
+
     }
 
-   
 
-    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IBotAction<TEntity> where TEntity:ValueUnit
+
+    public record InlineEntityAction<TEntity> : EntityAction<TEntity>, IBotAction<TEntity> where TEntity : Unit
     {
         public string Text { get; set; }
         public virtual string Action { get; init; }
         public virtual string Data
-            => string.Format(Action, Id);
+            => string.Format(Action,  Text);
         public static implicit operator InlineEntityAction<TEntity>(string data) =>
             new InlineEntityAction<TEntity>() { Action = data };
         public static implicit operator InlineKeyboardButton(InlineEntityAction<TEntity> s) =>
-            InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Id}");
+            InlineKeyboardButton.WithCallbackData(s.Text ?? s.Action[2..], $"{s.Action}.{s.Text}");
     }
 
 
     public class InlineKeyBoard : List<InlineKeyboardButton>
-    {        
+    {
         public InlineKeyboardMarkup GetKeyboard
-            => new InlineKeyboardMarkup(this);               
+            => new InlineKeyboardMarkup(this);
 
         public InlineKeyBoard Append(BotAction action)
         {
-           // Add(action);
+            // Add(action);
             return this;
-        }        
+        }
     }
 }

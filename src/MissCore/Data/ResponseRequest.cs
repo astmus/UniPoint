@@ -1,20 +1,20 @@
-using System.Collections.Generic;
+using MissBot.Abstractions;
+using MissBot.Entities.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Abstractions
+namespace MissBot.Entities
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record ResponseMessage<TResponse> : BaseRequest<Message<TResponse>>
+    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponseChannel
     {
         [JsonIgnore]
-        public Message<TResponse> Result { get; protected set; }
+        public TResponse ResponseData { get; set; }
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
-        public abstract ChatId ChatId { get; }
+        public ChatId ChatId { get; }
 
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -26,11 +26,11 @@ namespace MissBot.Abstractions
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string Text { get;  set; }
+        public string Text { get; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
+        public ParseMode? ParseMode { get; set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.Entities"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -69,9 +69,11 @@ namespace MissBot.Abstractions
         /// (in the format <c>@channelusername</c>)
         /// </param>
         /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
-        public ResponseMessage(string text = default) : base("sendMessage")
+        public ResponseRequest(ChatId chatId)
+            : base("sendMessage")
         {
-            Text = text ?? "\n";
+            ChatId = chatId;
+            Text = nameof(TResponse);
         }
     }
 }

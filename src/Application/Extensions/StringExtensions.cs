@@ -1,13 +1,11 @@
-using System.Runtime.CompilerServices;
-using System.Text;
-using Telegram.Bot.Types;
+using MissBot.Entities.Query;
 
 namespace MissBot.Extensions
 {
 
     public static class StringExtensions
-    {        
-        
+    {
+
         internal static (string command, string[] args) GetCommandAndArgs(this CallbackQuery query)
             => ParseCommand(query.Data);
         static (string command, string[] args) ParseCommand(string message)
