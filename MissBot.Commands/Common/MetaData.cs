@@ -92,14 +92,36 @@ namespace MissBot.Entities.Common
             Pointer = data; //JToken.FromObject(data);
             ParseTokens(Pointer);
         }
-        public string Value
-            => string.Join(" ", Values.Cast<string>().Select(s => string.Format("<b>{0}</b>", Pointer.SelectToken(s).ToString())));
-        public string GetIndex(int index)
-            => Pointer.SelectToken(Values.Cast<string>().ElementAt(index)).ToString();
-        public static MetaData Parse<TData>(TData token)
+        public string GetRecord(int index, string format)
         {
-            return new MetaData(JToken.FromObject(token));
+            var token = this[index];
+            return string.Format(format, token.Path, token.ToString());
         }
+
+        public string Value
+            => string.Join(" ", Items.Select(s => string.Format("<b>{0}</b>", Pointer.SelectToken(s).ToString())));
+        protected IEnumerable<string> Items
+            => Values.Cast<string>();
+
+        public JToken this[int index]
+            => Pointer.SelectToken(Items.ElementAt(index));
+
+        public static MetaData Parse<TData>(TData token)
+            => new MetaData(JToken.FromObject(token));
+
+        public virtual TUnit Bring<TUnit>() where TUnit : class
+            => Pointer.ToObject<TUnit>();
+
+        public virtual TChild BringChild<TChild>(string childPath = default) where TChild : class
+        {
+            if (this[childPath ?? typeof(TChild).Name] is string path)
+                return Pointer.SelectToken(path).ToObject<TChild>();
+            else return default;
+        }
+        public object GetByName([CallerMemberName] string name = default)
+        {
+            return this[name];
+        }  
         protected void ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)
@@ -116,19 +138,6 @@ namespace MissBot.Entities.Common
                     ParseTokens(child);
             }
         }
-
-        public virtual TUnit Bring<TUnit>() where TUnit : class
-            => Pointer.ToObject<TUnit>();
-        public virtual TChild BringChild<TChild>(string childPath = default) where TChild : class
-        {
-            if (this[childPath ?? typeof(TChild).Name] is string path)
-                return Pointer.SelectToken(path).ToObject<TChild>();
-            else return default;
-        }
-        public object GetByName([CallerMemberName] string name = default)
-        {
-            return this[name];
-        }  
        
     }
 

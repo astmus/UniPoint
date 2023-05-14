@@ -41,8 +41,8 @@ namespace MissBot.Entities.Response
             //var content = inline.Content;// meta.AnyFirst("Content");
             // InlineQueryResult result = InitResult(content);
             var item = unit as InlineResultUnit;
-            item.Title = item.Meta.GetIndex(1);
-            item.Description = item.Meta.GetIndex(2);
+            item.Title = item.Meta.GetRecord(1, "{0}: {1}");
+            item.Description = item.Meta.GetRecord(2, "{0}: {1}");
             results.Add(item);
             //foreach (var item in unit)
             //{
