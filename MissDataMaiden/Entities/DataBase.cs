@@ -47,6 +47,7 @@ namespace MissDataMaiden.Entities
 
     public record DataBaseInfo : Unit<DataBase>
     {
+        public string Id { get => Get<string>(); set => Set(value); }
         public string Info { get => Get<string>(); set => Set(value); }
         public string DBName { get => Get<string>(); set => Set(value); }
         public string Status { get => Get<string>(); set => Set(value); }

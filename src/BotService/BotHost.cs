@@ -1,6 +1,7 @@
 using BotService.Configuration;
 using BotService.Connection;
 using BotService.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using MissBot;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
@@ -9,6 +10,8 @@ using MissBot.Abstractions.Entities;
 using MissBot.DataAccess.Sql;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
+using MissBot.Utils;
+using MissCore;
 using MissCore.Data;
 using MissCore.Data.Context;
 using MissCore.DataAccess;
@@ -25,6 +28,7 @@ namespace BotService
             var botBuilder = BotBuilder<TBot>.GetInstance(this);
             ConfigureServices((ctx, services) => services
                                                                                     .AddHostedService<BotClient<TBot>>()
+                                                                                    .AddSingleton<IRequestProvider, RequestProvider>()
                                                                                     .AddScoped<TBot>()
                                                                                     .AddSingleton<IBotContext, BotContext>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
@@ -33,7 +37,8 @@ namespace BotService
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
                                                                                     .AddSingleton<BaseBot.Configurator, TConfig>()
                                                                                     .AddTransient<JsonConverter, BotConverter<TBot>>()
-                                                                                    .AddScoped < IHandleContext, Context<Update < TBot >>>(sp
+                                                                                    .AddTransient<IBotUnitFormatProvider, BotUnitFormatProvider>()
+                                                                                    .AddScoped<IHandleContext, Context<Update < TBot >>>(sp
                                                                                         => sp.GetRequiredService<IContext<Update<TBot>>>() as Context<Update<TBot>>)
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
@@ -83,8 +88,6 @@ namespace BotService
             .ConfigureHostOptions(options =>
             {
             });
-            //.UseConsoleLifetime(opt =>
-            //{ });
             return hostBuilder;
         }
 

@@ -2,6 +2,7 @@ using System.Data.Common;
 using LinqToDB;
 using LinqToDB.Data;
 using Microsoft.Extensions.Options;
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using Newtonsoft.Json;
@@ -11,13 +12,16 @@ namespace MissBot.DataAccess.Sql
 
     public class BotContext : DataConnection, IBotContext
     {
+        public IRequestProvider Provider { get; }
+
         public BotContext() : base(ProviderName.SqlServer2022, "")
         {
         }
 
 
-        public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
+        public BotContext(IOptions<BotContextOptions> ctxOptions, IRequestProvider provider) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
+            Provider = provider;
         }
 
         public void LoadBotInfrastructure()
@@ -55,11 +59,11 @@ namespace MissBot.DataAccess.Sql
         }
         public async Task<TEntity> HandleRequestAsync<TEntity>(IRepositoryCommand sql, CancellationToken cancel = default)
         {
-            TEntity result = default(TEntity);
+                TEntity result = default(TEntity);
 
             using (var cmd = Connection.CreateCommand())
-            {
-                cmd.CommandText = sql.Request;
+            {            
+                cmd.CommandText = sql.ToRequest();
                 if (await cmd.ExecuteScalarAsync(cancel) is string res)
                     result = JsonConvert.DeserializeObject<TEntity>(res);
             }

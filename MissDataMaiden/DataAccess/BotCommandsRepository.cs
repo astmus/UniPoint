@@ -1,9 +1,11 @@
+using System;
 using System.Linq.Expressions;
 using BotService.Common;
-using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissCore;
 using MissCore.Collections;
+
 
 namespace MissDataMaiden.DataAccess
 {
@@ -33,26 +35,29 @@ namespace MissDataMaiden.DataAccess
         }
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
-        {
-            //commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(c => new[] { nameof(c.Command), nameof(c.Description) }));
-            commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(d => new[] { d.Command, d.Description }));
+        {            
+            var info = BotUnit<BotCommand>.GetRequestInfo(d
+                                => new[] { d.Command, d.Description });
+            var cmd = Context.Provider.Request<BotCommand>(info);
+            commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(cmd);
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
-            //SqlUnit.Entities<TEntityType>(f => );
-            var result = await Context.HandleRequestAsync<Unit<TEntityType>.Collection>(SqlUnit.Entities<TEntityType>());
+            var cmd = Context.Provider.Request<TEntityType>();
+            var result = await Context.HandleRequestAsync<Unit<TEntityType>.Collection>(cmd);
 
             return result;
         }
         Expression<Func<BotCommand, string[]>> selector =>
-            d =>new[] { d.Command, d.Description }; 
+            d =>new[] { d.Command, d.Description };
+
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
         {
-            var sql = SqlUnit.Command<TEntityType>();
-            var cmd = await Context.HandleRequestAsync<TEntityType>(sql);
-            return cmd;
+            var cmd = Context.Provider.Request<TEntityType>();
+            var result = await Context.HandleRequestAsync<TEntityType>(cmd);
+            return result;
         }
 
         public TCommand GetByName<TCommand>(string name) where TCommand : BotCommand

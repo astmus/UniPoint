@@ -2,11 +2,11 @@ using MissCore.Collections;
 
 namespace MissBot.Utils
 {
-    public  class UnitFormatter : ICustomFormatter
+    public class CriteriaFormatter : ICustomFormatter
     {
         public string Format(string? format, object? arg, IFormatProvider? formatProvider)
         {
-            return  string.Format(format, arg);
+            return string.Format(format, arg);
         }
     }
 }

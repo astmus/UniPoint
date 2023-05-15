@@ -26,7 +26,7 @@ namespace MissBot.DataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<JArray> GetUnitDataAsync<TUnit>(TUnit unit, CancellationToken cancel = default) where TUnit : IBotUnit
+        public async Task<JArray> ReadUnitDataAsync<TUnit>(TUnit unit, CancellationToken cancel = default) where TUnit : IBotUnit
             => await HandleSqlAsync(unit.Payload, cancel);
 
 
@@ -43,7 +43,7 @@ namespace MissBot.DataAccess
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = query.Request + JSONAuto;                      
+                    cmd.CommandText = query.ToRequest() + JSONAuto;                      
                     var json = await ReadAsync(cmd, cancel);
                     result = JsonConvert.DeserializeObject<TResult>(json);
                 }
@@ -63,19 +63,19 @@ namespace MissBot.DataAccess
             }
         }
 
-        public async Task<JArray> HandleQueryGenericItemsAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
+        public async Task<JArray> HandleReadAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
         {                                                                    
-            return await HandleSqlAsync(cmd.Request, cancel);
+            return await HandleSqlAsync(cmd.ToRequest(), cancel);
         }
 
-        public async Task<JObject> HandleQueryGenericObjectAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
+        public async Task<JObject> HandleScalarAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder();
-            await HandleAsync(cmd.Request, result, cancel);
+            await HandleAsync(cmd.ToRequest(), result, cancel);
             return JObject.Parse(result.ToString());
         }
 
-        public async Task<ICollection<TResult>> HandleQueryItemsAsync<TResult>(IRepositoryCommand cmd, CancellationToken cancel = default) where TResult : class
+        public async Task<ICollection<TResult>> HandleQueryResultAsync<TResult>(IRepositoryCommand cmd, CancellationToken cancel = default) where TResult : class
         {
             return await HandleQueryAsync<Unit<TResult>.Collection>(cmd, cancel);
         }

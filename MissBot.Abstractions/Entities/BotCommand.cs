@@ -1,7 +1,7 @@
 namespace MissBot.Abstractions.Entities
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record BotCommand :  IBotCommand
+    public record BotCommand : IBotCommand, IBotUnit
     {
         /// <summary>
         /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
@@ -20,6 +20,9 @@ namespace MissBot.Abstractions.Entities
 
         public virtual  string CommandAction
             => Command;
+
+        public string Payload { get; set; }
+        public string Placeholder { get; set; }
     }
 
 

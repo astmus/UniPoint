@@ -40,7 +40,7 @@ namespace MissBot.DataAccess
                 await connection.OpenAsync(cancel);
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = query.Request;
+                    cmd.CommandText = query.ToRequest();
                     try
                     {
                         if (await cmd.ExecuteScalarAsync(cancel).ConfigureAwait(false) is string res)

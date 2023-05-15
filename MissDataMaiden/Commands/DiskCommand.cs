@@ -58,7 +58,7 @@ namespace MissDataMaiden.Commands
 
             var response = new Response<Disk>(context);
 
-            var res = await repository.GetUnitDataAsync(command);
+            var res = await repository.ReadUnitDataAsync(command);
 
             var r = new MetaCollection(res);
             foreach (var item in res)

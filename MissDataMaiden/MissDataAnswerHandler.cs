@@ -1,8 +1,10 @@
+using BotService.Common;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities.Results;
 using MissBot.Handlers;
 using MissCore;
+using MissCore.Collections;
 using MissDataMaiden.Entities;
 
 
@@ -29,12 +31,10 @@ namespace MissDataMaiden
             int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
             string strid = result.Query.Length > 0 ? result.ResultId.Replace(result.Query, "") : result.ResultId;
 
-            var cmd = BotUnit<DataBase>.Query(f => f.Id = strid);
-
-     
-
+            var cmdinfo = context.Provider.Info<DataBaseInfo>(f => f.Id == strid);
+            var cmd = Context.Provider.Request<DataBaseInfo>(cmdinfo);
             //sql.ContentPropertyName = nameof(DataBase.Detail);
-            var details = await repository.HandleCommandAsync<DataBase>(cmd);
+            var details = await repository.HandleQueryAsync<DataBaseInfo>(cmd);
             //var response = context.CreateResponse(result);
             ////response.WriteMetadata(unit);
             //response.Write(details );

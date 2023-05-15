@@ -1,3 +1,6 @@
+using System.Linq.Expressions;
+using System.Reflection;
+using LinqToDB.Expressions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
@@ -6,51 +9,49 @@ using MissCore.Collections;
 
 namespace MissCore
 {
-
-    public static class BotUnit<TEntity> where TEntity : Unit
+    
+    public record RequestInformation<TEntity>(string Unit, string Entity, string[] EntityFields = null, ICriteria Criteria = null) : RequestInformation(Unit, Entity, EntityFields, Criteria);
+    
+    public static class BotUnit<TEntity> where TEntity : class
     {
+        public record Criteria(Expression left, ExpressionType operand, Expression right, CriteriaFormat Format = CriteriaFormat.SQL) : ICriteria
+        {
+            public string ToString(string? format, IFormatProvider? formatProvider) => operand switch
+            {
+                ExpressionType.Equal when left is MemberExpression p && right.Type == typeof(string)
+                    => string.Format(format, p.Member.Name, " = ", $"'{right.EvaluateExpression()}'"),
+                ExpressionType.Equal when left is MemberExpression p && right.Type != typeof(string)
+                    => string.Format(format, p.Member.Name, " = ", right.EvaluateExpression()),
+                //=> BinaryExpression.Equal(left, right).ToString(),
+                _ => string.Format(format, left.ToString(), operand, right.EvaluateExpression())
+            };
+        }
+
         public class Collection : Unit<TEntity>.Collection { };
         public record Content : ContentUnit<TEntity>;
         public record Request<TData> where TData : Unit<TEntity>;
 
+        public static readonly RequestInformation<TEntity> RequestInfo
+            = new($"{nameof(BotUnit)}s", Unit<TEntity>.Key);
         public static TEntityUnit Instance<TEntityUnit>() where TEntityUnit : Unit<TEntity>
             => Unit<TEntityUnit>.Sample;
-        public static IRepositoryCommand Query(Action<TEntity> selector)
-        {
-            var entity = Unit<TEntity>.Sample with { };
-            selector(entity);
-            //return new SQLCommand<TEntity>(Meta.ToWhere());
-            return null;
+         static readonly string[] AllFileds = { "*" };
+        public static Criteria CreateCriteria(Expression<Predicate<TEntity>> criteria)
+        {            
+            if (criteria?.Body is BinaryExpression binexp)
+                return new Criteria(binexp.Left, binexp.NodeType, binexp.Right);
+            
+            else return default;
         }
-
-        //public static BotRequest Entities<TBotEntity>() where TBotEntity : class
-        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotEntity>.Key}'");
-        //public static BotRequest Actions<TAction>() where TAction : BotActionRequest
-        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-        //public static BotRequest Units<TBotUnit>()
-        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotUnit>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-        //public static BotRequest Commands<TCommand>() where TCommand : BotCommand
-        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Unit<TCommand>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-
-        public const string Empty = "SELECT 1";
-        public const string SelectFrom = "SELECT * FROM ##";
-        public const string Select = "SELECT * FROM ##";
-        public const string BotUnits = $"SELECT * FROM ##{nameof(BotUnit)}s ";
-
-        public const string SelectFirst = $"SELECT TOP 1 * FROM ##{nameof(BotUnit)}s ";
-        //public const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
-
-        //public static readonly string[] AllFileds = { "*" };
-        //public static class Templates
-        //{
-        //    public const string SelectAllFrom = "SELECT * FROM ##{0}";
-        //    public const string SelectFrom = "SELECT {1} FROM ##{0}";
-        //    public const string JSONAuto = "{0} FOR JSON AUTO";
-        //    public const string JSONPath = "{0} FOR JSON PATH";
-        //    public const string JSONRoot = ", ROOT('{0}')";
-        //    public const string Entity = "SELECT * FROM ##{0} [{0}] INNER JOIN ##BotUnits Commands ON Commands.Entity = [{0}].EntityName";
-        //}
-        public abstract record Response : BaseResponse<TEntity>;
-
+        public static RequestInformation<TEntity> GetRequestInfo(Expression<Func<TEntity, object[]>> selector = default, Expression<Predicate<TEntity>> criteria = default)
+        {
+            string[] fields = AllFileds;
+            ICriteria icriteria = null;
+            if (selector?.Body is NewArrayExpression exp)
+                fields = (selector.Body as NewArrayExpression)?.Expressions.OfType<MemberExpression>().Select(s => s.Member.Name).ToArray();
+            icriteria = CreateCriteria(criteria);
+            return RequestInfo with { EntityFields = fields, Criteria = icriteria };
+        }
     }
 }
+

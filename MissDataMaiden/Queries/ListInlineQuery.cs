@@ -23,12 +23,14 @@ namespace MissDataMaiden.Commands
 
         public async override Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
         {
-            searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(BotUnit<Search>.Query(s=> { }));
+            BotUnit<Search<Unit>>.GetRequestInfo(default, s => s.Command == nameof(Search));
+            var cmd = Context.Provider.Request<Search>();
+            searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(cmd);
 
             query.Skrip();
             searchResutst.Query = query;
 
-            var items = await repository.HandleQueryGenericItemsAsync(searchResutst);
+            var items = await repository.HandleReadAsync(searchResutst);
             var metaItems = new MetaCollection(items);
             var units = metaItems.LandOn<InlineQueryResult<Unit>>();
 

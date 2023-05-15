@@ -61,5 +61,8 @@ namespace MissCore.Data.Context
             => Get<AsyncHandler>();
 
         IDataMap IHandleContext.Map => Root.Map;
+
+        public IRequestProvider Provider
+            => BotServices.GetRequiredService<IRequestProvider>();
     }
 }

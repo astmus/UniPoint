@@ -7,9 +7,10 @@ namespace MissCore.Handlers
     {
         public AsyncHandler AsyncHandler
             => HandleAsync;
-
+        public IHandleContext Context { get; set; }
         async Task HandleAsync(IHandleContext context)
         {
+            Context = context;
             if (context.Get<TData>() is TData data)
                 await HandleAsync(data, context);
             else
