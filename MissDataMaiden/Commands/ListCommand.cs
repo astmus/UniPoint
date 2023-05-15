@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissCore.Bot;
 
 namespace MissDataMaiden
 {
@@ -23,8 +24,7 @@ namespace MissDataMaiden
 
 
 
-
-        public override Task HandleCommandAsync(List command, IHandleContext context)
+        public override Task HandleCommandAsync(List command, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }

@@ -1,12 +1,15 @@
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissCore.Bot;
+using MissCore.Collections;
 
-namespace MissBot.Abstractions
+namespace MissCore
 {
 
     public static class BotUnit<TEntity> where TEntity : Unit
     {
-        public record Collection : Union<TEntity>;
+        public class Collection : Unit<TEntity>.Collection { };
         public record Content : ContentUnit<TEntity>;
         public record Request<TData> where TData : Unit<TEntity>;
 
@@ -20,14 +23,14 @@ namespace MissBot.Abstractions
             return null;
         }
 
-        public static BotRequest Entities<TBotEntity>() where TBotEntity : class
-            => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotEntity>.Key}'");
-        public static BotRequest Actions<TAction>() where TAction : BotActionRequest
-            => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-        public static BotRequest Units<TBotUnit>()
-            => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotUnit>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-        public static BotRequest Commands<TCommand>() where TCommand : BotCommand
-            => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Unit<TCommand>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
+        //public static BotRequest Entities<TBotEntity>() where TBotEntity : class
+        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotEntity>.Key}'");
+        //public static BotRequest Actions<TAction>() where TAction : BotActionRequest
+        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
+        //public static BotRequest Units<TBotUnit>()
+        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<TBotUnit>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
+        //public static BotRequest Commands<TCommand>() where TCommand : BotCommand
+        //    => new BotRequest($"{BotUnits} WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Unit<TCommand>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
 
         public const string Empty = "SELECT 1";
         public const string SelectFrom = "SELECT * FROM ##";

@@ -1,36 +1,12 @@
-//using System.Data.Common;
-//using LinqToDB;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.DependencyInjection;
-//using MissBot.Abstractions;
-//using MissBot.Abstractions.Configuration;
-//using MissBot.Abstractions.DataAccess;
-//using MissBot.Abstractions.DataModel;
-//using MissBot.Abstractions.Entities;
-//using MissBot.DataAccess.Sql;
-//using Newtonsoft.Json;
-//namespace MissCore.Bot
-//{
-//    public abstract class BaseBotContext
-//    {
+namespace MissCore.Bot
+{
 
-//        BotDataContext Context;
-//        public BaseBotContext( IRepository<BotCommand> commandsRepository = default)
-//        {
+    public record BotUnit2<TEntity>(TEntity Unit = default) : BotUnit
+    {
+        public static readonly string EntityName = typeof(TEntity).Name;
+        [JsonProperty]
+        public override string Entity
+            => EntityName;
 
-//        }
-
-
-//        void Init(IServiceProvider sp)
-//        {
-//            base.Init(sp);
-
-
-
-//            //Context.Init();
-
-//        }
-
-//    }
-//}
-
+    }
+}

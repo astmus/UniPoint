@@ -1,14 +1,10 @@
-using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
+using MissCore.Collections;
 
 namespace MissCore.Features
 {
-    public record Search : BotRequest
-    {
-
-    }
+    public record Search:Unit;
     public record Search<TEntity> : BotUnit , IRepositoryCommand 
     {
         public InlineQuery Query { get; set; }

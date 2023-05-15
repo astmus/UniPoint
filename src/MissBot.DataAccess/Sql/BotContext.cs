@@ -37,7 +37,7 @@ namespace MissBot.DataAccess.Sql
             {
                 using (var connection = DataProvider.CreateConnection(ConnectionString))
                 {
-                    await connection.OpenAsync();
+                    await connection.OpenAsync(cancel);
                     using (var cmd = connection.CreateCommand())
                     {
                         cmd.CommandText = sql;
@@ -53,7 +53,7 @@ namespace MissBot.DataAccess.Sql
             }
             return result;
         }
-        public async Task<TEntity> HandleRequestAsync<TEntity>(SQLCommand sql, CancellationToken cancel = default)
+        public async Task<TEntity> HandleRequestAsync<TEntity>(IRepositoryCommand sql, CancellationToken cancel = default)
         {
             TEntity result = default(TEntity);
 

@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
-using MissBot.Entities.Common;
+using MissCore.Collections;
 using MissDataMaiden.Queries;
 
 namespace MissDataMaiden.Commands
@@ -33,12 +33,11 @@ namespace MissDataMaiden.Commands
 
         }
 
-
-
-        public override Task HandleCommandAsync(Info command, IHandleContext context)
+        public override Task HandleCommandAsync(Info command, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
+
         #region Commented
         //public override async Task HandleCommandAsync(Info command, string[] args)
         //{

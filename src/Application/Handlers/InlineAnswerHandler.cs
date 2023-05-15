@@ -8,7 +8,7 @@ namespace MissBot.Handlers
     public abstract class InlineAnswerHandler : BaseHandler<ChosenInlineResult>
     {
 
-        public async override Task HandleAsync(ChosenInlineResult data, IHandleContext context)
+        public async override Task HandleAsync(ChosenInlineResult data, IHandleContext context, CancellationToken cancel = default)
         {
 
             //var response = context.CreateResponse(data);

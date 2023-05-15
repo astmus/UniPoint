@@ -1,10 +1,10 @@
 using System.Net;
 using System.Runtime.CompilerServices;
 using BotService.Connection.Extensions;
+using MissBot.Abstractions;
 using MissBot.Abstractions.Args;
 using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
-using MissBot.Entities.Common;
 using Telegram.Bot.Exceptions;
 
 namespace BotService.Connection

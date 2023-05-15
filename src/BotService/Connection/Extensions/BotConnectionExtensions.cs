@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
+using MissCore.Data;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
@@ -16,7 +17,7 @@ namespace BotService.Connection.Extensions
                 CancellationToken cancellationToken = default
             )
         {
-            var s = JsonConvert.SerializeObject(new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description })));
+            //var s = JsonConvert.SerializeObject(new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description })));
             await botClient.MakeRequestAsync(
                      request: new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description }))
                      {

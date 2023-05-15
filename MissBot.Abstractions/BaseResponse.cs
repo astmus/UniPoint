@@ -1,5 +1,4 @@
 using MissBot.Entities;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissBot.Abstractions
@@ -33,7 +32,7 @@ namespace MissBot.Abstractions
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
+        public Telegram.Bot.Types.Enums.ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
 
         /// <inheritdoc cref="Abstractions.Documentation.Entities"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]

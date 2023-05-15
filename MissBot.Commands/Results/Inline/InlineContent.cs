@@ -1,12 +1,12 @@
-﻿using MissBot.Entities;
+using MissBot.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types.Enums;
 
-namespace MissBot.Handlers
+namespace MissBot.Entities.Results.Inline
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineContent : IInlineContent
+    public record InlineContent
     {
         [JsonProperty]
         public bool? DisableWebPagePreview { get; set; }

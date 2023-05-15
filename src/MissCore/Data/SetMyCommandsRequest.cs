@@ -1,7 +1,7 @@
-using MissBot.Entities.Common;
+using MissBot.Abstractions;
 using Telegram.Bot.Types;
 
-namespace MissBot.Entities;
+namespace MissCore.Data;
 
 /// <summary>
 /// Use this method to change the list of the bot’s commands. See

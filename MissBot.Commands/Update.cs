@@ -1,4 +1,5 @@
-using Telegram.Bot.Types;
+using MissBot.Entities.Query;
+using MissBot.Entities.Results;
 using Telegram.Bot.Types.Payments;
 
 namespace MissBot.Entities
@@ -80,37 +81,37 @@ namespace MissBot.Entities
         /// <summary>
         /// Optional. New poll state. Bots receive only updates about stopped polls and polls, which are sent by the bot
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Poll Poll { get; set; }
+        //[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        //public Poll Poll { get; set; }
 
-        /// <summary>
-        /// Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were
-        /// sent by the bot itself.
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public PollAnswer PollAnswer { get; set; }
+        ///// <summary>
+        ///// Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were
+        ///// sent by the bot itself.
+        ///// </summary>
+        //[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        //public PollAnswer PollAnswer { get; set; }
 
         /// <summary>
         /// Optional. The bot’s chat member status was updated in a chat. For private chats, this update is received
         /// only when the bot is blocked or unblocked by the user.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ChatMemberUpdated MyChatMember { get; set; }
+        //[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        //public ChatMemberUpdated MyChatMember { get; set; }
 
-        /// <summary>
-        /// Optional. A chat member's status was updated in a chat. The bot must be an administrator in the chat
-        /// and must explicitly specify “<see cref="UpdateType.ChatMember"/>” in the list of allowed_updates to
-        /// receive these updates.
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ChatMemberUpdated ChatMember { get; set; }
+        ///// <summary>
+        ///// Optional. A chat member's status was updated in a chat. The bot must be an administrator in the chat
+        ///// and must explicitly specify “<see cref="UpdateType.ChatMember"/>” in the list of allowed_updates to
+        ///// receive these updates.
+        ///// </summary>
+        //[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        //public ChatMemberUpdated ChatMember { get; set; }
 
-        /// <summary>
-        /// Optional. A request to join the chat has been sent. The bot must have the
-        /// <see cref="ChatPermissions.CanInviteUsers"/> administrator right in the chat to receive these updates.
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public ChatJoinRequest ChatJoinRequest { get; set; }
+        ///// <summary>
+        ///// Optional. A request to join the chat has been sent. The bot must have the
+        ///// <see cref="ChatPermissions.CanInviteUsers"/> administrator right in the chat to receive these updates.
+        ///// </summary>
+        //[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        //public ChatJoinRequest ChatJoinRequest { get; set; }
 
 
         /// <summary>
@@ -130,11 +131,11 @@ namespace MissBot.Entities
             { EditedChannelPost: { } } => UpdateType.EditedChannelPost,
             { ShippingQuery: { } } => UpdateType.ShippingQuery,
             { PreCheckoutQuery: { } } => UpdateType.PreCheckoutQuery,
-            { Poll: { } } => UpdateType.Poll,
-            { PollAnswer: { } } => UpdateType.PollAnswer,
-            { MyChatMember: { } } => UpdateType.MyChatMember,
-            { ChatMember: { } } => UpdateType.ChatMember,
-            { ChatJoinRequest: { } } => UpdateType.ChatJoinRequest,
+            //{ Poll: { } } => UpdateType.Poll,
+            //{ PollAnswer: { } } => UpdateType.PollAnswer,
+            //{ MyChatMember: { } } => UpdateType.MyChatMember,
+            //{ ChatMember: { } } => UpdateType.ChatMember,
+            //{ ChatJoinRequest: { } } => UpdateType.ChatJoinRequest,
             _ => UpdateType.Unknown
         };
     }

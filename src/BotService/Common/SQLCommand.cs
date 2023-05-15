@@ -1,6 +1,9 @@
+using System.Linq.Expressions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissCore.Collections;
 
-namespace MissBot.Abstractions.DataAccess
+namespace BotService.Common
 {
     [Flags]
     public enum SQLType
@@ -19,7 +22,7 @@ namespace MissBot.Abstractions.DataAccess
         public string WHERE;
         string Template
             => $"{SqlUnit.Templated(SqlUnit.Templates.Entity, Entity)} {WHERE}";
-        public SQLCommand(string where, SQLType type = SQLType.JSONAuto | SQLType.JSONNoWrap)
+        public SQLCommand(string where, Expression<Func<TEntity, string[]>> selector, SQLType type = SQLType.JSONAuto | SQLType.JSONNoWrap)
         {
             WHERE = $" WHERE {where} ";
             Type = type;
@@ -42,15 +45,16 @@ namespace MissBot.Abstractions.DataAccess
 
     public struct SQLCommand : IFormattable, IFormatProvider, ICustomFormatter, IRepositoryCommand
     {
-        public SQLCommand(string value, IEnumerable<string> fileds = default, SQLType type = SQLType.JSONPath | SQLType.Raw)
+        public SQLCommand(string value, SQLType type = SQLType.JSONPath | SQLType.Raw)
         {
             Sql = value;
-            Fields = fileds;
+         
             Type = type;
         }
-        public IEnumerable<string> Fields { get; set; }
+       // public Expression<Func<TEntity>> Fields { get; set; }
         public string Sql { get; set; } = SqlUnit.Empty;
         public SQLType Type;
+        private readonly IEnumerable<string> Fields;
 
         public static implicit operator SQLCommand(string sql)
             => new SQLCommand(sql);
@@ -103,16 +107,16 @@ namespace MissBot.Abstractions.DataAccess
             public const string Entity = "SELECT * FROM ##{0} [{0}] INNER JOIN ##BotUnits Commands ON Commands.Entity = [{0}].EntityName";
         }
 
-        public static SQLCommand Entities<TEntity>(FieldNamesSelector<TEntity> fields = default) where TEntity : class
-            => new SQLCommand($"{RootUnit} WHERE Entity = '{Unit<TEntity>.Key}'", fields?.Invoke(default(TEntity)));
-        public static BotRequest Actions<TAction>() where TAction : BotActionRequest
-            => new BotRequest($"{RootUnit} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
-        public static SQLCommand Entity<TEntity>(FieldNamesSelector<TEntity> fields = default)
-            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<TEntity>.Key}'", fields?.Invoke(default(TEntity)), SQLType.JSONPath | SQLType.JSONNoWrap);
-        public static SQLCommand Command<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
-            => new SQLCommand($"{SelectFirst} WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Abstractions.Entities.BotUnit2<TCommand>.EntityName}'", fields, SQLType.JSONPath | SQLType.JSONNoWrap);
+        public static SQLCommand<TEntity> Entities<TEntity>(Expression<Func<TEntity, string[]>> selector = default) where TEntity : class
+            => new SQLCommand<TEntity>($"{RootUnit} WHERE Entity = '{Unit<TEntity>.Key}'", selector);
+        //public static BotRequest Actions<TAction>() where TAction : BotActionRequest
+        //    => new BotRequest($"{RootUnit} WHERE Entity = '{Unit<TAction>.Key}'", SQLType.JSONPath | SQLType.JSONNoWrap);
+        public static SQLCommand<TEntity> Entity<TEntity>(Expression<Func<TEntity, string[]>> selector = default)
+            => new SQLCommand<TEntity>($"{SelectFirst} WHERE Entity = '{Unit<TEntity>.Key}'", selector, SQLType.JSONPath | SQLType.JSONNoWrap);
+        public static SQLCommand<TCommand> Command<TCommand>(Expression<Func<TCommand, string[]>> selector = default) where TCommand : BotCommand
+            => new SQLCommand<TCommand>($" WHERE Entity = '{Unit<BotCommand>.Key}' AND Command = '/{Unit<TCommand>.Key}'", selector, SQLType.JSONPath | SQLType.JSONNoWrap);
         public static SQLCommand Select<TUnitData>(string field, string value)
-            => new SQLCommand($"{SelectFrom}{Unit<TUnitData>.Key} WHERE {field} = '{value}'", null, SQLType.JSONPath | SQLType.JSONNoWrap);
+            => new SQLCommand($"{SelectFrom}{Unit<TUnitData>.Key} WHERE {field} = '{value}'",  SQLType.JSONPath | SQLType.JSONNoWrap);
 
         //public static SQLUnit<TCommand> CommandUnit<TCommand>(IEnumerable<string> fields = default) where TCommand : BotCommand
         //    => new SQLUnit<TCommand>(new SQLCommand($"{FirstUnit} WHERE Entity = '{Unit<BotCommand>.EntityName}' AND Command = '/{BotCommand<TCommand>.Name}'", fields, SQLType.JSONPath | SQLType.JSONNoWrap));

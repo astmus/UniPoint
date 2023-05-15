@@ -1,8 +1,8 @@
 using MissBot.Abstractions;
-using MissBot.Entities;
-using MissBot.Entities.Common;
 using MissBot.Entities.Results;
 using MissBot.Handlers;
+using MissCore.Collections;
+using MissCore.Data;
 using Newtonsoft.Json;
 
 namespace MissDataMaiden.Entities
@@ -45,19 +45,19 @@ namespace MissDataMaiden.Entities
     //    public List<EntityAction<DataBase>> Commands { get => Get<List<EntityAction<DataBase>>>(); set => Set(value); }
     //}
 
-    //public record DataBaseInfo : DataBase
-    //{
-    //    public string Info { get => Get<string>(); set => Set(value); }
-    //    public string DBName { get => Get<string>(); set => Set(value); }
-    //    public string Status { get => Get<string>(); set => Set(value); }
-    //    public string State { get => Get<string>(); set => Set(value); }
-    //    public int DataFiles { get => Get<int>(); set => Set(value); }
-    //    public int DataMB { get => Get<int>(); set => Set(value); }
-    //    public int LogFiles { get => Get<int>(); set => Set(value); }
-    //    public int LogMB { get => Get<int>(); set => Set(value); }
-    //    public string RecoveryModel { get => Get<string>(); set => Set(value); }
-    //    public string LastBackup { get => Get<string>(); set => Set(value); }
-    //    public string IsReadOnly { get => Get<string>(); set => Set(value); }
-    //    //   public List<EntityAction<DataBase>> Commands { get => Get<List<EntityAction<DataBase>>>(); set => Set(value); }
-    //}
+    public record DataBaseInfo : Unit<DataBase>
+    {
+        public string Info { get => Get<string>(); set => Set(value); }
+        public string DBName { get => Get<string>(); set => Set(value); }
+        public string Status { get => Get<string>(); set => Set(value); }
+        public string State { get => Get<string>(); set => Set(value); }
+        public int DataFiles { get => Get<int>(); set => Set(value); }
+        public int DataMB { get => Get<int>(); set => Set(value); }
+        public int LogFiles { get => Get<int>(); set => Set(value); }
+        public int LogMB { get => Get<int>(); set => Set(value); }
+        public string RecoveryModel { get => Get<string>(); set => Set(value); }
+        public string LastBackup { get => Get<string>(); set => Set(value); }
+        public string IsReadOnly { get => Get<string>(); set => Set(value); }
+        public List<EntityAction<DataBase>> Commands { get => Get<List<EntityAction<DataBase>>>(); set => Set(value); }
+    }
 }

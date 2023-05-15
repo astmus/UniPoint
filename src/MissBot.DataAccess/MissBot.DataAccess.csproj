@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
+    <ProjectReference Include="..\MissCore\MissCore.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Entities;
 using MissBot.Extensions;
+using MissCore.Data;
 using MissCore.DataAccess.Async;
 
 namespace BotService
@@ -37,7 +37,7 @@ namespace BotService
             var client = botScopeServices.GetRequiredService<IBotConnection>();
             try
             {
-                var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().Build();
+                var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptions>();
                 Bot = await client.GetBotAsync<TBot>(botConnectionOptions, cancellationToken);// need fix (fast approach)
                 Bot.Initialize();
                 await Bot.SyncCommands(client);

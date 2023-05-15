@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Entities.Common;
+using MissCore.Collections;
 
 namespace MissCore.Data.Context
 {
@@ -15,14 +15,13 @@ namespace MissCore.Data.Context
 
         public void SetData(TScope data)
         {
-            Map = Unit<TScope>.MapData(data);
+            Unit<TScope>.JoinData(data, Map);
             Data = data;
-        }
-
-
+        } 
 
         IServiceProvider scoped;
         IBotServicesProvider botServices;
+        public bool? IsHandled { get; set; }
         public IBotServicesProvider BotServices
             => botServices ?? Root.BotServices;
 
@@ -40,32 +39,27 @@ namespace MissCore.Data.Context
         }
 
         public T GetNextHandler<T>() where T : class
-            => Root.BotServices.GetService<T>();
-
-        public IContext<T> CreateDataContext<T>(T data = default)
-        {
-            var ctx = Root.BotServices.GetService<IContext<T>>() as Context<T>;
-            ctx.Root = Root;
-            ctx.Set(Any<ICommonUpdate>());
-            ctx.Data = data;
-            return ctx;
-        }
+            => Root.BotServices.GetService<T>();  
+      
 
         public IAsyncHandler<T> GetAsyncHandler<T>()
             => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-        public IResponse<TSub> CreateResponse<TSub>(TScope scopeData = default) where TSub : TScope
+        public IResponse<TUnit> CreateResponse<TUnit>()
         {
-            return ActivatorUtilities.GetServiceOrCreateInstance<IResponse<TSub>>(BotServices);
+            return ActivatorUtilities.GetServiceOrCreateInstance<IResponse<TUnit>>(BotServices);
         }
 
-        public IHandleContext Root { get; protected set; }
+        //public TUnit CreateUnit<TUnit>()
+        //{
+        //    return ActivatorUtilities.GetServiceOrCreateInstance<Unit<TUnit>>(BotServices);
+        //}
 
-        public BotClientDelegate ClientDelegate
-            => Root.BotServices.GetRequiredService<IBotClient>;
+        public IHandleContext Root { get; protected set; }
 
         public AsyncHandler Handler
             => Get<AsyncHandler>();
 
+        IDataMap IHandleContext.Map => Root.Map;
     }
 }

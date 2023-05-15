@@ -1,7 +1,8 @@
 using MissBot.Abstractions;
-using MissBot.Entities.Common;
+using MissBot.Entities;
+using MissCore.Collections;
 
-namespace MissBot.Entities.Response
+namespace MissCore.Data
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
@@ -13,46 +14,45 @@ namespace MissBot.Entities.Response
 
 
         public async Task Commit(CancellationToken cancel)
-        {
-            Caption = "!!!!!";
+        {               
             await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
         }
 
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit<T>
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : class, IUnit<T>
         {
             WriteUnit(unit);
         }
-                                                                  
-        public void WriteResult<TUnitData>(TUnitData units) where TUnitData : IEnumerable<Unit>
+
+        public void WriteResult<TUnitData>(TUnitData units) where TUnitData :  IEnumerable<IUnit>
         {
             //foreach (var unit in units)
             //    Write(unit);
         }
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : class, IUnit<T>
         {
             //foreach (var unit in units)
             //    Write(unit);
         }
 
-        protected virtual Response<T> WriteUnit(Unit unit)
+        protected virtual Response<T> WriteUnit(IUnit unit)
         {
             Text += unit?.ToString();
             return this;
         }
 
-        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : MetaData
+        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
             Text += Unit<T>.ParseTyped(meta) + "\n";
         }
 
-        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : Unit
+        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : class, IUnit
         {
             Text += unit.ToString();
         }
 
 
-    }      
+    }
 }
 
 

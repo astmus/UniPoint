@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
-using MissBot.Abstractions;
 using MissBot.Entities;
+using MissCore.Collections;
 
 namespace MissDataMaiden.Queries
 {
@@ -48,7 +48,7 @@ namespace MissDataMaiden.Queries
 
         }
     }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissBot.Entities.Common.Unit
+    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissCore.Collections.Unit
     {
 
         public record Query(string sql, string connection = null) : SqlRaw<TUnion>;

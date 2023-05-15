@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using BotService.Connect.Extensions;
 
 using Newtonsoft.Json;
 using Telegram.Bot.Extensions;

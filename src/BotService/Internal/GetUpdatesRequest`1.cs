@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
+using MissBot.Common;
 using MissBot.Entities;
-using MissBot.Entities.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

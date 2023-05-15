@@ -6,6 +6,6 @@ namespace MissBot.Abstractions.DataAccess
     {
         void LoadBotInfrastructure();
         DbConnection NewConnection();
-        Task<TResult> HandleRequestAsync<TResult>(SQLCommand sql, CancellationToken cancel = default);
+        Task<TResult> HandleRequestAsync<TResult>(IRepositoryCommand sql, CancellationToken cancel = default);
     }
 }

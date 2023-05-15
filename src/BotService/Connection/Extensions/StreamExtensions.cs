@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
-namespace BotService.Connect.Extensions
+namespace BotService.Connection.Extensions
 {
     internal static class StreamExtensions
     {

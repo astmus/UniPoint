@@ -1,18 +1,17 @@
-
-
 using MissBot.Entities;
 
 namespace MissBot.Abstractions
 {
     public interface IHandleContext : IContext
     {
-        IBotServicesProvider BotServices { get; }
+        bool? IsHandled { get; set; }
+        IDataMap Map { get; }
+        IBotServicesProvider BotServices { get; }        
         IAsyncHandler<T> GetAsyncHandler<T>();
         T GetNextHandler<T>() where T : class;
-        AsyncHandler Handler { get; }
-        
+        AsyncHandler Handler { get; }         
         IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
-        IContext<T> CreateDataContext<T>(T data = default);
+        IResponse<TScope> CreateResponse<TScope>();
     }
 
     public interface IUpdate<TUpdate> : IUpdateInfo

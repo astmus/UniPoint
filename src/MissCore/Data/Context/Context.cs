@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Utils;
-using MissBot.Entities.Common;
+using MissCore.Collections;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Context
@@ -11,7 +11,7 @@ namespace MissCore.Data.Context
     public class Context : ConcurrentDictionary<string, object>, IContext
     {
         public DataMap Map { get; protected set; }
-        public bool IsHandled { get; set; }
+
 
         public T Get<T>()
         {

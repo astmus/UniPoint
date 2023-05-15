@@ -1,7 +1,11 @@
-using MissBot.Entities.Common;
+using MissBot.Abstractions;
+using MissBot.Common;
 using MissBot.Entities.Query;
+using MissBot.Entities.Results.Inline;
+using MissCore.Collections;
+using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Entities.Results.Inline
+namespace MissBot.Response
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public record InlineResultUnit : Unit<InlineQuery>
@@ -10,7 +14,7 @@ namespace MissBot.Entities.Results.Inline
         public InlineQueryResultType Type { get; set; } = InlineQueryResultType.Article;
 
         [JsonProperty]
-        public IInlineContent InputMessageContent
+        public InputMessageContent InputMessageContent
             => new InputTextMessageContent(Meta.Value);
 
         [JsonProperty]
@@ -20,10 +24,15 @@ namespace MissBot.Entities.Results.Inline
         [JsonProperty]
         public string Description { get; set; }
         public object Content { get; }
+        /// <summary>
+        /// Optional. Inline keyboard attached to the message
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IReplyMarkup ReplyMarkup { get; set; }
     }
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record InlineResult<TResponse> : BaseRequest<bool>
+    public abstract record AnswerInlineRequest<TResponse> : BaseRequest<bool>
     {
         /// <summary>
         /// Unique identifier for the answered query
@@ -57,7 +66,7 @@ namespace MissBot.Entities.Results.Inline
         /// don't support pagination. Offset length can't exceed 64 bytes
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string NextOffset { get; }
+        public virtual string NextOffset { get; }
 
         /// <summary>
         /// If passed, clients will display a button with specified text that switches the
@@ -66,6 +75,12 @@ namespace MissBot.Entities.Results.Inline
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string SwitchPmText { get; set; }
+
+        /// <summary>
+        /// A JSON-serialized object describing a button to be shown above inline query results
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public InlineQueryResultsButton? Button { get; set; }
 
         /// <summary>
         /// <a href="https://core.telegram.org/bots#deep-linking">Deep-linking</a> parameter for
@@ -89,7 +104,7 @@ namespace MissBot.Entities.Results.Inline
         /// </summary>
         /// <param name="inlineQueryId">Unique identifier for the answered query</param>
         /// <param name="results">An array of results for the inline query</param>
-        public InlineResult()
+        public AnswerInlineRequest()
             : base("answerInlineQuery")
         {
         }

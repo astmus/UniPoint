@@ -3,6 +3,7 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
+using MissCore.Data;
 
 namespace MissCore.Handlers
 {
@@ -16,13 +17,12 @@ namespace MissCore.Handlers
             this.builder = builder;
         }
 
-        public AsyncGenericHandler<Update<TBot>> GenericHandler
-            => HandleAsync;
-
         public override Task ExecuteAsync(IHandleContext context)
-            => Task.CompletedTask;
+        {
+            throw new NotImplementedException();
+        }
 
-        public async Task HandleAsync(Update<TBot> data, IHandleContext context)
+        public async Task HandleAsync(Update<TBot> data, IHandleContext context, CancellationToken cancel = default)
         {
             handleDelegate = context.Handler;
 

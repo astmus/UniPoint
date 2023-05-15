@@ -9,7 +9,7 @@ namespace MissBot.Entities.Results.Inline;
 /// <see cref="InlineQuery">inline query</see>.
 /// </summary>
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-public class InputTextMessageContent : InputMessageContent, IInlineContent
+public class InputTextMessageContent : InputMessageContent//, IInlineContent
 {
     /// <summary>
     /// Text of the message to be sent, 1-4096 characters
@@ -23,7 +23,7 @@ public class InputTextMessageContent : InputMessageContent, IInlineContent
     /// text. See formatting options for more details.
     /// </summary>
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public ParseMode? ParseMode { get; set; }
+    public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
 
     /// <summary>
     /// Optional. List of special entities that appear in message text, which can be specified

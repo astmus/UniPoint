@@ -1,51 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
 
-namespace MissBot.Entities.Common
+namespace MissCore.Collections
 {
-    public class MetaCollection : IEnumerable<string>
-    {
-        private readonly IEnumerable<JToken> items;
-        public MetaData Metadata { get; protected set; }
-        public MetaCollection(IEnumerable<JToken> tokens)
-        {
-            Metadata = MetaData.Parse(tokens.FirstOrDefault());
-            items = tokens;
-        }
-
-        public virtual TSub[] LandOn<TSub>() where TSub : Unit
-            => items.Select(item =>
-                {
-                    Metadata.Pointer = item;                 
-                    var result = Metadata.Bring<TSub>();
-                    result.Meta = new MetaData(JObject.FromObject(item));
-                    return result;
-                }).ToArray();
-
-        public IEnumerable<TUnit> Bring<TUnit>() where TUnit : class
-        {
-            foreach (var item in items)
-            {
-                Metadata.Pointer = item;
-                yield return Metadata.Bring<TUnit>();
-            }
-        }
-        public IEnumerator<string> GetEnumerator()
-        {
-            foreach (var item in items)
-            {
-                Metadata.Pointer = item;
-                yield return Metadata.Value;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
-    }
 
     public class MetaData<T> : MetaData where T : JToken
     {
@@ -53,6 +14,11 @@ namespace MissBot.Entities.Common
         {
         }
 
+    }
+    public readonly record struct MetaItem(string name, string value) : IFormattable
+    {
+        public string ToString(string format, IFormatProvider formatProvider)
+            => $"{name}: {value}";
     }
 
     public interface IMetaUnit
@@ -81,29 +47,29 @@ namespace MissBot.Entities.Common
             }
         }
     }
-    public class MetaData : ListDictionary
+    public class MetaData : ListDictionary, IMetaData
     {
         internal JToken Pointer;
         public MetaData()
         {
         }
         public MetaData(JToken data, bool shrinkPath = false)
-        {  
+        {
             Pointer = data; //JToken.FromObject(data);
             ParseTokens(Pointer);
         }
         public string GetRecord(int index, string format)
         {
             var token = this[index];
-            return string.Format(format, token.Path, token.ToString());
+            return new MetaItem(token.Path, token.ToString()).ToString(format, null);
         }
 
         public string Value
-            => string.Join(" ", Items.Select(s => string.Format("<b>{0}</b>", Pointer.SelectToken(s).ToString())));
+            => string.Join(" ", Items.Select(s => string.Format(new MetaItem(Pointer.Path, Pointer.SelectToken(s).ToString()).ToString("<b>{0}</b>", null))));
         protected IEnumerable<string> Items
             => Values.Cast<string>();
 
-        public JToken this[int index]
+        protected JToken this[int index]
             => Pointer.SelectToken(Items.ElementAt(index));
 
         public static MetaData Parse<TData>(TData token)
@@ -121,7 +87,7 @@ namespace MissBot.Entities.Common
         public object GetByName([CallerMemberName] string name = default)
         {
             return this[name];
-        }  
+        }
         protected void ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)
@@ -138,7 +104,6 @@ namespace MissBot.Entities.Common
                     ParseTokens(child);
             }
         }
-       
     }
 
 }

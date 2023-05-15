@@ -1,11 +1,9 @@
-using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Entities;
-using MissBot.Entities.Common;
-using Newtonsoft.Json;
+using MissCore.Bot;
+using MissCore.Collections;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Entities
+namespace MissCore.Data
 {
     public record EntityAction<TEntity> : BotUnit2<TEntity>, IBotAction<TEntity> where TEntity : class
     {
@@ -26,7 +24,7 @@ namespace MissBot.Entities
         public string Text { get; set; }
         public virtual string Action { get; init; }
         public virtual string Data
-            => string.Format(Action,  Text);
+            => string.Format(Action, Text);
         public static implicit operator InlineEntityAction<TEntity>(string data) =>
             new InlineEntityAction<TEntity>() { Action = data };
         public static implicit operator InlineKeyboardButton(InlineEntityAction<TEntity> s) =>

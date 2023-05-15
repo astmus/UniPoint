@@ -2,7 +2,7 @@ using System.Reflection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Attributes;
-using MissBot.Entities;
+using MissCore.Data;
 
 namespace MissBot.Handlers
 {

@@ -1,16 +1,15 @@
 using BotService.Configuration;
 using BotService.Connection;
 using BotService.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using MissBot;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.DataAccess.Sql;
-using MissBot.Entities;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
+using MissCore.Data;
 using MissCore.Data.Context;
 using MissCore.DataAccess;
 using MissCore.DataAccess.Async;
@@ -21,17 +20,6 @@ namespace BotService
 {
     public class BotHost : HostBuilder, IBotHost
     {
-
-        //internal BotHost(IHostBuilder builder)
-        //    => hostBuilder = builder;
-
-        //List<Action> buildActions = new List<Action>();
-        //ILogger<BotHost> log;
-        //public BotHost(ILogger<BotHost> logger)
-        //{
-        //    log = logger;
-        //}
-
         public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig : BaseBot.Configurator
         {
             var botBuilder = BotBuilder<TBot>.GetInstance(this);
@@ -61,12 +49,12 @@ namespace BotService
         }
 
         internal IBotHost hostBuilder;
-        internal static IBotHost BotsHost;
 
         public static IBotHost CreateDefault(string[] args = null)
         {
             var hostBuilder = new BotHost();
             hostBuilder.ConfigureDefaults(args);
+            
             hostBuilder.ConfigureHostConfiguration(config =>
             { })
             .ConfigureServices((host, services) =>
@@ -78,10 +66,12 @@ namespace BotService
                 services.AddHttpClient<IBotConnection, BotConnection>();
                 services.AddScoped(typeof(IContext<>), typeof(Context<>));
                 
-                services.AddScoped(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());
+                services.AddScoped<IBotConnectionOptions>(sp
+                    => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());
                 services.AddScoped<IBotConnectionOptionsBuilder, BotOptionsBuilder>();
 
-                services.AddScoped<IBotOptionsBuilder>(sp => sp.GetRequiredService<IBotConnectionOptionsBuilder>());
+                services.AddScoped<IBotOptionsBuilder>(sp
+                    => sp.GetRequiredService<IBotConnectionOptionsBuilder>());
                 services.AddHttpContextAccessor();
                 services.AddHealthChecks()
                     .AddDbContextCheck<ApplicationDbContext>();

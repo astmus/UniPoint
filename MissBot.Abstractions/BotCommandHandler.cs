@@ -1,13 +1,10 @@
+using MissBot.Abstractions.Entities;
+
 namespace MissBot.Abstractions
 {
-    public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : MissBot.Abstractions.Entities.BotCommand
-    {
-
-        public AsyncHandler AsyncHandler { get; }
-
-        public AsyncGenericHandler<TCommand> GenericHandler
-            => HandleAsync;
-
+    public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : BotCommand
+    {         
+        public AsyncHandler AsyncHandler { get; }  
         public virtual Task BeforeComamandHandle(TCommand data, IHandleContext context)
                 => Task.CompletedTask;
         public virtual Task AfterComamandHandle(TCommand data, IHandleContext context)
@@ -15,10 +12,10 @@ namespace MissBot.Abstractions
         public virtual Task OnComamandFailed(IHandleContext context, Exception error)
             => Task.CompletedTask;
 
-        public async Task HandleAsync(TCommand data, IHandleContext context)
+        public async Task HandleAsync(TCommand data, IHandleContext context, CancellationToken cancel = default)
         {
             try
-            {
+            {            
                 await BeforeComamandHandle(data, context).ConfigureAwait(false);
                 await HandleCommandAsync(data, context);
                 await AfterComamandHandle(data, context).ConfigureAwait(false);
@@ -30,6 +27,6 @@ namespace MissBot.Abstractions
             }
         }
 
-        public abstract Task HandleCommandAsync(TCommand command, IHandleContext context);
+        public abstract Task HandleCommandAsync(TCommand command, IHandleContext context, CancellationToken cancel = default);
     }
 }

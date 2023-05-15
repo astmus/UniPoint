@@ -13,7 +13,6 @@ namespace MissDataMaiden
     public class MissDataMaid : BaseBot
     {
         private readonly ILogger<MissDataMaid> _logger;
-        private IServiceScope scope;
         private ILogger<MissDataMaid> log;
 
         public override Func<ICommonUpdate, string> ScopePredicate

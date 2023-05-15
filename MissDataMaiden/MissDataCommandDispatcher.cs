@@ -1,8 +1,8 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Entities;
 using MissBot.Extensions.Entities;
+using MissCore.Data;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden

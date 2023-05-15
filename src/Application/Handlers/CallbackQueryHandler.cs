@@ -13,7 +13,7 @@ namespace MissBot.Handlers
         (string command, string[] args) data;
         protected readonly IResponseNotification notifier;
 
-        public async override Task HandleAsync(CallbackQuery query, IHandleContext context)
+        public async override Task HandleAsync(CallbackQuery query, IHandleContext context, CancellationToken cancel = default)
         {
 
             data = query.GetCommandAndArgs();
@@ -21,7 +21,7 @@ namespace MissBot.Handlers
 
             try
             {
-                await HandleAsync(context, data.command, data.args);
+                await HandleAsync(context, data, query);
             }
             catch (Exception ex)
             {
@@ -30,6 +30,6 @@ namespace MissBot.Handlers
             //context.CommonUpdate.IsHandled = true;
         }
 
-        protected abstract Task HandleAsync(IHandleContext context, string query, string[] args);
+        protected abstract Task HandleAsync(IHandleContext context, (string command, string[] args)  data, CallbackQuery query);
     }
 }

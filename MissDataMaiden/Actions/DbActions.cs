@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Entities;
+using MissCore.Data;
 using MissCore.Handlers;
 using MissDataMaiden.Entities;
 using Newtonsoft.Json;
@@ -27,49 +27,27 @@ namespace MissDataMaiden.Commands
 
     public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
     {
-
-
         public Task HandleActionAsync(DBInfo action, IHandleContext context, CancellationToken cancel = default)
         {
-
             throw new NotImplementedException();
         }
 
-        public async Task HandleAsync(IContext<DBInfo> context)
-        {
-            var response = context.CreateResponse<DBInfo>();
-
-            //response.Write(new DBInfo.Response("0"));
-
-            await response.Commit(default);
-        }
-
-        public Task HandleAsync(IContext<DBDelete> context)
+        public Task HandleAsync(DBDelete data, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task HandleAsync(IContext<DBRestore> context)
+        public Task HandleAsync(DBRestore data, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task HandleAsync(DBDelete data, IHandleContext context)
+        public Task HandleAsync(DBInfo data, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task HandleAsync(DBRestore data, IHandleContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HandleAsync(DBInfo data, IHandleContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task HandleAsync(InlineEntityAction<DataBase> data, IHandleContext context)
+        public override Task HandleAsync(InlineEntityAction<DataBase> data, IHandleContext context, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }

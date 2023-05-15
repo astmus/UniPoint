@@ -2,6 +2,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities.Results;
 using MissBot.Handlers;
+using MissCore;
 using MissDataMaiden.Entities;
 
 
@@ -9,17 +10,11 @@ namespace MissDataMaiden
 {
     internal class MissDataAnswerHandler : InlineAnswerHandler
     {
-
-        private readonly IConfiguration config;
-
         IJsonRepository repository;
-        public MissDataAnswerHandler(IJsonRepository jsonRepository, IConfiguration config)
+        public MissDataAnswerHandler(IJsonRepository jsonRepository)
         {
             repository = jsonRepository;
-            this.config = config;
         }
-
-
         //[JsonObject(MemberSerialization = MemberSerialization.OptOut)]
         //record DataBaseRequest : SQL<DataBase>.Query<DataBaseInfo>
         //{
@@ -36,9 +31,7 @@ namespace MissDataMaiden
 
             var cmd = BotUnit<DataBase>.Query(f => f.Id = strid);
 
-            ;
-
-            var sql = new BotRequest();
+     
 
             //sql.ContentPropertyName = nameof(DataBase.Detail);
             var details = await repository.HandleCommandAsync<DataBase>(cmd);

@@ -1,15 +1,16 @@
 using System.Text.Json.Nodes;
+using MissCore.Collections;
 
-namespace MissBot.Abstractions
+namespace MissCore.Bot
 {
     [JsonObject]
     public record ContentUnit<TEntity> : Unit
     {
-        Union<TEntity> content;
-        public Union<TEntity> Content
+        Unit<TEntity>.Collection content;
+        public Unit<TEntity>.Collection Content
         {
             get =>
-                content ?? (content = new Union<TEntity>());
+                content ?? (content = new Unit<TEntity>.Collection());
             set => content = value;
         }
 
@@ -19,4 +20,6 @@ namespace MissBot.Abstractions
             public TEntity[] Content { get; set; } = { Unit<TEntity>.Sample };
         }
     }
+
+
 }

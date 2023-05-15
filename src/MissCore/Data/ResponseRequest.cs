@@ -1,14 +1,12 @@
 using MissBot.Abstractions;
-using MissBot.Entities.Common;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using MissBot.Entities;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Entities
+namespace MissCore.Data
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponseChannel
+    public record ResponseRequest<TResponse> : BaseRequest<Message<TResponse>> where TResponse : IResponse
     {
         [JsonIgnore]
         public TResponse ResponseData { get; set; }

@@ -23,5 +23,7 @@
     <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\MissBot.DataAccess\MissBot.DataAccess.csproj" />
+    <ProjectReference Include="..\MissCore\MissCore.csproj" />
   </ItemGroup>
 </Project>

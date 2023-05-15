@@ -12,10 +12,11 @@ namespace BotService.Connection
         protected override AsyncUpdatesQueue<TUpdate> Updates { get; init; }
         public Func<TUpdate, string> ScopePredicate { get; set; }
 
-        public AsyncBotUpdatesDispatcher(IHandleContextFactory factory, ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger, IBotConnectionOptionsBuilder b)
+        public AsyncBotUpdatesDispatcher(IHandleContextFactory factory, ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger, IBotConnectionOptionsBuilder builder)
         {
             Factory = factory;
             log = logger;
+            this.builder = builder;
             Updates = new AsyncUpdatesQueue<TUpdate>();
             thread = new Thread(StartInThread);
             thread.IsBackground = true;
@@ -33,10 +34,10 @@ namespace BotService.Connection
                     var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
                     ctx.SetData(update);
                     ctx.Set(scope.ServiceProvider);
+                    var hctx = ctx as IHandleContext;
+                    await handler.HandleAsync(update, hctx).ConfigFalse();
 
-                    await handler.HandleAsync(update, ctx as IHandleContext).ConfigFalse();
-
-                    if (ctx.IsHandled == true)
+                    if (hctx.IsHandled == true)
                         Factory.Remove(id);
                 };
             }
@@ -51,6 +52,8 @@ namespace BotService.Connection
         }
 
         CancellationTokenSource src;
+        private readonly IBotConnectionOptionsBuilder builder;
+
         public void PushUpdate(TUpdate update)
             => Updates.QueueItem(update);
 

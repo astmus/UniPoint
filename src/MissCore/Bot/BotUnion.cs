@@ -1,7 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
+using MissCore.Collections;
 
-
-namespace MissBot.Abstractions
+namespace MissCore.Bot
 {
     public record BotUnion : Unit, IList<Unit>
     {
@@ -25,7 +25,7 @@ namespace MissBot.Abstractions
         public static implicit operator BotUnion(List<Unit> units)
             => new BotUnion(units);
         public void Add(Unit obj)
-            => this.Union.Add(obj);
+            => Union.Add(obj);
         public BotUnion Add(params Unit[] units)
         {
             Union.AddRange(units);

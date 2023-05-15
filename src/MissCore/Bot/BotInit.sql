@@ -43,16 +43,16 @@ INSERT INTO ##BotUnits
 VALUES ('BotCommand', '/test', '/{0}', 'test Command', '');
 INSERT INTO ##BotUnits
 VALUES ('Search', 'DataBase', '', null,
-        'SELECT * from ##{0} WHERE Name LIKE ''%{1}%'' ORDER BY Name OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY');
+        'SELECT * FROM ##{0} WHERE Name LIKE ''%{1}%'' ORDER BY Name OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY');
 
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info where Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', 'Info ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##DataBase where Id = {0} ');
+VALUES ('DataBase', 'Info ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##DataBase where Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', 'Details ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
+VALUES ('DataBaseInfo', 'Details ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
 INSERT INTO ##BotUnits
-VALUES ('DataBase ', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
+VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
 
   IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase

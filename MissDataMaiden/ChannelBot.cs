@@ -3,7 +3,7 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
-using MissBot.Entities;
+using MissCore.Data;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden

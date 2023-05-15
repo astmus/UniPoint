@@ -1,7 +1,9 @@
+using System.Linq.Expressions;
+using BotService.Common;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Entities.Common;
+using MissCore.Collections;
 
 namespace MissDataMaiden.DataAccess
 {
@@ -32,18 +34,20 @@ namespace MissDataMaiden.DataAccess
 
         public async Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(c => new[] { nameof(c.Command), nameof(c.Description) }));
+            //commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(c => new[] { nameof(c.Command), nameof(c.Description) }));
+            commands = await Context.HandleRequestAsync<Unit<BotCommand>.Collection>(SqlUnit.Entities<BotCommand>(d => new[] { d.Command, d.Description }));
             return commands;
         }
 
         public async Task<IEnumerable<TEntityType>> GetAllAsync<TEntityType>() where TEntityType : BotCommand
         {
-
+            //SqlUnit.Entities<TEntityType>(f => );
             var result = await Context.HandleRequestAsync<Unit<TEntityType>.Collection>(SqlUnit.Entities<TEntityType>());
 
             return result;
         }
-
+        Expression<Func<BotCommand, string[]>> selector =>
+            d =>new[] { d.Command, d.Description }; 
         public async Task<TEntityType> GetAsync<TEntityType>() where TEntityType : BotCommand
         {
             var sql = SqlUnit.Command<TEntityType>();

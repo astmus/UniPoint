@@ -6,34 +6,27 @@ using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Response;
 using MissBot.Entities;
 using MissBot.Entities.Query;
-using MissBot.Entities.Response;
 using MissBot.Entities.Results;
-using MissBot.Response;
-using MissCore;using MissCore.Data.Context;
+using MissCore;using MissCore.Data;
+using MissCore.Data.Context;
 
-namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {        internal override IServiceCollection Services { get; set; }        public IServiceCollection BotServices            => Services;               internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {
-
-            rootHost.ConfigureServices((h, s) =>  s.AddScoped<IBotServicesProvider, BotServicesProvider>());
-                        return new BotBuilder<TBot>(rootHost);        }        internal BotBuilder(IHostBuilder rootHost)
+namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {
+        internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {
+            rootHost.ConfigureServices((h, s)
+                => s.AddScoped<IBotServicesProvider, BotServicesProvider>());
+            return new BotBuilder<TBot>(rootHost);        }        internal BotBuilder(IHostBuilder rootHost)
             => host = rootHost;
-        public IBotBuilder<TBot> UseCommndFromAttributes()        {            var cmds = typeof(TBot).GetCommandsFromAttributes();            _botCommands.AddRange(cmds);            _botCommands.ForEach(c => Services.AddScoped(c.GetType()));            return this;        }        //public IBotServicesProvider BotServicesProvider()        //    => new BotServicesProvider(Instance.Services.BuildServiceProvider());
 
         public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
         {
-           // Services.AddScoped<IRepository<BotCommand>, THandler>();
             host.ConfigureServices((h, s)
                 => s.AddScoped<IRepository<BotCommand>, THandler>());
             return this;        }        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {
             host.ConfigureServices((h, Services)
-                =>
-            {
-                Services.AddTransient<IAsyncUpdateHandler<TBot>, THandler>();
-            });
-            //Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
+                => Services.AddScoped<IAsyncUpdateHandler<TBot>, THandler>());
             return this;        }
 
-        public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher        {            //Services.AddScoped<IAsyncBotCommandDispatcher, THandler>();
-           // Services.TryAddScoped<IBotBuilder<TBot>>(sp => BotBuilder<TBot>.Instance);
+        public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher        {
             host.ConfigureServices((h, s)
                 => s.AddScoped<IAsyncBotCommandDispatcher, THandler>());
             _components.Add(
@@ -47,7 +40,6 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 =>
             {
                 Services.AddScoped<IAsyncHandler<ChosenInlineResult>, THandler>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponse<ChosenInlineResult>, Response<ChosenInlineResult>>();
                 Services.AddScoped<IContext<ChosenInlineResult>, Context<ChosenInlineResult>>();
             });
@@ -63,7 +55,6 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 =>
             {
                 Services.AddScoped<IAsyncHandler<CallbackQuery>, THandler>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponseNotification, CallBackNotification>();
                 Services.AddScoped<IResponse<CallbackQuery>, Response<CallbackQuery>>();
                 Services.AddScoped<IContext<CallbackQuery>, Context<CallbackQuery>>();
@@ -80,7 +71,6 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             =>
             {
                 Services.AddScoped<IAsyncHandler<InlineQuery>, THandler>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponse<InlineQuery>, InlineResponse<InlineQuery>>();
                 Services.AddScoped<IContext<InlineQuery>, Context<InlineQuery>>();
             });
@@ -89,47 +79,58 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                      context.GetNextHandler<IAsyncHandler<InlineQuery>>().AsyncHandler(context.SetNextHandler(context, next)));
             return this;
-        }     
+        }
+
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetNextHandler<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.Handler(context.SetNextHandler(context, next)));            return this;        }
 
         public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
         {
-     
+
             host.ConfigureServices((h, s)
                 => s.AddScoped<TRepository, TImplementatipon>());
             return this;
         }
     }    internal abstract class BotBuilder : IBotBuilder    {
-        protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        internal abstract IServiceCollection Services { get; set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        protected List<MissBot.Abstractions.IBotCommand> _botCommands = new List<MissBot.Abstractions.IBotCommand>();        internal BotBuilder()                                                           {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }        public IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware)        {            throw new NotImplementedException();        }        public IBotBuilder AddActionHandler<THandler>() where THandler : class, IAsyncHandler        {
+        protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        internal BotBuilder()
+        {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }        public IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware)        {            throw new NotImplementedException();        }        public IBotBuilder AddActionHandler<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetNextHandler<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler        {
-            host.ConfigureServices((h, Services)  
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.Handler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use<THandler>(THandler handler) where THandler : class, IAsyncHandler        {
+            host.ConfigureServices((h, Services)
               => Services.AddScoped<THandler>());            _components.Add(next =>                context                    => handler.AsyncHandler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
-        public AsyncHandler BuildHandler()        {
-            AsyncHandler handle = context =>
-                {
-                    Update upd = context.Any<Update>();
-                    if (context.IsHandled != true && context.IsHandled != false)
-                        context.IsHandled  = true;
-#if DEBUG                    Console.WriteLine("No handler for update {0} of type {1}.", upd.Id, upd.Id);
-#endif                    return Task.FromResult(1);
-                };            foreach (var component in _components.Reverse())                handle = component(handle);            return HandlerDelegate = handle;        }
 
+
+        public AsyncHandler BuildHandler()
+        {
+            AsyncHandler handle = context =>
+            {
+                Update upd = context.Any<Update>();
+                //if (context.IsHandled != true && context.IsHandled != false)
+                context.IsHandled = true;                                                                          
+#if DEBUG
+                Console.WriteLine("No handler for update {0} of type {1}.", upd.Id, upd.Type);
+#endif
+                return Task.FromResult(1);
+            };
+
+            foreach (var component in _components.Reverse())
+                handle = component(handle);
+
+            return HandlerDelegate = handle;
+        }
 
         #region Commands    
         public IBotBuilder AddCommand<TCommand, THandler, TResponse>() where
               THandler : BotCommandHandler<TCommand> where
-              TCommand : BotCommand, MissBot.Abstractions.IBotCommand where
-              TResponse :class, IResponse<TCommand>
+              TCommand : BotCommand, IBotCommand where
+              TResponse : class, IResponse<TCommand>
         {
             host.ConfigureServices((h, Services)
                 =>
             {
                 Services.AddScoped<IAsyncHandler<TCommand>, THandler>();
                 Services.AddScoped<TCommand>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponse<TCommand>, TResponse>();
                 Services.AddScoped<IContext<TCommand>, Context<TCommand>>();
             });
@@ -142,7 +143,6 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             {
                 Services.AddScoped<IAsyncHandler<TCommand>, THandler>();
                 Services.AddScoped<TCommand>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponse<TCommand>, Response<TCommand>>();
                 Services.AddScoped<IContext<TCommand>, Context<TCommand>>();
             });
@@ -158,19 +158,23 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             if (HandlerDelegate is null)
                 BuildHandler();
         }
-        
-            public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction:class,IBotAction
+
+        public IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotAction
         {
             host.ConfigureServices((h, Services)
             =>
-            {      
+            {
                 Services.AddScoped<IAsyncHandler<TAction>, THandler>();
                 Services.AddScoped<TAction>();
-                Services.AddScoped<IResponse, Response>();
                 Services.AddScoped<IResponse<TAction>, Response<TAction>>();
                 Services.AddScoped<IContext<TAction>, Context<TAction>>();
             });
             return this;
         }
 
-        #endregion     }}
+
+
+
+
+
+        #endregion                                                              }}

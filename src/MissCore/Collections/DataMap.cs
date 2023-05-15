@@ -1,9 +1,10 @@
 using System.Collections.Specialized;
+using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
 
-namespace MissBot.Entities.Common
+namespace MissCore.Collections
 {
-    public class DataMap : NameValueCollection
+    public class DataMap : NameValueCollection, IDataMap
     {
         JToken token;
         public DataMap(object data)
@@ -21,7 +22,6 @@ namespace MissBot.Entities.Common
             else return default;
         }
 
-
         private void ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)
@@ -35,9 +35,7 @@ namespace MissBot.Entities.Common
             else if (containerToken.Type == JTokenType.Array)
             {
                 foreach (var child in containerToken.Children())
-                {
                     ParseTokens(child);
-                }
             }
         }
     }
