@@ -16,30 +16,21 @@ namespace MissDataMaiden
 
         public class Update : Update<MissChannel> { }
         private readonly ILogger<MissChannel> _logger;
-        IServiceScope scope;
-        public MissChannel(ILogger<MissChannel> logger, IBotContext botDataContext, IRepository<BotCommand> repository = default) : base(botDataContext, repository)
+
+        public MissChannel(ILogger<MissChannel> logger, IBotContext botDataContext) : base(botDataContext)
         {
             _logger = logger;
         }
-        public IServiceProvider BotServices
-            => scope.ServiceProvider;
 
         public override Func<ICommonUpdate, string> ScopePredicate
             => (u) => $"{nameof(u.Message.Chat)}: {u.Message.Chat.Id}";
-
-
 
         public void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
            => connectionOptions
                    .SetToken(Environment.GetEnvironmentVariable("AliseBot", EnvironmentVariableTarget.User))
                    .SetTimeout(TimeSpan.FromMinutes(2));
 
-
         public void ConfigureOptions(IBotOptionsBuilder botBuilder)
-            => botBuilder.TrackMessgeChanges();
-
-        public void SetScope(IServiceScope botScope)
-            => scope = botScope;
-
+            => botBuilder.TrackMessgeChanges();   
     }
 }

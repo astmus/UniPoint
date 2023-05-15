@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
+using MissBot.Extensions;
 
 namespace BotService.Connection
 {
@@ -43,10 +44,11 @@ namespace BotService.Connection
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                log.WriteCritical(e);
             }
             finally
             {
+            if (!src.IsCancellationRequested)
                 StartInThread();
             }
         }

@@ -11,7 +11,7 @@ namespace MissCore
     {
         class UnitRequest : FormattableString, IUnitRequest
         {
-            private readonly string _format;
+            private string _format;
             private readonly List<object> _arguments;
             private readonly Lazy<ListDictionary> _parameters = new Lazy<ListDictionary>();
             internal UnitRequest(string format, RequestInformation info = default)
@@ -38,19 +38,17 @@ namespace MissCore
             public override string ToString(IFormatProvider formatProvider)
             {
                 if (_arguments.Last() is ICriteria criteria)
-                    _arguments[^1] = criteria.ToString(CriteriaFormat.SQL.Make(), default);
+                    _format += criteria.ToString(CriteriaFormat.SQL.Make(), default);
                 return string.Format(formatProvider, _format, _arguments.ToArray());
             }
 
             public string ToRequest(RequestFormat format = RequestFormat.JsonAuto)
-            {
-                return $"{ToString()} {format.TrimSnakes()}";
-            }
+                => $"{ToString()} {format.TrimSnakes()}";
+            
         }
         public RequestInformation Info<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
-        {
-            return BotUnit<TUnit>.GetRequestInfo(null, criteria);
-        }
+            => BotUnit<TUnit>.GetRequestInfo(null, criteria);
+        
 
         public IUnitRequest Request<TUnit>(RequestInformation info = default) where TUnit : class
         {

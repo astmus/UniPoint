@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
@@ -14,38 +15,34 @@ namespace MissBot.Abstractions
             public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
-
-        public BaseBot(IBotContext botContext, IRepository<BotCommand> repository = default)
+        IServiceScope scope;
+        public BaseBot(IBotContext botContext)
         {
             Context = botContext;
-            commandsRepository = repository;
         }
 
-        public void Initialize()
+        public void Initialize(IServiceScope Scope)
         {
+            scope = Scope;
+            commandsRepository = BotServices.GetRequiredService<IRepository<BotCommand>>();
             Context.LoadBotInfrastructure();
         }
 
-        protected IRepository<BotCommand> commandsRepository;
+        protected IRepository<BotCommand> commandsRepository { get; set; }
         private readonly IBotContext Context;
-
+        protected IBotConnection Client
+            => BotServices.GetRequiredService<IBotConnection>();
+        public IServiceProvider BotServices
+            => scope.ServiceProvider;
         public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
 
-
-        public virtual async Task<bool> SyncCommands(IBotConnection connection)
+        public virtual async Task<bool> SyncCommands()
         {
-
             Commands ??= await commandsRepository.GetAllAsync();
-            return await connection.SyncCommandsAsync(Commands);
+            return await Client.SyncCommandsAsync(Commands);
         }
-        //public async Task<bool> SyncCommands(IBotConnection connection)
-        //{
-
-        //    Commands = await botDataContext.LoadCommandsAsync();
-        //    return await connection.SyncCommandsAsync(Commands);
-        //}
-
+    
         #region DTO
         [JsonProperty(Required = Required.Always)]
         public long Id { get; set; }
@@ -76,14 +73,11 @@ namespace MissBot.Abstractions
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? SupportsInlineQueries { get; set; }
-
-
         /// <inheritdoc/>
         public override string ToString() =>
             $"{(Username is null ? $"{FirstName}{LastName?.Insert(0, " ")}" : $"@{Username}")} ({Id})";
 
         #endregion
-
     }
     internal static class BotExtensoin
     {

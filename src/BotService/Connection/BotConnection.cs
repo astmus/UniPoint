@@ -20,9 +20,8 @@ namespace BotService.Connection
             => (uint)Options.Timeout.TotalSeconds;
 
 
-        public async Task<TBot> GetBotAsync<TBot>(IBotConnectionOptions options, CancellationToken cancellationToken = default) where TBot : BaseBot
+        public async Task<TBot> GetBotAsync<TBot>(CancellationToken cancellationToken = default) where TBot : BaseBot
         {
-            Options = options;
             var info = await MakeRequestAsync<TBot>(request: new BaseParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
             return info;

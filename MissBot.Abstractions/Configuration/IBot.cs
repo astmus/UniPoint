@@ -6,10 +6,10 @@ namespace MissBot.Abstractions.Configuration
     {
         Func<ICommonUpdate, string> ScopePredicate { get; }
         IEnumerable<BotCommand> Commands { get; }
+        IServiceProvider BotServices { get; }
     }
 
     public interface IBot<in TUpdate> : IBot where TUpdate : class, IUpdateInfo
     {
-        IServiceProvider BotServices { get; }
     }
 }

@@ -32,7 +32,7 @@ namespace MissBot.Abstractions.DataAccess
             => format switch
             {
                 CriteriaFormat.Unknown => $"Unknown format {format}",
-                CriteriaFormat.SQL => "WHERE {0} {1} {2}",
+                CriteriaFormat.SQL => " WHERE {0} {1} {2} ",
                 _ => format.ToString()
             };
     }

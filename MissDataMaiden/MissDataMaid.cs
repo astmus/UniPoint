@@ -22,21 +22,16 @@ namespace MissDataMaiden
                  _ => $"{nameof(update.Chat)}: {update.Chat.Id}"
              };
 
-
-        public MissDataMaid(ILogger<MissDataMaid> logger, IHostApplicationLifetime lifeTime, IBotContext context, IRepository<BotCommand> commands) : base(context, commands)
+        public MissDataMaid(ILogger<MissDataMaid> logger, IBotContext context) : base(context)
         {
             log = logger;
         }
-
-
 
         private Task HandleError(Exception error, CancellationToken cancel)
         {
             log.LogError(error, error.Message);
             return Task.CompletedTask;
         }
-
-
     }
 
     public class MissDataMaidConfigurator : MissDataMaid.Configurator

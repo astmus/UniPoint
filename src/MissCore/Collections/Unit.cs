@@ -30,10 +30,10 @@ namespace MissCore.Collections
         public static readonly string Key = typeof(TEntity).Name;
         public static DataMap JoinData(TEntity entity, DataMap map)
         {
-            map ??= new DataMap(entity);
-            map.Parse(entity);
-            return map;
+            map?.Parse(entity);
+            return map ??= new DataMap(entity);
         }
+
         public class Collection : List<TEntity> { }
         
         public static string Stringify(string[] items)
