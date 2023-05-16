@@ -1,4 +1,4 @@
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissCore.Collections;
@@ -18,11 +18,15 @@ namespace MissCore.Features
     {
         public InlineQuery Query { get; set; }
         public uint BatchSize { get; set; } = 50;
+
+        public IRepositoryCommand SingleResult()
+            => this;
+
         public string ToRequest(RequestFormat format = RequestFormat.JsonAuto)
-            => ToString(format.TrimSnakes(), default);
+            => format.ApplyTo(this);
 
         public string ToString(string? format, IFormatProvider? formatProvider)
-            => string.Format(format, Payload, Command, Query.Query, Query.Skip, BatchSize);
+            => string.Format(Payload, Command, Query.Query, Query.Skip, BatchSize);
         
     }
     public readonly record struct Filter(int skip, int take, string predicat);

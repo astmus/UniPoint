@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MissBot.Abstractions.DataAccess
+namespace MissBot.Abstractions
 {
     public interface ICriteria : IFormattable
     {

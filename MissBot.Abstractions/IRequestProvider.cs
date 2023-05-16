@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions

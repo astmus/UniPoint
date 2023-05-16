@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Text;
 using LinqToDB;
 using Microsoft.Extensions.Options;
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Collections;
@@ -13,9 +14,6 @@ namespace MissBot.DataAccess
 {
     public class JsonRepository : DataContext, IJsonRepository
     {
-        const string JSONAuto = " FOR JSON AUTO";
-        const string JSONPath = " FOR JSON PATH";
-        const string JSONRoot = ", ROOT('{0}')";
         public JsonRepository(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
 
@@ -27,7 +25,7 @@ namespace MissBot.DataAccess
         }
 
         public async Task<JArray> ReadUnitDataAsync<TUnit>(TUnit unit, CancellationToken cancel = default) where TUnit : IBotUnit
-            => await HandleSqlAsync(unit.Payload, cancel);
+            => await HandleSqlAsync(unit.Payload + RequestFormat.JsonAuto, cancel);
 
 
         public Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default)
@@ -43,7 +41,7 @@ namespace MissBot.DataAccess
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = query.ToRequest() + JSONAuto;                      
+                    cmd.CommandText = query.ToRequest(RequestFormat.JsonAuto);                      
                     var json = await ReadAsync(cmd, cancel);
                     result = JsonConvert.DeserializeObject<TResult>(json);
                 }
@@ -65,7 +63,7 @@ namespace MissBot.DataAccess
 
         public async Task<JArray> HandleReadAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
         {                                                                    
-            return await HandleSqlAsync(cmd.ToRequest(), cancel);
+            return await HandleSqlAsync(cmd.ToRequest(RequestFormat.JsonAuto), cancel);
         }
 
         public async Task<JObject> HandleScalarAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
@@ -88,7 +86,7 @@ namespace MissBot.DataAccess
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = sql + JSONAuto;
+                    cmd.CommandText = sql;
                     var json = await ReadAsync(cmd, cancellationToken);
                     result = JArray.Parse(json);
                 }

@@ -26,7 +26,7 @@ namespace MissDataMaiden.Commands
         {            
             var cmd = Context.Provider.RequestByCriteria<Search>(s
                 => s.Command == nameof(DataBase));
-            searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(cmd);
+            searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(cmd.SingleResult());
 
             query.Skrip();
             searchResutst.Query = query;

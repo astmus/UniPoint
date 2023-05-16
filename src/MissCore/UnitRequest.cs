@@ -1,10 +1,5 @@
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using MissCore;
-using MissCore.Collections;
 
 namespace BotService.Common
 {
@@ -18,20 +13,17 @@ namespace BotService.Common
         JSONNoWrap = 16
     }
 
-    public readonly record struct UnitRequest<TUnit>(string Template, IRequestInformation Info, RequestFormat Type = RequestFormat.JsonAuto) : IRepositoryCommand
+    public record UnitRequest<TUnit>(string Template, IRequestInformation Info, RequestFormat Type = RequestFormat.JsonAuto) : IRepositoryCommand
     {
-        public string Where
-            => Info.Criteria == default ? null : $" WHERE {Info.Criteria.ToString()}";// {Info.Criteria.operand} {Info.Criteria.right }";     
-
         public static implicit operator string(UnitRequest<TUnit> cmd)
             => cmd.Request;
         public string Request
             => Type switch
             {
                 RequestFormat.JsonAuto
-                    => FormattableStringFactory.Create(Template, Info.Unit, Info.Entity, Where).ToString(),//.ApplyFields(Info.EntityFields),
+                    => FormattableStringFactory.Create(Template, Info.Unit, Info.Entity, Info.Criteria.Format.Make()).ToString(),//.ApplyFields(Info.EntityFields),
                 RequestFormat.JsonPath
-                    => FormattableStringFactory.Create(Template, Info.Unit, Info.Entity, Where).ToString(),
+                    => FormattableStringFactory.Create(Template, Info.Unit, Info.Entity, Info.Criteria.Format.Make()).ToString(),
                 _ => Template
             };
 
@@ -40,7 +32,11 @@ namespace BotService.Common
 
         public string ToString(string? format, IFormatProvider? formatProvider)
             => string.Format(format, this);
+
+        public IRepositoryCommand SingleResult()
+            => this with { Template = Templates.SelectSingle };
     }
+
 
     public class UnitRequestFormatProvider : IFormatProvider, ICustomFormatter
     {
@@ -63,6 +59,7 @@ namespace BotService.Common
     {
         //const string Select = "SELECT * FROM ##{0}";
         public const string Select = "SELECT {0} FROM ##{1}";
+        public const string SelectSingle = "SELECT TOP 1 {0} FROM ##{1}";
         public const string JSONAuto = "{0} FOR JSON AUTO";
         public const string JSONPath = "{0} FOR JSON PATH";
         public const string JSONRoot = ", ROOT('{0}')";
@@ -71,7 +68,7 @@ namespace BotService.Common
         public const string From = " FROM ##{0}";
         public const string RootUnit = $"SELECT * FROM ##{nameof(BotUnit)}s ";
         public const string SelectFirst = $"SELECT TOP 1 * FROM ##{nameof(BotUnit)}s ";
-        public const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
+        public const string JsonNoWrap = "{0}, WITHOUT_ARRAY_WRAPPER";
         public static readonly string[] AllFileds = { "*" };
     }
 
@@ -82,9 +79,6 @@ namespace BotService.Common
         public const string RootUnit = $"SELECT * FROM ##{nameof(BotUnit)}s ";
         public const string SelectFirst = $"SELECT TOP 1 * FROM ##{nameof(BotUnit)}s ";
         public const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
-
-
-
 
         public static string Templated(string template, string sql)
             => string.Format(template, sql);

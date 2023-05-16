@@ -2,14 +2,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using LinqToDB.Expressions;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 using MissCore.Collections;
 
 namespace MissCore
 {
-    
+
     public record RequestInformation<TEntity>(string Unit, string Entity, string[] EntityFields = null, ICriteria Criteria = null) : RequestInformation(Unit, Entity, EntityFields, Criteria);
     
     public static class BotUnit<TEntity> where TEntity : class

@@ -28,9 +28,9 @@ namespace BotService
             var botBuilder = BotBuilder<TBot>.GetInstance(this);
             ConfigureServices((ctx, services) => services
                                                                                     .AddHostedService<BotClient<TBot>>()
-                                                                                    .AddSingleton<IRequestProvider, RequestProvider>()
+                                                                                    .AddScoped<IRequestProvider, RequestProvider>()
                                                                                     .AddScoped<TBot>()
-                                                                                    .AddSingleton<IBotContext, BotContext>()
+                                                                                    .AddScoped<IBotContext, BotContext>()
                                                                                     .AddScoped<IAsyncHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
@@ -91,14 +91,9 @@ namespace BotService
             return hostBuilder;
         }
 
-
-
-
         public void Start()
         {
             this.Build().Run();
         }
-
-
     }
 }

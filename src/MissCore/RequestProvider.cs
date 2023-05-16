@@ -9,6 +9,8 @@ namespace MissCore
 {
     public class RequestProvider : IRequestProvider
     {
+        private readonly IBotUnitFormatProvider provider;
+
         class UnitRequest : FormattableString, IUnitRequest
         {
             private string _format;
@@ -17,10 +19,9 @@ namespace MissCore
             internal UnitRequest(string format, RequestInformation info = default)
             {
                 _format = format;
-                _arguments = new List<object> { string.Join(',', info.EntityFields), info.Unit, info.Entity, info.Criteria };                
+                _arguments = new List<object> { string.Join(',', info.EntityFields), info.Unit, info.Entity, info.Criteria };
             }
-            public string Template
-                => Format;
+            public string Template {get;protected set;}
             public override string Format
                 => _format;
             public override object[] GetArguments()
@@ -44,10 +45,19 @@ namespace MissCore
             }
 
             public string ToRequest(RequestFormat format = RequestFormat.JsonAuto)
-                => $"{ToString()} {format.TrimSnakes()}";
-            
-        }
+                => Template == null ? $"{ToString()} {format.TrimSnakes()}" : string.Format(Template, $"{ToString()} {format.TrimSnakes()}");
 
+            public IRepositoryCommand SingleResult()
+            {
+                _format = Templates.SelectSingle;
+                Template = Templates.JsonNoWrap;
+                return this;
+            }
+        }
+        public RequestProvider(IBotUnitFormatProvider formatProvider)
+        {
+            provider = formatProvider;
+        }
         public RequestInformation Info<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
             => BotUnit<TUnit>.GetRequestInfo(null, criteria);        
 
@@ -60,7 +70,7 @@ namespace MissCore
         }
 
         public IUnitRequest RequestUnit<TUnit>(RequestInformation info = default) where TUnit : class
-           => new UnitRequest(Templates.Select, info ?? Info<BotUnit>(cmd => cmd.Entity == Unit<TUnit>.Key));
+           => new UnitRequest(Templates.SelectSingle, info ?? Info<BotUnit>(cmd => cmd.Entity == Unit<TUnit>.Key));
 
         public IUnitRequest RequestByCriteria<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
             => RequestUnit<TUnit>(Info(criteria));
