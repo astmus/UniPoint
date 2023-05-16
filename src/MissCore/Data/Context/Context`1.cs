@@ -15,7 +15,11 @@ namespace MissCore.Data.Context
 
         public void SetData(TScope data)
         {
-            Unit<TScope>.JoinData(data, Map);
+            if (Map is DataMap map)
+                map.JoinData(data);
+            else
+                Map = DataMap.Parse(data);
+            
             Data = data;
         } 
 

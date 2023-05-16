@@ -37,18 +37,19 @@ namespace MissCore
 
             public override string ToString(IFormatProvider formatProvider)
             {
+                string strCriteria = null;
                 if (_arguments.Last() is ICriteria criteria)
-                    _format += criteria.ToString(CriteriaFormat.SQL.Make(), default);
-                return string.Format(formatProvider, _format, _arguments.ToArray());
+                    strCriteria = criteria.ToString(CriteriaFormat.SQL.Make(), default);
+                return string.Format(formatProvider, _format + strCriteria, _arguments.ToArray());
             }
 
             public string ToRequest(RequestFormat format = RequestFormat.JsonAuto)
                 => $"{ToString()} {format.TrimSnakes()}";
             
         }
+
         public RequestInformation Info<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
-            => BotUnit<TUnit>.GetRequestInfo(null, criteria);
-        
+            => BotUnit<TUnit>.GetRequestInfo(null, criteria);        
 
         public IUnitRequest Request<TUnit>(RequestInformation info = default) where TUnit : class
         {
@@ -60,6 +61,9 @@ namespace MissCore
 
         public IUnitRequest RequestUnit<TUnit>(RequestInformation info = default) where TUnit : class
            => new UnitRequest(Templates.Select, info ?? Info<BotUnit>(cmd => cmd.Entity == Unit<TUnit>.Key));
+
+        public IUnitRequest RequestByCriteria<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
+            => RequestUnit<TUnit>(Info(criteria));
     }
 
     public abstract class Visitor

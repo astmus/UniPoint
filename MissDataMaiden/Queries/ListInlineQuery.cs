@@ -5,6 +5,7 @@ using MissBot.Handlers;
 using MissCore;
 using MissCore.Collections;
 using MissCore.Features;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.Commands
 {
@@ -22,9 +23,9 @@ namespace MissDataMaiden.Commands
         }
 
         public async override Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
-        {
-            BotUnit<Search<Unit>>.GetRequestInfo(default, s => s.Command == nameof(Search));
-            var cmd = Context.Provider.Request<Search>();
+        {            
+            var cmd = Context.Provider.RequestByCriteria<Search>(s
+                => s.Command == nameof(DataBase));
             searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(cmd);
 
             query.Skrip();
@@ -32,7 +33,7 @@ namespace MissDataMaiden.Commands
 
             var items = await repository.HandleReadAsync(searchResutst);
             var metaItems = new MetaCollection(items);
-            var units = metaItems.LandOn<InlineQueryResult<Unit>>();
+            var units = metaItems.SupplyTo<InlineQueryResult<Unit>>();
 
             
             // searchResutst.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search ?? "" }));

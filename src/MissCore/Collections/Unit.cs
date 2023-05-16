@@ -19,8 +19,7 @@ namespace MissCore.Collections
         protected T Get<T>()
             => Context.Get<T>();
         protected T Set<T>(T value, [CallerMemberName] string name = null)
-            => Context.Set(value, name);
-
+            => Context.Set(value, name);        
     }
     [DebuggerDisplay($"Value: {nameof(Text)}")]
     [JsonObject]
@@ -28,21 +27,10 @@ namespace MissCore.Collections
     {
         public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
         public static readonly string Key = typeof(TEntity).Name;
-        public static DataMap JoinData(TEntity entity, DataMap map)
-        {
-            map?.Parse(entity);
-            return map ??= new DataMap(entity);
-        }
 
-        public class Collection : List<TEntity> { }
-        
-        public static string Stringify(string[] items)
-            => string.Join('\t', from s in items
-                                 where s.Length > 2 && !s.EndsWith("= ")
-                                 select s);
-        public static string ParseTyped(object value)
-            => Stringify(value.ToString().Split('{', ':', ',', '}'));
+        public static DataMap Parse(TEntity entity)
+            => DataMap.Parse(entity);     
 
-  
+        public class Collection : List<TEntity> { }  
     }
 }

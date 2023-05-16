@@ -38,8 +38,8 @@ namespace MissCore.Data
         {
             var item = unit as InlineResultUnit;
             item.Id += InlineQuery.Query;
-            item.Title = item.Meta.GetRecord(2, "{0}: {1}");
-            item.Description = item.Meta.GetRecord(3, "{0}: {1}");
+            item.Title = item.Meta.GetItem(2).ToString();
+            item.Description = item.Meta.GetItem(3).ToString();
             results.Add(item);
             keyboard = null;
         }

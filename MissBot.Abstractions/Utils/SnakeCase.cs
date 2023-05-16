@@ -25,8 +25,9 @@ namespace MissBot.Abstractions.Utils
             null => throw new ArgumentNullException(paramName: nameof(instance)),
             _ => JsonConvert.SerializeObject(instance, _snakeCaseSettings)
         };
-
-        public static string ToSnakeCase(this string target, bool trimSnakes = false) => (target,trimSnakes) switch
+        public static string ToSnakeCase(this string target)
+            => target.ToSnakeCase(false);
+        public static string ToSnakeCase(this string target, bool trimSnakes) => (target,trimSnakes) switch
         {
             (not null, false)
                 => _snakeCaseNamingStrategy.GetPropertyName(target, false),

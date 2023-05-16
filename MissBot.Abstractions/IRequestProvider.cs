@@ -17,5 +17,6 @@ namespace MissBot.Abstractions
         IUnitRequest Request<TUnit>(RequestInformation info = default) where TUnit : class;
         IUnitRequest RequestUnit<TUnit>(RequestInformation info = default) where TUnit : class;
         RequestInformation Info<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class;
+        IUnitRequest RequestByCriteria<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class;
     }
 }

@@ -4,7 +4,7 @@ namespace MissBot.Abstractions
 {
     public interface IDataMap
     {
-        JToken Parse<TData>(TData value);
+        void JoinData<TEntity>(TEntity entity);
         TD Read<TD>(string name);
     }
 }

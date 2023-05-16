@@ -11,13 +11,8 @@ namespace MissCore.Data
         Message message
             => Context.Take<Message>();
 
-
-
         public async Task Commit(CancellationToken cancel)
-        {               
-            await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
-        }
-
+            => await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : class, IUnit<T>
         {
@@ -43,7 +38,7 @@ namespace MissCore.Data
 
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
-            Text += Unit<T>.ParseTyped(meta) + "\n";
+            Text += MetaData.Parse(meta);
         }
 
         public void WriteError<TUnitData>(TUnitData unit) where TUnitData : class, IUnit

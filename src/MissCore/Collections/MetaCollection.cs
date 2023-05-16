@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Collections
@@ -13,12 +13,12 @@ namespace MissCore.Collections
             items = tokens;
         }
 
-        public virtual TSub[] LandOn<TSub>() where TSub : Unit
+        public virtual TSub[] SupplyTo<TSub>() where TSub : Unit
             => items.Select(item =>
                 {
-                    Metadata.Pointer = item;
+                    Metadata.first = item;
                     var result = Metadata.Bring<TSub>();
-                    result.Meta = new MetaData(JObject.FromObject(item));
+                    result.Meta = MetaData.Parse(item);
                     return result;
                 }).ToArray();
 
@@ -26,7 +26,7 @@ namespace MissCore.Collections
         {
             foreach (var item in items)
             {
-                Metadata.Pointer = item;
+                Metadata.first = item;
                 yield return Metadata.Bring<TUnit>();
             }
         }
@@ -34,7 +34,7 @@ namespace MissCore.Collections
         {
             foreach (var item in items)
             {
-                Metadata.Pointer = item;
+                Metadata.first = item;
                 yield return Metadata.Value;
             }
         }
