@@ -10,7 +10,6 @@ namespace MissDataMaiden.Commands
 {
     public record Info : BotUnitCommand
     {
-        public override string Command => nameof(Info);
     }
 
     public record InfoUnit(string s) : Unit<Info>

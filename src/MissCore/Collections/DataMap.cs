@@ -9,10 +9,7 @@ namespace MissCore.Collections
         JObject container;
         public DataMap(): base(StringComparer.OrdinalIgnoreCase)
         {
-            
         }
-        public string Key
-            => container.Children().FirstOrDefault().Path;
 
         public static DataMap Parse<TData>(TData value)
             => new DataMap().Parse(JObject.FromObject(value));
@@ -24,8 +21,9 @@ namespace MissCore.Collections
         {
             if (this[name] is string path && container.SelectToken(path) is JToken value)
                 return value.ToObject<TEntity>();
-            else return default;
+            return default;
         }
+
         private DataMap Parse(JObject containerToken)
         {
             if (container is JObject head)
@@ -34,6 +32,7 @@ namespace MissCore.Collections
                 container = containerToken;
             return ParseTokens(containerToken);
         }
+
         private DataMap ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)

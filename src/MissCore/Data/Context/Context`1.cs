@@ -1,27 +1,18 @@
-using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataContext;
 using MissCore.Collections;
 
 namespace MissCore.Data.Context
 {
     public class Context<TScope> : Context, IContext<TScope>, IHandleContext
-    {
-        IServiceProvider scoped;
+    {        
+        protected IHandleContext Root { get; set; }
         IBotServicesProvider botServices;
         public bool? IsHandled { get; set; }
-        public TScope Data
+
+        public Context(IBotServicesProvider botServiceProvider)
         {
-            get => Root.Get<TScope>();
-            set => Root.Set(value);
-        }
-        public string Key
-            => Map.Key;
-        public Context(IServiceProvider scopedProvider, IBotServicesProvider botServices)
-        {
-            this.botServices = botServices;
-            scoped = scopedProvider;
+            botServices = botServiceProvider;     
             Root = this;
         }
 
@@ -31,8 +22,7 @@ namespace MissCore.Data.Context
                 map.JoinData(data);
             else
                 Map = DataMap.Parse(data);
-            
-            Data = data;
+            Root.Set(data);
         }
 
         public IBotServicesProvider BotServices
@@ -44,7 +34,7 @@ namespace MissCore.Data.Context
             return this;
         }
 
-        public T GetNextHandler<T>() where T : class
+        public T GetBotService<T>() where T : class
             => Root.BotServices.GetService<T>();      
 
         public IAsyncHandler<T> GetAsyncHandler<T>()
@@ -52,8 +42,6 @@ namespace MissCore.Data.Context
 
         public bool Contains<T>()
             => ContainsKey(Unit<T>.Key) || Map.AllKeys?.Contains(Unit<T>.Key) == true;
-
-        public IHandleContext Root { get; protected set; }
 
         public AsyncHandler CurrentHandler
             => Get<AsyncHandler>();

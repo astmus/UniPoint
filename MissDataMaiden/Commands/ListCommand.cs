@@ -7,7 +7,7 @@ namespace MissDataMaiden
 {
     public record List : BotUnitCommand
     {
-        public override string Command => nameof(List);
+
     }
 
 

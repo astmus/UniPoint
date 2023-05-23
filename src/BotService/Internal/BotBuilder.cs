@@ -33,8 +33,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 next =>
                 context =>
                     {
-                        if (context.Any<UnitUpdate>() is UnitUpdate upd && upd.IsCommand)
-                            return context.GetNextHandler<IAsyncBotCommandDispatcher>().ExecuteAsync(context.SetNextHandler(context, next));
+                        if (context.Get<Update<TBot>>() is UnitUpdate upd && upd.IsCommand)
+                            return context.GetBotService<IAsyncBotCommandDispatcher>().ExecuteAsync(context.SetNextHandler(context, next));
                         else
                             return next(context);
                     });            return this;        }
@@ -53,7 +53,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                 {
                     if (context.Contains<ChosenInlineResult>())
-                        return context.GetNextHandler<IAsyncHandler<ChosenInlineResult>>().AsyncHandler(context.SetNextHandler(context, next));
+                        return context.GetBotService<IAsyncHandler<ChosenInlineResult>>().AsyncHandler(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -74,7 +74,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                 {
                     if (context.Contains<CallbackQuery>())
-                        return context.GetNextHandler<IAsyncHandler<CallbackQuery>>().AsyncHandler(context.SetNextHandler(context, next));
+                        return context.GetBotService<IAsyncHandler<CallbackQuery>>().AsyncHandler(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -94,7 +94,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 context =>
                 {
                     if (context.Contains<InlineQuery>())
-                        return context.GetNextHandler<IAsyncHandler<InlineQuery>>().AsyncHandler(context.SetNextHandler(context, next));
+                        return context.GetBotService<IAsyncHandler<InlineQuery>>().AsyncHandler(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -103,7 +103,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
 
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetNextHandler<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }
 
         public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
         {
@@ -124,7 +124,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             _components.Add(                next =>                context =>
                 {
                     if (context.Contains<Message>())
-                        return context.GetNextHandler<IAsyncHandler<Message>>().AsyncHandler(context.SetNextHandler(context, next));
+                        return context.GetBotService<IAsyncHandler<Message>>().AsyncHandler(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -134,7 +134,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        internal BotBuilder()
         {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }        public IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware)        {            throw new NotImplementedException();        }        public IBotBuilder AddActionHandler<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.CurrentHandler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
 
 
         public AsyncHandler BuildHandler()
@@ -185,26 +185,10 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             =>
             {
                 Services.AddScoped<IAsyncHandler<TAction>, THandler>();
-                Services.AddScoped<TAction>();
                 Services.AddScoped<IResponse<TAction>, Response<TAction>>();
                 Services.AddScoped<IContext<TAction>, Context<TAction>>();
             });
             return this;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #endregion                                                                                }}
+        #endregion
+    }}

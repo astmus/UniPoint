@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataContext;
-using MissBot.Abstractions.Utils;
 using MissCore.Collections;
 using Newtonsoft.Json.Linq;
 
@@ -25,9 +24,7 @@ namespace MissCore.Data.Context
             result = Map.ReadObject<T>(id);
             return result;
         }
-
-        public T TakeByKey<T>()
-            => Take<T>(Unit<T>.Key);        
+    
 
         public T Take<T>([CallerMemberName] string name = default)
         {
@@ -47,6 +44,9 @@ namespace MissCore.Data.Context
             => (T)AddOrUpdate(name ?? Id<T>.Value,
                     (k, w) => w,
                     (k, o, w) => this[k] = w, value);
+
+        public T Take<T>(Id<T> identifier)
+            => Take<T>(identifier.id);
     }
 
 }

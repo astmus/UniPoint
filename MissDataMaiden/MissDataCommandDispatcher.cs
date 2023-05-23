@@ -1,63 +1,37 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
-using MissBot.Entities;
-using MissBot.Extensions.Entities;
-using MissCore.Data;
+using MissBot.Handlers;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCommandDispatcher : BaseHandler<BotCommand>, IAsyncBotCommandDispatcher
+    internal class MissDataCommandDispatcher : BaseBotCommandHandler
     {
         IRepository<BotCommand> commandsRepository;
         public MissDataCommandDispatcher(IRepository<BotCommand> mediator)
             => commandsRepository = mediator;
 
-        bool isCommand;
-        (string command, string[] args) data;
-
-        public async Task ExecuteAsync(IHandleContext context)
+        protected override Task HandleAsync(IHandleContext context, string command) => command switch
         {
-            var update = context.Any<Update<MissDataMaid>>();
-
-            if (isCommand = update.IsCommand)
-            {
-                Context = context;
-                data = context.TakeByKey<Message>().GetCommandAndArgs();
-            }
-            await HandleAsync(context, data.command);
-        }
-
-        Task HandleAsync(IHandleContext context, string command) => command switch
-        {
-            nameof(Disk) => HandleAsync<Disk>(context),
-            nameof(List) => HandleAsync<List>(context),
-            nameof(Info) => HandleAsync<Info>(context),
-            _ => context.Get<AsyncHandler>()(context)
+            nameof(Disk) => HandleBotCommandAsync<Disk>(context),
+            nameof(List) => HandleBotCommandAsync<List>(context),
+            nameof(Info) => HandleBotCommandAsync<Info>(context),
+            _ => HandleBotCommandAsync<BotCommand>(context)
         };
 
-        public async Task HandleAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand
+        public override async Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default)
         {
-            var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
-            handler.Context = context;
-            var cmd = await commandsRepository.GetAsync<TCommand>();
+            if (context.GetAsyncHandler<TCommand>() is BotCommandHandler<TCommand> handler)
+            {
+                handler.Context = context;
+                var command = await commandsRepository.GetAsync<TCommand>();
+                
+                await handler.HandleAsync(command, cancel);
 
-            //var ctx = context.CreateDataContext<TCommand>();
-            //ctx.Data ??= cmd;
-            //var Data = ctx.Data as BotCommandUnit;
-            //Data.Command = data.command;
-            //Data.Params = data.args;
-
-            await handler.HandleAsync(cmd, cancel);
-            if (!context.IsHandled.HasValue)
-                context.IsHandled = true;
-        }
-
-        public override Task HandleAsync(BotCommand data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
+                if (!context.IsHandled.HasValue)
+                    context.IsHandled = true;
+            }
+        }     
     }
 }

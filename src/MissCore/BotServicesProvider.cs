@@ -13,12 +13,6 @@ namespace MissCore
         public IBotClient Client
             => GetRequiredService<IBotClient>();
 
-        //public TCommand GetCommand<TCommand>() where TCommand : BotCommand
-        //{
-        //    var repository = sp.GetRequiredService<IRepository<BotCommand>>();
-        //    repository.Get
-        //}
-
         public T GetRequiredService<T>()
             => sp.GetRequiredService<T>();
 
@@ -29,6 +23,6 @@ namespace MissCore
             => sp.GetService(serviceType);
 
         public IResponse<T> Response<T>()
-            => sp.GetRequiredService<IResponse<T>>();
+            => sp.GetService<IResponse<T>>();
     }
 }

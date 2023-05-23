@@ -30,10 +30,11 @@ namespace BotService
                                                                                     .AddSingleton<IRequestProvider, RequestProvider>()
                                                                                     .AddSingleton<TBot>()
                                                                                     .AddSingleton<IBotContext, BotContext>()
+                                                                                    .AddScoped<IContext<Update<TBot>>, Context<Update<TBot>>>()
                                                                                     .AddScoped<IAsyncUpdateHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
-                                                                                     .AddScoped<IHandleContext>(sp
+                                                                                     .AddScoped(sp
                                                                                         => sp.GetRequiredService<IContext<Update<TBot>>>() as IHandleContext)
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
                                                                                     .AddSingleton<BaseBot.Configurator, TConfig>()
@@ -43,11 +44,6 @@ namespace BotService
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             ConfigureServices((ctx, services) =>
                                                                 services.AddOptions<BotContextOptions>().Bind(ctx.Configuration.GetSection(BotContextOptions.ContextOptions)));
-
-            //buildActions.Add(() => BotBuilder<TBot>.Instance.Build());
-            //var builder = 
-            //builder.Services.AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>());   
-            //builder.Services.AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name);
             hostBuilder = this;
             return botBuilder;
         }
@@ -68,9 +64,9 @@ namespace BotService
                     .AddInfrastructureServices(host.Configuration);
                 services.AddSingleton<IHandleContextFactory, HandleContextFactory>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
-                services.AddScoped(typeof(IContext<>), typeof(Context<>));
+                //services.AddScoped(typeof(IContext<>), typeof(Context<>));
                 
-                services.AddScoped<IBotConnectionOptions>(sp
+                services.AddScoped(sp
                     => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());
                 services.AddScoped<IBotConnectionOptionsBuilder, BotOptionsBuilder>();
 

@@ -5,15 +5,15 @@ namespace MissBot.Abstractions
 {
     public interface IHandleContext : IContext
     {
-        bool? IsHandled { get; set; }
-        IBotServicesProvider BotServices { get; }
-        IBotContext Bot { get; }
-        IAsyncHandler<T> GetAsyncHandler<T>();
-        T GetNextHandler<T>() where T : class;
-        bool Contains<T>();
         AsyncHandler CurrentHandler { get; }
-        IRequestProvider Provider { get; }
+        bool Contains<T>();
+        bool? IsHandled { get; set; }
+        IAsyncHandler<T> GetAsyncHandler<T>();
+        IBotContext Bot { get; }
+        IBotServicesProvider BotServices { get; }
         IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
+        IRequestProvider Provider { get; }
+        T GetBotService<T>() where T : class;
     }
 
     public interface IUpdate<TUpdate> : IUpdateInfo
