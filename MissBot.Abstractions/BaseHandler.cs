@@ -2,7 +2,7 @@ namespace MissBot.Abstractions
 {
     public abstract class BaseHandler<TData> : IAsyncHandler<TData>
     {
-        public AsyncHandler AsyncHandler
+        public AsyncHandler AsyncDelegate
             => HandleAsync;
         public IHandleContext Context { get; set; }
         async Task HandleAsync(IHandleContext context)

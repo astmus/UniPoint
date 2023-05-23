@@ -12,8 +12,15 @@ namespace MissCore.Data.Context
             if (TryGetValue(id, out var o) && o is T val)
                 return val;
             return result;
-        }             
-
+        }
+        public T Get<T>(Id<T> identifier)
+        {
+            string id = identifier?.id ?? Id<T>.Value;
+            var result = default(T);
+            if (TryGetValue(id, out var o) && o is T val)
+                return val;
+            return result;
+        }
         public TAny Any<TAny>()
         {
             return this.Where(x => x.Value is TAny).Select(s => s.Value).Cast<TAny>().FirstOrDefault();

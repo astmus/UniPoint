@@ -11,7 +11,7 @@ namespace MissBot.Handlers
             => mm = mediator;
 
         public ExecuteHandler ExecuteHandler { get; }
-        public AsyncHandler AsyncHandler { get; }
+        public AsyncHandler AsyncDelegate { get; }
 
         public Task ExecuteAsync(IHandleContext context, AsyncHandler next)
         {

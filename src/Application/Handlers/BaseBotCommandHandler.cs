@@ -8,7 +8,6 @@ using MissCore.Data;
 
 namespace MissBot.Handlers
 {
-
     public abstract class BaseBotCommandHandler : BaseHandler<BotCommand>, IAsyncBotCommandDispatcher
     {
         (string command, string[] args) Current;

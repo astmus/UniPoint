@@ -8,7 +8,7 @@ namespace MissBot.Handlers
 {
     public abstract class BotServicesHandler<TBot> : IAsyncHandler where TBot : IBot
     {
-        public AsyncHandler AsyncHandler { get; }
+        public AsyncHandler AsyncDelegate { get; }
 
         public async Task ExecuteAsync(IHandleContext context, AsyncHandler next)
         {

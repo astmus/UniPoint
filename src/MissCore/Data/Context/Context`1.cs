@@ -40,8 +40,8 @@ namespace MissCore.Data.Context
         public IAsyncHandler<T> GetAsyncHandler<T>()
             => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-        public bool Contains<T>()
-            => ContainsKey(Unit<T>.Key) || Map.AllKeys?.Contains(Unit<T>.Key) == true;
+        public bool Contains<T>(Id<T> identifier)
+            => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;
 
         public AsyncHandler CurrentHandler
             => Get<AsyncHandler>();

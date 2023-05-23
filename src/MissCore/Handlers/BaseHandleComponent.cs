@@ -4,7 +4,7 @@ namespace MissCore.Handlers
 {
     public abstract class BaseHandleComponent : IAsyncHandler
     {
-        public AsyncHandler AsyncHandler
+        public AsyncHandler AsyncDelegate
             => HandleAsync;
 
         public abstract Task ExecuteAsync(IHandleContext context);

@@ -114,12 +114,12 @@ namespace MissCore.Bot
 
         public async Task<IBotUnit<TUnit>> GetUnitAsync<TUnit>() where TUnit : Unit
         {
-            if (cache.Get<TUnit>() is IBotUnit<TUnit> unit)
+            if (cache.Get(Id<BotUnit<TUnit>>.Value) is BotUnit<TUnit> unit)
                 return unit;
 
             var cmd = GetUnit.Read<TUnit>();
             unit = await HandleQueryAsync<BotUnit<TUnit>>(cmd);
-            return cache.Set(unit, Id<TUnit>.Value);
+            return cache.Set(unit, Id<BotUnit<TUnit>>.Value);
         }
 
         IBotUnit<TUnit> IBotContext.GetUnit<TUnit>()

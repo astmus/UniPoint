@@ -6,7 +6,7 @@ namespace MissBot.Abstractions
     public interface IHandleContext : IContext
     {
         AsyncHandler CurrentHandler { get; }
-        bool Contains<T>();
+        bool Contains<T>(Id<T> identifier);
         bool? IsHandled { get; set; }
         IAsyncHandler<T> GetAsyncHandler<T>();
         IBotContext Bot { get; }

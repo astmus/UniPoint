@@ -52,8 +52,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 next =>
                 context =>
                 {
-                    if (context.Contains<ChosenInlineResult>())
-                        return context.GetBotService<IAsyncHandler<ChosenInlineResult>>().AsyncHandler(context.SetNextHandler(context, next));
+                    if (context.Contains(Id<ChosenInlineResult>.Value))
+                        return context.GetBotService<IAsyncHandler<ChosenInlineResult>>().AsyncDelegate(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -73,8 +73,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 next =>
                 context =>
                 {
-                    if (context.Contains<CallbackQuery>())
-                        return context.GetBotService<IAsyncHandler<CallbackQuery>>().AsyncHandler(context.SetNextHandler(context, next));
+                    if (context.Contains(Id<CallbackQuery>.Value))
+                        return context.GetBotService<IAsyncHandler<CallbackQuery>>().AsyncDelegate(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -93,8 +93,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 next =>
                 context =>
                 {
-                    if (context.Contains<InlineQuery>())
-                        return context.GetBotService<IAsyncHandler<InlineQuery>>().AsyncHandler(context.SetNextHandler(context, next));
+                    if (context.Contains(Id<InlineQuery>.Value))
+                        return context.GetBotService<IAsyncHandler<InlineQuery>>().AsyncDelegate(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -103,7 +103,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
 
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncDelegate(context.SetNextHandler(context, next)));            return this;        }
 
         public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
         {
@@ -123,8 +123,8 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 });
             _components.Add(                next =>                context =>
                 {
-                    if (context.Contains<Message>())
-                        return context.GetBotService<IAsyncHandler<Message>>().AsyncHandler(context.SetNextHandler(context, next));
+                    if (context.Contains(Id<Message>.Value))
+                        return context.GetBotService<IAsyncHandler<Message>>().AsyncDelegate(context.SetNextHandler(context, next));
                     else
                         return next(context);
                 });
@@ -134,7 +134,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        internal BotBuilder()
         {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }        public IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware)        {            throw new NotImplementedException();        }        public IBotBuilder AddActionHandler<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncHandler(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().AsyncDelegate(context.SetNextHandler(context, next)));            return this;        }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
 
 
         public AsyncHandler BuildHandler()

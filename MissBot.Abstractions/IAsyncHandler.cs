@@ -6,7 +6,7 @@ namespace MissBot.Abstractions
 {
     public interface IAsyncHandler
     {
-        AsyncHandler AsyncHandler { get; }
+        AsyncHandler AsyncDelegate { get; }
     }
 
     public interface IAsyncBotCommandDispatcher
