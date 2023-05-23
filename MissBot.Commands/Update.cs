@@ -28,7 +28,7 @@ namespace MissBot.Entities
         /// Optional. New incoming message of any kind — text, photo, sticker, etc.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Message Message { get; set; }
+        public virtual Message Message { get; set; }
 
         /// <summary>
         /// Optional. New version of a message that is known to the bot and was edited

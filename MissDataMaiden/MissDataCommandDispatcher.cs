@@ -1,13 +1,15 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 using MissBot.Extensions.Entities;
 using MissCore.Data;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCommandDispatcher : IAsyncBotCommandDispatcher
+    internal class MissDataCommandDispatcher : BaseHandler<BotCommand>, IAsyncBotCommandDispatcher
     {
         IRepository<BotCommand> commandsRepository;
         public MissDataCommandDispatcher(IRepository<BotCommand> mediator)
@@ -16,14 +18,16 @@ namespace MissDataMaiden
         bool isCommand;
         (string command, string[] args) data;
 
-        public Task ExecuteAsync(IHandleContext context)
+        public async Task ExecuteAsync(IHandleContext context)
         {
             var update = context.Any<Update<MissDataMaid>>();
 
             if (isCommand = update.IsCommand)
-                data = context.Take<Message>().GetCommandAndArgs();
-
-            return HandleAsync(context, data.command);
+            {
+                Context = context;
+                data = context.TakeByKey<Message>().GetCommandAndArgs();
+            }
+            await HandleAsync(context, data.command);
         }
 
         Task HandleAsync(IHandleContext context, string command) => command switch
@@ -34,10 +38,10 @@ namespace MissDataMaiden
             _ => context.Get<AsyncHandler>()(context)
         };
 
-        public async Task HandleAsync<TCommand>(IHandleContext context) where TCommand : BotCommand, IBotUnit
+        public async Task HandleAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand
         {
             var handler = context.GetAsyncHandler<TCommand>() as BotCommandHandler<TCommand>;
-
+            handler.Context = context;
             var cmd = await commandsRepository.GetAsync<TCommand>();
 
             //var ctx = context.CreateDataContext<TCommand>();
@@ -46,10 +50,14 @@ namespace MissDataMaiden
             //Data.Command = data.command;
             //Data.Params = data.args;
 
-            await handler.HandleAsync(cmd, context);
+            await handler.HandleAsync(cmd, cancel);
+            if (!context.IsHandled.HasValue)
+                context.IsHandled = true;
+        }
 
-            AsyncHandler next = context.Handler;
-            await next(context).ConfigureAwait(false);
+        public override Task HandleAsync(BotCommand data, CancellationToken cancel = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

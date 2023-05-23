@@ -11,7 +11,7 @@ namespace MissBot.Abstractions
         public ChatId ChatId
             => chat.Id;
         Chat chat
-            => Context.Take<Chat>();
+            => Context.Take<Chat>() ?? Context.Any<IUnitUpdate>().Chat;
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
         /// </summary>

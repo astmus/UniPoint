@@ -24,7 +24,7 @@ namespace BotService.Common
                     };
 
 
-        public static string ToStringJson<T>(this T obj, JsonSerializerSettings serializerSettings = null) =>
+        public static string ToStringJson<T>(this T obj, JsonSerializerSettings serializerSettings = null) where T:class =>
             JsonConvert.SerializeObject(obj, serializerSettings ?? ContentSerializerSettings);
 
         public static T FromJsonString<T>(this string json, JsonSerializerSettings serializerSettings = null) =>

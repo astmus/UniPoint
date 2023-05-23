@@ -30,16 +30,22 @@ namespace BotService.Connection
                 await foreach (var update in PendingUpdates(src.Token))
                 {
                     var id = ScopePredicate(update);
+                    if (id == null)
+                        continue;
                     var scope = Factory.Init(id);
-                    var handler = scope.ServiceProvider.GetRequiredService<IAsyncHandler<TUpdate>>();
-                    var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-                    ctx.SetData(update);
-                    ctx.Set(scope.ServiceProvider);
-                    var hctx = ctx as IHandleContext;
-                    await handler.HandleAsync(update, hctx).ConfigFalse();
+                    using (var cts = new CancellationTokenSource())
+                    {
+                        var handler = scope.ServiceProvider.GetRequiredService<IAsyncUpdateHandler<TUpdate>>();
+                        var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
+                        ctx.SetData(update);
+                        ctx.Set(scope.ServiceProvider);
+                        var hctx = ctx as IHandleContext;
+                        
+                        await handler.HandleUpdateAsync(update, hctx, cts.Token).ConfigFalse();
 
-                    if (hctx.IsHandled == true)
-                        Factory.Remove(id);
+                        if (hctx.IsHandled == true)
+                            Factory.Remove(id);
+                    }
                 };
             }
             catch (Exception e)

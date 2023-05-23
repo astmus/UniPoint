@@ -3,13 +3,13 @@ using System.Runtime.CompilerServices;
 using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
-using MissBot.Entities;
+using MissBot.Abstractions;
 using MissCore.Collections;
 
 namespace MissDataMaiden.Queries
 {
-    public record SqlBotQuery<TEntity> : MediatR.IRequest<Union<TEntity>> where TEntity : class
-    {
+    public record SqlBotQuery<TEntity> : MediatR.IRequest<Union<TEntity>> where TEntity : class, IBotUnit
+    {        
         public record Query(string sql, int skip, int take, string filter) : SqlBotQuery<TEntity>;
         public class Handler<TQuery> : IRequestHandler<TQuery, Union<TEntity>> where TQuery : SqlBotQuery<TEntity>.Query
         {
@@ -48,7 +48,7 @@ namespace MissDataMaiden.Queries
 
         }
     }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissCore.Collections.Unit
+    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissBot.Abstractions.Entities.Unit
     {
 
         public record Query(string sql, string connection = null) : SqlRaw<TUnion>;

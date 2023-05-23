@@ -1,10 +1,13 @@
 using BotService.Common;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
+using MissBot.Entities;
 using MissBot.Entities.Results;
 using MissBot.Handlers;
 using MissCore;
+using MissCore.Bot;
 using MissCore.Collections;
+using MissCore.Data.Context;
 using MissDataMaiden.Entities;
 
 
@@ -17,30 +20,30 @@ namespace MissDataMaiden
         {
             repository = jsonRepository;
         }
-        //[JsonObject(MemberSerialization = MemberSerialization.OptOut)]
-        //record DataBaseRequest : SQL<DataBase>.Query<DataBaseInfo>
-        //{
-        //    public DataBaseRequest()
-        //    {
-
-        //    }
-        //}
-
-        public override async Task HandleResultAsync(ChosenInlineResult result, IHandleContext context)
+        
+        public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
         {
-            int id = result.Query.Length > 0 ? int.Parse(result.ResultId.Replace(result.Query, "")) : int.Parse(result.ResultId);
-            string strid = result.Query.Length > 0 ? result.ResultId.Replace(result.Query, "") : result.ResultId;
+                        
+            //var items = await repository.ReadAsync<DataBase>(d => d.Id == strid);
+            //var db = items.BringTo<DataBase>().FirstOrDefault();
+            var info = Context.BotServices.GetRequiredService<IBotContext>().Get<DataBaseInfo>();
+            var rawRequest = info.Format(6/*result.Id*/);
+            Info dbInfo = await repository.HandleRawAsync<Info>(rawRequest, cancel);
+            dbInfo.InitializaMetaData();
+            var response = Context.BotServices.Response<ChosenInlineResult>();
+            //var r = Context.Provider.FromUnit(cmdinfo, "6");
+            //var cmd = Context.Provider.ReadRequest<DataBase>(f => f.Id == strid);
+            //var u = await repository.HandleQueryAsync(cmd);
+            response.Write(dbInfo);
+            //foreach (var item in items.SupplyTo<DataBase>())
+            //{
+            //    response.Write(item);
+            //    //cmdinfo.Unit = item;                
+            //}
+            await response.Commit(cancel);
 
-            var cmdinfo = context.Provider.Info<DataBaseInfo>(f => f.Id == strid);
-            var cmd = Context.Provider.Request<DataBaseInfo>(cmdinfo);
-            //sql.ContentPropertyName = nameof(DataBase.Detail);
-            var details = await repository.HandleQueryAsync<DataBaseInfo>(cmd);
-            //var response = context.CreateResponse(result);
-            ////response.WriteMetadata(unit);
-            //response.Write(details );
-            //await response.Commit(default);
-
-            int i = 0;
+            //var details = await repository.ReadUnitDataAsync(cmd,cancel);
+            //var i8 = details.SupplyTo<DataBaseInfo>();
         }
     }
 }

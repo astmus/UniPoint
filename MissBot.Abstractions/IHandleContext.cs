@@ -1,3 +1,4 @@
+using MissBot.Abstractions.DataContext;
 using MissBot.Entities;
 
 namespace MissBot.Abstractions
@@ -5,14 +6,14 @@ namespace MissBot.Abstractions
     public interface IHandleContext : IContext
     {
         bool? IsHandled { get; set; }
-        IDataMap Map { get; }
-        IBotServicesProvider BotServices { get; }        
+        IBotServicesProvider BotServices { get; }
+        IBotContext Bot { get; }
         IAsyncHandler<T> GetAsyncHandler<T>();
         T GetNextHandler<T>() where T : class;
-        AsyncHandler Handler { get; }
+        bool Contains<T>();
+        AsyncHandler CurrentHandler { get; }
         IRequestProvider Provider { get; }
         IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
-        IResponse<TScope> CreateResponse<TScope>();
     }
 
     public interface IUpdate<TUpdate> : IUpdateInfo
@@ -20,16 +21,15 @@ namespace MissBot.Abstractions
         TUpdate Data { get; }
     }
 
-    public interface ICommonUpdate
+    public interface IUnitUpdate
     {
-        Message Message { get; }
+        Message CurrentMessage { get; }
         Chat Chat { get; }
-        bool? IsHandled { get; set; }
+        bool IsCommand { get; }
     }
 
     public interface IUpdateInfo
     {
-        uint UpdateId { get; }
-        bool? IsHandled { get; set; }
+        uint UpdateId { get; }        
     }
 }

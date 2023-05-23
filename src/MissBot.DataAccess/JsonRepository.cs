@@ -1,11 +1,14 @@
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
 using System.Text;
 using LinqToDB;
+using LinqToDB.Reflection;
 using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
+using MissCore.Bot;
 using MissCore.Collections;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,37 +17,45 @@ namespace MissBot.DataAccess
 {
     public class JsonRepository : DataContext, IJsonRepository
     {
-        public JsonRepository(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
+        IRequestProvider provider;
+        public JsonRepository(IOptions<BotContextOptions> ctxOptions, IRequestProvider requestProvider) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
-
+            provider = requestProvider;
         }
 
-        public Task ExecuteCommandAsync(IRepositoryCommand query, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<JArray> ReadUnitDataAsync<TUnit>(TUnit unit, CancellationToken cancel = default) where TUnit : IBotUnit
-            => await HandleSqlAsync(unit.Payload + RequestFormat.JsonAuto, cancel);
-
-
-        public Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default)
+        public Task ExecuteCommandAsync(IUnitRequest request, CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<TResult> HandleQueryAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default) where TResult : class
+        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(string search, uint skip = default, uint take = default, CancellationToken cancel = default) where TUnit : Unit
+        {
+            var request = provider.FindRequest<TUnit>(search, skip, take);
+
+             var items = await HandleRawAsync(request.GetCommand(), cancel);
+
+            return new MetaCollection<TUnit>(items);
+        }
+
+
+        public Task<TResult> HandleCommandAsync<TResult>(IUnitRequest query, CancellationToken cancel = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<TResult> HandleQueryAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : class
         {
             TResult result = default(TResult);
-            using (var conn = DataProvider.CreateConnection(ConnectionString))
+            using (var connection = DataProvider.CreateConnection(ConnectionString))
             {
-                conn.Open();
-                using (var cmd = conn.CreateCommand())
+                connection.Open();
+                using (var dbCmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = query.ToRequest(RequestFormat.JsonAuto);                      
-                    var json = await ReadAsync(cmd, cancel);
+                    dbCmd.CommandText = request.GetCommand(RequestOptions.JsonAuto);
+                    var json = await ReadAsync(dbCmd, cancel);
                     result = JsonConvert.DeserializeObject<TResult>(json);
                 }
+                connection.Close();
             }
             return result;
         }
@@ -61,24 +72,29 @@ namespace MissBot.DataAccess
             }
         }
 
-        public async Task<JArray> HandleReadAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
-        {                                                                    
-            return await HandleSqlAsync(cmd.ToRequest(RequestFormat.JsonAuto), cancel);
+        public async Task<IMetaCollection> HandleReadAsync(IUnitRequest cmd, CancellationToken cancel = default)
+        {
+            var array = await HandleRawAsync(cmd.GetCommand(), cancel);
+            return new MetaCollection(array);
         }
 
-        public async Task<JObject> HandleScalarAsync(IRepositoryCommand cmd, CancellationToken cancel = default)
+        public async Task<JObject> HandleScalarAsync(IUnitRequest cmd, CancellationToken cancel = default)
         {
             StringBuilder result = new StringBuilder();
-            await HandleAsync(cmd.ToRequest(), result, cancel);
-            return JObject.Parse(result.ToString());
+
+            await HandleAsync(cmd.GetCommand(), result, cancel);
+            if (result.Length > 0)
+                return JObject.Parse(result.ToString());
+            else
+                return default;
         }
 
-        public async Task<ICollection<TResult>> HandleQueryResultAsync<TResult>(IRepositoryCommand cmd, CancellationToken cancel = default) where TResult : class
+        public async Task<ICollection<TResult>> HandleRequestAsync<TResult>(IUnitRequest cmd, CancellationToken cancel = default) where TResult : class
         {
             return await HandleQueryAsync<Unit<TResult>.Collection>(cmd, cancel);
         }
 
-        protected virtual async Task<JArray> HandleSqlAsync(string sql, CancellationToken cancellationToken = default)
+        protected virtual async Task<JArray> HandleRawAsync(string sql, CancellationToken cancellationToken = default)
         {
             JArray result = default;
             using (var conn = DataProvider.CreateConnection(ConnectionString))
@@ -123,6 +139,33 @@ namespace MissBot.DataAccess
 
             }
             //return JsonConvert.DeserializeObject<TEntity>(result.ToString());
+        }
+
+        public async Task<IMetaCollection<TUnit>> ReadAsync<TUnit>(Expression<Predicate<TUnit>> criteria = default, CancellationToken cancel = default) where TUnit : Unit
+        {
+            var request = provider.ReadRequest<TUnit>(criteria);
+
+            var items = await HandleRawAsync(request.GetCommand(), cancel);
+
+            return new MetaCollection<TUnit>(items);
+        }
+
+        public async Task<TResult> HandleRawAsync<TResult>(string request, CancellationToken cancel = default) where TResult : class
+        {
+            var command =  provider.FromRaw<TResult>(request);
+            command.RequestOptions = RequestOptions.JsonAuto | RequestOptions.Scalar;
+            var item = await HandleScalarAsync(command, cancel);
+            var result = item?.ToObject<TResult>();
+            if (result is Unit unit)
+                unit.InitializaMetaData();
+            return result;
+        }
+
+        public async Task<IMetaCollection<TUnit>> HandleQueryAsync<TUnit>(IUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : Unit
+        {
+            var items = await HandleRawAsync(query.GetCommand(), cancel);
+
+            return new MetaCollection<TUnit>(items);
         }
     }
 }

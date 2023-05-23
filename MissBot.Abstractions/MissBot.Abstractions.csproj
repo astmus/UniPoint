@@ -21,8 +21,4 @@
     <ProjectReference Include="..\MissBot.Commands\MissBot.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Response\" />
-  </ItemGroup>
-
 </Project>

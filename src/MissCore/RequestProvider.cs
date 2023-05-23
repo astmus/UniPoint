@@ -1,79 +1,76 @@
 using System.Collections.Specialized;
 using System.Linq.Expressions;
-using BotService.Common;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.Entities;
 using MissCore.Collections;
 
 namespace MissCore
 {
+    public class BotUnitRequest<TUnit> : FormattableString, IUnitRequest<TUnit>
+    {
+        private string _format;
+        private readonly List<object> _arguments;
+        private readonly Lazy<ListDictionary> _parameters = new Lazy<ListDictionary>();
+        internal BotUnitRequest(string format, IEnumerable<object> info = default)
+        {
+            _format = format;
+            _arguments = new List<object>
+                {
+                    Unit<TUnit>.Key
+                };
+            if (info != null)
+                _arguments.AddRange(info);
+        }
+
+        internal static BotUnitRequest<TUnit> Create(string format, params object[] args)
+            => new BotUnitRequest<TUnit>(format, args);
+
+        public override string Format
+            => _format;
+        public override object[] GetArguments()
+            => _arguments.ToArray();
+        public override int ArgumentCount
+            => _arguments.Count;
+
+        public RequestOptions RequestOptions { get; set; } = RequestOptions.JsonAuto;
+
+        public override object GetArgument(int index)
+                => _arguments[index];
+        public object this[string key]
+        {
+            get => _parameters.Value[key];
+            set => _parameters.Value[key] = value;
+        }
+
+        public override string ToString(IFormatProvider formatProvider)
+        {
+            return string.Format(formatProvider, _format, _arguments.ToArray());
+        }
+
+        public virtual string GetCommand(RequestOptions options = RequestOptions.JsonAuto)
+        {
+            var opt = RequestOptions == RequestOptions.Unknown ? options.TrimSnakes() : RequestOptions.TrimSnakes();
+            return $"{base.ToString()} {opt}";
+        }
+    }
+
     public class RequestProvider : IRequestProvider
     {
         private readonly IBotUnitFormatProvider provider;
-
-        class UnitRequest : FormattableString, IUnitRequest
-        {
-            private string _format;
-            private readonly List<object> _arguments;
-            private readonly Lazy<ListDictionary> _parameters = new Lazy<ListDictionary>();
-            internal UnitRequest(string format, RequestInformation info = default)
-            {
-                _format = format;
-                _arguments = new List<object> { string.Join(',', info.EntityFields), info.Unit, info.Entity, info.Criteria };
-            }
-            public string Template {get;protected set;}
-            public override string Format
-                => _format;
-            public override object[] GetArguments()
-                => _arguments.ToArray();
-            public override int ArgumentCount
-                => _arguments.Count;
-            public override object GetArgument(int index)
-                => _arguments[index];
-            public object this[string key]
-            {
-                get => _parameters.Value[key];
-                set => _parameters.Value[key] = value;
-            }
-
-            public override string ToString(IFormatProvider formatProvider)
-            {
-                string strCriteria = null;
-                if (_arguments.Last() is ICriteria criteria)
-                    strCriteria = criteria.ToString(CriteriaFormat.SQL.Make(), default);
-                return string.Format(formatProvider, _format + strCriteria, _arguments.ToArray());
-            }
-
-            public string ToRequest(RequestFormat format = RequestFormat.JsonAuto)
-                => Template == null ? $"{ToString()} {format.TrimSnakes()}" : string.Format(Template, $"{ToString()} {format.TrimSnakes()}");
-
-            public IRepositoryCommand SingleResult()
-            {
-                _format = Templates.SelectSingle;
-                Template = Templates.JsonNoWrap;
-                return this;
-            }
-        }
         public RequestProvider(IBotUnitFormatProvider formatProvider)
         {
             provider = formatProvider;
         }
-        public RequestInformation Info<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
-            => BotUnit<TUnit>.GetRequestInfo(null, criteria);        
 
-        public IUnitRequest Request<TUnit>(RequestInformation info = default) where TUnit : class
-        {
-            if (info.Criteria == default)
-                return new UnitRequest(Templates.Select, info with { Criteria = BotUnit<BotUnit>.CreateCriteria(cmd => cmd.Entity == Unit<TUnit>.Key) });
-            else
-                return new UnitRequest(Templates.Select, info ?? Info<BotUnit>(cmd => cmd.Entity == Unit<TUnit>.Key));
-        }
+        public IUnitRequest<TUnit> ReadRequest<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : Unit
+            => BotUnitRequest<TUnit>.Create(Templates.ReadAllByCriteria, BotUnit<TUnit>.CreateCriteria(criteria));
 
-        public IUnitRequest RequestUnit<TUnit>(RequestInformation info = default) where TUnit : class
-           => new UnitRequest(Templates.SelectSingle, info ?? Info<BotUnit>(cmd => cmd.Entity == Unit<TUnit>.Key));
+        public IUnitRequest<TUnit> FindRequest<TUnit>(string search, uint skip = 0, uint take = 0) where TUnit : Unit
+            => BotUnitRequest<TUnit>.Create(Templates.Search, search, skip, take);
 
-        public IUnitRequest RequestByCriteria<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : class
-            => RequestUnit<TUnit>(Info(criteria));
+        public IUnitRequest<TUnit> FromRaw<TUnit>(string raw)
+            => BotUnitRequest<TUnit>.Create(raw);
     }
 
     public abstract class Visitor

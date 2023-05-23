@@ -1,28 +1,31 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
+using MissCore.Bot;
 using Telegram.Bot.Types.Enums;
 
 namespace MissCore.Data
 {
-    public class Update<TEntity> : Update, IUpdateInfo, IUpdate<TEntity>, ICommonUpdate
+    public class Update<TEntity> : UnitUpdate, IUpdateInfo, IUpdate<TEntity>
+    {        
+        public TEntity Data { get; set; }
+        
+    }
+    public class UnitUpdate : Update, IUpdateInfo, IUnitUpdate
     {
         public string Text
-            => Message.Text;
+                => CurrentMessage.Text;
         public Chat Chat
-            => Message?.Chat ?? new Chat() { Id = InlineQuery?.From.Id ?? CallbackQuery?.From.Id ?? ChosenInlineResult.From.Id };
+            => CurrentMessage?.Chat ?? new Chat() { Id = InlineQuery?.From.Id ?? CallbackQuery?.From.Id ?? ChosenInlineResult.From.Id };
 
-        public new Message Message
-            => base.Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
-
-        public TEntity Data { get; set; }
+        public Message CurrentMessage
+            => Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
+        
         public bool IsCommand => this switch
         {
-            { Message: { } } when Message.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,
+            { Message: { } } when CurrentMessage.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,
             _ => false
         };
 
-
-        public uint UpdateId { get; }
-        public bool? IsHandled { get; set; }
+        public uint UpdateId => Id;    
     }
 }

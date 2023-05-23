@@ -2,31 +2,30 @@ using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions
 {
-    public abstract class BotCommandHandler<TCommand> : IAsyncHandler<TCommand> where TCommand : BotCommand
-    {         
-        public AsyncHandler AsyncHandler { get; }  
-        public virtual Task BeforeComamandHandle(TCommand data, IHandleContext context)
+    public abstract class BotCommandHandler<TCommand> :  BaseHandler<TCommand> where TCommand : BotCommand
+    {
+        public virtual Task BeforeComamandHandleAsync(TCommand data)
                 => Task.CompletedTask;
-        public virtual Task AfterComamandHandle(TCommand data, IHandleContext context)
+        public virtual Task AfterComamandHandleAsync(TCommand data)
             => Task.CompletedTask;
-        public virtual Task OnComamandFailed(IHandleContext context, Exception error)
+        public virtual Task OnComamandFailed(Exception error)
             => Task.CompletedTask;
 
-        public async Task HandleAsync(TCommand data, IHandleContext context, CancellationToken cancel = default)
+        public override async Task HandleAsync(TCommand data, CancellationToken cancel = default)
         {
             try
             {            
-                await BeforeComamandHandle(data, context).ConfigureAwait(false);
-                await HandleCommandAsync(data, context);
-                await AfterComamandHandle(data, context).ConfigureAwait(false);
+                await BeforeComamandHandleAsync(data).ConfigureAwait(false);
+                await HandleCommandAsync(data, cancel).ConfigureAwait(false);
+                await AfterComamandHandleAsync(data).ConfigureAwait(false);
             }
             catch (Exception error)
             {
                 Console.WriteLine(error.Message);
-                await OnComamandFailed(context, error);
+                await OnComamandFailed(error);
             }
         }
 
-        public abstract Task HandleCommandAsync(TCommand command, IHandleContext context, CancellationToken cancel = default);
+        public abstract Task HandleCommandAsync(TCommand command, CancellationToken cancel = default);
     }
 }

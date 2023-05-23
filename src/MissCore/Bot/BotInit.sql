@@ -2,23 +2,24 @@
     DROP TABLE ##BotUnits
 CREATE table ##BotUnits
 (
-    Entity      varchar(32),
-    Command     varchar(32),
-    Placeholder varchar(128),
+    Unit      varchar(32),
+    Entity     varchar(32),
+    Template varchar(128) null,
     Description varchar(256)  null,
-    Payload     varchar(2048) null
+    Payload     varchar(2048) null,
+    Parameters varchar(256) null,
 )
 
 
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', '/info', '/{0}', 'Basic DBs information',
+VALUES ('BotCommand', 'info', '/{0}', 'Basic DBs information',
         'select CAST(Id as VARCHAR(15)) as Id, Name, Size, DaysAgo, Created as Description
         from ##DataBase
         where Title like '' %{2}%''
         ORDER BY Title OFFSET {0} ROWS
-        FETCH NEXT {1} ROWS ONLY');
+        FETCH NEXT {1} ROWS ONLY', null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', '/list', '/{0}', 'List of data bases with info', '
+VALUES ('BotCommand', 'list', '/{0}', 'List of data bases with info', '
         SELECT D.database_id                                               as Id,
                D.name                                                      as Name,
                cast(D.create_date as varchar(17))                          as Created,
@@ -28,9 +29,9 @@ VALUES ('BotCommand', '/list', '/{0}', 'List of data bases with info', '
                  INNER JOIN sys.databases D ON D.database_id = F.database_id
         WHERE D.name NOT IN ("model", "tempdb", "msdb", "master")
         GROUP BY create_date, D.name, d.database_id
-        ');
+        ', null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
+VALUES ('BotCommand', 'disk', '/{0}', 'Disk space information',
         'SELECT DISTINCT dovs.logical_volume_name                                                                                                      AS Name,
                         dovs.volume_mount_point                                                                                                       AS Drive,
                         CONVERT(NUMERIC(10, 1), ROUND(dovs.available_bytes / 1073741824.0, 1))                                                        AS Free,
@@ -38,28 +39,36 @@ VALUES ('BotCommand', '/disk', '/{0}', 'Disk space information',
                         CONVERT(NUMERIC(10, 1), round(dovs.total_bytes / 1073741824.0, 1))                                                            AS Total,
                         CONVERT(varchar, (CONVERT(NUMERIC(5, 1), 100.0 - ((dovs.available_bytes / CAST(dovs.total_bytes as real) * 100))))) + '' % '' as Perc
         FROM sys.master_files mf
-                 CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs');
+                 CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs', null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', '/test', '/{0}', 'test Command', '');
+VALUES ('BotCommand', 'test', '/{0}', 'test Command', null,null);
 INSERT INTO ##BotUnits
-VALUES ('Search', 'DataBase', '', null,
-        'SELECT * FROM ##{0} WHERE Name LIKE ''%{1}%'' ORDER BY Name OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY');
+VALUES ('Search', 'DataBase', 'SELECT * FROM ##{0}' ,  '','WHERE Name LIKE ''%{0}%'' ORDER BY Name OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY',null);
+INSERT INTO ##BotUnits
+VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'')
+                                            SELECT u.Entity as Unit, u.Unit as [Action], u.Template, u.Payload, u.Parameters, Entities.* FROM u
+                                            Inner Join(
+                                            SELECT Units.Unit, Entities.Entity, Entities.Template, Entities.Payload, Entities.Parameters 
+                                            FROM ##BotUnits Units inner join ##BotUnits Entities 
+                                            ON Units.Unit = Entities.Unit and Units.Entity = Entities.Entity and Units.Unit = ''{0}''
 
+                                            ) Entities ON u.Entity = Entities.Unit  ORDER BY u.Payload', null);
+                                                                                                                                             
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Delete ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info where Id = {0} ');
+VALUES ('DataBase', 'Delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info where Id = @Id', 'Id;Name');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Info ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##DataBase where Id = {0} ');
+VALUES ('DataBase', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = {0} ', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', 'Details ', '{0}.{1}.{2} ', null, 'SELECT * FROM ##Info a inner join ##BotUnits Commands on Commands.Entity = a.Info Where a.Id = {0} ');
+VALUES ('DataBaseInfo', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where Id = ''{0}''', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ');
+VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ', 'Id');
 
   IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase
 
 SELECT *
 INTO ##DataBase
-FROM (select 'DataBase' as EntityName , D.database_id as Id, D.name as Name, cast(D.create_date as varchar(17)) as Created, CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo], CONVERT(decimal(10,2), round(SUM(F.size*8)/1024.0,1)) AS Size  FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master') GROUP BY create_date, D.name, d.database_id) dbs
+FROM (select 'DataBase' as Unit , D.database_id as Id, D.name as Name, cast(D.create_date as varchar(17)) as Created, CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo], CONVERT(decimal(10,2), round(SUM(F.size*8)/1024.0,1)) AS Size  FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master') GROUP BY create_date, D.name, d.database_id) dbs
 
 USE      DBs
 
@@ -67,7 +76,7 @@ MERGE ##DataBase AS T
 USING [DataBases]	AS S
 ON S.Id = T.Id
 WHEN NOT MATCHED BY Target THEN
-    INSERT (EntityName,Id,Name, Created) 
+    INSERT (Unit,Id,Name, Created) 
     VALUES ('DataBase',S.Id,S.Title, GetDate());
 
 
@@ -78,7 +87,7 @@ SELECT *
 INTO ##Info
 FROM(
 SELECT CAST(database_id as VARCHAR(15)) as Id,
-'DataBase' as Info,
+'DataBase' as Unit,
 CONVERT(VARCHAR(25), DB.name) AS DBName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],
 state_desc as State,

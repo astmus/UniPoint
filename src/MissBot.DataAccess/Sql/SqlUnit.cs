@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 
 namespace MissBot.DataAccess.Sql
 {

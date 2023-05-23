@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using BotService.Connection.Async;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Entities;
 using MissCore.DataAccess.Async;
 
@@ -11,13 +11,6 @@ namespace BotService.Connection
     {
         public class AsyncUpdatesQueue<T> : AsyncQueue<T>, IAsyncUpdatesQueue<T> where T : class, TUpdate
         {
-            public AsyncUpdatesQueue()
-            {
-
-            }
-
-            public Identifier QueueId { get; protected set; }
-
             internal protected async Task<T> PopUpdateAsync(CancellationToken cancellationToken)
             {
                 await signal.WaitAsync(cancellationToken);
@@ -28,6 +21,7 @@ namespace BotService.Connection
             public void PushUpdate(T update)
                 => QueueItem(update);
         }
+
         protected abstract AsyncUpdatesQueue<TUpdate> Updates { get; init; }
         public async IAsyncEnumerable<TUpdate> PendingUpdates([EnumeratorCancellation] CancellationToken cancelToken)
         {

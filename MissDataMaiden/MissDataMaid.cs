@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
@@ -15,11 +15,12 @@ namespace MissDataMaiden
         private readonly ILogger<MissDataMaid> _logger;
         private ILogger<MissDataMaid> log;
 
-        public override Func<ICommonUpdate, string> ScopePredicate
+        public override Func<IUnitUpdate, string> ScopePredicate
              => (update) => update switch
              {
                  Update upd when upd.Type is UpdateType.InlineQuery => $"{upd.InlineQuery.Id}",
-                 _ => $"{nameof(update.Chat)}: {update.Chat.Id}"
+                 Update upd when upd.Type is not UpdateType.Unknown => $"{nameof(update.Chat)}: {update.Chat.Id}",
+                 _ => null
              };
 
         public MissDataMaid(ILogger<MissDataMaid> logger, IBotContext context) : base(context)

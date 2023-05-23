@@ -5,6 +5,7 @@ namespace MissBot.Abstractions
     public interface IDataMap
     {
         void JoinData<TEntity>(TEntity entity);
-        TD Read<TD>(string name);
+        TD ReadObject<TD>(string name);
+        string Key { get; }
     }
 }

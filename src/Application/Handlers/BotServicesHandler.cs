@@ -12,7 +12,7 @@ namespace MissBot.Handlers
 
         public async Task ExecuteAsync(IHandleContext context, AsyncHandler next)
         {
-            var content = (context.Get<Update<TBot>>()).Message.Text;
+            var content = (context.Get<Update<TBot>>()).CurrentMessage.Text;
             var cmds = typeof(TBot).GetCustomAttributes<HasBotCommandAttribute>();
             var command = cmds.FirstOrDefault(f => content.IndexOf(f.Name.ToLower()) > 0);
             await ExecuteCommand(Activator.CreateInstance(command.CmdType) as IBotCommandData).ConfigureAwait(false);

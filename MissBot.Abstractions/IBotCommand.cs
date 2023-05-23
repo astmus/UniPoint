@@ -17,7 +17,7 @@ namespace MissBot.Abstractions
         string Title { get; }
         string Description { get; }
     }
-    public interface IBotCommand : IBotAction
+    public interface IBotCommand : IBotUnitCommand
     {
         string Description { get; }
     }

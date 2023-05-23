@@ -35,9 +35,12 @@ public class InlineQuery
     /// </summary>
     [JsonProperty(Required = Required.Always)]
     public string Offset { get; set; } = default!;
-    public uint Skip;
-    public void Skrip()
-        => uint.TryParse(Offset, out Skip);
+    public uint Skip { get {
+            uint res = 0;
+            uint.TryParse(Offset, out res);
+            return res;
+        } }
+    
     /// <summary>
     /// Optional. Type of the chat, from which the inline query was sent. Can be either  <see cref="Sender"/> for
     /// a private chat with the inline query sender, <see cref="Private"/>, <see cref="Group"/>,

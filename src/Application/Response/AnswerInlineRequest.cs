@@ -15,7 +15,7 @@ namespace MissBot.Response
 
         [JsonProperty]
         public InputMessageContent InputMessageContent
-            => new InputTextMessageContent(Meta.Value);
+            => new InputTextMessageContent(Format());
 
         [JsonProperty]
         public string Id { get; set; }

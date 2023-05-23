@@ -1,11 +1,31 @@
-﻿using MissBot.Abstractions.Entities;
-using MissCore.Collections;
+using LinqToDB.Mapping;
+using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
+using MissCore;
+using MissCore.Bot;
 
-public record BotUnit : Unit, IBotUnit
+[JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+[Table("##BotUnits")]
+public record BotUnit : IBotUnit
 {
-    public virtual string Entity { get; }
-    public string Command { get; set; }
-    public string Placeholder { get; set; }
+    public string this[int index]
+        => Parameters?.Split(";").ElementAtOrDefault(index);
+
+    [Column()]
+    public virtual string Entity { get; set; }
+    [Column()]
+    public string Template { get; set; }
+    [Column()]
     public string Description { get; set; }
-    public string Payload { get; set; }
+    [Column()]
+    public string Payload { get; set; }    
+    [Column()]
+    public virtual string Unit { get ; set ; }
+    [Column()]
+    public virtual string Parameters { get; set; }
+    
+    public virtual string Format(params object[] parameters)
+    {
+        return string.Format(Payload, parameters);
+    }
 }

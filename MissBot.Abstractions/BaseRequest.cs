@@ -84,4 +84,5 @@ namespace MissBot.Abstractions
             ? base.ToHttpContent()
             : null;
     }
+
 }

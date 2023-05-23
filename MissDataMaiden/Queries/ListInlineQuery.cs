@@ -1,10 +1,10 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Entities.Query;
 using MissBot.Handlers;
 using MissCore;
+using MissCore.Bot;
 using MissCore.Collections;
-using MissCore.Features;
 using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.Commands
@@ -12,30 +12,32 @@ namespace MissDataMaiden.Commands
 
     public class SearchDataBaseHandler : InlineQueryHandler
     {
-        private readonly IConfiguration config;
-        private readonly IBotRepository botRepository;
+        private readonly IBotContext botContext;
         IJsonRepository repository;
-        static Search<Unit> searchResutst;
-        public SearchDataBaseHandler(IBotRepository bot, IJsonRepository jsonRepository)
+        static IUnitRequest<DataBase> searchRequest;
+        static Search<DataBase> search;
+        public SearchDataBaseHandler(IBotContext bot, IJsonRepository jsonRepository)
         {
-            botRepository = bot;
+            botContext = bot;
             repository = jsonRepository;
         }
-
+         
         public async override Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
-        {            
-            var cmd = Context.Provider.RequestByCriteria<Search>(s
-                => s.Command == nameof(DataBase));
-            searchResutst ??= await botRepository.HandleQueryAsync<Search<Unit>>(cmd.SingleResult());
-
-            query.Skrip();
-            searchResutst.Query = query;
-
-            var items = await repository.HandleReadAsync(searchResutst);
-            var metaItems = new MetaCollection(items);
-            var units = metaItems.SupplyTo<InlineQueryResult<Unit>>();
-
+        {
+            var unit = botContext.Get<Search>();
             
+            search ??= unit.Find<DataBase>(query);
+
+            //searchRequest = search.Request<DataBase>(query);
+            var botUnit = await botContext.GetUnitAsync<DataBase>();
+            var items = await repository.FindAsync<DataBase>(query.Query, query.Skip, 15, cancel);
+            
+            var units = items.SupplyTo<InlineQueryResult<DataBase>>();
+            foreach (var u in units)
+            {
+                u.Title = u.Meta.GetItem(2).Format(IMetaItem.Formats.Section);
+                u.ReplyMarkup = botUnit.GetUnitActions(u);
+            }
             // searchResutst.ToQuery(resultFilter with { skip = skip + resultFilter.take, predicat = search ?? "" }));
             response.Write(units);
             await response.Commit(default);

@@ -2,37 +2,33 @@ using MediatR;
 using MissBot.Abstractions;
 using MissBot.Entities.Query;
 using MissBot.Handlers;
+using MissCore.Collections;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden
 {
     internal class MissDataCallBackDispatcher : CallbackQueryHandler
     {
-        IMediator mm;
-
-        public MissDataCallBackDispatcher(IMediator mediator, IResponseNotification notifier) : base(notifier)
+        public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
         { }
 
-
-
-        //protected override Task HandleAsync(IHandleContext context, string command, string[] args) => command switch
-        //{
-        //    nameof(DBInfo) => HandleAsync<DBInfo>(context, args),
-        //    nameof(DBDelete) => HandleAsync<DBDelete>(context, args),
-        //    nameof(DBRestore) => HandleAsync<DBRestore>(context, args),
-        //    _ => context.Take<AsyncHandler>()(context)
-        //};
-
-
-        protected  override Task HandleAsync(IHandleContext context, (string command, string[] args) data, CallbackQuery query)
-            => Task.CompletedTask;
-        public override async Task HandleAsync(CallbackQuery data, IHandleContext context, CancellationToken cancel = default)
+        protected override async Task HandleAsync(string command, string[] args, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
         {
             try
             {
-
+                var unit = new Unit<DataBase>();
+                unit.InitializaMetaData();
+                unit.Meta.SetItem(nameof(command), command);                
+                unit.Meta.SetItem("Id", args[1]);
+                await notifier.SendTextAsync("Wait...");
+                await Task.Delay(1000);
+                //response.Write(unit);
+                await response.Commit(cancel);
+                Context.IsHandled = true;
             }
             catch (Exception ex)
             {
+                Context.IsHandled = true;
                 await notifier.SendTextAsync(ex.Message);
             }
         }

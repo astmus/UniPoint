@@ -1,31 +1,27 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Entities.Query;
 using MissBot.Response;
-using MissCore.Handlers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace MissBot.Handlers
 {
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineQueryResult<TEntity> : InlineResultUnit
+    [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public record InlineQueryResult<TEntity> : InlineResultUnit, IUnit<TEntity>
     {
-        private const string empty = "Empty";         
-        
+        private const string empty = "Empty";
+        public IEnumerable<IUnitAction<TEntity>> Actions { get; set; }
     }
 
     public abstract class InlineQueryHandler : BaseHandler<InlineQuery>
     {
-        public async override Task HandleAsync(InlineQuery data, IHandleContext context, CancellationToken cancel = default)
+        public async override Task HandleAsync(InlineQuery data, CancellationToken cancel = default)
         {
-            var response = context.BotServices.GetRequiredService<IResponse<InlineQuery>>();
+            var response = Context.BotServices.GetRequiredService<IResponse<InlineQuery>>();
     
-            await LoadAsync(response, data, cancel);
-
-            //await response.Commit(default);
-
+            await LoadAsync(response, data, cancel);            
         }
-        public virtual int? BatchSize { get; }
 
         public abstract Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default);
     }

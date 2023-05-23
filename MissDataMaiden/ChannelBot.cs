@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
 using MissBot.Attributes;
 using MissCore.Data;
@@ -13,7 +13,6 @@ namespace MissDataMaiden
     [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
     public class MissChannel : BaseBot, IBot<Update<MissChannel>>
     {
-
         public class Update : Update<MissChannel> { }
         private readonly ILogger<MissChannel> _logger;
 
@@ -22,8 +21,8 @@ namespace MissDataMaiden
             _logger = logger;
         }
 
-        public override Func<ICommonUpdate, string> ScopePredicate
-            => (u) => $"{nameof(u.Message.Chat)}: {u.Message.Chat.Id}";
+        public override Func<IUnitUpdate, string> ScopePredicate
+            => (u) => $"{nameof(u.CurrentMessage.Chat)}: {u.CurrentMessage.Chat.Id}";
 
         public void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
            => connectionOptions

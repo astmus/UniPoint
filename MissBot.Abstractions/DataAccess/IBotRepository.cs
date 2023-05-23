@@ -1,7 +1,7 @@
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.Entities;
 
-namespace MissBot.Abstractions.DataAccess
+namespace MissBot.Abstractions.DataContext
 {
     public interface IBotRepository : IRepository
     {
@@ -9,14 +9,14 @@ namespace MissBot.Abstractions.DataAccess
         int ID { get; }
         string ConnectionNamespace { get; }
         IDataConnection DataProvider { get; }
-        IEnumerable<BotCommand> Commands { get; }
+        IEnumerable<BotCommand> Commands { get; }        
     }
-
 
     public interface IRepository
     {
-        Task ExecuteCommandAsync(IRepositoryCommand query, CancellationToken cancel = default);
-        Task<TResult> HandleQueryAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default) where TResult : class;
+        Task ExecuteCommandAsync(IUnitRequest request, CancellationToken cancel = default);
+        Task<TResult> HandleQueryAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : class;
+        Task<TResult> HandleRawAsync<TResult>(string request, CancellationToken cancel = default) where TResult : class;
         //Task<TResult> HandleCommandAsync<TResult>(IRepositoryCommand query, CancellationToken cancel = default);
         //Task<ICollection<TResult>> HandleQueryItemsAsync<TResult>(IQueryCommand query, CancellationToken cancel = default);
     }

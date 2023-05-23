@@ -1,30 +1,25 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 
 namespace MissDataMaiden
 {
-    public record List : BotCommandUnit
+    public record List : BotUnitCommand
     {
-        public override string CommandAction => nameof(List);
+        public override string Command => nameof(List);
     }
-    public record ListUnit : BotUnion
-    {
-    }
+
 
     public class ListCommandHadler : BotCommandHandler<List>
     {
         public ListCommandHadler(IRepository<BotCommand> repository)
-        => this.repository = repository;
+            => this.repository = repository;
 
-        static List list;
+        
         private readonly IRepository<BotCommand> repository;
 
-
-
-
-        public override Task HandleCommandAsync(List command, IHandleContext context, CancellationToken cancel = default)
+        public override Task HandleCommandAsync(List command,  CancellationToken cancel = default)
         {
             throw new NotImplementedException();
         }

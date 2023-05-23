@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataContext;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 using TG = Telegram.Bot.Types;
 
@@ -32,10 +32,11 @@ namespace MissBot.Abstractions
         private readonly IBotContext Context;
         protected IBotConnection Client
             => BotServices.GetRequiredService<IBotConnection>();
-        public IServiceProvider BotServices
-            => scope.ServiceProvider;
+        public IBotServicesProvider BotServices
+            => scope.ServiceProvider.GetRequiredService<IBotServicesProvider>();
+
         public IEnumerable<BotCommand> Commands { get; protected set; }
-        public abstract Func<ICommonUpdate, string> ScopePredicate { get; }
+        public abstract Func<IUnitUpdate, string> ScopePredicate { get; }
 
         public virtual async Task<bool> SyncCommands()
         {

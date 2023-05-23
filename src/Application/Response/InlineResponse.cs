@@ -1,8 +1,9 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results.Inline;
 using MissBot.Response;
-using MissCore.Collections;
 
 namespace MissCore.Data
 {
@@ -19,46 +20,40 @@ namespace MissCore.Data
             => results;
 
         List<InlineResultUnit> results = new List<InlineResultUnit>();
-        InlineKeyBoard keyboard;
-        InlineKeyBoard Keyboard
-        => keyboard ?? (keyboard = new InlineKeyBoard());
-
 
         public override string NextOffset
-            => results?.Count < 50 ? null : "50";
-        public override int? CacheTime { get; set; } = 5;
+            => results?.Count < 15 ? null : "15";
+        public override int? CacheTime { get; set; } = 300;
 
         public async Task Commit(CancellationToken cancel)
         {
             //Button = new InlineQueryResultsButton("SearchOption") { StartParameter = "Parameter" };
-            await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+            await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : class, IUnit<T>
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit, IUnit<T>
         {
-            var item = unit as InlineResultUnit;
-            item.Id += InlineQuery.Query;
-            item.Title = item.Meta.GetItem(2).ToString();
-            item.Description = item.Meta.GetItem(3).ToString();
-            results.Add(item);
-            keyboard = null;
+            if (unit is InlineResultUnit item)
+            {
+                item.Id += InlineQuery.Query;
+                item.Title ??= item.Meta.GetItem(2).ToString();
+                item.Description ??= item.Meta.GetItem(3).ToString();
+                results.Add(item);
+            }
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : class, IUnit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit, IUnit<T>
         {
             foreach (var unit in units)
-                Write(unit);
+            {
+                if (unit is InlineResultUnit result)
+                {
+                    Write(unit);
+                }
+            }
         }
 
-        InlineQueryResult InitResult(object data) => data switch
-        {
-            string weak => new InlineQueryResultArticle(null, null, new InputTextMessageContent(weak)),
-            IInlineUnit unit => new InlineQueryResultArticle(null, null, new InputTextMessageContent(Convert.ToString(unit))),
-            Unit error => new InlineQueryResultArticle(Convert.ToString(error) ?? "-1", "Error", new InputTextMessageContent(error.ToString())),
-            _ => null
-        };
-
-        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<IUnit>
+        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<IUnit<T>>
         {
             //foreach (var item in unit)
             //    Write(item);

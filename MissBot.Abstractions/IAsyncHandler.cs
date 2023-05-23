@@ -12,21 +12,21 @@ namespace MissBot.Abstractions
     public interface IAsyncBotCommandDispatcher
     {
         Task ExecuteAsync(IHandleContext context);
-        Task HandleAsync<TCommand>(IHandleContext context) where TCommand : BotCommand, IBotUnit; 
+        Task HandleAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand; 
     }
 
     public interface IAsyncHandler<T> : IAsyncHandler
     {
-        Task HandleAsync(T data, IHandleContext context, CancellationToken cancel = default);
+        Task HandleAsync(T data, CancellationToken cancel = default);
     }
-    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction : class, IBotAction
+    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction : class, IBotUnitCommand
     {
         Task HandleActionAsync(TAction action, IHandleContext context, CancellationToken cancel = default);
     }            
 
-    public interface IAsyncUpdateHandler<T>
+    public interface IAsyncUpdateHandler<T> where T: class
     {
-        Task HandleUpdateAsync<U>(U update, IContext<T> context) where U : IUpdate<T>, IUpdateInfo;
+        Task HandleUpdateAsync(T update, IHandleContext context, CancellationToken cancel);
     }
 
     public interface IBotUpdatesDispatcher

@@ -1,31 +1,16 @@
 using MissBot.Abstractions;
+using MissBot.Entities;
 using MissBot.Entities.Results;
-using MissCore.Handlers;
 
 namespace MissBot.Handlers
 {
 
     public abstract class InlineAnswerHandler : BaseHandler<ChosenInlineResult>
     {
-
-        public async override Task HandleAsync(ChosenInlineResult data, IHandleContext context, CancellationToken cancel = default)
-        {
-
-            //var response = context.CreateResponse(data);
-
-            await HandleResultAsync(data, context);
-            //if (items.Count() != 0)
-            //    response.WriteResult(items);
-            //else
-            //    response.Write(InlineUnit.Empty);
-            // await response.Commit(default);
-
+        public async override Task HandleAsync(ChosenInlineResult data, CancellationToken cancel = default)
+        {            
+            await HandleResultAsync(Context.Get<Message>(), data, cancel).ConfigureAwait(false);
         }
-        public virtual int? BatchSize { get; }
-        public abstract Task HandleResultAsync(ChosenInlineResult result, IHandleContext context);
-        //{
-        //    return Task.FromResult(new BotUnion<InlineUnit>() { InlineUnit.Empty } as BotUnion);
-        //}
-
+        public abstract Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default);
     }
 }

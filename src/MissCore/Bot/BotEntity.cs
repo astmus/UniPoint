@@ -1,8 +1,31 @@
-﻿namespace MissCore.Bot
+using LinqToDB.Mapping;
+using MissBot.Abstractions;
+
+namespace MissCore.Bot
 {
-    public abstract record BotEntity
+    [Table("##BotUnits")]
+    public record BotEntity<TEntity> :  IBotEntity
     {
-        [JsonProperty]
-        public abstract string Entity { get; }
+        [Column()]
+        public virtual string Unit { get; set; }
+        static readonly string Key = typeof(TEntity).Name;
+        public static string EntityKey
+            => Key;
+
+        public virtual string Entity => Key;
+
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [Table("##BotUnits")]
+    public record EntityAction
+    {
+        [Column()]
+        public virtual string Unit { get; set; }
+        [Column("Entity")]
+        public virtual string Action { get; set; }
     }
 }

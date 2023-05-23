@@ -2,38 +2,46 @@ using MissBot.Abstractions.Utils;
 
 namespace MissBot.Abstractions
 {
-    public interface IRepositoryCommand : IFormattable
+    public interface IUnitRequest
     {
-        string ToRequest(RequestFormat format = RequestFormat.JsonAuto);
-        IRepositoryCommand SingleResult();
+        RequestOptions RequestOptions { get; set; }
+        string GetCommand(RequestOptions options = RequestOptions.JsonAuto);
     }
+
+    public interface IUnitQuery : IFormattable
+    {
+        IEnumerable<TResult> ExecuteAsync<TResult>(RequestOptions format = RequestOptions.JsonAuto);
+    }
+
     [Flags]
-    [JsonConverter(typeof(RequestFormat))]
-    public enum RequestFormat
+    [JsonConverter(typeof(RequestOptions))]
+    public enum RequestOptions
     {
         Unknown = 0,
         Raw = 1,
         JsonAuto = 2,
         JsonPath = 4,
-        SingleResult = 8
+        Scalar = 8
     }
 
     public static class FormatExtension
     {
         const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
-        public static string ApplyTo(this RequestFormat format, IRepositoryCommand cmd)
-            => cmd.ToString(default,default) + format.TrimSnakes();
-        public static string TrimSnakes(this RequestFormat format)
+        public static string ApplyTo(this RequestOptions format, IUnitRequest cmd)
+            => cmd.ToString() + format.TrimSnakes();
+
+        public static string TrimSnakes(this RequestOptions format)
             => format switch
             {
-                RequestFormat.Unknown => $"Unknown format {format}",
-                RequestFormat.Raw => format.ToString(),
-                RequestFormat.JsonAuto => $" for {format.ToString().ToSnakeCase(true)}",
-                RequestFormat.JsonAuto | RequestFormat.SingleResult => $" for {format.ToString().ToSnakeCase(true)} {JSONNoWrap}",
-                RequestFormat.JsonPath => $" for {format.ToString().ToSnakeCase(true)}  {JSONNoWrap}",
+                RequestOptions.Unknown => $"Unknown format {format}",
+                RequestOptions.Raw => format.ToString(),
+                RequestOptions.JsonAuto => $" for {format.ToString().ToSnakeCase(true)}",
+                RequestOptions.JsonAuto | RequestOptions.Scalar => $" for {RequestOptions.JsonAuto.ToString().ToSnakeCase(true)} {JSONNoWrap}",
+                RequestOptions.JsonPath => $" for {format.ToString().ToSnakeCase(true)}  {JSONNoWrap}",
                 _ => format.ToSnakeCase()
             };
-
+        public static string SnakeTemplate(this RequestOptions format)
+                    => $"{{0}} {format.TrimSnakes()}";
         public static string Make(this CriteriaFormat format)
             => format switch
             {

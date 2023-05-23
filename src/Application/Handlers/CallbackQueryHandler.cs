@@ -1,7 +1,8 @@
 using MissBot.Abstractions;
+using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Extensions;
-using MissCore.Handlers;
+
 
 namespace MissBot.Handlers
 {
@@ -10,26 +11,23 @@ namespace MissBot.Handlers
         public CallbackQueryHandler(IResponseNotification notifier)
             => this.notifier = notifier;
 
-        (string command, string[] args) data;
+        protected (string command, string[] args) data;
         protected readonly IResponseNotification notifier;
 
-        public async override Task HandleAsync(CallbackQuery query, IHandleContext context, CancellationToken cancel = default)
+        public async override Task HandleAsync(CallbackQuery query, CancellationToken cancel = default)
         {
-
             data = query.GetCommandAndArgs();
-            //notifier.Init(null, context.ClientDelegate, context.Data);
-
+            var response = Context.BotServices.Response<CallbackQuery>();
             try
             {
-                await HandleAsync(context, data, query);
+                await HandleAsync(data.command, data.args, response, query, cancel).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 await notifier.ShowPopupAsync(ex.Message);
-            }
-            //context.CommonUpdate.IsHandled = true;
+            }            
         }
 
-        protected abstract Task HandleAsync(IHandleContext context, (string command, string[] args)  data, CallbackQuery query);
+        protected abstract Task HandleAsync(string command, string[] args, IResponse<CallbackQuery> response,  CallbackQuery query, CancellationToken cancel = default);
     }
 }

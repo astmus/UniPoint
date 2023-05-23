@@ -1,36 +1,60 @@
-using System.Collections;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
+using LinqToDB.Mapping;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
-using MissCore.Data.Context;
+using MissBot.Abstractions.Entities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MissCore.Collections
 {
+
+    /// <summary>
+    /// [DebuggerDisplay($"Value: {nameof(Text)}")]
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="Entity"></param>
     [JsonObject]
-    [DebuggerDisplay($"Value: {nameof(Text)}")]
-    public record Unit(IContext<Unit> Context = default)    : IUnit
-    {
-        public MetaData Meta { get; internal set; }
-        protected T Get<T>()
-            => Context.Get<T>();
-        protected T Set<T>(T value, [CallerMemberName] string name = null)
-            => Context.Set(value, name);        
-    }
-    [DebuggerDisplay($"Value: {nameof(Text)}")]
-    [JsonObject]
-    public record Unit<TEntity>(TEntity Entity = default) : Unit, IUnit<TEntity>
-    {
-        public static readonly TEntity Sample = Activator.CreateInstance<TEntity>();
+    public record Unit<TEntity> : Unit, IUnit<TEntity>
+    {        
         public static readonly string Key = typeof(TEntity).Name;
 
-        public static DataMap Parse(TEntity entity)
-            => DataMap.Parse(entity);     
+        public string this[string path]
+            => Meta.GetValue(path).ToString();
 
-        public class Collection : List<TEntity> { }  
+        [JsonIgnore]
+        public override string StringValue
+            => Meta?.StringValue ?? this.Format();
+
+        [Column()]
+        public override string Entity
+            => Key;
+        [JsonIgnore]
+        public override IMetaData Meta { get; set; }
+
+        public override void InitializaMetaData()
+            => Meta ??= MetaData<TEntity>.Parse(this);
+        public static DataMap Parse(TEntity entity)
+            => DataMap.Parse(entity);
+
+        public override string Format(IUnit.Formats format = IUnit.Formats.Line | IUnit.Formats.PropertyNames)
+        {
+            if (Meta != null)
+                return GetFormat(format);
+
+            return string.Empty;
+        }
+
+        private string GetFormat(IUnit.Formats format) => format switch
+        {
+            IUnit.Formats.UnitName => Entity + '\n',
+            IUnit.Formats.Line => string.Join(" ", Meta.Keys.Select(key => Meta.GetValue(key)))+'\n',
+            IUnit.Formats.Table => string.Join('\n', Meta.Keys.Select(key => $"{Meta.GetValue(key)}\n")),
+            IUnit.Formats.Line | IUnit.Formats.PropertyNames => Meta.StringValue+'\n',
+            IUnit.Formats.Table | IUnit.Formats.PropertyNames => string.Join('\n', Meta.Keys.Select(key => $"{key}: {Meta.GetValue(key)}"))+'\n',
+            _ => null
+        };
+
+        public class Collection : List<TEntity> { }
     }
 }

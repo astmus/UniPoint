@@ -13,7 +13,7 @@ namespace MissBot.Handlers
         {
             try
             {
-                await context.Handler(context).ConfigureAwait(false);
+                await context.CurrentHandler(context).ConfigureAwait(false);
             }
             catch (Exception e)
             {

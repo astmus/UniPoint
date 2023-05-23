@@ -1,6 +1,5 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
-using MissCore.Handlers;
 
 
 
@@ -16,19 +15,13 @@ namespace MissBot.Handlers
             return Task.CompletedTask;
         }
 
-        public override Task HandleAsync(Message data, IHandleContext context, CancellationToken cancel = default)
+        public override Task HandleAsync(Message data,  CancellationToken cancel = default)
         {
-            throw new NotImplementedException();
+            if (Context.Any<IUnitUpdate>() is IUnitUpdate update && update.IsCommand)
+                return Task.CompletedTask;
+            Console.WriteLine(data.Text);
+            Context.IsHandled = false;
+            return Task.CompletedTask;
         }
-
-
-        //data.ChatId,
-        //"*PONG*"//,
-        //ParseMode.Markdown,
-        //replyToMessageId: msg.MessageId,
-        //replyMarkup: new InlineKeyboardMarkup(
-        //    InlineKeyboardButton.WithCallbackData("Ping", "PONG")
-        //)
-
     }
 }

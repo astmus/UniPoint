@@ -1,27 +1,39 @@
 using System.Collections.Specialized;
-using System.Linq;
 using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
-using static LinqToDB.Common.Configuration;
 
 namespace MissCore.Collections
 {
     public class DataMap : NameValueCollection, IDataMap
     {
-        JToken first;
+        JObject container;
+        public DataMap(): base(StringComparer.OrdinalIgnoreCase)
+        {
+            
+        }
+        public string Key
+            => container.Children().FirstOrDefault().Path;
+
         public static DataMap Parse<TData>(TData value)
-            => new DataMap().ParseTokens(JToken.FromObject(value));
+            => new DataMap().Parse(JObject.FromObject(value));
 
         public void JoinData<TEntity>(TEntity entity)
-             => first.Append(ParseTokens(JToken.FromObject(entity)).first);
-        
-        public TD Read<TD>(string name)
+             => Parse(JObject.FromObject(entity));
+
+        public TEntity ReadObject<TEntity>(string name)
         {
-            if (this[name] is string path && first.SelectToken(path) is JToken value)
-                return value.ToObject<TD>();
+            if (this[name] is string path && container.SelectToken(path) is JToken value)
+                return value.ToObject<TEntity>();
             else return default;
         }
-
+        private DataMap Parse(JObject containerToken)
+        {
+            if (container is JObject head)
+                head.Merge(containerToken);
+            else
+                container = containerToken;
+            return ParseTokens(containerToken);
+        }
         private DataMap ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)
@@ -33,7 +45,6 @@ namespace MissCore.Collections
             else if (containerToken.Type == JTokenType.Array)
                 foreach (var child in containerToken.Children())
                     ParseTokens(child);
-            first = containerToken;
             return this;
         }
     }

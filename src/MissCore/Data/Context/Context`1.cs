@@ -1,16 +1,28 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataContext;
 using MissCore.Collections;
 
 namespace MissCore.Data.Context
 {
     public class Context<TScope> : Context, IContext<TScope>, IHandleContext
     {
+        IServiceProvider scoped;
+        IBotServicesProvider botServices;
+        public bool? IsHandled { get; set; }
         public TScope Data
         {
             get => Root.Get<TScope>();
             set => Root.Set(value);
+        }
+        public string Key
+            => Map.Key;
+        public Context(IServiceProvider scopedProvider, IBotServicesProvider botServices)
+        {
+            this.botServices = botServices;
+            scoped = scopedProvider;
+            Root = this;
         }
 
         public void SetData(TScope data)
@@ -21,20 +33,10 @@ namespace MissCore.Data.Context
                 Map = DataMap.Parse(data);
             
             Data = data;
-        } 
+        }
 
-        IServiceProvider scoped;
-        IBotServicesProvider botServices;
-        public bool? IsHandled { get; set; }
         public IBotServicesProvider BotServices
             => botServices ?? Root.BotServices;
-
-        public Context(IServiceProvider scopedProvider, IBotServicesProvider botServices)
-        {
-            this.botServices = botServices;
-            scoped = scopedProvider;
-            Root = this;
-        }
 
         public IHandleContext SetNextHandler<T>(IContext context, T data) where T : class
         {
@@ -43,30 +45,23 @@ namespace MissCore.Data.Context
         }
 
         public T GetNextHandler<T>() where T : class
-            => Root.BotServices.GetService<T>();  
-      
+            => Root.BotServices.GetService<T>();      
 
         public IAsyncHandler<T> GetAsyncHandler<T>()
             => Root.BotServices.GetService<IAsyncHandler<T>>();
 
-        public IResponse<TUnit> CreateResponse<TUnit>()
-        {
-            return ActivatorUtilities.GetServiceOrCreateInstance<IResponse<TUnit>>(BotServices);
-        }
-
-        //public TUnit CreateUnit<TUnit>()
-        //{
-        //    return ActivatorUtilities.GetServiceOrCreateInstance<Unit<TUnit>>(BotServices);
-        //}
+        public bool Contains<T>()
+            => ContainsKey(Unit<T>.Key) || Map.AllKeys?.Contains(Unit<T>.Key) == true;
 
         public IHandleContext Root { get; protected set; }
 
-        public AsyncHandler Handler
+        public AsyncHandler CurrentHandler
             => Get<AsyncHandler>();
-
-        IDataMap IHandleContext.Map => Root.Map;
 
         public IRequestProvider Provider
             => BotServices.GetRequiredService<IRequestProvider>();
+
+        public IBotContext Bot
+            => BotServices.GetRequiredService<IBotContext>();
     }
 }

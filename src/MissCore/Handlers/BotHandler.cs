@@ -7,7 +7,7 @@ using MissCore.Data;
 
 namespace MissCore.Handlers
 {
-    public class BotUpdateHandler<TBot> : BaseHandleComponent, IAsyncHandler<Update<TBot>> where TBot : class, IBot
+    public class BotUpdateHandler<TBot> :  IAsyncUpdateHandler<Update<TBot>> where TBot : class, IBot
     {
         private readonly IBotBuilder<TBot> builder;
         AsyncHandler handleDelegate;
@@ -17,18 +17,12 @@ namespace MissCore.Handlers
             this.builder = builder;
         }
 
-        public override Task ExecuteAsync(IHandleContext context)
+        public async Task HandleUpdateAsync(Update<TBot> data, IHandleContext context, CancellationToken cancel)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task HandleAsync(Update<TBot> data, IHandleContext context, CancellationToken cancel = default)
-        {
-            handleDelegate = context.Handler;
+            handleDelegate = context.CurrentHandler;
 
             if (handleDelegate == null)
             {
-                //context.SetServices(builder.BotServicesProvider());
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
@@ -38,9 +32,9 @@ namespace MissCore.Handlers
             await handleDelegate(context).ConfigureAwait(false);
         }
 
-
         object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch
         {
+            UpdateType.Message => ctx.Set(ctx.Get<Message>()),
             UpdateType.InlineQuery => ctx.Set(ctx.Get<InlineQuery>()),
             UpdateType.CallbackQuery => ctx.Set(ctx.Get<CallbackQuery>()),
             UpdateType.ChosenInlineResult => ctx.Set(ctx.Get<ChosenInlineResult>()),

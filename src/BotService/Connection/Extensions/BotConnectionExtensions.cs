@@ -19,7 +19,7 @@ namespace BotService.Connection.Extensions
         {
             //var s = JsonConvert.SerializeObject(new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description })));
             await botClient.MakeRequestAsync(
-                     request: new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.CommandAction, Description = s.Description }))
+                     request: new  SetMyCommandsRequest(commands.Select(s => new BotCommand() { Command = s.Command, Description = s.Description }))
                      {
                          Scope = scope,
                          LanguageCode = languageCode

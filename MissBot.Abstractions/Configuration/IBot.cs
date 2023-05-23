@@ -4,9 +4,9 @@ namespace MissBot.Abstractions.Configuration
 {
     public interface IBot
     {
-        Func<ICommonUpdate, string> ScopePredicate { get; }
+        Func<IUnitUpdate, string> ScopePredicate { get; }
         IEnumerable<BotCommand> Commands { get; }
-        IServiceProvider BotServices { get; }
+        IBotServicesProvider BotServices { get; }
     }
 
     public interface IBot<in TUpdate> : IBot where TUpdate : class, IUpdateInfo
