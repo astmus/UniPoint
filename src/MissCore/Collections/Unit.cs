@@ -25,7 +25,7 @@ namespace MissCore.Collections
 
         [JsonIgnore]
         public override string StringValue
-            => Meta?.StringValue ?? this.Format();
+            => Meta?.StringValue ?? Key;
 
         [Column()]
         public override string Entity

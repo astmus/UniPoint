@@ -55,4 +55,5 @@ public class InlineQuery
     /// </summary>
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public Location Location { get; set; }
+    public uint BatchSize { get; set; }
 }

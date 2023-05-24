@@ -7,7 +7,8 @@ namespace MissBot.Abstractions.Configuration
         uint Timeout { get; }
         IBotConnectionOptions Options { get; set; }
         Task DownloadFileAsync(string filePath, Stream destination, CancellationToken cancellationToken = default);
-        Task<TResponse> MakeRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default);
+        Task<TResponse> HandleQueryAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default);
+        Task MakeRequestAsync(IBotRequest request, CancellationToken cancellationToken = default);
         Task<TBot> GetBotAsync<TBot>(CancellationToken cancellationToken = default) where TBot : BaseBot;
     }
     public interface IDataConnection

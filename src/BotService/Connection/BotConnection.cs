@@ -22,20 +22,20 @@ namespace BotService.Connection
 
         public async Task<TBot> GetBotAsync<TBot>(CancellationToken cancellationToken = default) where TBot : BaseBot
         {
-            var info = await MakeRequestAsync<TBot>(request: new BaseParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
+            var info = await HandleQueryAsync<TBot>(request: new BaseParameterlessRequest<TBot>("getMe"), cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
             return info;
         }
 
         public async Task SendCommandAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IBotRequest
         {
-            await SendRequestAsync(request, cancellationToken: cancellationToken)
+            await MakeRequestAsync(request, cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
         }
 
         public async Task<TResponse> SendQueryRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
-            return await MakeRequestAsync<TResponse>(request, cancellationToken: cancellationToken)
+            return await HandleQueryAsync<TResponse>(request, cancellationToken: cancellationToken)
                          .ConfigureAwait(false);
         }
     }

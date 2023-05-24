@@ -28,13 +28,18 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
 
         public IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher        {
             host.ConfigureServices((h, s)
-                => s.AddScoped<IAsyncBotCommandDispatcher, THandler>());
+                =>
+                {
+                    s.AddScoped<IAsyncBotCommandDispatcher, THandler>();
+                    s.AddScoped<IResponse<BotCommand>, Response<BotCommand>>();
+                });
+
             _components.Add(
                 next =>
                 context =>
                     {
                         if (context.Get<Update<TBot>>() is UnitUpdate upd && upd.IsCommand)
-                            return context.GetBotService<IAsyncBotCommandDispatcher>().ExecuteAsync(context.SetNextHandler(context, next));
+                            return context.GetBotService<IAsyncBotCommandDispatcher>().AsyncDelegate(context.SetNextHandler(context, next));
                         else
                             return next(context);
                     });            return this;        }

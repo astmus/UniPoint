@@ -1,11 +1,12 @@
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 
 namespace MissBot.Abstractions
 {
 
     public interface IResponse
     {
-        Task Commit(CancellationToken cancel);       
+        Task Commit(CancellationToken cancel = default);       
     }
 
     public interface IResponseNotification
@@ -14,11 +15,16 @@ namespace MissBot.Abstractions
         Task SendTextAsync(string message, CancellationToken cancel = default);
     }
 
+    public interface IErrorResponse : IResponse, IBotRequest
+    {
+        IErrorResponse Write(Exception error);
+    }
+
     public interface IResponse<TUnit> : IResponse
     {
+        int Length { get; }
         void WriteMetadata<TData>(TData meta) where TData :class, IMetaData;
-        void Write<TData>(TData unit) where TData : Unit, IUnit<TUnit>;
-        void WriteError<TData>(TData unit) where TData : class, IUnit;
+        void Write<TData>(TData unit) where TData : Unit, IUnit<TUnit>;        
         void WriteResult<TData>(TData unit) where TData : IEnumerable<IUnit<TUnit>>;
         void Write<TData>(IEnumerable<TData> units) where TData : Unit, IUnit<TUnit>;
     }

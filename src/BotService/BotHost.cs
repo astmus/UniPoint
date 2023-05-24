@@ -30,6 +30,7 @@ namespace BotService
                                                                                     .AddSingleton<IRequestProvider, RequestProvider>()
                                                                                     .AddSingleton<TBot>()
                                                                                     .AddSingleton<IBotContext, BotContext>()
+                                                                                    .AddScoped<IErrorResponse, ErrorResponse>()
                                                                                     .AddScoped<IContext<Update<TBot>>, Context<Update<TBot>>>()
                                                                                     .AddScoped<IAsyncUpdateHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
@@ -64,7 +65,6 @@ namespace BotService
                     .AddInfrastructureServices(host.Configuration);
                 services.AddSingleton<IHandleContextFactory, HandleContextFactory>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
-                //services.AddScoped(typeof(IContext<>), typeof(Context<>));
                 
                 services.AddScoped(sp
                     => sp.GetRequiredService<IBotConnectionOptionsBuilder>().Build());

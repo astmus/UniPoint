@@ -24,7 +24,7 @@ namespace MissDataMaiden.Commands
          
         public async override Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
         {
-            var unit = botContext.Get<Search>();
+            var unit = botContext.Get<Paging>();
             
             search ??= unit.Find<DataBase>(query);
 

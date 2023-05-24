@@ -31,7 +31,7 @@ namespace BotService.Connection
             //Options = options ?? throw new ArgumentNullException(nameof(options));
             _httpClient = httpClient ?? new HttpClient();
         }
-        public virtual async Task SendRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
+        public virtual async Task MakeRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
         {
             /// <inheritdoc />
             if (request is null) { throw new ArgumentNullException(nameof(request)); }
@@ -116,7 +116,7 @@ namespace BotService.Connection
                 return httpResponse;
             }
         }
-        public virtual async Task<TResponse> MakeRequestAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public virtual async Task<TResponse> HandleQueryAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             /// <inheritdoc />
             if (request is null) { throw new ArgumentNullException(nameof(request)); }
@@ -216,7 +216,7 @@ namespace BotService.Connection
         {
             try
             {
-                await MakeRequestAsync<User>(request: new BaseParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+                await HandleQueryAsync<User>(request: new BaseParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
                 return true;
             }

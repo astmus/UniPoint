@@ -10,7 +10,7 @@ namespace MissBot.Abstractions
             => Task.CompletedTask;
         public virtual Task OnComamandFailed(Exception error)
             => Task.CompletedTask;
-
+        
         public override async Task HandleAsync(TCommand data, CancellationToken cancel = default)
         {
             try

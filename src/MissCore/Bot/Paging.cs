@@ -5,7 +5,7 @@ using MissCore.Collections;
 
 namespace MissCore.Bot
 {
-    public record Search : BotUnit
+    public record Paging : BotUnit
     {
         public Search<TEntity> Find<TEntity>(InlineQuery query) where TEntity : class
             => new Search<TEntity>(query,  $"{string.Format(Template, Unit<TEntity>.Key)} {Payload}");

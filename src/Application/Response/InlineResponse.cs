@@ -22,8 +22,10 @@ namespace MissCore.Data
         List<InlineResultUnit> results = new List<InlineResultUnit>();
 
         public override string NextOffset
-            => results?.Count < 15 ? null : "15";
+            => results?.Count < InlineQuery.BatchSize ? null : Convert.ToString(InlineQuery.BatchSize);
         public override int? CacheTime { get; set; } = 300;
+        public int Length
+            => results.Count;
 
         public async Task Commit(CancellationToken cancel)
         {

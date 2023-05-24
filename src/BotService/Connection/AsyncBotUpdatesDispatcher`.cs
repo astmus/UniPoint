@@ -12,12 +12,12 @@ namespace BotService.Connection
         Thread thread;
         protected override AsyncUpdatesQueue<TUpdate> Updates { get; init; }
         public Func<TUpdate, string> ScopePredicate { get; set; }
+        CancellationTokenSource src;
 
-        public AsyncBotUpdatesDispatcher(IHandleContextFactory factory, ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger, IBotConnectionOptionsBuilder builder)
+        public AsyncBotUpdatesDispatcher(IHandleContextFactory factory, ILogger<AsyncBotUpdatesDispatcher<TUpdate>> logger)
         {
             Factory = factory;
             log = logger;
-            this.builder = builder;
             Updates = new AsyncUpdatesQueue<TUpdate>();
             thread = new Thread(StartInThread);
             thread.IsBackground = true;
@@ -29,21 +29,19 @@ namespace BotService.Connection
             {
                 await foreach (var update in PendingUpdates(src.Token))
                 {
-                    var id = ScopePredicate(update);
-                    if (id == null)
-                        continue;
+                    if (ScopePredicate(update) is not string id) continue;
                     var scope = Factory.Init(id);
+
                     using (var cts = new CancellationTokenSource())
                     {
                         var handler = scope.ServiceProvider.GetRequiredService<IAsyncUpdateHandler<TUpdate>>();
                         var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-                        ctx.SetData(update);
-                        ctx.Set(scope.ServiceProvider);
-                        var hctx = ctx as IHandleContext;
-                        
-                        await handler.HandleUpdateAsync(update, hctx, cts.Token).ConfigFalse();
 
-                        if (hctx.IsHandled == true)
+                        ctx.SetData(update);
+                        
+                        await handler.HandleUpdateAsync(update, (IHandleContext)ctx, cts.Token).ConfigFalse();
+
+                        if (ctx.IsHandled == true)
                             Factory.Remove(id);
                     }
                 };
@@ -59,8 +57,6 @@ namespace BotService.Connection
             }
         }
 
-        CancellationTokenSource src;
-        private readonly IBotConnectionOptionsBuilder builder;
 
         public void PushUpdate(TUpdate update)
             => Updates.QueueItem(update);

@@ -85,7 +85,7 @@ namespace MissBot.Abstractions
         #region Extensions
         internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient, IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
                  CancellationToken cancellationToken = default)
-        => await botClient.MakeRequestAsync(
+        => await botClient.HandleQueryAsync(
                      request: new SetMyCommandsRequest(commands)
                      {
                          Scope = scope,

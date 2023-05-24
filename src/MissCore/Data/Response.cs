@@ -11,10 +11,17 @@ namespace MissCore.Data
     {
         Message Message
             => Context.Take<Message>();
-
         public Message<T> CurrentMessage { get; protected set; }
+        public int Length
+            => Content.Length;
+
         public async Task Commit(CancellationToken cancel)
-            => CurrentMessage =  await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+        {
+            if (Content == String.Empty) return;
+            
+            CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+            Content = String.Empty;
+        }
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit, IUnit<T>
         {
@@ -34,18 +41,13 @@ namespace MissCore.Data
 
         protected virtual Response<T> WriteUnit(IUnit unit)
         {
-            Text += unit?.Format();
+            Content += unit?.Format();
             return this;
         }
 
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
-            Text += string.Join(" ", meta.Keys)+'\n';
-        }
-
-        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : class, IUnit
-        {
-            Text += unit.ToString();
+            Content += string.Join(" ", meta.Keys)+'\n';
         }
     }
 }

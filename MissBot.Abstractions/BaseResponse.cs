@@ -10,7 +10,7 @@ namespace MissBot.Abstractions
         [JsonProperty(Required = Required.Always)]
         public ChatId ChatId
             => chat.Id;
-        Chat chat
+        protected Chat chat
             => Context.Take<Chat>() ?? Context.Any<IUnitUpdate>().Chat;
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -21,14 +21,14 @@ namespace MissBot.Abstractions
         /// <summary>
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string Text { get; set; }
+        [JsonProperty("text",Required = Required.Always)]
+        public string Content { get; set; }
 
         /// <summary>
         /// New caption of the message, 0-1024 characters after entities parsing
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Caption { get; set; }
+        public string Caption { get; set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ParseMode"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]

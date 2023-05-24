@@ -146,7 +146,7 @@ namespace BotService.Connection
                 {
                     try
                     {
-                        TUpdate[] updateArray = await _receiver.botConnection.MakeRequestAsync(
+                        TUpdate[] updateArray = await _receiver.botConnection.HandleQueryAsync(
                                 request: getUpdatesRequest with { Offset = _messageOffset },
                                 cancellationToken: _token
                             ).ConfigureAwait(false);

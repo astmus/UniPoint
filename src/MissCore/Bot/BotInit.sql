@@ -43,7 +43,9 @@ VALUES ('BotCommand', 'disk', '/{0}', 'Disk space information',
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'test', '/{0}', 'test Command', null,null);
 INSERT INTO ##BotUnits
-VALUES ('Search', 'DataBase', 'SELECT * FROM ##{0}' ,  '','WHERE Name LIKE ''%{0}%'' ORDER BY Name OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY',null);
+VALUES ('BotCommand', 'raw', '/{0}', 'raw request format [/raw] --[request]', null,null);
+INSERT INTO ##BotUnits
+VALUES ('Paging', '', '' , '','WHERE Name LIKE ''%{0}%'' ORDER BY Name OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY',null);
 INSERT INTO ##BotUnits
 VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'')
                                             SELECT u.Entity as Unit, u.Unit as [Action], u.Template, u.Payload, u.Parameters, Entities.* FROM u
@@ -63,7 +65,7 @@ VALUES ('DataBaseInfo', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ', 'Id');
 
-  IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
+IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase
 
 SELECT *
