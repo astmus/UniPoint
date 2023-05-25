@@ -76,12 +76,15 @@ namespace MissCore.Data
 
         }
 
-        public IResponse<T> InputRequest(string description, IActionsSet options = null)
+        public IResponse<T> InputData(string description, IActionsSet options = null)
         {
             return this;
         }
 
-
+        public IResponse CompleteInput(string message)
+        {
+            return this;
+        }
     }
 
 

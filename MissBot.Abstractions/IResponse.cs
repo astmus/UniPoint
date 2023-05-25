@@ -4,9 +4,9 @@ using MissBot.Entities;
 
 namespace MissBot.Abstractions
 {
-
     public interface IResponse
     {
+        IResponse CompleteInput(string message);
         Task Commit(CancellationToken cancel = default);       
     }
 
@@ -29,6 +29,6 @@ namespace MissBot.Abstractions
         void Write<TData>(TData unit) where TData : Unit, IUnit<TUnit>;        
         void WriteResult<TData>(TData unit) where TData : IEnumerable<IUnit<TUnit>>;
         void Write<TData>(IEnumerable<TData> units) where TData : Unit, IUnit<TUnit>;
-        IResponse<TUnit> InputRequest(string description, IActionsSet options = default);
+        IResponse<TUnit> InputData(string description, IActionsSet options = default);
     }
 }

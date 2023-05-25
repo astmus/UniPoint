@@ -8,15 +8,15 @@ namespace MissCore.Data
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record Response<T>(IHandleContext Context = default) : BaseResponse<T>(Context), IResponse<T>
+    public record Response<T>(IHandleContext Context = default) : BaseResponse<T>(Context)
     {
         Message Message
             => Context.Take<Message>();
         public Message<T> CurrentMessage { get; protected set; }
-        public int Length
+        public override int Length
             => Content.Length;
 
-        public async Task Commit(CancellationToken cancel)
+        public override async Task Commit(CancellationToken cancel)
         {
             if (Content == String.Empty) return;
             
@@ -24,17 +24,17 @@ namespace MissCore.Data
             Content = String.Empty;
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit, IUnit<T>
+        public override void Write<TUnitData>(TUnitData unit)
         {
             WriteUnit(unit);
         }
 
-        public void WriteResult<TUnitData>(TUnitData units) where TUnitData :  IEnumerable<IUnit<T>>
+        public override void WriteResult<TUnitData>(TUnitData units) 
         {
             //foreach (var unit in units)
             //    Write(unit);
         }
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit, IUnit<T>
+        public override void Write<TUnitData>(IEnumerable<TUnitData> units) 
         {
             //foreach (var unit in units)
             //    Write(unit);
@@ -51,10 +51,20 @@ namespace MissCore.Data
             Content += string.Join(" ", meta.Keys)+'\n';
         }
 
-        public IResponse<T> InputRequest(string description, IActionsSet options = null)
+        public override IResponse<T> InputData(string description, IActionsSet options = null)
         {
             Content = description;
             Actions = options;
+            return this;
+        }
+
+        public override IResponse CompleteInput(string message)
+        {
+            Content = message;
+
+            if (Actions is IChatActionsSet set)
+                Actions = set.RemoveKeyboard();
+                
             return this;
         }
     }

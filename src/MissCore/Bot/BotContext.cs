@@ -4,6 +4,7 @@ using LinqToDB.Data;
 using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
@@ -14,20 +15,22 @@ using Newtonsoft.Json.Linq;
 namespace MissCore.Bot
 {
 
+    public class BotContext<TBot> : BotContext, IBotContext<TBot> where TBot : IBot
+    {
+        public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions)
+        {
+        }
+    }
     public class BotContext : DataConnection, IBotContext
     {
         ITable<TUnit> GetUnits<TUnit>() where TUnit : class, IBotEntity
             => this.GetTable<TUnit>();
 
         ReadUnit GetUnit;
-        public IQueryable<BotCommand> BotCommands
-            => GetUnits<BotUnitCommand>().Where(w => w.Unit == Unit<BotCommand>.Key);
+        public IList<BotCommand> Commands { get; protected set; }
 
         Lazy<Cache> lazyCache = new Lazy<Cache>();
         Cache cache => lazyCache.Value;
-        public BotContext() : base(ProviderName.SqlServer2022, "")
-        {
-        }
 
         public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
@@ -41,11 +44,12 @@ namespace MissCore.Bot
                 cmd.ExecuteNonQuery();
                 GetUnit = Get<ReadUnit>();
             }
+            Commands = GetUnits<BotUnitCommand>().Where(w => w.Unit == Unit<BotCommand>.Key).Cast<BotCommand>().ToList();
         }
 
         public async Task<TResult> HandleQueryAsync<TResult>(IUnitRequest query, CancellationToken cancel = default) where TResult : class
             => await HandleCommandAsync<TResult>(query, cancel);
-        
+
         public async Task<TResult> HandleCommandAsync<TResult>(IUnitRequest query, CancellationToken cancel = default)
         {
             var result = default(TResult);
@@ -100,7 +104,7 @@ namespace MissCore.Bot
             if (cache.Get<TCommand>() is TCommand cmd)
                 return cmd;
 
-            cmd = GetUnits<TCommand>().FirstOrDefault(w => w.Unit == Unit<BotCommand>.Key && string.Compare(w.Action, Unit<TCommand>.Key, true) == 0);            
+            cmd = GetUnits<TCommand>().FirstOrDefault(w => w.Unit == Unit<BotCommand>.Key && string.Compare(w.Action, Unit<TCommand>.Key, true) == 0);
             return cache.Set(cmd);
         }
 
@@ -125,11 +129,11 @@ namespace MissCore.Bot
 
         IBotUnit<TUnit> IBotContext.GetUnit<TUnit>()
             => cache.Get<IBotUnit<TUnit>>(Id<IBotUnit, TUnit>.Value);
-        
+
 
         TAction IBotContext.GetAction<TAction>()
             => cache.Get<TAction>(Id<TAction>.Value);
-        
+
 
         async Task<TAction> IBotContext.GetActionAsync<TAction>()
         {
@@ -139,6 +143,11 @@ namespace MissCore.Bot
             var cmd = GetUnit.Read<TAction>();
             action = await HandleQueryAsync<TAction>(cmd);
             return cache.Set(action);
-        }        
+        }
+
+        public Task<bool> SyncCommands(IEnumerable<BotCommand> commands)
+        {
+            return Task.FromResult(true);
+        }
     }
 }

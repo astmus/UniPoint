@@ -42,7 +42,7 @@ namespace MissBot.Handlers
         public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand;
         protected virtual async Task HandleAsync(IHandleContext context, string command)
         {
-            if (context.Bot.BotCommands.FirstOrDefault(c => c.Action == command) is BotUnitCommand cmd)
+            if (context.Bot.Commands.FirstOrDefault(c => c.Action == command) is BotUnitCommand cmd)
             {
                 cmd.Payload = Current.command;
                 await HandleAsync(cmd).ConfigureAwait(false);

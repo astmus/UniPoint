@@ -28,8 +28,9 @@ namespace BotService
             ConfigureServices((ctx, services) => services
                                                                                     .AddHostedService<BotClient<TBot>>()
                                                                                     .AddSingleton<IRequestProvider, RequestProvider>()
-                                                                                    //.AddSingleton<TBot>()
-                                                                                    .AddSingleton<IBotContext, BotContext>()
+                                                                                    //.AddSingleton<IBot,TBot>()
+                                                                                    .AddSingleton<IBotContext>(sp => sp.GetRequiredService<IBotContext<TBot>>())
+                                                                                    .AddSingleton<IBotContext<TBot>, BotContext<TBot>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
                                                                                     .AddSingleton<BaseBot.Configurator, TConfig>()
                                                                                     .AddScoped<IErrorResponse, ErrorResponse>()

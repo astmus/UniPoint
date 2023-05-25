@@ -20,6 +20,17 @@ namespace MissDataMaiden.DataAccess
         }
 
         public IBotContext Context { get; }
+        public IList<BotCommand> Commands { get; protected set; }
+
+        public void AddCommand<TCommand>(TCommand command) where TCommand : BotCommand
+        {
+            Context.Commands.Add(command);
+        }
+
+        public Task<bool> Commit(CancellationToken cancel = default)
+        {
+            throw new NotImplementedException();
+        }
 
         public IEnumerable<BotCommand> GetAll()
         {            
@@ -33,18 +44,13 @@ namespace MissDataMaiden.DataAccess
 
         public Task<IEnumerable<BotCommand>> GetAllAsync()
         {
-            commands = Context.BotCommands.ToList();
+            commands = Context.Commands;
             return Task.FromResult(commands);
         }
 
         public  Task<TCommand> GetAsync<TCommand>() where TCommand : BotCommand
         {
             return Task.FromResult(Context.GetCommand<TCommand>());
-        }
-
-        public TCommand GetByName<TCommand>(string name) where TCommand : BotCommand
-        {
-            throw new NotImplementedException();
         }
     }
 }

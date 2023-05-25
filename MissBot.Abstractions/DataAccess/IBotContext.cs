@@ -1,5 +1,6 @@
 using System.Data.Common;
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
@@ -7,9 +8,8 @@ namespace MissBot.Abstractions.DataAccess
 {
     public interface IBotContext
     {
-        void LoadBotInfrastructure();
-        IQueryable<BotCommand> BotCommands { get; }
-        TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitCommand;
+        IList<BotCommand> Commands { get; }
+        TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitCommand;        
         TUnit Get<TUnit>() where TUnit : class, IBotUnit;
         TUnit Get<TUnit, TEntity>() where TUnit : class, IBotUnit;
         IBotUnit<TUnit> GetUnit<TUnit>() where TUnit : Unit;
@@ -18,4 +18,8 @@ namespace MissBot.Abstractions.DataAccess
         Task<TAction> GetActionAsync<TAction>() where TAction : Unit, IBotUnitCommand;        
     }
 
+    public interface IBotContext<TBot> :IBotContext where TBot:IBot
+    {
+        void LoadBotInfrastructure();
+    }
 }

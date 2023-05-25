@@ -16,13 +16,14 @@ namespace MissCore.Data.Context
             Root = this;
         }
 
-        public void SetData(TScope data)
+        public IContext<TScope> SetData(TScope data)
         {
             if (Map is DataMap map)
                 map.JoinData(data);
             else
                 Map = DataMap.Parse(data);
             Root.Set(data);
+            return this;
         }
 
         public IBotServicesProvider BotServices
@@ -35,10 +36,10 @@ namespace MissCore.Data.Context
         }
 
         public T GetBotService<T>() where T : class
-            => Root.BotServices.GetService<T>();      
+            => BotServices.GetService<T>();      
 
         public IAsyncHandler<T> GetAsyncHandler<T>()
-            => Root.BotServices.GetService<IAsyncHandler<T>>();
+            => BotServices.GetService<IAsyncHandler<T>>();
 
         public bool Contains<T>(Id<T> identifier)
             => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;

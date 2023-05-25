@@ -3,8 +3,10 @@ using MissBot.Abstractions.Actions;
 using MissCore.Data.Entities;
 
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-public class ChatActions : IActionsSet
+public class ChatActions : IChatActionsSet
 {
+    public IActionsSet RemoveKeyboard()
+        => new RemoveChatActions();
     /// <summary>
     /// Optional. Use this parameter if you want to show the keyboard to specific users only. Targets:
     /// <list type="number">
@@ -24,17 +26,17 @@ public class ChatActions : IActionsSet
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool? Selective { get; set; }
 
-    [JsonProperty("keyboard",Required = Required.Always)]
+    [JsonProperty("keyboard")]
     public IEnumerable<IEnumerable<ChatAction>> Actions { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool? IsPersistent { get; set; }
-    
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public bool? ResizeKeyboard { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public bool? OneTimeKeyboard { get; set; }
+    public bool? ResizeKeyboard { get; set; } = false;
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool? OneTimeKeyboard { get; set; } = true;
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public string? InputFieldPlaceholder { get; set; }
@@ -50,6 +52,11 @@ public class ChatActions : IActionsSet
     }
     public static ChatActions Create(params ChatAction[] actions)
         => new ChatActions(actions);
+
+    public void ClearActions()
+    {
+        Actions = null;
+    }
 
     public static implicit operator ChatActions?(string? text) =>
         text is null

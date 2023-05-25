@@ -14,7 +14,7 @@ namespace MissDataMaiden
     {
         private readonly ILogger<MissDataMaid> _logger;
         private ILogger<MissDataMaid> log;
-
+        private readonly IBotContext<MissDataMaid> botContext;
         public override Func<IUnitUpdate, string> ScopePredicate
              => (update) => update switch
              {
@@ -23,9 +23,15 @@ namespace MissDataMaiden
                  _ => null
              };
 
-        public MissDataMaid(ILogger<MissDataMaid> logger, IBotContext context) : base(context)
+        public MissDataMaid(ILogger<MissDataMaid> logger, IBotContext<MissDataMaid> context) : base(context)
         {
             log = logger;
+            botContext = context;
+        }
+
+        protected override void LoadBotInfrastructure()
+        {
+            botContext.LoadBotInfrastructure();
         }
     }
 

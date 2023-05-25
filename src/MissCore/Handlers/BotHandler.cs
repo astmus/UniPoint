@@ -25,7 +25,7 @@ namespace MissCore.Handlers
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
-            //SetUpdateObject(context, data.Type);
+            
             await handleDelegate(context).ConfigureAwait(false);
         }
 

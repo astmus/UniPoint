@@ -4,6 +4,7 @@ using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Components.Web;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
@@ -13,11 +14,11 @@ using MissCore.Data.Entities;
 
 namespace MissDataMaiden
 {
-    public class Add
+    public record Add :BotUnitCommand
     {
         [NotNull]
-        public string Aliase { get; set; }
-        public string Request { get; set; }
+        public string Aliase { get=> Action; set=> Action = value; }
+        public string Request { get=> Payload; set=> Payload = value; }
     }
 
     public class AddCommandHadler : IAsyncHandler<AddCommandHadler>
@@ -41,7 +42,7 @@ namespace MissDataMaiden
                     add ??= new Add();
                     input = null;
                     Response = context.BotServices.Response<BotCommand>();
-                    JoinHandlers(SetAliase, SetCommand, OfferCompleteOptions);
+                    JoinHandlers(SetAliase,SetDescription, SetCommand, OfferCompleteOptions);
                     CurrentHandler = Handlers[position.Current];
                 }
 
@@ -82,31 +83,52 @@ namespace MissDataMaiden
         }
         object OfferCompleteOptions(IHandleContext context, string input) => input switch
         {
-            null => Response.InputRequest("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
+            null => Response.InputData("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
             nameof(Save) => Save(context),
             nameof(Cancel) => Cancel(context),
             _ => null
         };
 
-        Task Save(IHandleContext context)
-            => Task.CompletedTask;
+        async Task Save(IHandleContext context)
+        {
+            var listCmds = context.Bot.Commands.ToList();
+            listCmds.Add(add);
+            var success = await context.BotServices.Client.SyncCommandsAsync(listCmds);
+            if (success)
+            {
+                context.Bot.Commands.Add(add);
+                Response.CompleteInput("Command added");
+            }
+            else
+                Response.CompleteInput("Save failed");
+
+            context.IsHandled = true;
+        }
         Task Cancel(IHandleContext context)
-            => Task.CompletedTask;
+        {
+            Response.CompleteInput("Operation cancelled");
+            context.IsHandled = true;
+            return Task.CompletedTask;
+        }
 
         object SetAliase(IHandleContext context, string input) => input switch
         {
             null =>
-                Response.InputRequest("Enter unique command alise"),
+                Response.InputData("Enter unique command alise"),
             var value when value.IndexOf(' ') < 0 =>
                 add.Aliase = value,
             var value when value.IndexOf(' ') > -1 =>
                 ReTry(SetAliase, "Invalid aliase format"),
             _ => null
         };
-
+        object SetDescription(IHandleContext context, string input) => input switch
+        {
+            null => Response.InputData("Enter command description"),
+            _ => add.Description = input
+        };
         object SetCommand(IHandleContext context, string input) => input switch
         {
-            null => Response.InputRequest("Enter command text"),            
+            null => Response.InputData("Enter command text"),            
             _ => add.Request = input
         };
     }

@@ -17,10 +17,10 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             return new BotBuilder<TBot>(rootHost);        }        internal BotBuilder(IHostBuilder rootHost)
             => host = rootHost;
 
-        public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IRepository<BotCommand>
+        public IBotBuilder<TBot> UseCommandsRepository<THandler>() where THandler : class, IBotCommandsRepository
         {
             host.ConfigureServices((h, s)
-                => s.AddScoped<IRepository<BotCommand>, THandler>());
+                => s.AddScoped<IBotCommandsRepository, THandler>());
             return this;        }        public IBotBuilder<TBot> UseUpdateHandler<THandler>() where THandler : class, IAsyncUpdateHandler<TBot>        {
             host.ConfigureServices((h, Services)
                 => Services.AddScoped<IAsyncUpdateHandler<TBot>, THandler>());

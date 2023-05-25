@@ -30,6 +30,11 @@ namespace MissDataMaiden
                    .SetTimeout(TimeSpan.FromMinutes(2));
 
         public void ConfigureOptions(IBotOptionsBuilder botBuilder)
-            => botBuilder.TrackMessgeChanges();   
+            => botBuilder.TrackMessgeChanges();
+
+        protected override void LoadBotInfrastructure()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

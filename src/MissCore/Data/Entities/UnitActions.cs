@@ -6,7 +6,7 @@ using MissCore.Data.Entities;
 public class UnitActions : IActionsSet
 {
     [JsonProperty("InlineKeyboard", Required = Required.Always)]
-    public IEnumerable<IEnumerable<UnitAction>> Actions { get; }
+    public IEnumerable<IEnumerable<UnitAction>> Actions { get; protected set; }
     public UnitActions(UnitAction unitAction) : this(new[] { unitAction })
     { }
     public UnitActions(IEnumerable<UnitAction> unitActionsRow) : this(new[] { unitActionsRow })
@@ -18,6 +18,11 @@ public class UnitActions : IActionsSet
 
     public static UnitActions Empty() =>
         new(Array.Empty<UnitAction[]>());
+
+    public void ClearActions()
+    {
+        Actions = null;
+    }
 
     [return: NotNullIfNotNull(nameof(action))]
     public static implicit operator UnitActions?(UnitAction? action)

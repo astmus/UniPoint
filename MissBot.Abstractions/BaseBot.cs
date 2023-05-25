@@ -6,13 +6,11 @@ using TG = Telegram.Bot.Types;
 
 namespace MissBot.Abstractions
 {
-
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public abstract class BaseBot : IBot
     {
-        public IEnumerable<BotCommand> Commands { get; protected set; }
         public abstract Func<IUnitUpdate, string> ScopePredicate { get; }
-        protected IRepository<BotCommand> commandsRepository { get; set; }
+        protected IBotCommandsRepository commandsRepository { get; set; }
         private readonly IBotContext bot;
         private IServiceScope scope;
         protected IBotConnection Client
@@ -33,15 +31,14 @@ namespace MissBot.Abstractions
         public void Initialize(IServiceScope Scope)
         {
             scope = Scope;
-            commandsRepository = BotServices.GetRequiredService<IRepository<BotCommand>>();
-            bot.LoadBotInfrastructure();
+            commandsRepository = BotServices.GetRequiredService<IBotCommandsRepository>();
+            LoadBotInfrastructure();
         }
 
+        protected abstract void LoadBotInfrastructure();
+
         public virtual async Task<bool> SyncCommands()
-        {
-            Commands ??= await commandsRepository.GetAllAsync();
-            return await Client.SyncCommandsAsync(Commands);
-        }
+            => await Client.SyncCommandsAsync(bot.Commands);        
     
         #region DTO
         [JsonProperty(Required = Required.Always)]
@@ -51,38 +48,38 @@ namespace MissBot.Abstractions
         public string FirstName { get; set; } = default!;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? LastName { get; set; }
+        public string LastName { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Username { get; set; }
+        public string Username { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? LanguageCode { get; set; }
+        public string LanguageCode { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? IsPremium { get; set; }
+        public bool IsPremium { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? AddedToAttachmentMenu { get; set; }
+        public bool AddedToAttachmentMenu { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? CanJoinGroups { get; set; }
+        public bool CanJoinGroups { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? CanReadAllGroupMessages { get; set; }
+        public bool CanReadAllGroupMessages { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool? SupportsInlineQueries { get; set; }
+        public bool SupportsInlineQueries { get; set; }
         /// <inheritdoc/>
         public override string ToString() =>
             $"{(Username is null ? $"{FirstName}{LastName?.Insert(0, " ")}" : $"@{Username}")} ({Id})";
 
         #endregion
     }
-    internal static class BotExtensoin
+    public static class BotExtensoin
     {
         #region Extensions
-        internal static async Task<bool> SyncCommandsAsync(this IBotConnection botClient, IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
+        public static async Task<bool> SyncCommandsAsync(this IBotConnection botClient, IEnumerable<BotCommand> commands, TG.BotCommandScope scope = default, string languageCode = default,
                  CancellationToken cancellationToken = default)
         => await botClient.HandleQueryAsync(
                      request: new SetMyCommandsRequest(commands)
@@ -105,7 +102,7 @@ namespace MissBot.Abstractions
             public TG.BotCommandScope Scope { get; set; }
 
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public string? LanguageCode { get; set; }
+            public string LanguageCode { get; set; }
 
             public SetMyCommandsRequest(IEnumerable<BotCommand> commands)
                 : base("setMyCommands")

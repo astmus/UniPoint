@@ -12,6 +12,8 @@ namespace MissBot.Abstractions.DataAccess
 
     public interface IBotCommandsRepository : IRepository<BotCommand>
     {
-        TCommand GetByName<TCommand>(string name) where TCommand : BotCommand;
+        IList<BotCommand> Commands { get; }
+        void AddCommand<TCommand>(TCommand command) where TCommand : BotCommand;
+        Task<bool> Commit(CancellationToken cancel = default);
     }
 }

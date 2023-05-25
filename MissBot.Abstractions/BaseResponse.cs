@@ -1,10 +1,11 @@
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
 namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage")
+    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage"), IResponse<TResponse>
     {
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
@@ -60,5 +61,18 @@ namespace MissBot.Abstractions
         /// <inheritdoc cref="Abstractions.Documentation.ReplyMarkup"/>
         [JsonProperty("reply_markup",DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IActionsSet Actions { get; set; }
+        public abstract int Length { get; }
+
+        public abstract void Write<TData>(TData unit) where TData : Unit, IUnit<TResponse>;
+        public abstract void WriteResult<TData>(TData unit) where TData : IEnumerable<IUnit<TResponse>>;
+        public abstract void Write<TData>(IEnumerable<TData> units) where TData : Unit, IUnit<TResponse>;
+        public abstract IResponse<TResponse> InputData(string description, IActionsSet options = null);
+        public abstract IResponse CompleteInput(string message);
+        public abstract Task Commit(CancellationToken cancel = default);
+
+        void IResponse<TResponse>.WriteMetadata<TData>(TData meta)
+        {
+            throw new NotImplementedException();
         }
+    }
 }

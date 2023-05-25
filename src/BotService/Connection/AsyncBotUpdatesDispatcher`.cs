@@ -35,9 +35,7 @@ namespace BotService.Connection
                     using (var cts = new CancellationTokenSource())
                     {
                         var handler = scope.ServiceProvider.GetRequiredService<IAsyncUpdateHandler<TUpdate>>();
-                        var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>();
-
-                        ctx.SetData(update);
+                        var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>().SetData(update);
                         
                         await handler.HandleUpdateAsync(update, (IHandleContext)ctx, cts.Token).ConfigFalse();
 

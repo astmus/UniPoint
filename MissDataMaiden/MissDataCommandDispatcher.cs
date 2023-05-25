@@ -9,8 +9,8 @@ namespace MissDataMaiden
 {
     internal class MissDataCommandDispatcher : BaseBotCommandDispatcher
     {
-        IRepository<BotCommand> commandsRepository;
-        public MissDataCommandDispatcher(IRepository<BotCommand> repository)
+        IBotCommandsRepository commandsRepository;
+        public MissDataCommandDispatcher(IBotCommandsRepository repository)
             => commandsRepository = repository;
 
         protected override Task HandleAsync(IHandleContext context, string command) => command switch
@@ -57,10 +57,7 @@ namespace MissDataMaiden
                     await handler.AsyncDelegate(Context);
                     Context.IsHandled = false;
                     break;
-            }
-            
-
-           // response.Write(result); 
+            }           
         }
     }
 }

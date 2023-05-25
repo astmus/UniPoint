@@ -11,7 +11,7 @@ namespace MissDataMaiden
 
     public class ListCommandHadler : BotCommandHandler<List>
     {
-        public ListCommandHadler(IRepository<BotCommand> repository)
+        public ListCommandHadler(IBotCommandsRepository repository)
             => this.repository = repository;
             
         private readonly IRepository<BotCommand> repository;
