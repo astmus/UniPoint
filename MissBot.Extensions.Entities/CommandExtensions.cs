@@ -18,7 +18,7 @@ namespace MissBot.Extensions.Entities
             if (message.Contains("/"))
             {
                 var items = message.Split("/", StringSplitOptions.RemoveEmptyEntries);
-                return (items[0], items[1..]);
+                return (items[0].AsSpan(0).Capitalize(), items[1..]);
             }
             return (null, null);
         }

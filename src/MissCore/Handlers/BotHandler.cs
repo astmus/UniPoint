@@ -25,8 +25,8 @@ namespace MissCore.Handlers
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
-            
-            await handleDelegate(context).ConfigureAwait(false);
+
+             await handleDelegate(context).ConfigureAwait(false);
         }
 
         object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch

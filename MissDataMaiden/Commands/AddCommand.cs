@@ -46,10 +46,11 @@ namespace MissDataMaiden
                     CurrentHandler = Handlers[position.Current];
                 }
 
-
                 switch (CurrentHandler(context, input))
                 {
                     case IResponse:
+                        await Response.Commit(); return;
+                    case AsyncInputHandler handler:
                         await Response.Commit(); return;
                     case Task task:
                         await task; break;
