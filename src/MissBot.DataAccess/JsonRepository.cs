@@ -6,7 +6,7 @@ using LinqToDB;
 using LinqToDB.Reflection;
 using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 using MissCore.Collections;

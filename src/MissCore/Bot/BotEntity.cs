@@ -1,5 +1,5 @@
 using LinqToDB.Mapping;
-using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 
 namespace MissCore.Bot
 {

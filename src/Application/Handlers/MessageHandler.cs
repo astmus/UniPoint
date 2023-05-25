@@ -1,14 +1,10 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
 
-
-
 namespace MissBot.Handlers
 {
     public class MessageHandler : BaseHandler<Message>
     {
-
-
         public Task ExecuteAsync(Message data, IHandleContext context)
         {
             Console.WriteLine(data.Text);

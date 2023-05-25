@@ -10,8 +10,7 @@ namespace MissBot.Handlers
     [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record InlineQueryResult<TEntity> : InlineResultUnit, IUnit<TEntity>
     {
-        private const string empty = "Empty";
-        public IEnumerable<IUnitAction<TEntity>> Actions { get; set; }
+        private const string empty = "Empty";        
     }
 
     public abstract class InlineQueryHandler : BaseHandler<InlineQuery>

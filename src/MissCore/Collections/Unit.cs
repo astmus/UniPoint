@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using LinqToDB.Mapping;
 using MissBot.Abstractions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 using Newtonsoft.Json;
@@ -19,6 +20,7 @@ namespace MissCore.Collections
     public record Unit<TEntity> : Unit, IUnit<TEntity>
     {        
         public static readonly string Key = typeof(TEntity).Name;
+        public static readonly Id<TEntity> Id = Id<TEntity>.Value;
 
         public string this[string path]
             => Meta.GetValue(path).ToString();

@@ -1,4 +1,5 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissCore.Collections;
@@ -48,6 +49,13 @@ namespace MissCore.Data
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
             Content += string.Join(" ", meta.Keys)+'\n';
+        }
+
+        public IResponse<T> InputRequest(string description, IActionsSet options = null)
+        {
+            Content = description;
+            Actions = options;
+            return this;
         }
     }
 }

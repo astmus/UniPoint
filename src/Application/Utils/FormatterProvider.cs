@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Collections;
 

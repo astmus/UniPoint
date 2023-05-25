@@ -1,9 +1,7 @@
-
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Entities;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace MissBot.Abstractions
+namespace MissBot.Abstractions.Entities
 {
     public interface IBotEntity
     {
@@ -23,10 +21,10 @@ namespace MissBot.Abstractions
             get;
         }
     }
-    
+
     public interface IBotUnit<TUnit> : IBotEntity
-    {        
-        IReplyMarkup GetUnitActions<TSub>(TSub unit) where TSub : Unit;
+    {
+        IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : Unit;
         public IEnumerable<IBotUnit> Units { get; }
     }
 }

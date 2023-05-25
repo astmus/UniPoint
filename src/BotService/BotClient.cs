@@ -22,8 +22,7 @@ namespace BotService
             botScopeServices = (scope = factory.ScopeFactory.CreateScope()).ServiceProvider;
         }
 
-        IServiceProvider botScopeServices
-        { get; init; }
+        IServiceProvider botScopeServices { get; init; }
 
 
         TBot Bot;
@@ -31,16 +30,18 @@ namespace BotService
         {
             _log.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             botScopeServices.GetRequiredService<IBotBuilder<TBot>>().Build();
+
             var config = botScopeServices.GetRequiredService<BaseBot.Configurator>();
             config.ConfigureOptions(botScopeServices.GetRequiredService<IBotOptionsBuilder>());
             config.ConfigureConnection(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>());
-            var client = botScopeServices.GetRequiredService<IBotConnection>();
+
             try
             {
+                var client = botScopeServices.GetRequiredService<IBotConnection>();
                 var botConnectionOptions = IBotClient<TBot>.Options = botScopeServices.GetRequiredService<IBotConnectionOptions>();
-                Bot = await client.GetBotAsync<TBot>(cancellationToken);                
+                Bot = await client.GetBotAsync<TBot>(cancellationToken);
                 Bot.Initialize(scope);
-                await Bot.SyncCommands();               
+                await Bot.SyncCommands();
                 _log.LogInformation($"Worker runned at: {DateTimeOffset.Now} {Bot}");
             }
             catch (Exception ex)
@@ -50,6 +51,7 @@ namespace BotService
                 await StopAsync(cancellationToken);
                 _hostLifeTime.StopApplication();
             }
+
             if (!_hostLifeTime.ApplicationStopping.IsCancellationRequested && !_hostLifeTime.ApplicationStopped.IsCancellationRequested)
                 await base.StartAsync(cancellationToken).ConfigFalse();
         }

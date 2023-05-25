@@ -4,7 +4,7 @@ using MissBot.Abstractions.Entities;
 using System.Linq;
 
 namespace MissCore.Collections
-{       
+{
     [JsonArray]
     public class Union<TUnit> : Unit<TUnit>.Collection, IList<TUnit>, IMetaCollection where TUnit : IBotUnit
     {

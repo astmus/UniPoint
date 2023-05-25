@@ -1,7 +1,7 @@
 using System.Collections.Specialized;
 using System.Linq.Expressions;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Collections;
 

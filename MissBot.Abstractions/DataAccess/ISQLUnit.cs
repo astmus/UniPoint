@@ -1,4 +1,4 @@
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
 
     public interface IQueryUnit<in TResultUnit>

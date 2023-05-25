@@ -1,8 +1,7 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
-using MissBot.Entities.Results.Inline;
 using MissBot.Response;
 
 namespace MissCore.Data
@@ -27,10 +26,11 @@ namespace MissCore.Data
         public int Length
             => results.Count;
 
+        public string Content { get; set; }
+
         public async Task Commit(CancellationToken cancel)
         {
-            //Button = new InlineQueryResultsButton("SearchOption") { StartParameter = "Parameter" };
-            await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
+            await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false) ;
         }
 
         public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit, IUnit<T>
@@ -75,6 +75,13 @@ namespace MissCore.Data
         {
 
         }
+
+        public IResponse<T> InputRequest(string description, IActionsSet options = null)
+        {
+            return this;
+        }
+
+
     }
 
 

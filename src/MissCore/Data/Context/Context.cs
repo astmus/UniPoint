@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Utils;
 using MissCore.Collections;
 using Newtonsoft.Json.Linq;

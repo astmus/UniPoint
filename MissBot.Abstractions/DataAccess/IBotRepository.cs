@@ -1,7 +1,7 @@
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.Entities;
 
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
     public interface IBotRepository : IRepository
     {
@@ -9,7 +9,7 @@ namespace MissBot.Abstractions.DataContext
         int ID { get; }
         string ConnectionNamespace { get; }
         IDataConnection DataProvider { get; }
-        IEnumerable<BotCommand> Commands { get; }        
+        IEnumerable<BotCommand> Commands { get; }
     }
 
     public interface IRepository

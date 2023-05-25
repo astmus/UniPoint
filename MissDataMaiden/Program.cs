@@ -1,5 +1,5 @@
 using BotService;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.DataAccess;
 using MissBot.Handlers;
 using MissDataMaiden.Commands;
@@ -22,6 +22,7 @@ namespace MissDataMaiden
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
                     .UseInlineHandler<SearchDataBaseHandler>()                    
                     .AddRepository<IJsonRepository, JsonRepository>()
+                    .AddHandler<AddCommandHadler>()
                     .AddCommand<Disk, DiskCommandHandler>()
                     .AddCommand<Info, InfoCommandHadler>()
                     .AddCommand<List, ListCommandHadler>() 

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
     public interface IBotUnitFormatProvider : IFormatProvider
     {

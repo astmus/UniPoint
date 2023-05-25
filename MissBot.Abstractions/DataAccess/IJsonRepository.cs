@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using MissBot.Abstractions.Entities;
 using Newtonsoft.Json.Linq;
 
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
     public interface IJsonRepository : IRepository
     {

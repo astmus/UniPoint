@@ -18,7 +18,6 @@ namespace MissCore
             if (RequestOptions == RequestOptions.Unknown)
                 RequestOptions = options;
             return Request.GetCommand(options);
-            //return string.Format(options.SnakeTemplate(), Request.ToString());
         }
     }
 
@@ -29,7 +28,7 @@ namespace MissCore
 
         public object? GetFormat(Type? formatType)
         {
-            // FormattableString message = $"The speed of light is {12:N3} km/s.";
+            
             return this;
         }
 
@@ -40,7 +39,7 @@ namespace MissCore
         }
         #endregion
     }
-    public static class Templates
+    internal static class Templates
     {
         public const string Read = "SELECT {0} FROM ##{1}";
         public const string ReadAllByCriteria = "SELECT * FROM ##{0} {1}";

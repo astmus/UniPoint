@@ -17,7 +17,7 @@ namespace BotService.Connection
         public override IBotConnectionOptions Options { get; set; }
 
         uint IBotConnection.Timeout
-            => (uint)Options.Timeout.TotalSeconds;
+            => Convert.ToUInt32(Options.Timeout.TotalSeconds);
 
 
         public async Task<TBot> GetBotAsync<TBot>(CancellationToken cancellationToken = default) where TBot : BaseBot

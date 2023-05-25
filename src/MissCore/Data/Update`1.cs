@@ -12,8 +12,8 @@ namespace MissCore.Data
     }
     public class UnitUpdate : Update, IUpdateInfo, IUnitUpdate
     {
-        public string Text
-                => CurrentMessage.Text;
+        public string StringContent
+                => CurrentMessage?.Text;
         public Chat Chat
             => CurrentMessage?.Chat ?? new Chat() { Id = InlineQuery?.From.Id ?? CallbackQuery?.From.Id ?? ChosenInlineResult.From.Id };
 

@@ -1,5 +1,5 @@
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
@@ -7,13 +7,13 @@ using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace MissBot.Abstractions.Configuration
 {
-
     public interface IBotBuilder
     {
         IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware);
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
         IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotUnitCommand;
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;
+        IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler<THandler>;
         AsyncHandler BuildHandler();
         void Build();
     }

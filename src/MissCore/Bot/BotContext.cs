@@ -4,22 +4,24 @@ using LinqToDB.Data;
 using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 using MissCore.Collections;
 using MissCore.Data.Context;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
+
     public class BotContext : DataConnection, IBotContext
     {
         ITable<TUnit> GetUnits<TUnit>() where TUnit : class, IBotEntity
             => this.GetTable<TUnit>();
 
         ReadUnit GetUnit;
-        public IEnumerable<BotCommand> BotCommands
-            => GetUnits<BotUnitCommand>().Where(w => w.Unit == BotEntity<BotCommand>.EntityKey);
+        public IQueryable<BotCommand> BotCommands
+            => GetUnits<BotUnitCommand>().Where(w => w.Unit == Unit<BotCommand>.Key);
 
         Lazy<Cache> lazyCache = new Lazy<Cache>();
         Cache cache => lazyCache.Value;
@@ -42,9 +44,8 @@ namespace MissCore.Bot
         }
 
         public async Task<TResult> HandleQueryAsync<TResult>(IUnitRequest query, CancellationToken cancel = default) where TResult : class
-        {
-            return await HandleCommandAsync<TResult>(query, cancel);
-        }
+            => await HandleCommandAsync<TResult>(query, cancel);
+        
         public async Task<TResult> HandleCommandAsync<TResult>(IUnitRequest query, CancellationToken cancel = default)
         {
             var result = default(TResult);
@@ -138,6 +139,6 @@ namespace MissCore.Bot
             var cmd = GetUnit.Read<TAction>();
             action = await HandleQueryAsync<TAction>(cmd);
             return cache.Set(action);
-        }
+        }        
     }
 }

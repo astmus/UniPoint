@@ -9,8 +9,8 @@ using Newtonsoft.Json;
 
 namespace MissDataMaiden.Entities
 {
-    [JsonConverter(typeof(DBActionConverter))]
-    public enum DBAction : byte
+    [JsonConverter(typeof(DbActionConverter))]
+    public enum DbAction : byte
     {
         Unknown = 0,
         Details,

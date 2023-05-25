@@ -1,6 +1,6 @@
 using BotService.Common;
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Entities;
 using MissBot.Entities.Results;
 using MissBot.Handlers;
@@ -22,18 +22,13 @@ namespace MissDataMaiden
         }
         
         public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
-        {
-                        
-            //var items = await repository.ReadAsync<DataBase>(d => d.Id == strid);
-            //var db = items.BringTo<DataBase>().FirstOrDefault();
+        {         
             var info = Context.BotServices.GetRequiredService<IBotContext>().Get<DataBaseInfo>();
             var rawRequest = info.Format(6/*result.Id*/);
             Info dbInfo = await repository.HandleRawAsync<Info>(rawRequest, cancel);
             dbInfo.InitializaMetaData();
             var response = Context.BotServices.Response<ChosenInlineResult>();
-            //var r = Context.Provider.FromUnit(cmdinfo, "6");
-            //var cmd = Context.Provider.ReadRequest<DataBase>(f => f.Id == strid);
-            //var u = await repository.HandleQueryAsync(cmd);
+            
             response.Write(dbInfo);
             //foreach (var item in items.SupplyTo<DataBase>())
             //{
@@ -42,8 +37,6 @@ namespace MissDataMaiden
             //}
             await response.Commit(cancel);
 
-            //var details = await repository.ReadUnitDataAsync(cmd,cancel);
-            //var i8 = details.SupplyTo<DataBaseInfo>();
         }
     }
 }

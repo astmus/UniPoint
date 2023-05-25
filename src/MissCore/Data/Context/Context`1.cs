@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissCore.Collections;
 
 namespace MissCore.Data.Context

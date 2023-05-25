@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 using TG = Telegram.Bot.Types;
 
@@ -10,33 +10,32 @@ namespace MissBot.Abstractions
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public abstract class BaseBot : IBot
     {
+        public IEnumerable<BotCommand> Commands { get; protected set; }
+        public abstract Func<IUnitUpdate, string> ScopePredicate { get; }
+        protected IRepository<BotCommand> commandsRepository { get; set; }
+        private readonly IBotContext bot;
+        private IServiceScope scope;
+        protected IBotConnection Client
+            => BotServices.GetRequiredService<IBotConnection>();
+        public IBotServicesProvider BotServices
+            => scope.ServiceProvider.GetRequiredService<IBotServicesProvider>();
         public abstract class Configurator
         {
             public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
             public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
         }
-        IServiceScope scope;
+
         public BaseBot(IBotContext botContext)
         {
-            Context = botContext;
+            bot = botContext;
         }
 
         public void Initialize(IServiceScope Scope)
         {
             scope = Scope;
             commandsRepository = BotServices.GetRequiredService<IRepository<BotCommand>>();
-            Context.LoadBotInfrastructure();
+            bot.LoadBotInfrastructure();
         }
-
-        protected IRepository<BotCommand> commandsRepository { get; set; }
-        private readonly IBotContext Context;
-        protected IBotConnection Client
-            => BotServices.GetRequiredService<IBotConnection>();
-        public IBotServicesProvider BotServices
-            => scope.ServiceProvider.GetRequiredService<IBotServicesProvider>();
-
-        public IEnumerable<BotCommand> Commands { get; protected set; }
-        public abstract Func<IUnitUpdate, string> ScopePredicate { get; }
 
         public virtual async Task<bool> SyncCommands()
         {
@@ -102,10 +101,8 @@ namespace MissBot.Abstractions
             [JsonProperty(Required = Required.Always)]
             public IEnumerable<BotCommand> Commands { get; }
 
-
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public TG.BotCommandScope? Scope { get; set; }
-
+            public TG.BotCommandScope Scope { get; set; }
 
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public string? LanguageCode { get; set; }

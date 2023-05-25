@@ -1,5 +1,5 @@
+using MissBot.Abstractions.Actions;
 using MissBot.Entities;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissBot.Abstractions
 {
@@ -9,8 +9,8 @@ namespace MissBot.Abstractions
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public ChatId ChatId
-            => chat.Id;
-        protected Chat chat
+            => Chat.Id;
+        protected Chat Chat
             => Context.Take<Chat>() ?? Context.Any<IUnitUpdate>().Chat;
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -21,7 +21,7 @@ namespace MissBot.Abstractions
         /// <summary>
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
-        [JsonProperty("text",Required = Required.Always)]
+        [JsonProperty("text", Required = Required.Always)]
         public string Content { get; set; }
 
         /// <summary>
@@ -38,9 +38,6 @@ namespace MissBot.Abstractions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IEnumerable<MessageEntity> Entities { get; set; }
 
-        /// <summary>
-        /// Disables link previews for links in this message
-        /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? DisableWebPagePreview { get; set; }
 
@@ -61,16 +58,7 @@ namespace MissBot.Abstractions
         public bool? AllowSendingWithoutReply { get; set; }
 
         /// <inheritdoc cref="Abstractions.Documentation.ReplyMarkup"/>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IReplyMarkup ReplyMarkup { get; set; }
-
-        /// <summary>
-        /// Initializes a new request with chatId and text
-        /// </summary>
-        /// <param name="chatId">Unique identifier for the target chat or username of the target channel
-        /// (in the format <c>@channelusername</c>)
-        /// </param>
-        /// <param name="text">Text of the message to be sent, 1-4096 characters after entities parsing</param>
-
-    }
+        [JsonProperty("reply_markup",DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IActionsSet Actions { get; set; }
+        }
 }

@@ -4,7 +4,7 @@
         <TargetFrameworks>net7.0</TargetFrameworks>
         <LangVersion>11</LangVersion>
         <Nullable>disable</Nullable>
-        <WarningLevel>7</WarningLevel>
+        <WarningLevel>4</WarningLevel>
         <EnableNETAnalyzers>True</EnableNETAnalyzers>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <ImplicitUsings>enable</ImplicitUsings>

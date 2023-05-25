@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
-using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 using MissCore.Collections;
 
 namespace MissDataMaiden.Queries

@@ -1,4 +1,4 @@
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.DataAccess

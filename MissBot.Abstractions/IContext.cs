@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 
 namespace MissBot.Abstractions
-{               
+{
     public interface IContext
     {        
         object this[string index] { get; }

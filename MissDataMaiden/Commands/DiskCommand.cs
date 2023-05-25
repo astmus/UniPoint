@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore;
 using MissCore.Bot;
@@ -25,11 +25,6 @@ namespace MissDataMaiden.Commands
             this.repository = repository;
         }
 
-        
-        static DiskCommandHandler()
-        {
-        }
-        
         public async override Task HandleCommandAsync(Disk command, CancellationToken cancel = default)
         {
             

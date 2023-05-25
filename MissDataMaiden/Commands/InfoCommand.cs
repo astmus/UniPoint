@@ -1,5 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore;
 using MissCore.Bot;
@@ -25,7 +25,7 @@ namespace MissDataMaiden.Commands
         string connectionString;
         private const string CFG_KEY_COMMAND = nameof(IBotCommand);
         private const string CFG_KEY_DESCRIPTION = nameof(IBotCommand.Description);
-        //private const string CFG_KEY_PARAMS = nameof(IBotCommand.Params);
+
         public InfoCommandHadler(IJsonRepository jsonRepository)
         {
             repository = jsonRepository;

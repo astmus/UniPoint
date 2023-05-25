@@ -1,9 +1,10 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissBot.Extensions.Entities;
+using MissCore.Bot;
 using MissCore.Data;
 
 namespace MissBot.Handlers
@@ -28,7 +29,7 @@ namespace MissBot.Handlers
                 {
                     var command = context.BotServices.ErrorResponse();
                     command.Write(error);
-                    await context.BotServices.Client.MakeRequestAsync(command);
+                    await command.Commit();                    
                 }
                 if (!context.IsHandled.HasValue)
                     context.IsHandled = true;
@@ -36,13 +37,16 @@ namespace MissBot.Handlers
             else
                 await context.CurrentHandler(context);
         }
-        public override Task HandleAsync(BotCommand data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-        public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand;
-        protected abstract Task HandleAsync(IHandleContext context, string command);
-        protected abstract Task HandleCommonAsync(IHandleContext context);
+        
 
+        public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand;
+        protected virtual async Task HandleAsync(IHandleContext context, string command)
+        {
+            if (context.Bot.BotCommands.FirstOrDefault(c => c.Action == command) is BotUnitCommand cmd)
+            {
+                cmd.Payload = Current.command;
+                await HandleAsync(cmd).ConfigureAwait(false);
+            }
+        }
     }
 }

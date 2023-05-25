@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 using BotService.Connection.Async;
-using MissBot.Abstractions;
-using MissBot.Abstractions.DataContext;
 using MissBot.Entities;
 using MissCore.DataAccess.Async;
 

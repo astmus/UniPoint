@@ -1,6 +1,6 @@
 using MissBot.Abstractions.Utils;
 
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
     public record Id<T>(string id) : Id(id)
     {
@@ -8,11 +8,13 @@ namespace MissBot.Abstractions.DataContext
     }
     public record Id<T, T2>(string id) : Id<T>(id)
     {
-        public static new readonly Id<T, T2> Value = new Id<T,T2>($"{typeof(T).Name}.{typeof(T2).Name} ".ToSnakeCase());
+        public static new readonly Id<T, T2> Value = new Id<T, T2>($"{typeof(T).Name}.{typeof(T2).Name} ".ToSnakeCase());
     }
     public record Id(string id)
     {
         public static implicit operator string(Id id)
-            => id.id;        
+            => id.id;
+        public static explicit operator Id(string id)
+            => new Id(id);
     }
 }

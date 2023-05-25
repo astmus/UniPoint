@@ -4,10 +4,12 @@ using System.Runtime.CompilerServices;
 using LinqToDB.Expressions;
 using LinqToDB.Mapping;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 using MissCore.Collections;
 using MissCore.Data;
+using MissCore.Data.Entities;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -69,10 +71,10 @@ namespace MissCore
         //    return RequestInfo with { EntityFields = fields, Criteria = icriteria };
         //}        
 
-        public IReplyMarkup GetUnitActions<TSub>(TSub unit) where TSub : Unit
+        public IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : Unit
         {
-            return new InlineKeyboardMarkup(Entities.Select(s
-                 => InlineKeyboardButton.WithCallbackData(s.Entity, string.Format(s.Template, s.Entity, s.Unit, unit.Meta.GetValue(s[0])))).ToList());
+            return new UnitActions(Entities.Select(s
+                 => UnitAction.WithCallbackData(s.Entity, string.Format(s.Template, s.Entity, s.Unit, unit.Meta.GetValue(s[0])))).ToList());
         }
     }
 }

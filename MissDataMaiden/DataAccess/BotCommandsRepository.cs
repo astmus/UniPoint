@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using BotService.Common;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore;
 using MissCore.Collections;
@@ -22,8 +22,7 @@ namespace MissDataMaiden.DataAccess
         public IBotContext Context { get; }
 
         public IEnumerable<BotCommand> GetAll()
-        {
-            GetAllAsync().RunSynchronously();
+        {            
             return commands;
         }
 

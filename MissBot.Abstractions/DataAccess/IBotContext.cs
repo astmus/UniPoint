@@ -1,20 +1,21 @@
 using System.Data.Common;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 
-namespace MissBot.Abstractions.DataContext
+namespace MissBot.Abstractions.DataAccess
 {
     public interface IBotContext
     {
         void LoadBotInfrastructure();
-        IEnumerable<BotCommand> BotCommands { get; }
+        IQueryable<BotCommand> BotCommands { get; }
         TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitCommand;
         TUnit Get<TUnit>() where TUnit : class, IBotUnit;
-        Task<IBotUnit<TUnit>> GetUnitAsync<TUnit>() where TUnit : Unit;
+        TUnit Get<TUnit, TEntity>() where TUnit : class, IBotUnit;
         IBotUnit<TUnit> GetUnit<TUnit>() where TUnit : Unit;
+        Task<IBotUnit<TUnit>> GetUnitAsync<TUnit>() where TUnit : Unit;
         TAction GetAction<TAction>() where TAction : class, IBotUnitCommand;
-        Task<TAction> GetActionAsync<TAction>() where TAction : Unit, IBotUnitCommand;
-        TUnit Get<TUnit, TEntity>() where TUnit :class, IBotUnit;
+        Task<TAction> GetActionAsync<TAction>() where TAction : Unit, IBotUnitCommand;        
     }
-    
+
 }

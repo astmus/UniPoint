@@ -1,4 +1,4 @@
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Entities;
 
 namespace MissBot.Abstractions
@@ -23,6 +23,7 @@ namespace MissBot.Abstractions
 
     public interface IUnitUpdate
     {
+        string StringContent { get; }
         Message CurrentMessage { get; }
         Chat Chat { get; }
         bool IsCommand { get; }

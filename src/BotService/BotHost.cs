@@ -4,7 +4,7 @@ using BotService.Internal;
 using MissBot;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
@@ -28,20 +28,20 @@ namespace BotService
             ConfigureServices((ctx, services) => services
                                                                                     .AddHostedService<BotClient<TBot>>()
                                                                                     .AddSingleton<IRequestProvider, RequestProvider>()
-                                                                                    .AddSingleton<TBot>()
+                                                                                    //.AddSingleton<TBot>()
                                                                                     .AddSingleton<IBotContext, BotContext>()
+                                                                                    .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
+                                                                                    .AddSingleton<BaseBot.Configurator, TConfig>()
                                                                                     .AddScoped<IErrorResponse, ErrorResponse>()
                                                                                     .AddScoped<IContext<Update<TBot>>, Context<Update<TBot>>>()
                                                                                     .AddScoped<IAsyncUpdateHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
-                                                                                     .AddScoped(sp
-                                                                                        => sp.GetRequiredService<IContext<Update<TBot>>>() as IHandleContext)
-                                                                                    .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
-                                                                                    .AddSingleton<BaseBot.Configurator, TConfig>()
+                                                                                    .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
                                                                                     .AddTransient<JsonConverter, BotConverter<TBot>>()
                                                                                     .AddTransient<IBotUnitFormatProvider, BotUnitFormatProvider>()                                                                                    
-                                                                                    .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
+                                                                                     .AddScoped(sp
+                                                                                        => sp.GetRequiredService<IContext<Update<TBot>>>() as IHandleContext)
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
             ConfigureServices((ctx, services) =>
                                                                 services.AddOptions<BotContextOptions>().Bind(ctx.Configuration.GetSection(BotContextOptions.ContextOptions)));

@@ -43,7 +43,9 @@ VALUES ('BotCommand', 'disk', '/{0}', 'Disk space information',
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'test', '/{0}', 'test Command', null,null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'raw', '/{0}', 'raw request format [/raw] --[request]', null,null);
+VALUES ('BotCommand', 'raw', '/{0}', 'raw request format [/raw] /[request]', null,null);
+INSERT INTO ##BotUnits
+VALUES ('BotCommand', 'add', '/{0}', 'add custom request format [unique_alias]', null,null);
 INSERT INTO ##BotUnits
 VALUES ('Paging', '', '' , '','WHERE Name LIKE ''%{0}%'' ORDER BY Name OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY',null);
 INSERT INTO ##BotUnits
@@ -82,7 +84,7 @@ WHEN NOT MATCHED BY Target THEN
     VALUES ('DataBase',S.Id,S.Title, GetDate());
 
 
-    IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
+IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
     DROP TABLE ##Info
 
 SELECT * 

@@ -7,10 +7,9 @@ using MissCore.Data;
 
 namespace MissCore.Handlers
 {
-    public class BotUpdateHandler<TBot> :  IAsyncUpdateHandler<Update<TBot>> where TBot : class, IBot
+    public class BotUpdateHandler<TBot> : IAsyncUpdateHandler<Update<TBot>> where TBot : class, IBot
     {
         private readonly IBotBuilder<TBot> builder;
-        AsyncHandler handleDelegate;
 
         public BotUpdateHandler(IBotBuilder<TBot> builder)
         {
@@ -19,16 +18,14 @@ namespace MissCore.Handlers
 
         public async Task HandleUpdateAsync(Update<TBot> data, IHandleContext context, CancellationToken cancel)
         {
-            handleDelegate = context.CurrentHandler;
-
-            if (handleDelegate == null)
+            if (context.CurrentHandler is AsyncHandler handleDelegate)
+                context.IsHandled = null;
+            else
             {
                 handleDelegate = builder.BuildHandler();
                 context.Set(handleDelegate);
             }
-
-            SetUpdateObject(context, data.Type);
-
+            //SetUpdateObject(context, data.Type);
             await handleDelegate(context).ConfigureAwait(false);
         }
 

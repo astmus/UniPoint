@@ -1,7 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Response;
 using MissBot.Entities;
@@ -192,6 +192,16 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 Services.AddScoped<IAsyncHandler<TAction>, THandler>();
                 Services.AddScoped<IResponse<TAction>, Response<TAction>>();
                 Services.AddScoped<IContext<TAction>, Context<TAction>>();
+            });
+            return this;
+        }
+
+        IBotBuilder IBotBuilder.AddHandler<THandler>()
+        {
+            host.ConfigureServices((h, Services)
+            =>
+            {
+                Services.AddScoped<IAsyncHandler<THandler>, THandler>();                
             });
             return this;
         }

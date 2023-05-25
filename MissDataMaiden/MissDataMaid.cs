@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
@@ -26,12 +26,6 @@ namespace MissDataMaiden
         public MissDataMaid(ILogger<MissDataMaid> logger, IBotContext context) : base(context)
         {
             log = logger;
-        }
-
-        private Task HandleError(Exception error, CancellationToken cancel)
-        {
-            log.LogError(error, error.Message);
-            return Task.CompletedTask;
         }
     }
 

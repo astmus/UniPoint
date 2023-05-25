@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using MissBot.Abstractions.DataContext;
+using MissBot.Abstractions.DataAccess;
 
 namespace MissCore.Data.Context
 {
@@ -9,16 +9,16 @@ namespace MissCore.Data.Context
         {
             string id = identifier?.id ?? Id<T>.Value;
             var result = default(T);
-            if (TryGetValue(id, out var o) && o is T val)
-                return val;
+            if (TryGetValue(id, out var o) && o is T val) return val;
+
             return result;
         }
         public T Get<T>(Id<T> identifier)
         {
             string id = identifier?.id ?? Id<T>.Value;
             var result = default(T);
-            if (TryGetValue(id, out var o) && o is T val)
-                return val;
+            if (TryGetValue(id, out var o) && o is T val) return val;
+
             return result;
         }
         public TAny Any<TAny>()

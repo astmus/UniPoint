@@ -1,35 +1,10 @@
 using MissBot.Abstractions;
 using MissBot.Common;
-using MissBot.Entities.Query;
 using MissBot.Entities.Results.Inline;
-using MissCore.Collections;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissBot.Response
 {
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineResultUnit : Unit<InlineQuery>
-    {
-        [JsonProperty]
-        public InlineQueryResultType Type { get; set; } = InlineQueryResultType.Article;
-
-        [JsonProperty]
-        public InputMessageContent InputMessageContent
-            => new InputTextMessageContent(Format());
-
-        [JsonProperty]
-        public string Id { get; set; }
-        [JsonProperty]
-        public string Title { get; set; }
-        [JsonProperty]
-        public string Description { get; set; }
-        public object Content { get; }
-        /// <summary>
-        /// Optional. Inline keyboard attached to the message
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IReplyMarkup ReplyMarkup { get; set; }
-    }
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public abstract record AnswerInlineRequest<TResponse> : BaseRequest<bool>
@@ -104,9 +79,6 @@ namespace MissBot.Response
         /// </summary>
         /// <param name="inlineQueryId">Unique identifier for the answered query</param>
         /// <param name="results">An array of results for the inline query</param>
-        public AnswerInlineRequest()
-            : base("answerInlineQuery")
-        {
-        }
+        public AnswerInlineRequest() : base("answerInlineQuery") { }
     }
 }

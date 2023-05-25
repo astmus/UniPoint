@@ -5,7 +5,6 @@ namespace MissBot.Extensions.Entities
 {
     public static class CommandExtensions
     {
-
         public static (string command, string[] args) GetCommandAndArgs(this Message message)
             => ParseCommand(message.Text);
         public static string Capitalize(this string text)
@@ -19,11 +18,9 @@ namespace MissBot.Extensions.Entities
             if (message.Contains("/"))
             {
                 var items = message.Split("/", StringSplitOptions.RemoveEmptyEntries);
-                return (items[0].AsSpan(0).Capitalize(), items[1..]);
+                return (items[0], items[1..]);
             }
             return (null, null);
         }
-        //public static string[] GetArgs(this InlineQuery query)
-        //    => query.Query.Contains("--") ? query.Query.Split("--") : new string[] { query.Query };
     }
 }
