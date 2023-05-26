@@ -8,6 +8,7 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
+using MissBot.Entities;
 using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Entities;
@@ -94,7 +95,8 @@ namespace MissDataMaiden
         {
             var listCmds = context.Bot.Commands.ToList();
             listCmds.Add(add);
-            var success = await context.BotServices.Client.SyncCommandsAsync(listCmds);
+            var chat = context.Get<Chat>() ?? context.Any<UnitUpdate>().Chat;
+            var success = await context.BotServices.Client.SyncCommandsAsync(listCmds, Telegram.Bot.Types.BotCommandScope.Chat(chat.Id));
             if (success)
             {
                 context.Bot.Commands.Add(add);

@@ -29,14 +29,14 @@ namespace MissCore.Handlers
              await handleDelegate(context).ConfigureAwait(false);
         }
 
-        object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch
-        {
-            UpdateType.Message => ctx.Set(ctx.Get<Message>()),
-            UpdateType.InlineQuery => ctx.Set(ctx.Get<InlineQuery>()),
-            UpdateType.CallbackQuery => ctx.Set(ctx.Get<CallbackQuery>()),
-            UpdateType.ChosenInlineResult => ctx.Set(ctx.Get<ChosenInlineResult>()),
-            _ => ctx
-        };
+        //object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch
+        //{
+        //    UpdateType.Message => ctx.Set(ctx.Get<Message>()),
+        //    UpdateType.InlineQuery => ctx.Set(ctx.Get<InlineQuery>()),
+        //    UpdateType.CallbackQuery => ctx.Set(ctx.Get<CallbackQuery>()),
+        //    UpdateType.ChosenInlineResult => ctx.Set(ctx.Get<ChosenInlineResult>()),
+        //    _ => ctx
+        //};
 
     }
 }

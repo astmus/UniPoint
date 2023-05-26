@@ -5,6 +5,7 @@ using MissBot.Handlers;
 using MissCore;
 using MissCore.Bot;
 using MissCore.Collections;
+using MissCore.Data;
 using MissDataMaiden.Entities;
 
 namespace MissDataMaiden.Commands
@@ -14,8 +15,6 @@ namespace MissDataMaiden.Commands
     {
         private readonly IBotContext botContext;
         IJsonRepository repository;
-        static IUnitRequest<DataBase> searchRequest;
-        static Search<DataBase> search;
 
         public SearchDataBaseHandler(IBotContext bot, IJsonRepository jsonRepository)
         {
@@ -23,14 +22,13 @@ namespace MissDataMaiden.Commands
             repository = jsonRepository;
         }
          
-        public async override Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
+        public async override Task LoadAsync(Paging pager, InlineResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
         {
-            var unit = botContext.Get<Paging>();            
-            search ??= unit.Find<DataBase>(query);
-
-            var botUnit = await botContext.GetUnitAsync<DataBase>();
-            var items = await repository.FindAsync<DataBase>(query.Query, query.Skip, 15, cancel);
+            var search = botContext.Get<Search<DataBase>>();
             
+            var botUnit = await botContext.GetUnitAsync<DataBase>();
+            var items = await repository.FindAsync<DataBase>(search with { Query = query.Query, Pager = pager, }, cancel);
+
             var units = items.SupplyTo<InlineQueryResult<DataBase>>();
             foreach (var u in units)
             {

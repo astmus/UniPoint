@@ -3,6 +3,7 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
+using MissCore.Data;
 
 namespace MissDataMaiden
 {
@@ -18,7 +19,7 @@ namespace MissDataMaiden
         public override Func<IUnitUpdate, string> ScopePredicate
              => (update) => update switch
              {
-                 Update upd when upd.Type is UpdateType.InlineQuery => $"{upd.InlineQuery.Id}",
+                 UnitUpdate upd when upd.Type is UpdateType.InlineQuery => $"{upd.Chat.Id}",
                  Update upd when upd.Type is not UpdateType.Unknown => $"{nameof(update.Chat)}: {update.Chat.Id}",
                  _ => null
              };

@@ -25,12 +25,15 @@ namespace MissCore.Bot
     {
         ITable<TUnit> GetUnits<TUnit>() where TUnit : class, IBotEntity
             => this.GetTable<TUnit>();
+        ITable<TUnit> GetParameters<TUnit>() where TUnit : BotUnitParameter
+        => this.GetTable<TUnit>();
 
         ReadUnit GetUnit;
         public IList<BotCommand> Commands { get; protected set; }
-
+        public IList<BotUnitParameter> Parameters { get; protected set; }
         Lazy<Cache> lazyCache = new Lazy<Cache>();
         Cache cache => lazyCache.Value;
+      
 
         public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
@@ -45,6 +48,7 @@ namespace MissCore.Bot
                 GetUnit = Get<ReadUnit>();
             }
             Commands = GetUnits<BotUnitCommand>().Where(w => w.Unit == Unit<BotCommand>.Key).Cast<BotCommand>().ToList();
+            Parameters = GetParameters<UnitParameter>().Cast<BotUnitParameter>().ToList();
         }
 
         public async Task<TResult> HandleQueryAsync<TResult>(IUnitRequest query, CancellationToken cancel = default) where TResult : class
@@ -72,37 +76,24 @@ namespace MissCore.Bot
             }
             return result;
         }
-
-        //public async Task<TEntity> HandleRequestAsync<TEntity>(IUnitRequest request, CancellationToken cancel = default)
-        //{
-        //    var result = default(TEntity);
-
-        //    using (var cmd = Connection.CreateCommand())
-        //    {
-        //        cmd.CommandText = request.GetCommand(RequestOptions.JsonAuto | RequestOptions.Scalar);
-        //        if (await cmd.ExecuteScalarAsync(cancel) is string res)
-        //            result = JsonConvert.DeserializeObject<TEntity>(res);
-        //    }
-
-        //    return result;
-        //}
+    
 
         DbConnection CreateConnection()
             => DataProvider.CreateConnection(ConnectionString);
 
-        public TUnit Get<TUnit>() where TUnit : class, IBotUnit
+        public TUnit Get<TUnit>() where TUnit : Unit, IBotUnit
         {
-            if (cache.Get<TUnit>() is TUnit unit)
-                return unit;
+            if (cache.Get(BotUnit<TUnit>.Id) is TUnit unit)
+                return unit with { };
 
-            unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == Unit<TUnit>.Key);
-            return cache.Set(unit);
+            unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == BotUnit<TUnit>.Key.Unit);
+            return cache.Set(unit, BotUnit<TUnit>.Id);
         }
 
         public TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitCommand
         {
             if (cache.Get<TCommand>() is TCommand cmd)
-                return cmd;
+                return cmd with { };
 
             cmd = GetUnits<TCommand>().FirstOrDefault(w => w.Unit == Unit<BotCommand>.Key && string.Compare(w.Action, Unit<TCommand>.Key, true) == 0);
             return cache.Set(cmd);
@@ -120,7 +111,7 @@ namespace MissCore.Bot
         public async Task<IBotUnit<TUnit>> GetUnitAsync<TUnit>() where TUnit : Unit
         {
             if (cache.Get(Id<BotUnit<TUnit>>.Value) is BotUnit<TUnit> unit)
-                return unit;
+                return unit with { };
 
             var cmd = GetUnit.Read<TUnit>();
             unit = await HandleQueryAsync<BotUnit<TUnit>>(cmd);
@@ -130,24 +121,17 @@ namespace MissCore.Bot
         IBotUnit<TUnit> IBotContext.GetUnit<TUnit>()
             => cache.Get<IBotUnit<TUnit>>(Id<IBotUnit, TUnit>.Value);
 
-
         TAction IBotContext.GetAction<TAction>()
-            => cache.Get<TAction>(Id<TAction>.Value);
-
+            => cache.Get<TAction>(Id<TAction>.Value) with { };
 
         async Task<TAction> IBotContext.GetActionAsync<TAction>()
         {
             if (cache.Get<TAction>() is TAction action)
-                return action;
+                return action with { };
 
             var cmd = GetUnit.Read<TAction>();
             action = await HandleQueryAsync<TAction>(cmd);
             return cache.Set(action);
-        }
-
-        public Task<bool> SyncCommands(IEnumerable<BotCommand> commands)
-        {
-            return Task.FromResult(true);
         }
     }
 }

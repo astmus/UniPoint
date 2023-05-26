@@ -27,9 +27,10 @@ namespace MissDataMaiden
 
         public override async Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default)
         {
-            if (context.GetAsyncHandler<TCommand>() is BotCommandHandler<TCommand> handler)
+            if (context.GetAsyncHandlerOf<TCommand>() is BotCommandHandler<TCommand> handler)
             { 
-                var command = await commandsRepository.GetAsync<TCommand>(); 
+                var command = await commandsRepository.GetAsync<TCommand>();
+                handler.SetContext(Context);
                 await handler.HandleAsync(command, cancel);               
             }
         }
@@ -38,7 +39,13 @@ namespace MissDataMaiden
         {
             switch (command.Action)
             {
-                case "raw":
+                case "add":
+                    var handler = Context.GetBotService<IAsyncHandler<AddCommandHadler>>();
+                    Context.Set(handler.AsyncDelegate);
+                    await handler.AsyncDelegate(Context);
+                    Context.IsHandled = false;
+                    break;
+                default:
                     var request = Context.Provider.FromRaw<BotCommand>(command.Payload);
                     var repository = Context.GetBotService<IJsonRepository>();
                     var result = await repository.HandleReadAsync(request);
@@ -50,12 +57,6 @@ namespace MissDataMaiden
                             await response.Commit(default);
                     }
                     await response.Commit(default);
-                    break;
-                case "add":
-                    var handler = Context.GetBotService<IAsyncHandler<AddCommandHadler>>();
-                    Context.Set(handler.AsyncDelegate);
-                    await handler.AsyncDelegate(Context);
-                    Context.IsHandled = false;
                     break;
             }           
         }

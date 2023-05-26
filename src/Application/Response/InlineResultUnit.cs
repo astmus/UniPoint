@@ -1,4 +1,4 @@
-﻿using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Actions;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results.Inline;
 using MissCore.Collections;
@@ -24,7 +24,7 @@ namespace MissBot.Response
         /// <summary>
         /// Optional. Inline keyboard attached to the message
         /// </summary>
-        [JsonProperty("ReplyMarkup",DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("reply_markup",DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IActionsSet Actions { get; set; }
     }
 }

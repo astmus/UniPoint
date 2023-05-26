@@ -10,6 +10,19 @@ CREATE table ##BotUnits
     Parameters varchar(256) null,
 )
 
+CREATE table ##UnitParameters
+(       
+    Unit            varchar(32),
+    Name         varchar(64),
+    Template    varchar(256),
+    Value          varchar(1024),    
+)
+
+
+INSERT INTO ##UnitParameters
+VALUES ('Backup', '@path', 'DECLARE @path AS VARCHAR(256)=''{0}'';', 'Basic DBs information');
+INSERT INTO ##UnitParameters
+VALUES ('Backup', '@name', 'DECLARE @name AS VARCHAR(64)=''{0}'';', 'Basic DBs information');
 
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'info', '/{0}', 'Basic DBs information',
@@ -45,18 +58,19 @@ VALUES ('BotCommand', 'test', '/{0}', 'test Command', null,null);
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'raw', '/{0}', 'raw request format [/raw] /[request]', null,null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'add', '/{0}', 'add custom request format [unique_alias]', null,null);
+VALUES ('BotCommand', 'add', '/{0}', 'add custom request', null,null);
 INSERT INTO ##BotUnits
-VALUES ('Paging', '', '' , '','WHERE Name LIKE ''%{0}%'' ORDER BY Name OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY',null);
+VALUES ('Paging', '', '' , '','OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY',null);
 INSERT INTO ##BotUnits
-VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'')
-                                            SELECT u.Entity as Unit, u.Unit as [Action], u.Template, u.Payload, u.Parameters, Entities.* FROM u
-                                            Inner Join(
-                                            SELECT Units.Unit, Entities.Entity, Entities.Template, Entities.Payload, Entities.Parameters 
+VALUES ('Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
+INSERT INTO ##BotUnits
+VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''{0}'')
+                                            SELECT u.Unit,Entities.* FROM u
+                                            INNER JOIN(
+                                            SELECT Units.Unit, Units.Entity as Action, Entities.Entity, Entities.Template, Entities.Payload, Entities.Parameters 
                                             FROM ##BotUnits Units inner join ##BotUnits Entities 
-                                            ON Units.Unit = Entities.Unit and Units.Entity = Entities.Entity and Units.Unit = ''{0}''
-
-                                            ) Entities ON u.Entity = Entities.Unit  ORDER BY u.Payload', null);
+                                            ON Units.Unit = Entities.Unit and Units.Entity = Entities.Entity and Units.Unit = ''{0}'')
+                                            Entities ON u.Entity = Entities.Entity  ORDER BY u.Payload', null);
                                                                                                                                              
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'Delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info where Id = @Id', 'Id;Name');
@@ -65,7 +79,7 @@ VALUES ('DataBase', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where
 INSERT INTO ##BotUnits
 VALUES ('DataBaseInfo', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where Id = ''{0}''', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @Path + @Name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @Name TO DISK = @filename ', 'Id');
+VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'Id');
 
 IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase

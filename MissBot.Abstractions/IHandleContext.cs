@@ -8,10 +8,12 @@ namespace MissBot.Abstractions
         AsyncHandler CurrentHandler { get; }
         bool Contains<T>(Id<T> identifier);
         bool? IsHandled { get; set; }
-        IAsyncHandler<T> GetAsyncHandler<T>();
+        IAsyncHandler<T> GetAsyncHandlerOf<T>();
+        T GetAsyncHandler<T>() where T:class,IAsyncHandler;
         IBotContext Bot { get; }
         IBotServicesProvider BotServices { get; }
         IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
+        Task MoveToNextHandler();
         IRequestProvider Provider { get; }
         T GetBotService<T>() where T : class;
     }

@@ -18,15 +18,15 @@ namespace MissCore.Data
 
         public override async Task Commit(CancellationToken cancel)
         {
-            if (Content == String.Empty) return;
+            if (string.IsNullOrEmpty(Content)) return;
             
-            CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel);
-            Content = String.Empty;
+            CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
+            Content = string.Empty;
         }
 
         public override void Write<TUnitData>(TUnitData unit)
         {
-            WriteUnit(unit);
+            WriteUnit(unit, IUnit.Formats.Line);
         }
 
         public override void WriteResult<TUnitData>(TUnitData units) 
@@ -36,13 +36,13 @@ namespace MissCore.Data
         }
         public override void Write<TUnitData>(IEnumerable<TUnitData> units) 
         {
-            //foreach (var unit in units)
-            //    Write(unit);
+            foreach (var unit in units)
+                WriteUnit(unit, IUnit.Formats.Table | IUnit.Formats.PropertyNames);
         }
 
-        protected virtual Response<T> WriteUnit(IUnit unit)
+        protected virtual Response<T> WriteUnit(IUnit unit, IUnit.Formats format)
         {
-            Content += unit?.Format();
+            Content += unit?.Format(format);
             return this;
         }
 

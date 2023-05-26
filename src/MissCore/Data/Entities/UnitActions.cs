@@ -5,7 +5,7 @@ using MissCore.Data.Entities;
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 public class UnitActions : IActionsSet
 {
-    [JsonProperty("InlineKeyboard", Required = Required.Always)]
+    [JsonProperty("inline_keyboard", Required = Required.Always)]
     public IEnumerable<IEnumerable<UnitAction>> Actions { get; protected set; }
     public UnitActions(UnitAction unitAction) : this(new[] { unitAction })
     { }

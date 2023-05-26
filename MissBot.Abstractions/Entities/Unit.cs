@@ -6,10 +6,10 @@ namespace MissBot.Abstractions.Entities
     {
         public virtual string StringValue
             => Entity;
-        public abstract string Entity { get; }
+        public abstract string Entity { get; set; }
         public virtual IMetaData Meta { get; set; }
         public virtual void InitializaMetaData() { }
-        public virtual string Format(IUnit.Formats format = IUnit.Formats.Line | IUnit.Formats.PropertyNames)
+        public virtual string Format(IUnit.Formats format = IUnit.Formats.Table | IUnit.Formats.PropertyNames)
             => Entity;
     }
 }

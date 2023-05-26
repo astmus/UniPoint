@@ -28,11 +28,11 @@ namespace MissBot.DataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(string search, uint skip = default, uint take = default, CancellationToken cancel = default) where TUnit : Unit
+        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(ISearchUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : Unit
         {
-            var request = provider.FindRequest<TUnit>(search, skip, take);
+            //var request = provider.FindRequest<TUnit>(search, skip, take);
 
-             var items = await HandleRawAsync(request.GetCommand(), cancel);
+            var items = await HandleRawAsync(query.GetCommand(), cancel);
 
             return new MetaCollection<TUnit>(items);
         }

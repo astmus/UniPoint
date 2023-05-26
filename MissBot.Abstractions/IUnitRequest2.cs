@@ -5,6 +5,10 @@ namespace MissBot.Abstractions
     public interface IUnitRequest<TUnit> : IUnitRequest
     {
     }
+    public interface ISearchUnitRequest<TUnit> : IUnitRequest<TUnit>
+    {
+        
+    }
 
     public interface IUnitRequest2 : IUnitRequest
     {        

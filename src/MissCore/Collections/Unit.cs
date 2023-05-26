@@ -30,8 +30,8 @@ namespace MissCore.Collections
             => Meta?.StringValue ?? Key;
 
         [Column()]
-        public override string Entity
-            => Key;
+        [JsonIgnore]
+        public override string Entity { get; set; } = Key;
         [JsonIgnore]
         public override IMetaData Meta { get; set; }
 
@@ -40,7 +40,7 @@ namespace MissCore.Collections
         public static DataMap Parse(TEntity entity)
             => DataMap.Parse(entity);
 
-        public override string Format(IUnit.Formats format = IUnit.Formats.Line | IUnit.Formats.PropertyNames)
+        public override string Format(IUnit.Formats format = IUnit.Formats.Table | IUnit.Formats.PropertyNames)
         {
             if (Meta != null)
                 return GetFormat(format);
@@ -54,7 +54,7 @@ namespace MissCore.Collections
             IUnit.Formats.Line => string.Join(" ", Meta.Keys.Select(key => Meta.GetValue(key)))+'\n',
             IUnit.Formats.Table => string.Join('\n', Meta.Keys.Select(key => $"{Meta.GetValue(key)}\n")),
             IUnit.Formats.Line | IUnit.Formats.PropertyNames => Meta.StringValue+'\n',
-            IUnit.Formats.Table | IUnit.Formats.PropertyNames => string.Join('\n', Meta.Keys.Select(key => $"{key}: {Meta.GetValue(key)}"))+'\n',
+            IUnit.Formats.Table | IUnit.Formats.PropertyNames => string.Join('\n', Meta.Keys.Select(key => $"<b>{key}:</b> {Meta.GetValue(key)}"))+'\n',
             _ => null
         };
 

@@ -35,18 +35,24 @@ namespace MissBot.Handlers
                     context.IsHandled = true;
             }
             else
-                await context.CurrentHandler(context);
+                await context.MoveToNextHandler();
         }
         
 
         public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand;
         protected virtual async Task HandleAsync(IHandleContext context, string command)
         {
-            if (context.Bot.Commands.FirstOrDefault(c => string.Compare(c.Action, command,true) == 0) is BotUnitCommand cmd)
+            if (context.Bot.Commands.FirstOrDefault(c => string.Compare(c.Action, command, true) == 0) is BotUnitCommand cmd)
             {
-                cmd.Payload = Current.command;
+                //cmd.Payload = Current.command;
                 await HandleAsync(cmd).ConfigureAwait(false);
             }
+            else
+            {
+                context.BotServices.Response<BotCommand>().Content = $"There is no handler for command {command}";
+                await context.BotServices.Response<BotCommand>().Commit();
+            }
+
         }
     }
 }

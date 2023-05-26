@@ -35,7 +35,7 @@ public class InlineQuery
     /// </summary>
     [JsonProperty(Required = Required.Always)]
     public string Offset { get; set; } = default!;
-    public uint Skip { get {
+    public uint Page { get {
             uint res = 0;
             uint.TryParse(Offset, out res);
             return res;
@@ -54,6 +54,5 @@ public class InlineQuery
     /// Optional. Sender location, only for bots that request user location
     /// </summary>
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public Location Location { get; set; }
-    public uint BatchSize { get; set; }
+    public Location Location { get; set; }    
 }

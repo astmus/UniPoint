@@ -1,11 +1,14 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using LinqToDB.Expressions;
 using LinqToDB.Mapping;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Utils;
 using MissCore.Bot;
 using MissCore.Collections;
 using MissCore.Data;
@@ -16,15 +19,16 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace MissCore
 {
     [Table("##BotUnits")]
-    public class BotUnit<TUnit> : IBotUnit<TUnit> where TUnit : Unit
+    public record BotUnit<TUnit> : IBotUnit<TUnit> where TUnit : Unit
     {
-        public static readonly string Key = typeof(TUnit).Name;
+        public static readonly (string Unit, string Entity) Key = new (Regex.Replace(typeof(TUnit).Name, "`1",""), typeof(TUnit).GetGenericArguments().FirstOrDefault()?.Name);
+        public static readonly Id<TUnit> Id = new Id<TUnit>($"{Key.Unit}{Key.Entity}");
         public IEnumerable<IBotUnit> Units
             => Entities;
         public List<BotUnit> Entities { get; set; }
 
         [Column()]
-        public virtual string Entity => Key;
+        public virtual string Entity => Key.Entity;
 
         public record Criteria(Expression left, ExpressionType operand, Expression right, CriteriaFormat Format = CriteriaFormat.SQL) : ICriteria
         {

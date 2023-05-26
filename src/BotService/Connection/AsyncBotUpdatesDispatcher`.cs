@@ -1,5 +1,4 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
 using MissBot.Extensions;
 
@@ -36,11 +35,12 @@ namespace BotService.Connection
                     {
                         var handler = scope.ServiceProvider.GetRequiredService<IAsyncUpdateHandler<TUpdate>>();
                         var ctx = scope.ServiceProvider.GetRequiredService<IContext<TUpdate>>().SetData(update);
-                        
-                        await handler.HandleUpdateAsync(update, (IHandleContext)ctx, cts.Token).ConfigFalse();
+                        if (ctx is IHandleContext context)
+                        {
+                            await handler.HandleUpdateAsync(update, context, cts.Token).ConfigFalse();
 
-                        if (ctx.IsHandled == true)
-                            Factory.Remove(id);
+                            if (ctx.IsHandled == true) Factory.Remove(id);                          
+                        }
                     }
                 };
             }

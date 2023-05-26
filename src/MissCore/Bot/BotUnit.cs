@@ -5,13 +5,13 @@ using MissCore.Bot;
 
 [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
 [Table("##BotUnits")]
-public record BotUnit : IBotUnit
+public record BotUnit :Unit, IBotUnit
 {
     public string this[int index]
         => Parameters?.Split(";").ElementAtOrDefault(index);
 
     [Column()]
-    public virtual string Entity { get; set; }
+    public override string Entity { get; set; }
     [Column()]
     public string Template { get; set; }
     [Column()]

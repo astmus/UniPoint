@@ -34,7 +34,7 @@ namespace MissCore.Data.Context
                 return reference;
 
             result = Map.ReadObject<T>(id);
-            return Set(result);
+            return result;
         }
 
         public TAny Any<TAny>()

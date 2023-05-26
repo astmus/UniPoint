@@ -2,6 +2,9 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Entities.Query;
 using MissBot.Response;
+using MissCore.Bot;
+using MissCore.Data;
+using MissCore.Data.Context;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -17,11 +20,15 @@ namespace MissBot.Handlers
     {
         public async override Task HandleAsync(InlineQuery data, CancellationToken cancel = default)
         {
-            var response = Context.BotServices.GetRequiredService<IResponse<InlineQuery>>();
+            var paging = Context.Bot.Get<Paging>() with { Page = data.Page };            
+            
+            var response = Context.BotServices.GetRequiredService<InlineResponse<InlineQuery>>();            
+            response.Pager = paging;
     
-            await LoadAsync(response, data, cancel);            
+            await LoadAsync(paging, response, data, cancel);
+            Context.IsHandled = true;
         }
 
-        public abstract Task LoadAsync(IResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default);
+        public abstract Task LoadAsync(Paging pager, InlineResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default);
     }
 }

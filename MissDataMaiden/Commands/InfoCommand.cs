@@ -13,8 +13,7 @@ namespace MissDataMaiden.Commands
     }
 
     public record InfoUnit(string s) : Unit<Info>
-    {
-        public override string Entity { get; }
+    {       
         public override IMetaData Meta { get => base.Meta; set => base.Meta = value; }
     }
 

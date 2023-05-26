@@ -10,7 +10,7 @@ namespace MissBot.Abstractions
     public interface IUnit
     {
         IMetaData Meta { get; }
-        public string Format(Formats format = Formats.Line | Formats.PropertyNames);
+        string Format(Formats format = Formats.Table | Formats.PropertyNames);
         [Flags]
         public enum Formats : uint
         {

@@ -11,7 +11,7 @@ namespace MissBot.Abstractions.Entities
         public virtual string Description { get; set; }
 
         [JsonIgnore]
-        public override string Entity => nameof(BotCommand);
+        public override string Entity { get; set; } = nameof(BotCommand);
 
         [JsonProperty("command")]
         public  string Command => $"/{Action}";

@@ -9,7 +9,7 @@ namespace MissCore.Data.Context
         protected IHandleContext Root { get; set; }
         IBotServicesProvider botServices;
         public bool? IsHandled { get; set; }
-
+        IAsyncHandler currentHandler;
         public Context(IBotServicesProvider botServiceProvider)
         {
             botServices = botServiceProvider;     
@@ -36,16 +36,30 @@ namespace MissCore.Data.Context
         }
 
         public T GetBotService<T>() where T : class
-            => BotServices.GetService<T>();      
-
-        public IAsyncHandler<T> GetAsyncHandler<T>()
-            => BotServices.GetService<IAsyncHandler<T>>();
+            => BotServices.GetService<T>();
+        public THandler GetAsyncHandler<THandler>() where THandler: class, IAsyncHandler
+        {
+            var handler = BotServices.GetService<THandler>();
+            currentHandler = handler;
+            return handler;
+        }
+        public IAsyncHandler<T> GetAsyncHandlerOf<T>()
+        {
+            var handler = BotServices.GetService<IAsyncHandler<T>>();
+            currentHandler = handler;
+            return handler;
+        }
 
         public bool Contains<T>(Id<T> identifier)
             => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;
 
+        public async Task MoveToNextHandler()
+        {
+            await Get<AsyncHandler>()(this).ConfigureAwait(false);
+        }
+
         public AsyncHandler CurrentHandler
-            => Get<AsyncHandler>();
+            => currentHandler?.AsyncDelegate;
 
         public IRequestProvider Provider
             => BotServices.GetRequiredService<IRequestProvider>();

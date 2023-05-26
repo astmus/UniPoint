@@ -10,10 +10,11 @@ namespace BotService
     {
         private readonly ILogger<BotClient<TBot>> _log;
         private readonly IHostApplicationLifetime _hostLifeTime;
-
+        TBot Bot;
         IHandleContextFactory factory;
         IServiceScope scope;
         IBotBuilder<TBot> builder;
+        IServiceProvider botScopeServices { get; init; }
         public BotClient(ILogger<BotClient<TBot>> logger, IHostApplicationLifetime hostLifeTime, IHandleContextFactory scopeFactory)
         {
             _log = logger;
@@ -21,11 +22,7 @@ namespace BotService
             _hostLifeTime = hostLifeTime;
             botScopeServices = (scope = factory.ScopeFactory.CreateScope()).ServiceProvider;
         }
-
-        IServiceProvider botScopeServices { get; init; }
-
-
-        TBot Bot;
+        
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
@@ -34,6 +31,7 @@ namespace BotService
             var config = botScopeServices.GetRequiredService<BaseBot.Configurator>();
             config.ConfigureOptions(botScopeServices.GetRequiredService<IBotOptionsBuilder>());
             config.ConfigureConnection(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>());
+            //botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().SetExceptionHandler(
 
             try
             {
@@ -67,7 +65,6 @@ namespace BotService
                 dispatcher.Initialize(stoppingToken);
                 await foreach (var update in updatesQueue.WithCancellation(stoppingToken))
                     dispatcher.PushUpdate(update);
-
             }
             catch (Exception error)
             {

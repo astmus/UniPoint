@@ -3,6 +3,7 @@ using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissBot.Response;
+using MissCore.Bot;
 
 namespace MissCore.Data
 {
@@ -19,14 +20,14 @@ namespace MissCore.Data
             => results;
 
         List<InlineResultUnit> results = new List<InlineResultUnit>();
-
+        
         public override string NextOffset
-            => results?.Count < InlineQuery.BatchSize ? null : Convert.ToString(InlineQuery.BatchSize);
+            => results?.Count < Pager.PageSize ? null : Convert.ToString(Pager.Page+1);
         public override int? CacheTime { get; set; } = 300;
         public int Length
             => results.Count;
-
         public string Content { get; set; }
+        public Paging Pager { get; set; }
 
         public async Task Commit(CancellationToken cancel)
         {

@@ -6,7 +6,7 @@ namespace MissCore.Data.Entities;
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 public class UnitAction : IUnitAction 
 {
-    [JsonProperty("Text", Required = Required.Always)]
+    [JsonProperty("text", Required = Required.Always)]
     public string ActionName { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
