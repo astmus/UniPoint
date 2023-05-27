@@ -16,19 +16,21 @@ namespace MissDataMaiden
     {
         public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
         { }
-        IBotUnitAction<DataBase> botUnit;
-        protected override async Task HandleAsync(string command, string[] args, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
+
+        protected override async Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
         {
             try
             {
-                botUnit ??= await Context.Bot.GetActionAsync<DataBase>(command);
-                botUnit.Identifier ??= Id<DataBase>.Value.Add(args[1]);
+                if (Context.Get<IBotUnitAction<DataBase>>() is not IBotUnitAction<DataBase> botUnit)
+                    botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
+
+                botUnit.Identifier ??= Id<DataBase>.Value.With(id);
                 var handler = Context.GetBotService<BotUnitActionHandler>();
                 Context.SetNextHandler(Context, handler.AsyncDelegate);
-                var result = await handler.HandleAsync(botUnit,Context, cancel);
+                var result = await handler.HandleAsync(botUnit, Context, cancel);
                 if (result != null)
-                        await Context.BotServices.Response<BotCommand>().CompleteInput(result.ToString()).Commit();
-                    
+                    await Context.BotServices.Response<BotCommand>().CompleteInput(result.ToString()).Commit();
+
             }
             catch (Exception ex)
             {

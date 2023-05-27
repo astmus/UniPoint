@@ -20,7 +20,7 @@ namespace MissBot.Handlers
             var response = Context.BotServices.Response<CallbackQuery>();
             try
             {
-                await HandleAsync(data.command, data.args, response, query, cancel).ConfigureAwait(false);
+                await HandleAsync(data.command, data.args[0], data.args[1], response, query, cancel).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -28,6 +28,6 @@ namespace MissBot.Handlers
             }            
         }
 
-        protected abstract Task HandleAsync(string command, string[] args, IResponse<CallbackQuery> response,  CallbackQuery query, CancellationToken cancel = default);
+        protected abstract Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response,  CallbackQuery query, CancellationToken cancel = default);
     }
 }

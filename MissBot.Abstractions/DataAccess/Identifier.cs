@@ -6,6 +6,7 @@ namespace MissBot.Abstractions.DataAccess
     {
         public static readonly Id<T> Value = new Id<T>(typeof(T).Name.ToSnakeCase());        
         public Id<T> Add(string add) => Value with { id = id + add };
+        public Id<T> With(string id) => Value with { id = id };
     }
     public record Id<T, T2>(string unitId, string entityId) : Id<T>(unitId+entityId)
     {

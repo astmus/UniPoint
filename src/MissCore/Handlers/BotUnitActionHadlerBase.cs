@@ -11,10 +11,10 @@ namespace MissCore.Handlers
     {
         AsyncInputHandler CurrentHandler;
         AsyncInputHandler[] Handlers;
-        Position position;
+    
         protected IResponse<BotCommand> Response;
         protected IHandleContext context;
-        protected FormattableBotUnit currentUnit { get; private set; }
+        protected FormattableUnitAction currentUnit { get; private set; }
         public AsyncHandler AsyncDelegate { get; protected set; }
         public BotUnitActionHadlerBase()
         {
@@ -31,10 +31,10 @@ namespace MissCore.Handlers
                     input = null;
                     Response = context.BotServices.Response<BotCommand>();
                     Initialize();
-                    CurrentHandler = Handlers[position.Current];
+                    CurrentHandler = Handlers[currentUnit.ParameterIndex];
                 }
 
-                switch (CurrentHandler(context, input, currentUnit[position.Current]))
+                switch (CurrentHandler(context, input, currentUnit.CurrentParameterName))
                 {
                     case IResponse:
                         await Response.Commit(); return;
@@ -46,7 +46,7 @@ namespace MissCore.Handlers
                         if (MoveNext() == false)
                             completedObject = currentUnit;
                         else
-                            CurrentHandler(context, null, currentUnit[position.Current]); break;
+                            CurrentHandler(context, null, currentUnit.CurrentParameterName); break;
                 }
                 await Response.Commit();
             }
@@ -56,24 +56,27 @@ namespace MissCore.Handlers
             => Handlers = handlers;
         protected abstract void Initialize();
         void MoveBack()
-            => CurrentHandler = Handlers[position.Back];
+            => CurrentHandler = Handlers[currentUnit.BackParameter];
 
         bool MoveNext()
         {
-            CurrentHandler = Handlers[position.Current];
-            return position.Forward < Handlers.Length;
+            CurrentHandler = Handlers[currentUnit.ParameterIndex];
+            return currentUnit.ForwardParameter < Handlers.Length;
         }
 
         protected AsyncInputHandler ReTry(AsyncInputHandler handler, string message)
         {
-            handler(null, null, currentUnit[position.Current]);
+            handler(null, null, currentUnit.CurrentParameterName);
             Response.Content = message + "\n" + Response.Content;
             return CurrentHandler = handler;
         }
+
         FormattableString completedObject;
         public async Task<FormattableString> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
         {            
-            currentUnit = context.Get(FormattableBotUnit.Create(action.Payload, action.GetParameters().ToArray()), action.Identifier);
+            currentUnit = context.Get(FormattableUnitAction.Create(action.Payload, action.GetParameters().ToArray()), action.Identifier);
+            currentUnit["@Id"] = action.Identifier.id;
+            currentUnit.InitParameterPosition();
             this.context = context;
             await HandleAsync(context);
             if (!context.IsHandled.HasValue)

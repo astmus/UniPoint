@@ -17,17 +17,9 @@ namespace MissCore.Handlers
 
         protected override void Initialize()
         {
-            var args = Enumerable.Repeat<AsyncInputHandler>(SetAliase, currentUnit.ArgumentCount).ToArray();
+            var args = Enumerable.Repeat<AsyncInputHandler>(SetParameter, currentUnit.ArgumentCount).ToArray();
             JoinHandlers(args);
         }
-
-        object OfferCompleteOptions(IHandleContext context, string input) => input switch
-        {
-            null => Response.InputData("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
-            nameof(Save) => Save(context),
-            nameof(Cancel) => Cancel(context),
-            _ => null
-        };
 
         async Task Save(IHandleContext context)
         {
@@ -52,26 +44,15 @@ namespace MissCore.Handlers
             return Task.CompletedTask;
         }
 
-        object SetAliase(IHandleContext context, string input, string parameterName) => input switch
+        object SetParameter(IHandleContext context, string input, string parameterName) => input switch
         {
-            null =>
+            null when currentUnit[parameterName] is null =>
                 Response.InputData($"Enter parameter: '{parameterName}'"),
             var value when value.IndexOf(' ') < 0 =>
                 currentUnit[parameterName] = value,
-                //add.Aliase = value,
             var value when value.IndexOf(' ') > -1 =>
-                ReTry(SetAliase, "Invalid aliase format"),
+                ReTry(SetParameter, "Invalid parameter format"),
             _ => null
-        };
-        object SetDescription(IHandleContext context, string input) => input switch
-        {
-            null => Response.InputData("Enter command description"),
-            _ =>/* add.Description =*/ input
-        };
-        object SetCommand(IHandleContext context, string input) => input switch
-        {
-            null => Response.InputData("Enter command text"),
-            _ => /*add.Request =*/ input
-        };
+        };  
     }
 }

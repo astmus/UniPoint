@@ -4,10 +4,9 @@ namespace MissBot.Abstractions.Utils
 {
     public struct Position
     {
-        public uint Current { get; set; }
+        public uint Current{ get; set; }
         public uint Forward
-            => ++Current;
-        public uint Count { get; set; }
+            => ++Current;        
         public uint Back
             => Current > 0 ?  --Current : Current;        
     }   
