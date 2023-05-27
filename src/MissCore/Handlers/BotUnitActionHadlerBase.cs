@@ -23,6 +23,7 @@ namespace MissCore.Handlers
 
         async Task HandleAsync(IHandleContext context)
         {
+            this.context = context;
             if (context.Any<UnitUpdate>() is UnitUpdate upd)
             {
                 var input = upd.StringContent;
@@ -31,13 +32,17 @@ namespace MissCore.Handlers
                     input = null;
                     Response = context.BotServices.Response<BotCommand>();
                     Initialize();
+                    if (currentUnit.ParameterIndex == Handlers.Length)
+                    {
+                        completedObject = currentUnit;
+                        return;
+                    }
                     CurrentHandler = Handlers[currentUnit.ParameterIndex];
                 }
 
                 switch (CurrentHandler(context, input, currentUnit.CurrentParameterName))
                 {
-                    case IResponse:
-                        await Response.Commit(); return;
+                    case IResponse:                    
                     case AsyncInputHandler handler:
                         await Response.Commit(); return;
                     case Task task:
@@ -71,17 +76,32 @@ namespace MissCore.Handlers
             return CurrentHandler = handler;
         }
 
-        FormattableString completedObject;
-        public async Task<FormattableString> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
+        FormattableUnitActionBase completedObject;
+        public async Task<FormattableUnitActionBase> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
         {            
-            currentUnit = context.Get(FormattableUnitAction.Create(action.Payload, action.GetParameters().ToArray()), action.Identifier);
+            currentUnit = context.Get<FormattableUnitAction>(action.Identifier);
+            currentUnit ??= FormattableUnitAction.Create(action.Payload, action.GetParameters().ToArray());
             currentUnit["@Id"] = action.Identifier.id;
-            currentUnit.InitParameterPosition();
-            this.context = context;
+
+            currentUnit.SetupParameterPosition();
+
             await HandleAsync(context);
+
             if (!context.IsHandled.HasValue)
                 context.IsHandled = false;
             return completedObject;
+        }
+
+        protected object SetParameter<T>(IHandleContext context, T input, string parameterName) where T:struct
+            => currentUnit[parameterName] = input;
+        
+        protected object SetIntParameter(IHandleContext context, string input, string parameterName)
+        {
+            int result;
+            if (int.TryParse(input, out result))
+                return SetParameter<int>(context, result, parameterName);
+            else
+                return ReTry(SetIntParameter, "Invalid parameter format need number value");
         }
     }
 }

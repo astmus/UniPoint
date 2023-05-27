@@ -24,6 +24,7 @@ namespace MissBot.Handlers
             }
             catch (Exception ex)
             {
+                Context.IsHandled = true;
                 await notifier.ShowPopupAsync(ex.Message);
             }            
         }

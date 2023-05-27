@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Collections;
@@ -6,7 +7,7 @@ using MissCore.Collections;
 namespace MissCore.Bot
 {
     [JsonObject]
-    public record ContentUnit<TEntity> : Unit<TEntity>
+    public record ContentUnit<TEntity> : Unit<TEntity>, IContentUnit<TEntity>
     {
         Collection content;
         public Collection Content
@@ -17,6 +18,9 @@ namespace MissCore.Bot
         }
         public override string Entity
             => Key;
+
+        IEnumerable<TEntity> IContentUnit<TEntity>.Content
+            => this.Content;
 
         public static readonly Empty Default = new Empty((Id)"0");
         public record Empty(Id id, string Text = "Empty", string Title = "Not found") : Unit<TEntity>

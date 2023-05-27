@@ -73,13 +73,13 @@ VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Unit
                                             Entities ON u.Entity = Entities.Entity  ORDER BY u.Payload', null);
                                                                                                                                              
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info where Id = @Id', 'Id;Name');
+VALUES ('DataBase', 'Delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = ''@Id''', 'Id;Name');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = {0} ', 'Id');
+VALUES ('DataBase', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where Id = ''{0}''', 'Id');
+VALUES ('DataBaseInfo', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where Id = ''@Id''', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'Id');
+VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'SET @fileName = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
 
 IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase

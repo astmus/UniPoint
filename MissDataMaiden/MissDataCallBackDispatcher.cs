@@ -19,24 +19,26 @@ namespace MissDataMaiden
 
         protected override async Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
         {
-            try
-            {
-                if (Context.Get<IBotUnitAction<DataBase>>() is not IBotUnitAction<DataBase> botUnit)
-                    botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
 
-                botUnit.Identifier ??= Id<DataBase>.Value.With(id);
-                var handler = Context.GetBotService<BotUnitActionHandler>();
-                Context.SetNextHandler(Context, handler.AsyncDelegate);
-                var result = await handler.HandleAsync(botUnit, Context, cancel);
-                if (result != null)
-                    await Context.BotServices.Response<BotCommand>().CompleteInput(result.ToString()).Commit();
+            if (Context.Get<IBotUnitAction<DataBase>>(id) is not IBotUnitAction<DataBase> botUnit)
+                botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command), id);
 
-            }
-            catch (Exception ex)
+            botUnit.Identifier ??= Id<DataBase>.Value.With(id);
+            var handler = Context.GetBotService<BotUnitActionHandler>();
+            var result = await handler.HandleAsync(botUnit, Context, cancel);
+
+            if (result != null)
             {
+                await Context.BotServices.Response<BotCommand>().CompleteInput(result.ToString()).Commit();
+
+                var repository = Context.GetBotService<IJsonRepository>();
+                var unitRes = await repository.RawAsync<DataBase>(result.Format, cancel, result.ToArray());
+                unitRes.Content.FirstOrDefault()?.InitializeMetaData();
+                await Context.BotServices.Response<BotCommand>().CompleteInput(unitRes.Content.FirstOrDefault()?.Format()).Commit();
                 Context.IsHandled = true;
-                await notifier.SendTextAsync(ex.Message);
             }
+
+            Context.SetNextHandler(handler.AsyncDelegate);
         }
     }
 }

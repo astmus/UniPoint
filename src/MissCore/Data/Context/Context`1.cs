@@ -6,16 +6,18 @@ using Telegram.Bot.Requests;
 namespace MissCore.Data.Context
 {
     public class Context<TScope> : Context, IContext<TScope>, IHandleContext
-    {        
+    {
         protected IHandleContext Root { get; set; }
         IBotServicesProvider botServices;
         public bool? IsHandled { get; set; }
         AsyncHandler currentHandler;
         public Context(IBotServicesProvider botServiceProvider)
         {
-            botServices = botServiceProvider;     
+            botServices = botServiceProvider;
             Root = this;
         }
+        public IBotServicesProvider BotServices
+            => botServices ?? Root.BotServices;
 
         public IContext<TScope> SetData(TScope data)
         {
@@ -26,24 +28,19 @@ namespace MissCore.Data.Context
             Root.Set(data);
             return this;
         }
-
-        public IBotServicesProvider BotServices
-            => botServices ?? Root.BotServices;
-
-        public IHandleContext SetNextHandler<T>(IContext context, T data) where T : class
+        public IHandleContext SetNextHandler<T>(T data) where T : class
         {
-            context.Set(data);
+            Set(data);
             return this;
         }
 
         public T GetBotService<T>() where T : class
             => BotServices.GetService<T>();
-        public THandler GetAsyncHandler<THandler>() where THandler: class, IAsyncHandler
+        public THandler GetAsyncHandler<THandler>() where THandler : class, IAsyncHandler
             => BotServices.GetService<THandler>();
 
         public IAsyncHandler<T> GetAsyncHandlerOf<T>()
             => BotServices.GetService<IAsyncHandler<T>>();
-            
 
         public bool Contains<T>(Id<T> identifier)
             => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;
@@ -51,8 +48,8 @@ namespace MissCore.Data.Context
         public async Task MoveToNextHandler()
         {
             currentHandler = Get<AsyncHandler>();
-                await currentHandler(this).ConfigureAwait(false);
-        }        
+            await currentHandler(this).ConfigureAwait(false);
+        }
 
         public AsyncHandler CurrentHandler
             => currentHandler;

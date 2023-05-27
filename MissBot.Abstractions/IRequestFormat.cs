@@ -21,12 +21,14 @@ namespace MissBot.Abstractions
         Raw = 1,
         JsonAuto = 2,
         JsonPath = 4,
-        Scalar = 8
+        Scalar = 8,
+        RootContent = 16
     }
 
     public static class FormatExtension
     {
         const string JSONNoWrap = ", WITHOUT_ARRAY_WRAPPER";
+        const string RootContent = " root('Content')";
         public static string ApplyTo(this RequestOptions format, IUnitRequest cmd)
             => cmd.ToString() + format.TrimSnakes();
 
@@ -37,6 +39,7 @@ namespace MissBot.Abstractions
                 RequestOptions.Raw => format.ToString(),
                 RequestOptions.JsonAuto => $" for {format.ToString().ToSnakeCase(true)}",
                 RequestOptions.JsonAuto | RequestOptions.Scalar => $" for {RequestOptions.JsonAuto.ToString().ToSnakeCase(true)} {JSONNoWrap}",
+                RequestOptions.JsonAuto | RequestOptions.RootContent => $" for {RequestOptions.JsonAuto.ToString().ToSnakeCase(true)}, {RootContent}",
                 RequestOptions.JsonPath => $" for {format.ToString().ToSnakeCase(true)}  {JSONNoWrap}",
                 _ => format.ToSnakeCase()
             };

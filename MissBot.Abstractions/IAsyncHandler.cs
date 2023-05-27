@@ -21,7 +21,7 @@ namespace MissBot.Abstractions
     }
     public interface IAsyncBotUnitActionHandler : IAsyncHandler
     {
-        Task<FormattableString> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase;
+        Task<FormattableUnitActionBase> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase;
     }
 
     public interface IAsyncUnitActionSource<TUnit>  where TUnit : UnitBase

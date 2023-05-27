@@ -7,25 +7,20 @@ using MissCore.Bot;
 
 namespace MissCore.Handlers
 {
-
-
     public class BotUnitActionHandler : BotUnitActionHadlerBase<BotUnitAction>
     {
-        private readonly IRepository<BotCommand> repository;
-        
-
-
         protected override void Initialize()
         {
             var args = Enumerable.Repeat<AsyncInputHandler>(SetParameter, currentUnit.ArgumentCount).ToArray();
-            JoinHandlers(args);
+            JoinHandlers(args);            
         }
 
         async Task Save(IHandleContext context)
         {
             var listCmds = context.Bot.Commands.ToList();
             //listCmds.Add(add);
-            var success = await context.BotServices.Client.SyncCommandsAsync(listCmds, Telegram.Bot.Types.BotCommandScope.Chat(context.Get<Chat>().Id));
+            var scope = Telegram.Bot.Types.BotCommandScope.Chat(context.Get<Chat>().Id);
+            var success = await context.BotServices.Client.SyncCommandsAsync(listCmds, scope);
             if (success)
             {
              //   context.Bot.Commands.Add(add);

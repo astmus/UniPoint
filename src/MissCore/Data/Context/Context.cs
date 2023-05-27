@@ -15,6 +15,16 @@ namespace MissCore.Data.Context
         {                
         }
 
+        public T Get<T>(string id)
+        {            
+            var result = default(T);
+            if (TryGetValue(id, out var o) && o is T val)
+                return val;
+
+            result = Map.ReadObject<T>(id);
+            return Set(result, id);
+        }
+
         public T Get<T>(T defaultValue = default, Id identifier = default)
         {
             string id = identifier?.id ?? Id<T>.Value;

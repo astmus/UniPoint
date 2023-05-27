@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Linq;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 
 namespace MissCore
 {
-    public class FormattableUnitAction : FormattableString
+    public class FormattableUnitAction : FormattableUnitActionBase
     {
         private string _format;
         private readonly List<object> _arguments;
         public Position? Parameter;
-        private readonly Lazy<ListDictionary> _parameters = new Lazy<ListDictionary>();
+        private readonly ListDictionary _parameters = new ListDictionary();
         public uint BackParameter
             => Parameter.Value.Back;
         public uint ForwardParameter
@@ -22,7 +23,7 @@ namespace MissCore
         internal FormattableUnitAction(string format)
             => _format = format;
         public string this[uint index]
-            => _parameters.Value.Keys.Cast<string>().ElementAtOrDefault(Convert.ToInt32(index));
+            => _parameters.Keys.Cast<string>().ElementAtOrDefault(Convert.ToInt32(index));
 
         internal FormattableUnitAction(string format, IEnumerable<object> args = default) : this(format)
         {
@@ -33,7 +34,7 @@ namespace MissCore
         {
             if (parameters != null)
                 foreach (var p in parameters)
-                    _parameters.Value.Add("@" + p, null);
+                    _parameters.Add("@" + p, null);
         }
 
         internal static FormattableUnitAction Create(string format)
@@ -48,23 +49,23 @@ namespace MissCore
         public override object[] GetArguments()
             => _arguments.ToArray();
         public override int ArgumentCount
-            => _arguments?.Count ?? _parameters?.Value.Count ?? 0;
+            => _arguments?.Count ?? _parameters?.Count ?? 0;
         public string CurrentParameterName
             => this[Parameter.Value.Current];
         public override object GetArgument(int index)
-            => _arguments[index];
+            => _parameters[index];
         public object this[string key]
         {
-            get => _parameters.Value[key];
-            set => _parameters.Value[key] = value;
+            get => _parameters[key];
+            set => _parameters[key] = value;
         }
-        public void InitParameterPosition()
+        public void SetupParameterPosition()
         {
             if (Parameter.HasValue)
                 return;
 
             byte pos = 0;
-            foreach (DictionaryEntry de in _parameters.Value)
+            foreach (DictionaryEntry de in _parameters)
                 if (de.Value != null)
                     pos++;
                 else
@@ -74,19 +75,30 @@ namespace MissCore
             p.Current = pos;
             Parameter = p;
         }
+
         public override string ToString(IFormatProvider formatProvider)
         {
-            foreach (DictionaryEntry item in _parameters?.Value)
-                _format = _format.Replace((string)item.Key, (string)_parameters.Value[item.Key]);
+            string result = _format;
+            foreach (DictionaryEntry item in _parameters)
+                result = result.Replace((string)item.Key, (string)_parameters[item.Key]);
             if (_arguments?.ToArray() is object[] args)
-                return string.Format(formatProvider, _format, args);
+                return string.Format(formatProvider, result, args);
             else
-                return string.Format(formatProvider, _format);
+                return string.Format(formatProvider, result);
         }
 
-        public virtual string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
+        public string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
         {
             return ToString(null) + format.TrimSnakes();
+        }
+
+        public override string GetCommand()
+            => GetCommand(RequestOptions.JsonAuto);
+
+        public override IEnumerator<KeyValuePair<object, object>> GetEnumerator()
+        {
+            foreach (DictionaryEntry de in _parameters)
+                yield return KeyValuePair.Create<object, object>(de.Key, de.Value);
         }
     }
 }

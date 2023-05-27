@@ -10,7 +10,8 @@ namespace MissBot.Abstractions
         T Take<T>([CallerMemberName] string name = default);
         T Take<T>(Id<T> identifier);
         T Get<T>(T defaultValue = default, Id identifier = default);
+        T Get<T>(string id);
         TAny Any<TAny>();
-        T Set<T>(T value, string name = null);        
+        T Set<T>(T value, string id = null);        
     }
 }

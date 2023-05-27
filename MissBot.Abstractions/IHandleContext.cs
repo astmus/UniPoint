@@ -12,7 +12,7 @@ namespace MissBot.Abstractions
         T GetAsyncHandler<T>() where T:class,IAsyncHandler;
         IBotContext Bot { get; }
         IBotServicesProvider BotServices { get; }
-        IHandleContext SetNextHandler<T>(IContext context, T data) where T : class;
+        IHandleContext SetNextHandler<T>(T data) where T : class;
         Task MoveToNextHandler();
         IRequestProvider Provider { get; }
         T GetBotService<T>() where T : class;
