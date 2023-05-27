@@ -7,7 +7,8 @@ namespace MissBot.Abstractions.Utils
         public uint Current { get; set; }
         public uint Forward
             => ++Current;
-        public uint Bask
+        public uint Count { get; set; }
+        public uint Back
             => Current > 0 ?  --Current : Current;        
     }   
 }

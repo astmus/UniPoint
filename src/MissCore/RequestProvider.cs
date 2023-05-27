@@ -63,10 +63,10 @@ namespace MissCore
             provider = formatProvider;
         }
 
-        public IUnitRequest<TUnit> ReadRequest<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : Unit
+        public IUnitRequest<TUnit> ReadRequest<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : UnitBase
             => BotUnitRequest<TUnit>.Create(Templates.ReadAllByCriteria, BotUnit<TUnit>.CreateCriteria(criteria));
 
-        public IUnitRequest<TUnit> FindRequest<TUnit>(string search, uint skip = 0, uint take = 0) where TUnit : Unit
+        public IUnitRequest<TUnit> FindRequest<TUnit>(string search, uint skip = 0, uint take = 0) where TUnit : UnitBase
             => BotUnitRequest<TUnit>.Create(Templates.Search, search, skip, take);
 
         public IUnitRequest<TUnit> FromRaw<TUnit>(string raw)

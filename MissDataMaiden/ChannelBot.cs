@@ -9,7 +9,7 @@ using MissDataMaiden.Commands;
 namespace MissDataMaiden
 {
     [HasBotCommand(Name = nameof(List), Description = "List of data bases with info")]
-    [HasBotCommand(Name = nameof(Info), Description = "Inforamtion about current server state")]
+   // [HasBotCommand(Name = nameof(Info), Description = "Inforamtion about current server state")]
     [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
     public class MissChannel : BaseBot, IBot<Update<MissChannel>>
     {

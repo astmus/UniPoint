@@ -19,8 +19,8 @@ namespace MissDataMaiden
                 => HandleBotCommandAsync<Disk>(context),
             nameof(List)
                 => HandleBotCommandAsync<List>(context),
-            nameof(Info)
-                => HandleBotCommandAsync<Info>(context),
+            //nameof(Info)
+            //    => HandleBotCommandAsync<Info>(context),
             _
                 => base.HandleAsync(context, command)
         };

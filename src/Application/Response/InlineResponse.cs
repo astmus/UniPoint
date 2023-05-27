@@ -34,7 +34,7 @@ namespace MissCore.Data
             await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false) ;
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : Unit, IUnit<T>
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : UnitBase, IUnit<T>
         {
             if (unit is InlineResultUnit item)
             {
@@ -45,7 +45,7 @@ namespace MissCore.Data
             }
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : Unit, IUnit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : UnitBase, IUnit<T>
         {
             foreach (var unit in units)
             {

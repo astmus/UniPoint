@@ -15,15 +15,15 @@ namespace MissCore.Data.Context
         {                
         }
 
-        public T Get<T>()
+        public T Get<T>(T defaultValue = default, Id identifier = default)
         {
-            string id = Id<T>.Value;
+            string id = identifier?.id ?? Id<T>.Value;
             var result = default(T);
             if (TryGetValue(id, out var o) && o is T val)
                 return val;
 
             result = Map.ReadObject<T>(id);
-            return result;
+            return Set(result ?? defaultValue, id);
         }    
 
         public T Take<T>([CallerMemberName] string name = default)

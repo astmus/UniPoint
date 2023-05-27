@@ -1,5 +1,6 @@
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
@@ -11,9 +12,10 @@ namespace MissBot.Abstractions.Configuration
     {
         IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware);
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
-        IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotUnitCommand;
+        IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotUnitAction;
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;
         IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler<THandler>;
+        IBotBuilder AddUnitActionHandler();
         AsyncHandler BuildHandler();
         void Build();
     }
@@ -21,7 +23,7 @@ namespace MissBot.Abstractions.Configuration
     public interface IBotBuilder<TBot> : IBotBuilder where TBot : class, IBot
     {
         IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository;
-        IBotBuilder<TBot> UseCustomCommandCreator<THandler>() where THandler : class, IAsyncHandler<BotCommand>;
+        IBotBuilder<TBot> AddCustomCommandHandler<THandler>() where THandler :class, IAsyncBotUnitActionHandler;
         IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;        
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;

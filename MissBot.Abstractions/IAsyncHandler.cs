@@ -1,4 +1,5 @@
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
@@ -11,16 +12,22 @@ namespace MissBot.Abstractions
 
     public interface IAsyncBotCommandDispatcher : IAsyncHandler
     {        
-        Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand; 
+        Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitAction; 
     }
 
     public interface IAsyncHandler<T> : IAsyncHandler
     {
         Task HandleAsync(T data, CancellationToken cancel = default);
     }
-    public interface IAsyncEntityActionHandler<TAction> : IAsyncHandler<TAction> where TAction : class, IBotUnitCommand
+    public interface IAsyncBotUnitActionHandler : IAsyncHandler
     {
-        Task HandleActionAsync(TAction action, IHandleContext context, CancellationToken cancel = default);
+        Task<FormattableString> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase;
+    }
+
+    public interface IAsyncUnitActionSource<TUnit>  where TUnit : UnitBase
+    {
+        void PushUnit(TUnit unit, IHandleContext context, CancellationToken cancel = default);
+        //Task HandleActionAsync(TUnit action, IHandleContext context, CancellationToken cancel = default);
     }            
 
     public interface IAsyncUpdateHandler<T> where T: class
@@ -33,9 +40,8 @@ namespace MissBot.Abstractions
         void Initialize(CancellationToken cancel = default);
     }
 
-    public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher where TUpdate : Update
+    public interface IBotUpdatesDispatcher<TUpdate> : IBotUpdatesDispatcher, IAsyncUpdatesQueue<TUpdate> where TUpdate : Update
     {
         Func<TUpdate, string> ScopePredicate { get; set; }
-        void PushUpdate(TUpdate update);
     }
 }

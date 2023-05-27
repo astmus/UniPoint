@@ -17,14 +17,14 @@ namespace MissCore.Collections
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="Entity"></param>
     [JsonObject]
-    public record Unit<TEntity> : Unit, IUnit<TEntity>
+    [Table("##BotUnits")]
+    public record Unit<TEntity> : UnitBase, IUnit<TEntity>
     {        
         public static readonly string Key = typeof(TEntity).Name;
         public static readonly Id<TEntity> Id = Id<TEntity>.Value;
 
         public string this[string path]
             => Meta.GetValue(path).ToString();
-
         [JsonIgnore]
         public override string StringValue
             => Meta?.StringValue ?? Key;
@@ -35,7 +35,7 @@ namespace MissCore.Collections
         [JsonIgnore]
         public override IMetaData Meta { get; set; }
 
-        public override void InitializaMetaData()
+        public override void InitializeMetaData()
             => Meta ??= MetaData<TEntity>.Parse(this);
         public static DataMap Parse(TEntity entity)
             => DataMap.Parse(entity);

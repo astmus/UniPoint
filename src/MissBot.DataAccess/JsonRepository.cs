@@ -28,7 +28,7 @@ namespace MissBot.DataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(ISearchUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : Unit
+        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(ISearchUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : UnitBase
         {
             //var request = provider.FindRequest<TUnit>(search, skip, take);
 
@@ -141,7 +141,7 @@ namespace MissBot.DataAccess
             //return JsonConvert.DeserializeObject<TEntity>(result.ToString());
         }
 
-        public async Task<IMetaCollection<TUnit>> ReadAsync<TUnit>(Expression<Predicate<TUnit>> criteria = default, CancellationToken cancel = default) where TUnit : Unit
+        public async Task<IMetaCollection<TUnit>> ReadAsync<TUnit>(Expression<Predicate<TUnit>> criteria = default, CancellationToken cancel = default) where TUnit : UnitBase
         {
             var request = provider.ReadRequest<TUnit>(criteria);
 
@@ -156,12 +156,12 @@ namespace MissBot.DataAccess
             command.RequestOptions = RequestOptions.JsonAuto | RequestOptions.Scalar;
             var item = await HandleScalarAsync(command, cancel);
             var result = item?.ToObject<TResult>();
-            if (result is Unit unit)
-                unit.InitializaMetaData();
+            if (result is UnitBase unit)
+                unit.InitializeMetaData();
             return result;
         }
 
-        public async Task<IMetaCollection<TUnit>> HandleQueryAsync<TUnit>(IUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : Unit
+        public async Task<IMetaCollection<TUnit>> HandleQueryAsync<TUnit>(IUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : UnitBase
         {
             var items = await HandleRawAsync(query.GetCommand(), cancel);
 

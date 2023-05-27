@@ -12,21 +12,29 @@ using MissBot.Entities;
 using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Entities;
+using MissCore.Handlers;
 
 namespace MissDataMaiden
 {
-    public class CreateBotCommandHadler : CreateBotCommandHadlerBase
+    public record CustomCommand : BotUnitCommand
+    {
+        [NotNull]
+        public string Aliase { get => Action; set => Action = value; }
+        public string Request { get => Payload; set => Payload = value; }
+    }
+
+    public class CustomCommandCreateHandler : BotUnitActionHadlerBase<CustomCommand>
     {
         private readonly IRepository<BotCommand> repository;        
 
-        Add add;
+        CustomCommand currentCommand;
         protected override void Initialize()
         {
-            add = new Add();
+            currentCommand = new CustomCommand();
             JoinHandlers(SetAliase, SetDescription, SetCommand, OfferCompleteOptions);
         }
 
-        object OfferCompleteOptions(IHandleContext context, string input) => input switch
+        object OfferCompleteOptions(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
             nameof(Save) => Save(context),
@@ -37,11 +45,11 @@ namespace MissDataMaiden
         async Task Save(IHandleContext context)
         {
             var listCmds = context.Bot.Commands.ToList();
-            listCmds.Add(add);
+            listCmds.Add(currentCommand);
             var success = await context.BotServices.Client.SyncCommandsAsync(listCmds, Telegram.Bot.Types.BotCommandScope.Chat(context.Get<Chat>().Id));
             if (success)
             {
-                context.Bot.Commands.Add(add);
+                context.Bot.Commands.Add(currentCommand);
                 Response.CompleteInput("Command added");
             }
             else
@@ -57,25 +65,25 @@ namespace MissDataMaiden
             return Task.CompletedTask;
         }
 
-        object SetAliase(IHandleContext context, string input) => input switch
+        object SetAliase(IHandleContext context, string input, string parameterName) => input switch
         {
             null =>
                 Response.InputData("Enter unique command alise"),
             var value when value.IndexOf(' ') < 0 =>
-                add.Aliase = value,
+                currentCommand.Aliase = value,
             var value when value.IndexOf(' ') > -1 =>
                 ReTry(SetAliase, "Invalid aliase format"),
             _ => null
         };
-        object SetDescription(IHandleContext context, string input) => input switch
+        object SetDescription(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Enter command description"),
-            _ => add.Description = input
+            _ => currentCommand.Description = input
         };
-        object SetCommand(IHandleContext context, string input) => input switch
+        object SetCommand(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Enter command text"),            
-            _ => add.Request = input
+            _ => currentCommand.Request = input
         };
     }
 }

@@ -19,7 +19,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace MissCore
 {
     [Table("##BotUnits")]
-    public record BotUnit<TUnit> : IBotUnit<TUnit> where TUnit : Unit
+    public record BotUnit<TUnit> : UnitBase, IBotUnit<TUnit> where TUnit : UnitBase
     {
         public static readonly (string Unit, string Entity) Key = new (Regex.Replace(typeof(TUnit).Name, "`1",""), typeof(TUnit).GetGenericArguments().FirstOrDefault()?.Name);
         public static readonly Id<TUnit> Id = new Id<TUnit>($"{Key.Unit}{Key.Entity}");
@@ -28,7 +28,11 @@ namespace MissCore
         public List<BotUnit> Entities { get; set; }
 
         [Column()]
-        public virtual string Entity => Key.Entity;
+        public override string Entity { get;set; } = Key.Entity;
+        [Column]
+        public string Unit { get; set; } = Key.Unit;
+        [Column]
+        public string Payload { get; set; }
 
         public record Criteria(Expression left, ExpressionType operand, Expression right, CriteriaFormat Format = CriteriaFormat.SQL) : ICriteria
         {
@@ -75,9 +79,9 @@ namespace MissCore
         //    return RequestInfo with { EntityFields = fields, Criteria = icriteria };
         //}        
 
-        public IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : Unit
+        public IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : UnitBase
         {
-            return new UnitActions(Entities.Select(s
+            return new UnitActions(Units.Select(s
                  => UnitAction.WithCallbackData(s.Entity, string.Format(s.Template, s.Entity, s.Unit, unit.Meta.GetValue(s[0])))).ToList());
         }
     }

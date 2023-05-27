@@ -13,8 +13,8 @@ namespace MissCore
         public IBotClient Client
             => GetRequiredService<IBotClient>();
 
-        public IErrorResponse ErrorResponse()
-            => sp.GetRequiredService<IErrorResponse>();
+        public IResponseError ResponseError()
+            => sp.GetRequiredService<IResponseError>();
 
         public T GetRequiredService<T>()
             => sp.GetRequiredService<T>();
@@ -26,6 +26,6 @@ namespace MissCore
             => sp.GetService(serviceType);
 
         public IResponse<T> Response<T>()
-            => sp.GetService<IResponse<T>>();
+            => sp.GetRequiredService<IResponse<T>>();
     }
 }

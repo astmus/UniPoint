@@ -1,39 +1,40 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 using MissCore.Data;
 
-namespace MissDataMaiden
+namespace MissCore.Handlers
 {
-    public abstract class CreateBotCommandHadlerBase : IAsyncHandler<BotCommand>
+    public abstract class BotUnitActionHadlerBase<TUnit> : IAsyncBotUnitActionHandler where TUnit : UnitBase
     {
         AsyncInputHandler CurrentHandler;
         AsyncInputHandler[] Handlers;
         Position position;
         protected IResponse<BotCommand> Response;
+        protected IHandleContext context;
+        protected FormattableBotUnit currentUnit { get; private set; }
         public AsyncHandler AsyncDelegate { get; protected set; }
-        public CreateBotCommandHadlerBase()
+        public BotUnitActionHadlerBase()
         {
             AsyncDelegate = HandleAsync;
         }
-        public Task HandleAsync(BotCommand data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
+
         async Task HandleAsync(IHandleContext context)
         {
             if (context.Any<UnitUpdate>() is UnitUpdate upd)
             {
                 var input = upd.StringContent;
                 if (CurrentHandler == null)
-                {                    
+                {
                     input = null;
                     Response = context.BotServices.Response<BotCommand>();
                     Initialize();
                     CurrentHandler = Handlers[position.Current];
                 }
 
-                switch (CurrentHandler(context, input))
+                switch (CurrentHandler(context, input, currentUnit[position.Current]))
                 {
                     case IResponse:
                         await Response.Commit(); return;
@@ -42,8 +43,10 @@ namespace MissDataMaiden
                     case Task task:
                         await task; break;
                     default:
-                        MoveNext();
-                        CurrentHandler(context, null); break;
+                        if (MoveNext() == false)
+                            completedObject = currentUnit;
+                        else
+                            CurrentHandler(context, null, currentUnit[position.Current]); break;
                 }
                 await Response.Commit();
             }
@@ -53,16 +56,29 @@ namespace MissDataMaiden
             => Handlers = handlers;
         protected abstract void Initialize();
         void MoveBack()
-            => CurrentHandler = Handlers[position.Bask];
+            => CurrentHandler = Handlers[position.Back];
 
-        void MoveNext()
-            => CurrentHandler = Handlers[position.Forward];
+        bool MoveNext()
+        {
+            CurrentHandler = Handlers[position.Current];
+            return position.Forward < Handlers.Length;
+        }
 
         protected AsyncInputHandler ReTry(AsyncInputHandler handler, string message)
         {
-            handler(null, null);
+            handler(null, null, currentUnit[position.Current]);
             Response.Content = message + "\n" + Response.Content;
             return CurrentHandler = handler;
+        }
+        FormattableString completedObject;
+        public async Task<FormattableString> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
+        {            
+            currentUnit = context.Get(FormattableBotUnit.Create(action.Payload, action.GetParameters().ToArray()), action.Identifier);
+            this.context = context;
+            await HandleAsync(context);
+            if (!context.IsHandled.HasValue)
+                context.IsHandled = false;
+            return completedObject;
         }
     }
 }

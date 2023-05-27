@@ -17,7 +17,7 @@ namespace MissBot.Handlers
             }
             catch (Exception e)
             {
-                await context.BotServices.ErrorResponse().Write(e).Commit();
+                await context.BotServices.ResponseError().Write(e).Commit();
                 context.IsHandled = true;
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;

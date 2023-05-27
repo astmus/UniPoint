@@ -10,25 +10,15 @@ namespace MissBot.Abstractions
         {
             if (context.Get<TData>() is TData data)
             {
-                //try
-                //{                    
                     Context = context;
-                    await HandleAsync(data);
-                //}
-                //catch (Exception error)
-                //{
-                //    var response = context.BotServices.ErrorResponse();
-                //    response.Write(error);
-                //    await response.Commit();// context.BotServices.Client.MakeRequestAsync(response);
-                //    context.IsHandled = true;
-                //}
+                    await HandleAsync(data);               
             }
 
             if (context.IsHandled.HasValue)
                 return;
          
             await context.MoveToNextHandler();
-        }
+         }
 
         public void SetContext(IHandleContext context)
             => Context = context;

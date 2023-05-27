@@ -1,8 +1,8 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Extensions;
 using MissCore.Data;
-using MissCore.DataAccess.Async;
 
 namespace BotService
 {

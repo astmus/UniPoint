@@ -6,12 +6,12 @@ namespace MissCore.Data
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record ErrorResponse(IHandleContext Context = default) : Response<Exception>(Context), IErrorResponse
+    public record ErrorResponse(IHandleContext Context = default) : Response<Exception>(Context), IResponseError
     {
         Message Message
             => Context.Take<Message>();        
 
-        public IErrorResponse Write(Exception error)
+        public IResponseError Write(Exception error)
         {            
             var stack = HttpUtility.HtmlEncode(error.StackTrace);
             Content = $"{error.Message}\n{error.InnerException?.Message}\n{stack}";

@@ -18,7 +18,7 @@ namespace MissBot.Utils
 
         public object? GetFormat(Type? formatType) => formatType switch
         {
-            var f when f == typeof(Unit) => GetUnitFormatter(_context.BotServices),            
+            var f when f == typeof(UnitBase) => GetUnitFormatter(_context.BotServices),            
             _ => null
         };
     }

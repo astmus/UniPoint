@@ -2,8 +2,10 @@ using BotService;
 using MissBot.Abstractions.DataAccess;
 using MissBot.DataAccess;
 using MissBot.Handlers;
+using MissCore.Bot;
 using MissDataMaiden.Commands;
 using MissDataMaiden.DataAccess;
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden
 {
@@ -19,18 +21,16 @@ namespace MissDataMaiden
                     .UseCommandDispatcher<MissDataCommandDispatcher>()
                     .UseInlineAnswerHandler<MissDataAnswerHandler>()
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
-                    .UseInlineHandler<SearchDataBaseHandler>()                    
+                    .UseInlineHandler<SearchDataBaseHandler>()
                     .UseMessageHandler<MessageHandler>()
                     .AddRepository<IJsonRepository, JsonRepository>()
-                    .UseCustomCommandCreator<CreateBotCommandHadler>()
-                    .AddHandler<AddCommandHadler>()
+                    .AddCustomCommandHandler<CustomCommandCreateHandler>()
+                    .AddUnitActionHandler()
+                    .AddHandler<AddCommandHadler>()     
                     
                     .AddCommand<Disk, DiskCommandHandler>()
-                    .AddCommand<Info, InfoCommandHadler>()
-                    .AddCommand<List, ListCommandHadler>() 
-                    .AddAction<DBInfo, DdActionHandler>()
-                    .AddAction<DBRestore, DdActionHandler>()
-                    .AddAction<DBDelete, DdActionHandler>();
+                    //.AddCommand<Info, InfoCommandHadler>()
+                    .AddCommand<List, ListCommandHadler>();
 
             botHost.Start();
         }

@@ -20,7 +20,8 @@ namespace MissDataMaiden
              => (update) => update switch
              {
                  UnitUpdate upd when upd.Type is UpdateType.InlineQuery => $"{upd.Chat.Id}",
-                 Update upd when upd.Type is not UpdateType.Unknown => $"{nameof(update.Chat)}: {update.Chat.Id}",
+                 //UnitUpdate upd when upd.Type is UpdateType.CallbackQuery => $"{upd.CallbackQuery.Id}",
+                 UnitUpdate upd => $"{nameof(upd.Chat)}: {upd.Chat.Id}",
                  _ => null
              };
 

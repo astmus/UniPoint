@@ -7,7 +7,7 @@ namespace MissBot.Abstractions
     {
         IBotClient Client { get; }        
         IResponse<T> Response<T>();
-        IErrorResponse ErrorResponse();
+        IResponseError ResponseError();
         T GetService<T>();
         T GetRequiredService<T>();
     }

@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using BotService.Internal;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Entities;
-using MissCore.DataAccess.Async;
 
 namespace BotService.Connection
 {

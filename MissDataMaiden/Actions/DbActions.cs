@@ -24,32 +24,4 @@ namespace MissDataMaiden.Commands
         }
     }
 
-    public class DdActionHandler : BaseHandler<InlineEntityAction<DataBase>>, IAsyncHandler<DBDelete>, IAsyncHandler<DBRestore>, IAsyncEntityActionHandler<DBInfo>
-    {
-        public Task HandleActionAsync(DBInfo action, IHandleContext context, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HandleAsync(DBDelete data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HandleAsync(DBRestore data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HandleAsync(DBInfo data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task HandleAsync(InlineEntityAction<DataBase> data, CancellationToken cancel = default)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
 }

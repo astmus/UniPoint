@@ -33,7 +33,7 @@ namespace MissDataMaiden.Entities
         public string LastBackup { get; set; }
         public string IsReadOnly { get; set; }
     }
-    public record DataBase : Unit<ChosenInlineResult>
+    public record DataBase : Unit<ChosenInlineResult>, IBotEntity
     {
         public string Id { get; set ; }
         public string Name { get; set ; }
@@ -41,6 +41,8 @@ namespace MissDataMaiden.Entities
         public string Created { get; set ; }
         public override string Entity
             => nameof(DataBase);
+
+        public string Unit { get; set; }
     }
 
     public record DataBaseInfo : BotUnit

@@ -1,33 +1,22 @@
 using System.Diagnostics.CodeAnalysis;
-using Azure;
-using Duende.IdentityServer.Validation;
-using Microsoft.AspNetCore.Components.Web;
 using MissBot.Abstractions;
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 using MissBot.Entities;
 using MissCore.Bot;
 using MissCore.Data;
-using MissCore.Data.Entities;
 
 namespace MissDataMaiden
 {
-    public record Add :BotUnitCommand
-    {
-        [NotNull]
-        public string Aliase { get=> Action; set=> Action = value; }
-        public string Request { get=> Payload; set=> Payload = value; }
-    }
+   
 
     public class AddCommandHadler : IAsyncHandler<AddCommandHadler>
     {
         private readonly IRepository<BotCommand> repository;
         public AddCommandHadler()
             => AsyncDelegate = HandleAsync;
-        Add add;
+        CustomCommand add;
         public AsyncHandler AsyncDelegate { get; protected set; }
         AsyncInputHandler CurrentHandler;
         AsyncInputHandler[] Handlers;
@@ -40,14 +29,14 @@ namespace MissDataMaiden
                 var input = upd.StringContent;
                 if (CurrentHandler == null)
                 {
-                    add ??= new Add();
+                    add ??= new CustomCommand();
                     input = null;
                     Response = context.BotServices.Response<BotCommand>();
                     JoinHandlers(SetAliase,SetDescription, SetCommand, OfferCompleteOptions);
                     CurrentHandler = Handlers[position.Current];
                 }
 
-                switch (CurrentHandler(context, input))
+                switch (CurrentHandler(context, input, string.Empty))
                 {
                     case IResponse:
                         await Response.Commit(); return;
@@ -57,7 +46,7 @@ namespace MissDataMaiden
                         await task; break;
                     default:
                         MoveNext();
-                        CurrentHandler(context, null); break;
+                        CurrentHandler(context, null, string.Empty); break;
                 }
                 await Response.Commit();
             }
@@ -67,14 +56,14 @@ namespace MissDataMaiden
             => CurrentHandler = Handlers[position.Forward];
 
         void MoveBack()
-            => CurrentHandler = Handlers[position.Bask];
+            => CurrentHandler = Handlers[position.Back];
 
         void JoinHandlers(params AsyncInputHandler[] handlers)
             => Handlers = handlers;
 
         AsyncInputHandler ReTry(AsyncInputHandler handler, string message)
         {
-            handler(null, null);
+            handler(null, null, string.Empty);
             Response.Content = message + "\n" + Response.Content;
             return CurrentHandler = handler;
         }
@@ -83,7 +72,7 @@ namespace MissDataMaiden
         {
             throw new NotImplementedException();
         }
-        object OfferCompleteOptions(IHandleContext context, string input) => input switch
+        object OfferCompleteOptions(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
             nameof(Save) => Save(context),
@@ -114,7 +103,7 @@ namespace MissDataMaiden
             return Task.CompletedTask;
         }
 
-        object SetAliase(IHandleContext context, string input) => input switch
+        object SetAliase(IHandleContext context, string input, string parameterName) => input switch
         {
             null =>
                 Response.InputData("Enter unique command alise"),
@@ -124,12 +113,12 @@ namespace MissDataMaiden
                 ReTry(SetAliase, "Invalid aliase format"),
             _ => null
         };
-        object SetDescription(IHandleContext context, string input) => input switch
+        object SetDescription(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Enter command description"),
             _ => add.Description = input
         };
-        object SetCommand(IHandleContext context, string input) => input switch
+        object SetCommand(IHandleContext context, string input, string parameterName) => input switch
         {
             null => Response.InputData("Enter command text"),            
             _ => add.Request = input

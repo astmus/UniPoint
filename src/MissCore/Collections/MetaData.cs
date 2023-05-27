@@ -178,10 +178,6 @@ namespace MissCore.Collections
             else return default;
         }
 
-        public object GetByName([CallerMemberName] string name = default)
-        {
-            return this[name];
-        }
         protected virtual MetaData ParseTokens(JToken containerToken)
         {
             if (containerToken.Type == JTokenType.Object)

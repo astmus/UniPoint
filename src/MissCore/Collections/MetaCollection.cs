@@ -36,7 +36,7 @@ namespace MissCore.Collections
             {
                 Metadata.SetContainer(token);
                 var result = Metadata.Bring<TSub>();
-                if (result is Unit unit)
+                if (result is UnitBase unit)
                     unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
                 yield return result;
             }
@@ -64,7 +64,7 @@ namespace MissCore.Collections
         {
             Metadata.SetContainer(token);
             var result = Metadata.Bring<TSub>();
-            if (result is Unit unit)
+            if (result is UnitBase unit)
                 unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
             return result;
         }).ToArray();
@@ -76,7 +76,7 @@ namespace MissCore.Collections
             foreach (var token in tokens)
             {
                 var result = token.ToObject<TEntity>();
-                if (result is Unit unit)
+                if (result is UnitBase unit)
                     unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
                 yield return result;
             }
@@ -128,7 +128,7 @@ namespace MissCore.Collections
                 {
                     Metadata.SetContainer(token);
                     var result = Metadata.Bring<TSub>();
-                    if (result is Unit unit)
+                    if (result is UnitBase unit)
                         unit.Meta = MetaData.Parse(token);
                     return result;
                 }).ToArray();

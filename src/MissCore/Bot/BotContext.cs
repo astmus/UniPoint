@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Security.Principal;
 using LinqToDB;
 using LinqToDB.Data;
 using Microsoft.Extensions.Options;
@@ -28,7 +29,7 @@ namespace MissCore.Bot
         ITable<TUnit> GetParameters<TUnit>() where TUnit : BotUnitParameter
         => this.GetTable<TUnit>();
 
-        ReadUnit GetUnit;
+        ReadUnit GetBotUnit;
         public IList<BotCommand> Commands { get; protected set; }
         public IList<BotUnitParameter> Parameters { get; protected set; }
         Lazy<Cache> lazyCache = new Lazy<Cache>();
@@ -45,7 +46,7 @@ namespace MissCore.Bot
             {
                 cmd.CommandText = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Bot", "BotInit.sql"));
                 cmd.ExecuteNonQuery();
-                GetUnit = Get<ReadUnit>();
+                GetBotUnit = Get<ReadUnit>();
             }
             Commands = GetUnits<BotUnitCommand>().Where(w => w.Unit == Unit<BotCommand>.Key).Cast<BotCommand>().ToList();
             Parameters = GetParameters<UnitParameter>().Cast<BotUnitParameter>().ToList();
@@ -80,8 +81,8 @@ namespace MissCore.Bot
 
         DbConnection CreateConnection()
             => DataProvider.CreateConnection(ConnectionString);
-
-        public TUnit Get<TUnit>() where TUnit : Unit, IBotUnit
+            
+        public TUnit Get<TUnit>() where TUnit : UnitBase, IBotUnit
         {
             if (cache.Get(BotUnit<TUnit>.Id) is TUnit unit)
                 return unit with { };
@@ -90,7 +91,7 @@ namespace MissCore.Bot
             return cache.Set(unit, BotUnit<TUnit>.Id);
         }
 
-        public TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitCommand
+        public TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitAction
         {
             if (cache.Get<TCommand>() is TCommand cmd)
                 return cmd with { };
@@ -99,38 +100,37 @@ namespace MissCore.Bot
             return cache.Set(cmd);
         }
 
-        public TUnit Get<TUnit, TEntity>() where TUnit : class, IBotUnit
+        public TUnit Get<TEntity, TUnit>(Id<TEntity> identifier) where TUnit : UnitBase, IBotEntity
         {
-            if (cache.Get<TUnit>(Id<TUnit, TEntity>.Value) is TUnit unit)
-                return unit;
+            if (cache.Get<TUnit>(Id<TEntity, TUnit>.Value) is TUnit unit)
+                return unit with { };
 
-            unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == Unit<TUnit>.Key && w.Entity == BotEntity<TEntity>.EntityKey);
-            return unit;
+            unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == Unit<TEntity>.Key && string.Compare(w.Entity, identifier.id, true) > -1);
+            return cache.Set(unit, Id<TEntity, TUnit>.Value);
         }
 
-        public async Task<IBotUnit<TUnit>> GetUnitAsync<TUnit>() where TUnit : Unit
+        public async Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : UnitBase
         {
             if (cache.Get(Id<BotUnit<TUnit>>.Value) is BotUnit<TUnit> unit)
                 return unit with { };
 
-            var cmd = GetUnit.Read<TUnit>();
+            var cmd = GetBotUnit.Read<TUnit>();
             unit = await HandleQueryAsync<BotUnit<TUnit>>(cmd);
             return cache.Set(unit, Id<BotUnit<TUnit>>.Value);
         }
 
-        IBotUnit<TUnit> IBotContext.GetUnit<TUnit>()
+        IBotUnit<TUnit> IBotContext.GetBotUnit<TUnit>()
             => cache.Get<IBotUnit<TUnit>>(Id<IBotUnit, TUnit>.Value);
 
         TAction IBotContext.GetAction<TAction>()
             => cache.Get<TAction>(Id<TAction>.Value) with { };
 
-        async Task<TAction> IBotContext.GetActionAsync<TAction>()
+        async Task<IBotUnitAction<TUnit>> IBotContext.GetActionAsync<TUnit>(string actionName)
         {
-            if (cache.Get<TAction>() is TAction action)
+            if (cache.Get<BotUnitAction<TUnit>>() is BotUnitAction<TUnit> action)
                 return action with { };
-
-            var cmd = GetUnit.Read<TAction>();
-            action = await HandleQueryAsync<TAction>(cmd);
+                
+            action = await GetUnits<BotUnitAction<TUnit>>().FirstOrDefaultAsync(f => f.Unit == Unit<TUnit>.Key && string.Compare(f.Action, actionName, true) > -1);//await HandleQueryAsync<TUnit>(cmd);
             return cache.Set(action);
         }
     }

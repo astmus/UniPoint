@@ -24,7 +24,7 @@ namespace MissDataMaiden
         public override async Task HandleResultAsync(IResponse<ChosenInlineResult> response, Message message, ChosenInlineResult result, CancellationToken cancel = default)
         {         
             var info = Context.Bot.Get<DataBaseInfo>();
-            var rawRequest = info.Format(6/*result.Id*/);
+            var rawRequest = info.Format(/*6result.Id*/);
             Info dbInfo = await repository.HandleRawAsync<Info>(rawRequest, cancel);            
             response.Write(dbInfo);
             //foreach (var item in items.SupplyTo<DataBase>())

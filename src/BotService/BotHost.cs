@@ -5,6 +5,7 @@ using MissBot;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Abstractions.Entities;
 using MissBot.Infrastructure;
 using MissBot.Infrastructure.Persistence;
@@ -14,7 +15,6 @@ using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Context;
 using MissCore.DataAccess;
-using MissCore.DataAccess.Async;
 using MissCore.Handlers;
 using Newtonsoft.Json;
 
@@ -33,7 +33,7 @@ namespace BotService
                                                                                     .AddSingleton<IBotContext<TBot>, BotContext<TBot>>()
                                                                                     .AddSingleton<IBotBuilder<TBot>>(sp => botBuilder)
                                                                                     .AddSingleton<BaseBot.Configurator, TConfig>()
-                                                                                    .AddScoped<IErrorResponse, ErrorResponse>()
+                                                                                    .AddScoped<IResponseError, ErrorResponse>()
                                                                                     .AddScoped<IContext<Update<TBot>>, Context<Update<TBot>>>()
                                                                                     .AddScoped<IAsyncUpdateHandler<Update<TBot>>, BotUpdateHandler<TBot>>()
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()

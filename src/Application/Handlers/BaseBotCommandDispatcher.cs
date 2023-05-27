@@ -27,7 +27,7 @@ namespace MissBot.Handlers
                 }
                 catch (Exception error)
                 {
-                    var command = context.BotServices.ErrorResponse();
+                    var command = context.BotServices.ResponseError();
                     command.Write(error);
                     await command.Commit();                    
                 }
@@ -39,7 +39,7 @@ namespace MissBot.Handlers
         }
         
 
-        public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitCommand;
+        public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitAction;
         protected virtual async Task HandleAsync(IHandleContext context, string command)
         {
             if (context.Bot.Commands.FirstOrDefault(c => string.Compare(c.Action, command, true) == 0) is BotUnitCommand cmd)

@@ -26,7 +26,7 @@ namespace MissDataMaiden.Commands
         {
             var search = botContext.Get<Search<DataBase>>();
             
-            var botUnit = await botContext.GetUnitAsync<DataBase>();
+            var botUnit = await botContext.GetBotUnitAsync<DataBase>();
             var items = await repository.FindAsync<DataBase>(search with { Query = query.Query, Pager = pager, }, cancel);
 
             var units = items.SupplyTo<InlineQueryResult<DataBase>>();

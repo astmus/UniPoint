@@ -1,8 +1,9 @@
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 
 namespace MissBot.Abstractions
 {
-    public abstract class BotCommandHandler<TCommand> :  BaseHandler<TCommand> where TCommand : BotCommand
+    public abstract class BotCommandHandler<TCommand> :  BaseHandler<TCommand> where TCommand : class,IBotUnitAction
     {
         public virtual Task BeforeComamandHandleAsync(TCommand data)
                 => Task.CompletedTask;

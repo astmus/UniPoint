@@ -9,7 +9,7 @@ namespace BotService.Connection
         IHandleContextFactory Factory { get; }
         public ILogger<AsyncBotUpdatesDispatcher<TUpdate>> log { get; protected set; }
         Thread thread;
-        protected override AsyncUpdatesQueue<TUpdate> Updates { get; init; }
+        protected override AsyncItemsQueue<TUpdate> Items { get; init; }
         public Func<TUpdate, string> ScopePredicate { get; set; }
         CancellationTokenSource src;
 
@@ -17,7 +17,7 @@ namespace BotService.Connection
         {
             Factory = factory;
             log = logger;
-            Updates = new AsyncUpdatesQueue<TUpdate>();
+            Items = new AsyncItemsQueue<TUpdate>();
             thread = new Thread(StartInThread);
             thread.IsBackground = true;
         }
@@ -26,7 +26,7 @@ namespace BotService.Connection
         {
             try
             {
-                await foreach (var update in PendingUpdates(src.Token))
+                await foreach (var update in PendingItems(src.Token))
                 {
                     if (ScopePredicate(update) is not string id) continue;
                     var scope = Factory.Init(id);
@@ -57,7 +57,7 @@ namespace BotService.Connection
 
 
         public void PushUpdate(TUpdate update)
-            => Updates.QueueItem(update);
+            => Items.QueueItem(update);
 
         public void Initialize(CancellationToken cancel = default)
         {

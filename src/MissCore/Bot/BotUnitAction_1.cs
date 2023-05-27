@@ -1,11 +1,13 @@
 using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 
 namespace MissCore.Bot
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BotEntityAction<TEntity> : BotUnitCommand, IBotUnitCommand<BotCommand> where TEntity : class
+    public record BotUnitAction<TEntity> : BotUnitAction, IBotUnitAction<TEntity> where TEntity : class
     {
         public string[] Params { get; set; }
+        public Id<TEntity> Identifier { get; set; }
     }
 }

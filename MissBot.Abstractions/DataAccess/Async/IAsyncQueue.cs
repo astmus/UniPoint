@@ -1,4 +1,4 @@
-namespace MissCore.DataAccess.Async
+namespace MissBot.Abstractions.DataAccess.Async
 {
     public interface IAsyncQueue<in T>
     {
