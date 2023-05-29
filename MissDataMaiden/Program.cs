@@ -25,8 +25,8 @@ namespace MissDataMaiden
                     .UseMessageHandler<MessageHandler>()
                     .AddRepository<IJsonRepository, JsonRepository>()
                     .AddCustomCommandHandler<CustomCommandCreateHandler>()
-                    .AddUnitActionHandler()
-                    .AddHandler<AddCommandHadler>()     
+                    .AddInputParametersHandler()
+                    .AddCustomCommandCreator<AddCommandHadler>()     
                     
                     .AddCommand<Disk, DiskCommandHandler>()
                     //.AddCommand<Info, InfoCommandHadler>()

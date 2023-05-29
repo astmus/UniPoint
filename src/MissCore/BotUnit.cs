@@ -1,6 +1,4 @@
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using LinqToDB.Expressions;
 using LinqToDB.Mapping;
@@ -8,13 +6,10 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Abstractions.Utils;
+using MissBot.Extensions.Entities;
 using MissCore.Bot;
 using MissCore.Collections;
-using MissCore.Data;
 using MissCore.Data.Entities;
-using Newtonsoft.Json.Linq;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore
 {
@@ -81,8 +76,9 @@ namespace MissCore
 
         public IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : UnitBase
         {
-            return new UnitActions(Units.Select(s
-                 => UnitAction.WithCallbackData(s.Entity, string.Format(s.Template, s.Entity, s.Unit, unit.Meta.GetValue(s[0])))).ToList());
+            IEnumerable<UnitAction> actions = Units.Select(s
+                    => UnitAction.WithCallbackData(s.Entity, string.Format(s.Template, s.Entity.Capitalize(), s.Unit, unit.Meta.GetValue(s[0])))).ToList();
+            return new UnitActions(actions);
         }
     }
 }

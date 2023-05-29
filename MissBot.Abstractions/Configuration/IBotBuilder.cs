@@ -4,18 +4,16 @@ using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
-using BotCommand = MissBot.Abstractions.Entities.BotCommand;
 
 namespace MissBot.Abstractions.Configuration
 {
     public interface IBotBuilder
-    {
-        IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware);
+    {        
         IBotBuilder Use(Func<IHandleContext, AsyncHandler> component);
         IBotBuilder AddAction<TAction, THandler>() where THandler : class, IAsyncHandler<TAction> where TAction : class, IBotUnitAction;
         IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BotCommand, IBotCommand;
-        IBotBuilder AddHandler<THandler>() where THandler : class, IAsyncHandler<THandler>;
-        IBotBuilder AddUnitActionHandler();
+        IBotBuilder AddCustomCommandCreator<TCreator>() where TCreator :class, ICreateBotCommandHandler;
+        IBotBuilder AddInputParametersHandler();
         AsyncHandler BuildHandler();
         void Build();
     }

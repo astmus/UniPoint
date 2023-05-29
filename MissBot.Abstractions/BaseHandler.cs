@@ -16,9 +16,9 @@ namespace MissBot.Abstractions
 
             if (context.IsHandled.HasValue)
                 return;
-         
-            await context.MoveToNextHandler();
-         }
+
+            await context.GetNextHandler().ConfigureAwait(false);
+        }
 
         public void SetContext(IHandleContext context)
             => Context = context;

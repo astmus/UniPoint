@@ -7,7 +7,7 @@ namespace MissCore
     {
         public static implicit operator string(UnitRequest<TUnit> cmd)
             => cmd.GetCommand(RequestOptions.JsonAuto);
-        FormattableUnitAction Request { get; set; } = FormattableUnitAction.Create(Template);
+        FormattableUnit Request { get; set; } = FormattableUnit.Create(Template);
         public RequestOptions RequestOptions { get; set; }
 
         public virtual string ToString(string? format, IFormatProvider? formatProvider)

@@ -16,29 +16,29 @@ namespace MissDataMaiden
     {
         public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
         { }
-
+        IResponse<CallbackQuery> response;
         protected override async Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
         {
-
-            if (Context.Get<IBotUnitAction<DataBase>>(id) is not IBotUnitAction<DataBase> botUnit)
-                botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command), id);
+            this.response = response;
+            if (Context.Get<IBotUnitAction<DataBase>>() is not IBotUnitAction<DataBase> botUnit)
+                botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
 
             botUnit.Identifier ??= Id<DataBase>.Value.With(id);
-            var handler = Context.GetBotService<BotUnitActionHandler>();
-            var result = await handler.HandleAsync(botUnit, Context, cancel);
-
-            if (result != null)
-            {
-                await Context.BotServices.Response<BotCommand>().CompleteInput(result.ToString()).Commit();
-
-                var repository = Context.GetBotService<IJsonRepository>();
-                var unitRes = await repository.RawAsync<DataBase>(result.Format, cancel, result.ToArray());
-                unitRes.Content.FirstOrDefault()?.InitializeMetaData();
-                await Context.BotServices.Response<BotCommand>().CompleteInput(unitRes.Content.FirstOrDefault()?.Format()).Commit();
-                Context.IsHandled = true;
-            }
+            var handler = Context.GetBotService<InputParametersHandler>();
+            await handler.HandleAsync(ParametersEntered, botUnit, Context, cancel);           
 
             Context.SetNextHandler(handler.AsyncDelegate);
+        }
+
+        async Task ParametersEntered(FormattableUnitBase result, IHandleContext context)
+        {
+                await response.CompleteInput(result.ToString()).Commit();
+
+                var repository = Context.GetBotService<IJsonRepository>();
+                var unitRes = await repository.RawAsync<DataBase>(result.Format, default, result.ToArray());
+                unitRes.Content.FirstOrDefault()?.InitializeMetaData();
+                await response.CompleteInput(unitRes.Content.FirstOrDefault()?.Format()).Commit();
+                Context.IsHandled = true;            
         }
     }
 }

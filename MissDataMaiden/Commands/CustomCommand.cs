@@ -28,7 +28,7 @@ namespace MissDataMaiden
         private readonly IRepository<BotCommand> repository;        
 
         CustomCommand currentCommand;
-        protected override void Initialize()
+        protected override void Initialize(IEnumerable<string> parameterNames)
         {
             currentCommand = new CustomCommand();
             JoinHandlers(SetAliase, SetDescription, SetCommand, OfferCompleteOptions);
@@ -36,7 +36,7 @@ namespace MissDataMaiden
 
         object OfferCompleteOptions(IHandleContext context, string input, string parameterName) => input switch
         {
-            null => Response.InputData("Save command?", ChatActions.Create(nameof(Save), nameof(Cancel))),
+            null => Response.InputData("Save command?", ChatActions.Create(1, nameof(Save), nameof(Cancel))),
             nameof(Save) => Save(context),
             nameof(Cancel) => Cancel(context),
             _ => null

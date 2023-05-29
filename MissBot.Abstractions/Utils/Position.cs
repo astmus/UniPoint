@@ -4,10 +4,12 @@ namespace MissBot.Abstractions.Utils
 {
     public struct Position
     {
-        public uint Current{ get; set; }
-        public uint Forward
-            => ++Current;        
-        public uint Back
-            => Current > 0 ?  --Current : Current;        
+        int value;
+
+        public int Current => value;
+        public int Forward()
+            =>  ++value;              
+        public int Back()
+            => value > 0 ?  --value : value;        
     }   
 }

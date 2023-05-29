@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Linq;
@@ -7,42 +8,37 @@ using MissBot.Abstractions.Utils;
 
 namespace MissCore
 {
-    public class FormattableUnitAction : FormattableUnitActionBase
+    public class FormattableUnit : FormattableUnitBase
     {
         private string _format;
         private readonly List<object> _arguments;
-        public Position? Parameter;
+        public Position Parameter;
         private readonly ListDictionary _parameters = new ListDictionary();
-        public uint BackParameter
-            => Parameter.Value.Back;
-        public uint ForwardParameter
-            => Parameter.Value.Forward;
-        public uint ParameterIndex
-            => Parameter.Value.Current;
+        public IEnumerable<string> ParameterNames
+            => _parameters.Keys.Cast<string>();
+        public int ParameterIndex
+            => Parameter.Current;
 
-        internal FormattableUnitAction(string format)
+        internal FormattableUnit(string format)
             => _format = format;
-        public string this[uint index]
-            => _parameters.Keys.Cast<string>().ElementAtOrDefault(Convert.ToInt32(index));
-
-        internal FormattableUnitAction(string format, IEnumerable<object> args = default) : this(format)
+        internal FormattableUnit(string format, IEnumerable<object> args = default) : this(format)
         {
             if (args != null)
                 _arguments = new List<object>(args);
         }
-        internal FormattableUnitAction(string format, IEnumerable<string> parameters = default) : this(format)
+        internal FormattableUnit(string format, IEnumerable<string> parameters = default) : this(format)
         {
             if (parameters != null)
                 foreach (var p in parameters)
-                    _parameters.Add("@" + p, null);
+                    _parameters.Add(p, null);
         }
 
-        internal static FormattableUnitAction Create(string format)
-           => new FormattableUnitAction(format);
-        internal static FormattableUnitAction Create(string format, params object[] args)
-            => new FormattableUnitAction(format, args);
-        internal static FormattableUnitAction Create(string format, params string[] args)
-            => new FormattableUnitAction(format, args);
+        internal static FormattableUnit Create(string format)
+           => new FormattableUnit(format);
+        internal static FormattableUnit Create(string format, params object[] args)
+            => new FormattableUnit(format, args);
+        internal static FormattableUnit Create(string format, params string[] args)
+            => new FormattableUnit(format, args);
 
         public override string Format
             => _format;
@@ -51,7 +47,7 @@ namespace MissCore
         public override int ArgumentCount
             => _arguments?.Count ?? _parameters?.Count ?? 0;
         public string CurrentParameterName
-            => this[Parameter.Value.Current];
+            => ParameterNames.ElementAtOrDefault(Convert.ToInt32(Parameter.Current));
         public override object GetArgument(int index)
             => _parameters[index];
         public object this[string key]
@@ -61,19 +57,12 @@ namespace MissCore
         }
         public void SetupParameterPosition()
         {
-            if (Parameter.HasValue)
-                return;
-
-            byte pos = 0;
+            Parameter = new Position();
             foreach (DictionaryEntry de in _parameters)
                 if (de.Value != null)
-                    pos++;
+                    Parameter.Forward();
                 else
-                    break;
-
-            Position p = new Position();
-            p.Current = pos;
-            Parameter = p;
+                    break;            
         }
 
         public override string ToString(IFormatProvider formatProvider)

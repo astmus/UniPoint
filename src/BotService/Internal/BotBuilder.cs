@@ -112,7 +112,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
 
         public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetAsyncHandler<THandler>().AsyncDelegate(context.SetNextHandler(next)));            return this;        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetNextHandler(next));            return this;        }
 
         public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
         {
@@ -150,12 +150,12 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
         }
     }    internal abstract class BotBuilder : IBotBuilder    {
         protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        internal BotBuilder()
-        {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }        public IBotBuilder Use(Func<AsyncHandler, AsyncHandler> middleware)        {            throw new NotImplementedException();        }        IBotBuilder IBotBuilder.AddUnitActionHandler()
+        {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }                      IBotBuilder IBotBuilder.AddInputParametersHandler()
         {
             host.ConfigureServices((h, Services)
             =>
             {
-                Services.AddScoped<BotUnitActionHandler>();
+                Services.AddScoped<InputParametersHandler>();
             });
             return this;
         }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
@@ -215,12 +215,12 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             return this;
         }
 
-        IBotBuilder IBotBuilder.AddHandler<THandler>()
+        IBotBuilder IBotBuilder.AddCustomCommandCreator<TCreator>()
         {
             host.ConfigureServices((h, Services)
             =>
             {
-                Services.AddScoped<IAsyncHandler<THandler>, THandler>();                
+                Services.AddScoped<ICreateBotCommandHandler, TCreator>();                
             });
             return this;
         }

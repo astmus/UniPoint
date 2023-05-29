@@ -46,6 +46,7 @@ namespace MissBot.DataAccess
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = request.GetCommand(RequestOptions.JsonAuto);
+                   
                     if (await cmd.ReadAsync(cancel) is string json)
                         result = JsonConvert.DeserializeObject<TResult>(json);
                 }

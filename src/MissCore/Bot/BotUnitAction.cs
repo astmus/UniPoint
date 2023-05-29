@@ -9,6 +9,7 @@ namespace MissCore.Bot
     {
         [Column]
         public override string Unit { get; set; }
+
         [Column]
         public override string Entity
             => Action;
@@ -16,12 +17,8 @@ namespace MissCore.Bot
         [Column("Entity")]
         public virtual string Action { get; set ; }
 
-        //[Column("Description")]
-        //public override string Description { get => base.Description; set => base.Description = value; }
-
-        [Column("Payload")]
-       
-        public override string Payload { get => base.Payload; set => base.Payload = value; }
+        [Column]       
+        public override string Payload { get; set; }
     }
 
     [Table("##BotUnits")]

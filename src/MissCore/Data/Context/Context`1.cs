@@ -28,11 +28,6 @@ namespace MissCore.Data.Context
             Root.Set(data);
             return this;
         }
-        public IHandleContext SetNextHandler<T>(T data) where T : class
-        {
-            Set(data);
-            return this;
-        }
 
         public T GetBotService<T>() where T : class
             => BotServices.GetService<T>();
@@ -45,10 +40,16 @@ namespace MissCore.Data.Context
         public bool Contains<T>(Id<T> identifier)
             => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;
 
-        public async Task MoveToNextHandler()
+        public IHandleContext SetNextHandler(AsyncHandler handler)
         {
-            currentHandler = Get<AsyncHandler>();
-            await currentHandler(this).ConfigureAwait(false);
+            Set(handler);
+            return this;
+        }
+
+        public Task GetNextHandler(AsyncHandler defHandler = default)
+        {
+            currentHandler = Get<AsyncHandler>(defHandler);
+            return currentHandler(this);
         }
 
         public AsyncHandler CurrentHandler

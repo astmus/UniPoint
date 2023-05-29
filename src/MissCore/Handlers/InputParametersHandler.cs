@@ -7,9 +7,9 @@ using MissCore.Bot;
 
 namespace MissCore.Handlers
 {
-    public class BotUnitActionHandler : BotUnitActionHadlerBase<BotUnitAction>
+    public class InputParametersHandler : BotUnitActionHadlerBase<UnitBase>
     {
-        protected override void Initialize()
+        protected override void Initialize(IEnumerable<string> parameterNames)
         {
             var args = Enumerable.Repeat<AsyncInputHandler>(SetParameter, currentUnit.ArgumentCount).ToArray();
             JoinHandlers(args);            
@@ -40,9 +40,9 @@ namespace MissCore.Handlers
         }
 
         object SetParameter(IHandleContext context, string input, string parameterName) => input switch
-        {
+        { 
             null when currentUnit[parameterName] is null =>
-                Response.InputData($"Enter parameter: '{parameterName}'"),
+                Response.InputData($"Enter parameter: '{parameterName}'"),            
             var value when value.IndexOf(' ') < 0 =>
                 currentUnit[parameterName] = value,
             var value when value.IndexOf(' ') > -1 =>

@@ -9,8 +9,7 @@ namespace MissBot.Abstractions.Entities
 
         [JsonProperty("description")]
         public virtual string Description { get; set; }
-
-        [JsonIgnore]
+        
         public override string Entity { get; set; } = nameof(BotCommand);
 
         [JsonProperty("command")]

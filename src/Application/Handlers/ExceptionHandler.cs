@@ -12,8 +12,8 @@ namespace MissBot.Handlers
         public override async Task ExecuteAsync(IHandleContext context)
         {
             try
-            {
-                await context.MoveToNextHandler();
+            {                
+                await context.GetNextHandler().ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -21,7 +21,7 @@ namespace MissBot.Handlers
                 context.IsHandled = true;
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("An error occured in handling update {0}.{1}{2}", context, Environment.NewLine, e);
+                Console.WriteLine("An error occured in handling update {0}.{1}{2}", context.CurrentHandler, Environment.NewLine, e);
                 Console.ResetColor();
             }
         }

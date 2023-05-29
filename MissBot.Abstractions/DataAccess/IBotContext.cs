@@ -11,8 +11,7 @@ namespace MissBot.Abstractions.DataAccess
         IList<BotCommand> Commands { get; }
         IList<BotUnitParameter> Parameters { get; }
         TCommand GetCommand<TCommand>() where TCommand : BotCommand, IBotUnitAction;        
-        TUnit Get<TUnit>() where TUnit : UnitBase, IBotUnit;
-        TUnit Get<TEntity, TUnit>(Id<TEntity> identifier) where TUnit : UnitBase, IBotEntity;
+        TUnit Get<TUnit>() where TUnit : UnitBase, IBotUnit;        
         IBotUnit<TUnit> GetBotUnit<TUnit>() where TUnit : UnitBase;
         Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : UnitBase;
         TAction GetAction<TAction>() where TAction : UnitBase, IBotUnitAction;

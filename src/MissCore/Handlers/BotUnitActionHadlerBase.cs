@@ -14,7 +14,7 @@ namespace MissCore.Handlers
     
         protected IResponse<BotCommand> Response;
         protected IHandleContext context;
-        protected FormattableUnitAction currentUnit { get; private set; }
+        protected FormattableUnit currentUnit { get; private set; }
         public AsyncHandler AsyncDelegate { get; protected set; }
         public BotUnitActionHadlerBase()
         {
@@ -29,12 +29,13 @@ namespace MissCore.Handlers
                 var input = upd.StringContent;
                 if (CurrentHandler == null)
                 {
-                    input = null;
+                    input = null;                    
+                    currentUnit.SetupParameterPosition();
                     Response = context.BotServices.Response<BotCommand>();
-                    Initialize();
+                    Initialize(currentUnit.ParameterNames);
                     if (currentUnit.ParameterIndex == Handlers.Length)
                     {
-                        completedObject = currentUnit;
+                        await complete(currentUnit, context).ConfigureAwait(false);
                         return;
                     }
                     CurrentHandler = Handlers[currentUnit.ParameterIndex];
@@ -44,14 +45,15 @@ namespace MissCore.Handlers
                 {
                     case IResponse:                    
                     case AsyncInputHandler handler:
-                        await Response.Commit(); return;
+                        break;
                     case Task task:
-                        await task; break;
+                        await task.ConfigureAwait(false); break;
                     default:
-                        if (MoveNext() == false)
-                            completedObject = currentUnit;
+                        if (MoveNext() is AsyncInputHandler inputHandler)
+                            inputHandler(context, null, currentUnit.CurrentParameterName);
                         else
-                            CurrentHandler(context, null, currentUnit.CurrentParameterName); break;
+                            await complete(currentUnit, context).ConfigureAwait(false);
+                            break;
                 }
                 await Response.Commit();
             }
@@ -59,14 +61,16 @@ namespace MissCore.Handlers
 
         protected void JoinHandlers(params AsyncInputHandler[] handlers)
             => Handlers = handlers;
-        protected abstract void Initialize();
+        protected abstract void Initialize(IEnumerable<string> parameterNames);
         void MoveBack()
-            => CurrentHandler = Handlers[currentUnit.BackParameter];
+            => CurrentHandler = Handlers[currentUnit.Parameter.Back()];
 
-        bool MoveNext()
+        protected AsyncInputHandler MoveNext()
         {
-            CurrentHandler = Handlers[currentUnit.ParameterIndex];
-            return currentUnit.ForwardParameter < Handlers.Length;
+            while(currentUnit.Parameter.Forward() < Handlers.Length)
+                if (currentUnit[currentUnit.CurrentParameterName] is null)
+                    return CurrentHandler = Handlers[currentUnit.ParameterIndex];
+            return null;
         }
 
         protected AsyncInputHandler ReTry(AsyncInputHandler handler, string message)
@@ -76,20 +80,18 @@ namespace MissCore.Handlers
             return CurrentHandler = handler;
         }
 
-        FormattableUnitActionBase completedObject;
-        public async Task<FormattableUnitActionBase> HandleAsync<TUnitAction>(IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
-        {            
-            currentUnit = context.Get<FormattableUnitAction>(action.Identifier);
-            currentUnit ??= FormattableUnitAction.Create(action.Payload, action.GetParameters().ToArray());
-            currentUnit["@Id"] = action.Identifier.id;
-
-            currentUnit.SetupParameterPosition();
+        Func<FormattableUnitBase, IHandleContext, Task> complete;
+        public async Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
+        {
+            complete = callBack;
+            currentUnit = context.Get<FormattableUnit>(action.Identifier);
+            currentUnit ??= FormattableUnit.Create(action.Payload, action.GetParameters().ToArray());
+            currentUnit["Id"] = action.Identifier.id;            
 
             await HandleAsync(context);
 
             if (!context.IsHandled.HasValue)
                 context.IsHandled = false;
-            return completedObject;
         }
 
         protected object SetParameter<T>(IHandleContext context, T input, string parameterName) where T:struct

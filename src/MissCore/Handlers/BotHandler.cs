@@ -15,18 +15,15 @@ namespace MissCore.Handlers
         {
             this.builder = builder;
         }
-
+        AsyncHandler startHandler;
         public async Task HandleUpdateAsync(Update<TBot> data, IHandleContext context, CancellationToken cancel)
         {
-            if (context.CurrentHandler is AsyncHandler handleDelegate)
+            if (context.CurrentHandler != null)
                 context.IsHandled = null;
             else
-            {
-                handleDelegate = builder.BuildHandler();
-                context.Set(handleDelegate);
-            }
+                startHandler = builder.BuildHandler();
 
-             await handleDelegate(context).ConfigureAwait(false);
+             await startHandler(context).ConfigureAwait(false);
         }
 
         //object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch

@@ -29,22 +29,21 @@ namespace MissBot.Handlers
                 {
                     var command = context.BotServices.ResponseError();
                     command.Write(error);
-                    await command.Commit();                    
+                    await command.Commit();
                 }
                 if (!context.IsHandled.HasValue)
                     context.IsHandled = true;
             }
             else
-                await context.MoveToNextHandler();
+                await context.GetNextHandler().ConfigureAwait(false);
         }
         
 
         public abstract Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitAction;
         protected virtual async Task HandleAsync(IHandleContext context, string command)
         {
-            if (context.Bot.Commands.FirstOrDefault(c => string.Compare(c.Action, command, true) == 0) is BotUnitCommand cmd)
+            if (context.Bot.Commands.FirstOrDefault(c => c.Action ==  command) is BotUnitCommand cmd)
             {
-                //cmd.Payload = Current.command;
                 await HandleAsync(cmd).ConfigureAwait(false);
             }
             else

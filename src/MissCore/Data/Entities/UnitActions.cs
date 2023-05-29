@@ -11,7 +11,8 @@ public class UnitActions : IActionsSet
     { }
     public UnitActions(IEnumerable<UnitAction> unitActionsRow) : this(new[] { unitActionsRow })
     { }
-
+    public UnitActions(int rowSize, IEnumerable<UnitAction> unitActionsRow) : this(unitActionsRow.Chunk(rowSize))
+    { }
     [JsonConstructor]
     public UnitActions(IEnumerable<IEnumerable<UnitAction>> actionsUnion)
         => Actions = actionsUnion;

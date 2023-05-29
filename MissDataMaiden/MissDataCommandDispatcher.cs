@@ -40,9 +40,8 @@ namespace MissDataMaiden
             switch (command.Action)
             {
                 case "add":
-                    var handler = Context.GetBotService<IAsyncHandler<AddCommandHadler>>();
-                    Context.Set(handler.AsyncDelegate);
-                    await handler.AsyncDelegate(Context);
+                    var handler = Context.GetBotService<ICreateBotCommandHandler>();          
+                    await handler.CreateAsync(Context, cancel);
                     Context.IsHandled = false;
                     break;
                 default:

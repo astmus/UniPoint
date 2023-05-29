@@ -98,16 +98,7 @@ namespace MissCore.Bot
 
             cmd = GetUnits<TCommand>().FirstOrDefault(w => w.Unit == Unit<BotCommand>.Key && string.Compare(w.Action, Unit<TCommand>.Key, true) == 0);
             return cache.Set(cmd);
-        }
-
-        public TUnit Get<TEntity, TUnit>(Id<TEntity> identifier) where TUnit : UnitBase, IBotEntity
-        {
-            if (cache.Get<TUnit>(Id<TEntity, TUnit>.Value) is TUnit unit)
-                return unit with { };
-
-            unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == Unit<TEntity>.Key && string.Compare(w.Entity, identifier.id, true) > -1);
-            return cache.Set(unit, Id<TEntity, TUnit>.Value);
-        }
+        }       
 
         public async Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : UnitBase
         {
@@ -127,11 +118,11 @@ namespace MissCore.Bot
 
         async Task<IBotUnitAction<TUnit>> IBotContext.GetActionAsync<TUnit>(string actionName)
         {
-            if (cache.Get<BotUnitAction<TUnit>>() is BotUnitAction<TUnit> action)
+            if (cache.Get<BotUnitAction<TUnit>>(actionName) is BotUnitAction<TUnit> action)
                 return action with { };
                 
-            action = await GetUnits<BotUnitAction<TUnit>>().FirstOrDefaultAsync(f => f.Unit == Unit<TUnit>.Key && string.Compare(f.Action, actionName, true) > -1);//await HandleQueryAsync<TUnit>(cmd);
-            return cache.Set(action);
+            action = await GetUnits<BotUnitAction<TUnit>>().FirstOrDefaultAsync(f => f.Unit == Unit<TUnit>.Key && string.Compare(f.Action, actionName, true) == 0);//await HandleQueryAsync<TUnit>(cmd);
+            return cache.Set(action, actionName);
         }
     }
 }

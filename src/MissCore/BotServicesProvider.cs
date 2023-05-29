@@ -27,5 +27,8 @@ namespace MissCore
 
         public IResponse<T> Response<T>()
             => sp.GetRequiredService<IResponse<T>>();
+
+        public T Activate<T>() where T : class
+            => ActivatorUtilities.GetServiceOrCreateInstance<T>(sp);
     }
 }

@@ -52,6 +52,8 @@ public class ChatActions : IChatActionsSet
     }
     public static ChatActions Create(params ChatAction[] actions)
         => new ChatActions(actions);
+    public static ChatActions Create(int rowSize, params ChatAction[] actions)
+        => new ChatActions(actions.Chunk(rowSize));
 
     public void ClearActions()
     {
