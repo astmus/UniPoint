@@ -1,29 +1,25 @@
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 using LinqToDB;
-using LinqToDB.Reflection;
 using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
+using MissCore;
 using MissCore.Bot;
 using MissCore.Collections;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static LinqToDB.Common.Configuration;
 
 namespace MissBot.DataAccess
 {
     public class JsonRepository : DataContext, IJsonRepository
     {
-        IRequestProvider provider;
-        public JsonRepository(IOptions<BotContextOptions> ctxOptions, IRequestProvider requestProvider) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
+        
+        public JsonRepository(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
-            provider = requestProvider;
         }
 
         public Task ExecuteCommandAsync(IUnitRequest request, CancellationToken cancel = default)
@@ -31,10 +27,12 @@ namespace MissBot.DataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(ISearchUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : UnitBase
+        public async Task<IMetaCollection<TUnit>> FindAsync<TUnit>(ISearchUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : BaseUnit
         {
-            var items = await HandleRawAsync(JArray.Parse, query.GetCommand(), cancel);
-            return new MetaCollection<TUnit>(items);
+            if (await HandleRawAsync(JArray.Parse, query.GetCommand(), cancel) is JArray items)
+                return new MetaCollection<TUnit>(items);
+            else
+                return MetaCollection<TUnit>.Empty;
         }
 
         public async Task<TResult> HandleQueryAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : class
@@ -45,7 +43,7 @@ namespace MissBot.DataAccess
                 await connection.OpenAsync(cancel);
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = request.GetCommand(RequestOptions.JsonAuto);
+                    cmd.CommandText = request.GetCommand();
                    
                     if (await cmd.ReadAsync(cancel) is string json)
                         result = JsonConvert.DeserializeObject<TResult>(json);
@@ -82,7 +80,7 @@ namespace MissBot.DataAccess
                     using (var cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = sql;
-                        if (await cmd.ReadAsync(cancel) is string json)
+                        if (await cmd.ReadAsync(cancel) is string json && json != string.Empty)
                             result = parser(json);
                     }
                 }
@@ -94,18 +92,51 @@ namespace MissBot.DataAccess
             return result;
         }       
 
+        public async Task<TResult> HandleScalarAsync<TResult>(IUnitRequest request, CancellationToken cancel = default)
+        {
+            TResult result = default;
+            using (var conn = DataProvider.CreateConnection(ConnectionString))
+            {
+                try
+                {
+                    await conn.OpenAsync(cancel);
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        request.Options |= RequestOptions.JsonAuto | RequestOptions.Scalar;
+                        cmd.CommandText = request.GetCommand();
+
+                        cmd.LoadParameters(request.Params);
+
+                        if (await cmd.ReadAsync(cancel) is string json && json.Length > 0)
+                            result = JsonConvert.DeserializeObject<TResult>(json);
+                        if (result is BaseUnit unit)
+                            unit.InitializeMetaData();
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    await conn.CloseAsync();
+                }
+            }
+            return result;
+        }
+
         public async Task<TResult> HandleRawAsync<TResult>(string request, CancellationToken cancel = default) where TResult : class
         {
-            var command = provider.FromRaw<TResult>(request);
-            command.RequestOptions = RequestOptions.JsonAuto | RequestOptions.Scalar;
-            var item = await HandleScalarAsync(command, cancel);
+            IUnitRequest command = new UnitRequest<TResult>(request);
+            command.Options  |= RequestOptions.Scalar;
+            JObject item = await HandleScalarAsync(command, cancel);
             var result = item?.ToObject<TResult>();
-            if (result is UnitBase unit)
+            if (result is BaseUnit unit)
                 unit.InitializeMetaData();
             return result;
         }
 
-        public async Task<IMetaCollection<TUnit>> HandleQueryAsync<TUnit>(IUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : UnitBase
+        public async Task<IMetaCollection<TUnit>> HandleQueryAsync<TUnit>(IUnitRequest<TUnit> query, CancellationToken cancel = default) where TUnit : BaseUnit
         {
             var items = await HandleRawAsync(JArray.Parse, query.GetCommand(), cancel);
 
@@ -122,7 +153,8 @@ namespace MissBot.DataAccess
                     await conn.OpenAsync(cancel);
                     using (var cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = request + (RequestOptions.JsonAuto | RequestOptions.RootContent).TrimSnakes();
+
+                        cmd.CommandText = $"{request} {(RequestOptions.JsonAuto | RequestOptions.RootContent).Format()}";
 
                         cmd.LoadParameters(parameters);
 
@@ -141,6 +173,7 @@ namespace MissBot.DataAccess
             }
             return result;
         }
+
     }
 }
 internal static class DBExtension
@@ -163,6 +196,16 @@ internal static class DBExtension
             var p = cmd.CreateParameter();
             p.ParameterName = (string)arg.Key;
             p.Value = arg.Value;
+            cmd.Parameters.Add(p);
+        }
+    }
+    internal static void LoadParameters(this DbCommand cmd, IEnumerable<IMetaItem> parameters)
+    {
+        foreach (var arg in parameters)
+        {
+            var p = cmd.CreateParameter();
+            p.ParameterName = "@"+arg.UnitName;
+            p.Value = arg.UnitValue;
             cmd.Parameters.Add(p);
         }
     }

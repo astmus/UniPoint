@@ -18,7 +18,7 @@ namespace MissCore.Collections
     /// <param name="Entity"></param>
     [JsonObject]
     [Table("##BotUnits")]
-    public record Unit<TEntity> : UnitBase, IUnit<TEntity>
+    public record Unit<TEntity> : BaseUnit, IUnit<TEntity>
     {        
         public static readonly string Key = typeof(TEntity).Name;
         public static readonly Id<TEntity> Id = Id<TEntity>.Value;
@@ -37,13 +37,17 @@ namespace MissCore.Collections
 
         public override void InitializeMetaData()
             => Meta ??= MetaData<TEntity>.Parse(this);
-        public static DataMap Parse(TEntity entity)
-            => DataMap.Parse(entity);
+        public static Unit<TEntity> Parse<TData>(TData data)
+        {
+            var unit = new Unit<TEntity>();
+            unit.Meta = MetaData.Parse(data);
+            return unit;
+        }
 
-        public override string Format(IUnit.Formats format = IUnit.Formats.Table | IUnit.Formats.PropertyNames)
+        public override string Format(IUnit.Formats? format = default)
         {
             if (Meta != null)
-                return GetFormat(format);
+                return GetFormat(format ?? IUnit.Formats.Table | IUnit.Formats.PropertyNames);
 
             return string.Empty;
         }

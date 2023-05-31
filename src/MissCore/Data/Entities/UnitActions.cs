@@ -10,7 +10,8 @@ public class UnitActions : IActionsSet
     public UnitActions(UnitAction unitAction) : this(new[] { unitAction })
     { }
     public UnitActions(IEnumerable<UnitAction> unitActionsRow) : this(new[] { unitActionsRow })
-    { }
+    {       
+    }
     public UnitActions(int rowSize, IEnumerable<UnitAction> unitActionsRow) : this(unitActionsRow.Chunk(rowSize))
     { }
     [JsonConstructor]

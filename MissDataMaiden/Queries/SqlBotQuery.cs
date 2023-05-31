@@ -48,7 +48,7 @@ namespace MissDataMaiden.Queries
 
         }
     }
-    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissBot.Abstractions.Entities.UnitBase
+    public record SqlRaw<TUnion> : IStreamRequest<TUnion> where TUnion : MissBot.Abstractions.Entities.BaseUnit
     {
 
         public record Query(string sql, string connection = null) : SqlRaw<TUnion>;

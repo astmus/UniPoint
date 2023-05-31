@@ -17,6 +17,8 @@ namespace MissCore.Collections
         public void JoinData<TEntity>(TEntity entity)
              => Parse(JObject.FromObject(entity));
 
+        public bool Contains(string name)
+            => this[name] is string path && container.SelectToken(path) is JToken value;
         public TEntity ReadObject<TEntity>(string name)
         {
             if (this[name] is string path && container.SelectToken(path) is JToken value)
@@ -38,7 +40,10 @@ namespace MissCore.Collections
             if (containerToken.Type == JTokenType.Object)
                 foreach (var child in containerToken.Children<JProperty>())
                 {
-                    Add(child.Name, child.Path);
+                    if (child.Name.IndexOf('_')> -1)
+                        Add(child.Name.Replace("_",""), child.Path);
+                    else
+                        Add(child.Name, child.Path);
                     ParseTokens(child.Value);
                 }
             else if (containerToken.Type == JTokenType.Array)

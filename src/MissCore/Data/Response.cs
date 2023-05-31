@@ -28,12 +28,7 @@ namespace MissCore.Data
         {
             WriteUnit(unit, IUnit.Formats.Line);
         }
-
-        public override void WriteResult<TUnitData>(TUnitData units) 
-        {
-            //foreach (var unit in units)
-            //    Write(unit);
-        }
+      
         public override void Write<TUnitData>(IEnumerable<TUnitData> units) 
         {
             foreach (var unit in units)

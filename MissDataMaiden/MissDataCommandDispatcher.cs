@@ -1,8 +1,8 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Handlers;
 using MissCore.Collections;
+using MissCore.Handlers;
 using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
@@ -45,13 +45,13 @@ namespace MissDataMaiden
                     Context.IsHandled = false;
                     break;
                 default:
-                    var request = Context.Provider.FromRaw<BotCommand>(command.Payload);
+                    
                     var repository = Context.GetBotService<IJsonRepository>();
-                    var result = await repository.ReadAsync(request);
+                    var result = await repository.RawAsync<GenericUnit>(command.Payload);
                     var response = Context.BotServices.Response<BotCommand>();
-                    foreach (var item in result.SupplyTo<Unit<BotCommand>>())
-                    {
-                        response.Write(item);
+                    foreach (var item in result.Content)
+                    {                    
+                        response.Write(item.ToUnit<BotCommand>());
                         if (response.Length > 1500)
                             await response.Commit(default);
                     }

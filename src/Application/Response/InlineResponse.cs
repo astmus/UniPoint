@@ -31,10 +31,11 @@ namespace MissCore.Data
 
         public async Task Commit(CancellationToken cancel)
         {
+            if (results.Count > 0)
             await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false) ;
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : UnitBase, IUnit<T>
+        public void Write<TUnitData>(TUnitData unit) where TUnitData : UnitBase
         {
             if (unit is InlineResultUnit item)
             {
@@ -45,7 +46,7 @@ namespace MissCore.Data
             }
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : UnitBase, IUnit<T>
+        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : UnitBase
         {
             foreach (var unit in units)
             {
@@ -56,25 +57,9 @@ namespace MissCore.Data
             }
         }
 
-        public void WriteResult<TUnitData>(TUnitData unit) where TUnitData : IEnumerable<IUnit<T>>
-        {
-            //foreach (var item in unit)
-            //    Write(item);
-        }
-
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
             throw new NotImplementedException();
-        }
-
-        public void WriteError<TUnitData>(TUnitData unit) where TUnitData : class, IUnit
-        {
-            //results.Add(InitResult(unit));
-        }
-
-        public void WriteSimple<TUnitData>(TUnitData unit) where TUnitData :class, IUnit
-        {
-
         }
 
         public IResponse<T> InputData(string description, IActionsSet options = null)

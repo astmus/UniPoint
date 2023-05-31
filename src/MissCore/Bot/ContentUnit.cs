@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Nodes;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
@@ -22,10 +23,9 @@ namespace MissCore.Bot
         IEnumerable<TEntity> IContentUnit<TEntity>.Content
             => this.Content;
 
-        public static readonly Empty Default = new Empty((Id)"0");
-        public record Empty(Id id, string Text = "Empty", string Title = "Not found") : Unit<TEntity>
+        public static readonly TEntity Default = Activator.CreateInstance<TEntity>();
+        public record Empty : Unit<TEntity>
         {
-            public TEntity[] Content { get; set; }
             public override string Entity
                 => Unit<TEntity>.Key;
         }

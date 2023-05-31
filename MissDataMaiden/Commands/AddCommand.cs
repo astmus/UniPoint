@@ -3,7 +3,7 @@ using MissBot.Abstractions;
 using MissBot.Entities;
 using MissCore.Data;
 
-namespace MissDataMaiden
+namespace MissDataMaiden.Commands
 {
     public class AddCommandHadler : CreateBotCommandHandler<CustomCommand>
     {

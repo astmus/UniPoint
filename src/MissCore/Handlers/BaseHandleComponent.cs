@@ -2,18 +2,8 @@ using MissBot.Abstractions;
 
 namespace MissCore.Handlers
 {
-    public abstract class BaseHandleComponent : IAsyncHandler
-    {
-        public AsyncHandler AsyncDelegate
-            => HandleAsync;
-
-        public abstract Task ExecuteAsync(IHandleContext context);
-
-        protected async virtual Task HandleAsync(IHandleContext context)
-        {
-            AsyncHandler next = context.Get<AsyncHandler>(); 
-            await ExecuteAsync(context);
-            await next(context).ConfigureAwait(false);
-        }
+    public abstract class BaseHandleComponent : IAsyncHandleComponent
+    {  
+        public abstract Task HandleAsync(IHandleContext context, AsyncHandler next, CancellationToken cancel = default); 
     }
 }

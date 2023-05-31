@@ -11,7 +11,7 @@ namespace MissBot.Entities.Results;
 public class ChosenInlineResult
 {
     public string Id
-        => Query.Length > 0 ? ResultId.AsSpan(ResultId.IndexOf(Query, StringComparison.InvariantCultureIgnoreCase)).ToString() : ResultId;
+        => Query.Length > 0 ? ResultId.AsSpan(0,ResultId.IndexOf(Query, StringComparison.InvariantCultureIgnoreCase)).ToString() : ResultId;
     /// <summary>
     /// The unique identifier for the result that was chosen.
     /// </summary>

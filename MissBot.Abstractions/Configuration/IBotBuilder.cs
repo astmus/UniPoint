@@ -20,9 +20,8 @@ namespace MissBot.Abstractions.Configuration
 
     public interface IBotBuilder<TBot> : IBotBuilder where TBot : class, IBot
     {
-        IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository;
-        IBotBuilder<TBot> AddCustomCommandHandler<THandler>() where THandler :class, IAsyncBotUnitActionHandler;
-        IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler;        
+        IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository;        
+        IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandleComponent;        
         IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
         IBotBuilder<TBot> UseInlineAnswerHandler<THandler>() where THandler : class, IAsyncHandler<ChosenInlineResult>;

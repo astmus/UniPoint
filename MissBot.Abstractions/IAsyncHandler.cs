@@ -21,7 +21,7 @@ namespace MissBot.Abstractions
     }
     public interface IAsyncBotUnitActionHandler : IAsyncHandler
     {
-        Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase;
+        Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : BaseUnit;
     }
     public interface ICreateBotCommandHandler
     {
@@ -30,11 +30,13 @@ namespace MissBot.Abstractions
     }
     public interface ICreateBotCommandHandler<TCommand> : ICreateBotCommandHandler where TCommand:BotCommand
     {
-        //Task StartCreate(TCommand emptyCommand, IHandleContext context, CancellationToken cancel = default);
     }
 
-
-    public interface IAsyncUnitActionSource<TUnit>  where TUnit : UnitBase
+    public interface IAsyncHandleComponent
+    {
+        Task HandleAsync(IHandleContext context, AsyncHandler next, CancellationToken cancel = default);
+    }
+    public interface IAsyncUnitActionSource<TUnit>  where TUnit : BaseUnit
     {
         void PushUnit(TUnit unit, IHandleContext context, CancellationToken cancel = default);
         //Task HandleActionAsync(TUnit action, IHandleContext context, CancellationToken cancel = default);

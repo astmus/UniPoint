@@ -15,14 +15,13 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="7.0.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\MissBot.Commands\MissBot.Entities.csproj" />
     <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\MissBot.DataAccess\MissBot.DataAccess.csproj" />
     <ProjectReference Include="..\MissCore\MissCore.csproj" />
   </ItemGroup>

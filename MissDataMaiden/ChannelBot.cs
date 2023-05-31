@@ -1,16 +1,10 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using MissBot.Attributes;
 using MissCore.Data;
-using MissDataMaiden.Commands;
 
 namespace MissDataMaiden
 {
-    [HasBotCommand(Name = nameof(List), Description = "List of data bases with info")]
-   // [HasBotCommand(Name = nameof(Info), Description = "Inforamtion about current server state")]
-    [HasBotCommand(Name = nameof(Disk), Description = "Disk space information")]
     public class MissChannel : BaseBot, IBot<Update<MissChannel>>
     {
         public class Update : Update<MissChannel> { }

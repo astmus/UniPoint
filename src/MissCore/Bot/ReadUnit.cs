@@ -7,18 +7,17 @@ using MissCore.Collections;
 
 namespace MissCore.Bot
 {
-    public record ReadUnit : BotUnit
+    public record ReadUnit : UnitRequest, IUnitRequest
     {
-        public ReadUnit<TEntity> Read<TEntity>() where TEntity : class
-            => new ReadUnit<TEntity>() { Payload = string.Format(Payload, Unit<TEntity>.Key) };
-    }
-
-    public record ReadUnit<TEntity> : BotUnit, IUnitRequest<TEntity> where TEntity : class
-    {
-        public RequestOptions RequestOptions { get; set; }
+        public ReadUnit()
+        {
+            Options = RequestOptions.JsonAuto | RequestOptions.Scalar;
+        }
+        public IUnitRequest Read<TEntity>() where TEntity : class
+            => this with { Payload = string.Format(Payload, Unit<TEntity>.Key) };        
         public override string ToString()
-            => string.Format((RequestOptions.JsonAuto | RequestOptions.Scalar).SnakeTemplate(),Payload);
-        public string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
+            => Payload  + Options.Format();
+        public override string GetCommand()
             => ToString();
     }
 }

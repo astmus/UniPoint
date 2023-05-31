@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Linq;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
@@ -76,9 +74,9 @@ namespace MissCore
                 return string.Format(formatProvider, result);
         }
 
-        public string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
+        string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
         {
-            return ToString(null) + format.TrimSnakes();
+            return ToString(null) + format.Format();
         }
 
         public override string GetCommand()

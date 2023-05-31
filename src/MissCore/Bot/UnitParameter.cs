@@ -1,5 +1,6 @@
 using LinqToDB.Mapping;
 using MissBot.Entities;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
@@ -15,4 +16,5 @@ namespace MissCore.Bot
         [Column]
         public override string Value { get; set; }
     }
+    
 }

@@ -1,14 +1,11 @@
-using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities.Query;
-using MissBot.Handlers;
-using MissCore;
 using MissCore.Bot;
-using MissCore.Collections;
-using MissCore.Data;
+using MissCore.Handlers;
+using MissCore.Response;
 using MissDataMaiden.Entities;
 
-namespace MissDataMaiden.Commands
+namespace MissDataMaiden.Queries
 {
 
     public class SearchDataBaseHandler : InlineQueryHandler
@@ -21,23 +18,27 @@ namespace MissDataMaiden.Commands
             botContext = bot;
             repository = jsonRepository;
         }
-         
+
         public async override Task LoadAsync(Paging pager, InlineResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
         {
             var search = botContext.Get<Search<DataBase>>();
             
             var botUnit = await botContext.GetBotUnitAsync<DataBase>();
-            var items = await repository.FindAsync<DataBase>(search with { Query = query.Query, Pager = pager, }, cancel);
+            var items = await repository.HandleQueryAsync(search with { Query = query.Query, Pager = pager, }, cancel);
+            var ite = botContext.GetUnitActions<DataBase>();
 
-            var units = items.SupplyTo<InlineQueryResult<DataBase>>();
+ //               => new InlineResultUnit < DataBase >() { Id = d.Id + query.Query, Title = d.Name, Description = d.Created });
+            var units = items.SupplyTo<InlineResultUnit<DataBase>>();
             foreach (var u in units)
-            {
-                u.Title = u.Meta.GetItem(2).Format(IMetaItem.Formats.Section);
+            {                 
+                var item = u.GetItem(2);
+                u.Content.Value = item.UnitName + ": " + item.UnitValue;
+                u.Title = item.UnitName + ": " + item.UnitValue;
                 u.Actions = botUnit.GetUnitActions(u);
+                response.Write(u);
             }
 
-            response.Write(units);
-            await response.Commit(default);            
+            await response.Commit(default);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace MissBot.Abstractions
         {
             if (context.Get<TData>() is TData data)
             {
-                    Context = context;
-                    await HandleAsync(data);               
+                Context = context;
+                await HandleAsync(data);
             }
 
             if (context.IsHandled.HasValue)
@@ -23,6 +23,6 @@ namespace MissBot.Abstractions
         public void SetContext(IHandleContext context)
             => Context = context;
 
-        public abstract Task HandleAsync(TData data, CancellationToken cancel = default);        
+        public abstract Task HandleAsync(TData data, CancellationToken cancel = default);
     }
 }

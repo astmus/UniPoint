@@ -16,7 +16,7 @@ namespace MissBot.Handlers
             if (Context.Any<IUnitUpdate>() is IUnitUpdate update && update.IsCommand)
                 return Task.CompletedTask;
             Console.WriteLine(data.Text);
-            Context.IsHandled = false;
+            Context.IsHandled = true;
             return Task.CompletedTask;
         }
     }

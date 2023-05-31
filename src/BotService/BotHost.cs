@@ -1,16 +1,11 @@
 using BotService.Configuration;
 using BotService.Connection;
 using BotService.Internal;
-using MissBot;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Abstractions.Entities;
-using MissBot.Infrastructure;
-using MissBot.Infrastructure.Persistence;
-using MissBot.Utils;
-using MissCore;
 using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Context;
@@ -26,8 +21,7 @@ namespace BotService
         {
             var botBuilder = BotBuilder<TBot>.GetInstance(this);
             ConfigureServices((ctx, services) => services
-                                                                                    .AddHostedService<BotClient<TBot>>()
-                                                                                    .AddSingleton<IRequestProvider, RequestProvider>()
+                                                                                    .AddHostedService<BotClient<TBot>>()                                                                              
                                                                                     //.AddSingleton<IBot,TBot>()
                                                                                     .AddSingleton<IBotContext>(sp => sp.GetRequiredService<IBotContext<TBot>>())
                                                                                     .AddSingleton<IBotContext<TBot>, BotContext<TBot>>()
@@ -39,8 +33,7 @@ namespace BotService
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
-                                                                                    .AddTransient<JsonConverter, BotConverter<TBot>>()
-                                                                                    .AddTransient<IBotUnitFormatProvider, BotUnitFormatProvider>()                                                                                    
+                                                                                    .AddTransient<JsonConverter, BotConverter<TBot>>()                                                                                                                                                
                                                                                      .AddScoped(sp
                                                                                         => sp.GetRequiredService<IContext<Update<TBot>>>() as IHandleContext)
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));
@@ -61,9 +54,9 @@ namespace BotService
             { })
             .ConfigureServices((host, services) =>
             {
-                services
-                    .AddApplicationServices()
-                    .AddInfrastructureServices(host.Configuration);
+                //services
+                    //.AddApplicationServices()
+                    //.AddInfrastructureServices(host.Configuration);
                 services.AddSingleton<IHandleContextFactory, HandleContextFactory>();
                 services.AddHttpClient<IBotConnection, BotConnection>();
                 
@@ -73,9 +66,9 @@ namespace BotService
 
                 services.AddScoped<IBotOptionsBuilder>(sp
                     => sp.GetRequiredService<IBotConnectionOptionsBuilder>());
-                services.AddHttpContextAccessor();
+                /*services.AddHttpContextAccessor();
                 services.AddHealthChecks()
-                    .AddDbContextCheck<ApplicationDbContext>();
+                    .AddDbContextCheck<ApplicationDbContext>();*/
 
             }).ConfigureAppConfiguration(config =>
             {

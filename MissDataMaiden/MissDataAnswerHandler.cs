@@ -1,13 +1,11 @@
-using BotService.Common;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities;
 using MissBot.Entities.Results;
-using MissBot.Handlers;
 using MissCore;
-using MissCore.Bot;
 using MissCore.Collections;
-using MissCore.Data.Context;
+using MissCore.Data;
+using MissCore.Handlers;
 using MissDataMaiden.Entities;
 
 
@@ -23,15 +21,20 @@ namespace MissDataMaiden
         
         public override async Task HandleResultAsync(IResponse<ChosenInlineResult> response, Message message, ChosenInlineResult result, CancellationToken cancel = default)
         {         
-            var info = Context.Bot.Get<DataBaseInfo>();
-            var rawRequest = info.Format(/*6result.Id*/);
-            Info dbInfo = await repository.HandleRawAsync<Info>(rawRequest, cancel);            
+            var unit = Context.Bot.Get<DataBaseInfo>();
+            unit.Id = result.Id;
+            var request = BotUnitRequest.Create(unit);
+
+            var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
+            
+            if (response is Response<ChosenInlineResult> answer)
+            {
+                var bunit = await Context.Bot.GetBotUnitAsync<DataBase>();
+                answer.Actions = bunit.GetUnitActions(dbInfo);
+            }
+
             response.Write(dbInfo);
-            //foreach (var item in items.SupplyTo<DataBase>())
-            //{
-            //    response.Write(item);
-            //    //cmdinfo.Unit = item;                
-            //}
+        
             await response.Commit(cancel);
 
         }

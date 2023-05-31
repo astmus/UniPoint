@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Linq;
 using System.Security.Principal;
 using LinqToDB;
 using LinqToDB.Data;
@@ -9,8 +10,11 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
+using MissBot.Entities.Results.Inline;
 using MissCore.Collections;
 using MissCore.Data.Context;
+using MissCore.Data.Entities;
+using MissCore.Response;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
@@ -26,6 +30,10 @@ namespace MissCore.Bot
     {
         ITable<TUnit> GetUnits<TUnit>() where TUnit : class, IBotEntity
             => this.GetTable<TUnit>();
+        ITable<TUnit> GetResults<TUnit>() where TUnit : ResultUnit
+        => this.GetTable<TUnit>();
+        IQueryable<UnitAction<TUnit>> GetActions<TUnit>() where TUnit : BaseUnit
+        => this.GetTable<UnitAction<TUnit>>().Where(w => w.Unit == Unit<TUnit>.Key);
         ITable<TUnit> GetParameters<TUnit>() where TUnit : BotUnitParameter
         => this.GetTable<TUnit>();
 
@@ -82,12 +90,13 @@ namespace MissCore.Bot
         DbConnection CreateConnection()
             => DataProvider.CreateConnection(ConnectionString);
             
-        public TUnit Get<TUnit>() where TUnit : UnitBase, IBotUnit
+        public TUnit Get<TUnit>() where TUnit : BaseUnit, IBotEntity
         {
             if (cache.Get(BotUnit<TUnit>.Id) is TUnit unit)
                 return unit with { };
 
             unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == BotUnit<TUnit>.Key.Unit);
+            //unit.InitializeMetaData();
             return cache.Set(unit, BotUnit<TUnit>.Id);
         }
 
@@ -100,7 +109,7 @@ namespace MissCore.Bot
             return cache.Set(cmd);
         }       
 
-        public async Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : UnitBase
+        public async Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : BaseUnit
         {
             if (cache.Get(Id<BotUnit<TUnit>>.Value) is BotUnit<TUnit> unit)
                 return unit with { };
@@ -124,5 +133,21 @@ namespace MissCore.Bot
             action = await GetUnits<BotUnitAction<TUnit>>().FirstOrDefaultAsync(f => f.Unit == Unit<TUnit>.Key && string.Compare(f.Action, actionName, true) == 0);//await HandleQueryAsync<TUnit>(cmd);
             return cache.Set(action, actionName);
         }
+        public IEnumerable<IUnitAction<TUnit>> GetUnitActions<TUnit>() where TUnit : BaseUnit, IBotEntity
+        {
+           return GetActions<TUnit>().ToArray();
+        }
+        //public IEnumerable<ResultUnit<InlineContent<TUnit>>> SearchResults<TUnit>(IEnumerable<TUnit> items, string query) where TUnit : BaseUnit, IBotEntity
+        //{
+        //    var res = from resUnit in items
+        //    join p in GetResults<InlineResultUnit<TUnit>>() on resUnit.Entity equals p.Entity into lj
+        //    from dataUnit in lj.DefaultIfEmpty()            
+        //    select new {resUnit, dataUnit};
+        //    foreach (var item in res)
+        //    {
+        //        item.dataUnit.Id = $"{item.resUnit.Identifier}{query}";                                
+        //            yield return item.dataUnit;
+        //    }
+        //}
     }
 }

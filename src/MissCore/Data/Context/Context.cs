@@ -38,7 +38,7 @@ namespace MissCore.Data.Context
 
         public T Take<T>([CallerMemberName] string name = default)
         {
-            var id = name.ToSnakeCase();
+            var id = name;
             var result = default(T);
             if (TryGetValue(id, out var r) && r is T reference)
                 return reference;

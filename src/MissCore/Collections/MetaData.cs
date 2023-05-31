@@ -8,72 +8,80 @@ using Newtonsoft.Json.Linq;
 namespace MissCore.Collections
 {
 
-    public readonly record struct MetaItem(string name, string value) : IMetaItem
+    //public readonly record struct MetaItem(string name, string value) : IMetaItem
+    //{
+    //    public string Format(IMetaItem.Formats format)
+    //    {
+    //        uint bvalue = 0x01;
+    //        uint bits = Convert.ToUInt32(format);
+    //        var strFormat = String.Empty;
+    //        while (bvalue <= bits)
+    //        {
+    //            var b = bvalue & bits;
+    //            if ((bvalue & bits) > 0)
+    //                strFormat += GetFormat((IMetaItem.Formats)b);
+    //            bvalue <<= 1;
+    //        }
+    //        return string.Format(strFormat, name, value);
+    //    }
+    //    static string GetFormat(IMetaItem.Formats format) => format switch
+    //    {
+    //        IMetaItem.Formats.NewLine => "\n",
+    //        IMetaItem.Formats.B => "<b>{0} {1}</b>",
+    //        IMetaItem.Formats.I => "<i>{0} {1}</i>",
+    //        IMetaItem.Formats.Code => "<code>{0} {1}</code>",
+    //        IMetaItem.Formats.Strike => "<s>{0} {1}</s>",
+    //        IMetaItem.Formats.Under => "<u>{0} {1}</u>",
+    //        IMetaItem.Formats.Pre => "<pre>{0} {1}</pre>",
+    //        IMetaItem.Formats.Link => "<a href=\"{0}\">{1}</a>",
+    //        IMetaItem.Formats.BSection => "<b>{0}</b>: {1}",
+    //        IMetaItem.Formats.Percent => " % ",
+    //        IMetaItem.Formats.Equal => " = ",
+    //        IMetaItem.Formats.Section => "{0}: {1}",
+    //        _ => String.Empty
+    //    };
+    //    public override string ToString()
+    //    {
+    //        return ToString(default, default);
+    //    }
+    //    public string ToString(string format, IFormatProvider formatProvider)
+    //        => $"{name}: {value}";
+    //}
+    // Provides the Create factory method for KeyValuePair<TKey, TValue>.
+    public static class MetaIUnit
     {
-        public string Format(IMetaItem.Formats format)
-        {
-            uint bvalue = 0x01;
-            uint bits = Convert.ToUInt32(format);
-            var strFormat = String.Empty;
-            while (bvalue <= bits)
-            {
-                var b = bvalue & bits;
-                if ((bvalue & bits) > 0)
-                    strFormat += GetFormat((IMetaItem.Formats)b);
-                bvalue <<= 1;
-            }
-            return string.Format(strFormat, name, value);
-        }
-        static string GetFormat(IMetaItem.Formats format) => format switch
-        {
-            IMetaItem.Formats.NewLine => "\n",
-            IMetaItem.Formats.B => "<b>{0} {1}</b>",
-            IMetaItem.Formats.I => "<i>{0} {1}</i>",
-            IMetaItem.Formats.Code => "<code>{0} {1}</code>",
-            IMetaItem.Formats.Strike => "<s>{0} {1}</s>",
-            IMetaItem.Formats.Under => "<u>{0} {1}</u>",
-            IMetaItem.Formats.Pre => "<pre>{0} {1}</pre>",
-            IMetaItem.Formats.Link => "<a href=\"{0}\">{1}</a>",
-            IMetaItem.Formats.BSection => "<b>{0}</b>: {1}",
-            IMetaItem.Formats.Percent => " % ",
-            IMetaItem.Formats.Equal => " = ",
-            IMetaItem.Formats.Section => "{0}: {1}",
-            _ => String.Empty
-        };
-        public override string ToString()
-        {
-            return ToString(default, default);
-        }
-        public string ToString(string format, IFormatProvider formatProvider)
-            => $"{name}: {value}";
+        //// Creates a new KeyValuePair<TKey, TValue> from the given values.
+        //public static MetaItem Create<TKey, TValue>(TKey key, TValue value) =>
+        //    new KeyValuePair<TKey, TValue>(key, value);
+
+        ///// <summary>Used by KeyValuePair.ToString to reduce generic code</summary>
+        //internal static string PairToString(object? key, object? value) =>
+        //    string.Create(null, stackalloc char[256], $"[{key}, {value}]");
     }
 
-    public interface IMetaUnit
+    public readonly record struct MetaItem(JProperty token) : IMetaItem
     {
-        void Operation();
+        public string UnitName
+            => token.Name;
+        public object UnitValue
+            => (token.Value as JValue).Value;
     }
-    public record MetaUnit : IMetaUnit
-    {
-        public virtual void Operation()
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public record MetaDecorator : MetaUnit
-    {
-        protected IMetaUnit component;
-        public void SetComponent(IMetaUnit component)
-        {
-            this.component = component;
-        }
-        public override void Operation()
-        {
-            if (component != null)
-            {
-                component.Operation();
-            }
-        }
-    }
+
+    //public record MetaDecorator : MetaUnit
+    //{
+    //    protected IMetaUnit component;
+    //    public void SetComponent(IMetaUnit component)
+    //    {
+    //        this.component = component;
+    //    }
+    //    public override void Operation()
+    //    {
+    //        if (component != null)
+    //        {
+    //            component.Operation();
+    //        }
+    //    }
+    //}
     public class MetaData<TUnit> : MetaData, IMetaData
     {
         //public IMetaItem GetItem(int index)
@@ -84,11 +92,11 @@ namespace MissCore.Collections
         public static MetaData<TUnit> FromRaw(JObject container, MetaData<TUnit> clone)
         {
             var data = clone.MemberwiseClone() as MetaData<TUnit>;
-            data.first = container;
+            data.root = container;
             return data;
         }
         public static new MetaData<TData> Parse<TData>(TData data)
-            => new MetaData<TData>().Parse(JObject.FromObject(data));
+            => data != null ? new MetaData<TData>().Parse(JObject.FromObject(data)) : null;
         //public string Value
         //    => string.Join(" ", Items.Select(s => string.Format(new MetaItem(first.Path, first.SelectToken(s).ToString()).ToString("<b>{0}</b>", null))));
 
@@ -109,7 +117,9 @@ namespace MissCore.Collections
         //}
         public MetaData<TUnit> Parse(JObject containerToken)
         {
-            first = containerToken;
+            if (containerToken == null)
+                return null;
+            root = containerToken;
             return ParseTokens(containerToken);
         }
 
@@ -119,7 +129,7 @@ namespace MissCore.Collections
                 foreach (var child in containerToken.Children<JProperty>())
                 {
                     if (!Contains(child.Name))
-                    Add(child.Name, child.Path);
+                        Add(child.Name, child.Path);
                     ParseTokens(child.Value);
                 }
             else if (containerToken.Type == JTokenType.Array)
@@ -133,15 +143,27 @@ namespace MissCore.Collections
             return this;
         }
     }
+
     public class MetaData : ListDictionary, IMetaData
     {
-        protected JToken first;
-
-        public IMetaItem GetItem(int index)
+        protected JToken root;
+        public MetaData() : base(StringComparer.OrdinalIgnoreCase)
         {
-            var token = this[index];
-            return token != null ?  new MetaItem(token.Path, token.ToString()) : null;
+
         }
+        public IMetaItem GetItem(string key) 
+        {
+            if (this[key] is string path && root.SelectToken(path) is JValue val && val.Parent is JProperty prop)
+                return new MetaItem(prop);
+            return null;
+        }
+
+        public IMetaItem GetItem(int index) => this[index] switch
+        {
+            JProperty token => new MetaItem(token),
+            JValue value when value.Parent is JProperty prop => new MetaItem(prop),
+            _ => null
+        };
 
         //public string Value
         //    => string.Join(" ", Values.Select(s => new MetaItem(s, first.SelectToken(s).ToString()).ToString()));
@@ -160,7 +182,7 @@ namespace MissCore.Collections
             get
             {
                 if (Values.ElementAtOrDefault(index) is string path)
-                    return first.SelectToken(path);
+                    return root.SelectToken(path);
                 else return default;
             }
         }
@@ -169,12 +191,12 @@ namespace MissCore.Collections
             => new MetaData().ParseTokens(JToken.FromObject(data));
 
         public virtual TUnit Bring<TUnit>() where TUnit : class
-            => first.ToObject<TUnit>();
+            => root.ToObject<TUnit>();
 
         public virtual TChild BringChild<TChild>(string childPath = default) where TChild : class
         {
             if (this[childPath ?? typeof(TChild).Name] is string path)
-                return first.SelectToken(path).ToObject<TChild>();
+                return root.SelectToken(path).ToObject<TChild>();
             else return default;
         }
 
@@ -187,16 +209,20 @@ namespace MissCore.Collections
                     ParseTokens(child.Value);
                 }
             else if (containerToken.Type == JTokenType.Array)
-                foreach (var child in containerToken.Children())
-                    ParseTokens(child);
+                foreach (var children in containerToken.Children())
+                    foreach (var child in children.Children<JProperty>())
+                    {
+                        Add(child.Path, child.Path);
+                        ParseTokens(child.Value);
+                    };
 
-            first = containerToken;
+            root = containerToken;
             return this;
         }
 
         public object GetValue(string key)
         {
-            if (this[key] is string path && first.SelectToken(path) is JValue prop)
+            if (this[key] is string path && root.SelectToken(path) is JValue prop)
                 return prop.Value;
             else
                 return default;
@@ -204,7 +230,7 @@ namespace MissCore.Collections
 
         public void SetItem<TItem>(string name, TItem item)
         {
-            if (first is JObject obj)
+            if (root is JObject obj)
             {
                 if (obj.SelectToken(name) is JToken token)
                     token.Replace(new JProperty(name, item));
@@ -218,7 +244,9 @@ namespace MissCore.Collections
 
         public void SetContainer<TContainer>(TContainer container) where TContainer : JToken
         {
-            first = container;
+            root = container;
         }
+
+        
     }
 }

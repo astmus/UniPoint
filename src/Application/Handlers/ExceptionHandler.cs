@@ -4,16 +4,12 @@ using MissCore.Handlers;
 namespace MissBot.Handlers
 {
     public class ExceptionHandler : BaseHandleComponent
-    {
-        protected override Task HandleAsync(IHandleContext context)
-        {
-            return ExecuteAsync(context);
-        }
-        public override async Task ExecuteAsync(IHandleContext context)
+    {        
+        public async override Task HandleAsync(IHandleContext context, AsyncHandler next, CancellationToken cancel = default)
         {
             try
             {                
-                await context.GetNextHandler().ConfigureAwait(false);
+                await context.GetNextHandler(next).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -24,6 +20,7 @@ namespace MissBot.Handlers
                 Console.WriteLine("An error occured in handling update {0}.{1}{2}", context.CurrentHandler, Environment.NewLine, e);
                 Console.ResetColor();
             }
+            
         }
     }
 }

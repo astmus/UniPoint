@@ -1,13 +1,23 @@
+using LinqToDB.Mapping;
 using MissBot.Abstractions.Actions;
 
 namespace MissCore.Data.Entities;
-
+public class UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> where TEntity:class
+{
+    
+}
 
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-public class UnitAction : IUnitAction 
+[Table("##BotUnits")]
+public class UnitAction : IUnitAction
 {
     [JsonProperty("text", Required = Required.Always)]
+    [Column("Entity")]
     public string ActionName { get; set; }
+    [Column]
+    public string Unit { get; set; }
+    [Column]
+    public string Template { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public string? Url { get; set; }
@@ -38,8 +48,11 @@ public class UnitAction : IUnitAction
 
     [JsonConstructor]
     public UnitAction(string text)
-        =>  ActionName = text;    
-
+        =>  ActionName = text;
+    public UnitAction()
+    {
+            
+    }
     public static UnitAction WithUrl(string text, string url) =>
         new(text) { Url = url };
 
@@ -49,7 +62,7 @@ public class UnitAction : IUnitAction
     public static UnitAction WithCallbackData(string textAndCallbackData) =>
         new(textAndCallbackData) { CallbackData = textAndCallbackData };
 
-    public static UnitAction WithCallbackData(string text, string callbackData) =>
+    public static UnitAction WithData(string text, string callbackData) =>
         new(text) { CallbackData = callbackData };
 
     public static UnitAction WithSwitchInlineQuery(string text, string query = "") =>

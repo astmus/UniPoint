@@ -4,7 +4,7 @@ using MissDataMaiden.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace MissDataMaiden.Commands
+namespace MissDataMaiden.Actions
 {
     public record DBRestore : UnitAction<DataBase>;
     public record DBDelete : UnitAction<DataBase>;

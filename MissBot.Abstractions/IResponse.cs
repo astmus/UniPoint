@@ -14,6 +14,7 @@ namespace MissBot.Abstractions
     {
         Task ShowPopupAsync(string message, CancellationToken cancel = default);
         Task SendTextAsync(string message, CancellationToken cancel = default);
+        Task Complete(CancellationToken cancel = default);
     }
 
     public interface IResponseError : IResponse, IBotRequest
@@ -26,9 +27,8 @@ namespace MissBot.Abstractions
         int Length { get; }
         string Content { get; set; }
         void WriteMetadata<TData>(TData meta) where TData :class, IMetaData;
-        void Write<TData>(TData unit) where TData : UnitBase, IUnit<TUnit>;        
-        void WriteResult<TData>(TData unit) where TData : IEnumerable<IUnit<TUnit>>;
-        void Write<TData>(IEnumerable<TData> units) where TData : UnitBase, IUnit<TUnit>;
+        void Write<TData>(TData unit) where TData : BaseUnit;        
+        void Write<TData>(IEnumerable<TData> units) where TData : BaseUnit;
         IResponse<TUnit> InputData(string description, IActionsSet options = default);
     }
 }

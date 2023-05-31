@@ -10,22 +10,18 @@ using Newtonsoft.Json.Serialization;
 
 namespace MissBot.Handlers
 {
-    [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public record InlineQueryResult<TEntity> : InlineResultUnit, IUnit<TEntity>
-    {
-        private const string empty = "Empty";        
-    }
+   
 
     public abstract class InlineQueryHandler : BaseHandler<InlineQuery>
     {
-        public async override Task HandleAsync(InlineQuery data, CancellationToken cancel = default)
+        public async override Task HandleAsync(InlineQuery query, CancellationToken cancel = default)
         {
-            var paging = Context.Bot.Get<Paging>() with { Page = data.Page };            
+            var paging = Context.Bot.Get<Paging>() with { Page = query.Page };            
             
             var response = Context.BotServices.GetRequiredService<InlineResponse<InlineQuery>>();            
             response.Pager = paging;
     
-            await LoadAsync(paging, response, data, cancel);
+            await LoadAsync(paging, response, query, cancel);
             Context.IsHandled = true;
         }
 

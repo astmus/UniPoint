@@ -9,10 +9,13 @@ namespace MissBot.Abstractions.Response
         {
             this.context = context;
         }
-
+        
         [JsonProperty(Required = Required.Always)]
         public override string CallbackQueryId
             => context.Get<CallbackQuery>().Id;
+
+        public Task Complete(CancellationToken cancel = default)
+            => context.BotServices.Client.SendQueryRequestAsync(this, cancel);
 
         public async Task SendTextAsync(string message, CancellationToken cancel = default)
         {

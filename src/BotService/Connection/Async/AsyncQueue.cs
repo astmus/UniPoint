@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Extensions;
+using MissCore.Extensions;
 
 namespace BotService.Connection.Async
 {

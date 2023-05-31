@@ -3,75 +3,50 @@ using System.Linq.Expressions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Entities;
 using MissCore.Collections;
 
 namespace MissCore
 {
-    public class BotUnitRequest<TUnit> : FormattableString, IUnitRequest<TUnit>
+    public static class BotUnitRequest
     {
-        private string _format;
-        private readonly List<object> _arguments;
-        private readonly Lazy<ListDictionary> _parameters = new Lazy<ListDictionary>();
-        internal BotUnitRequest(string format, IEnumerable<object> info = default)
+        const string JsonNoWrap = "without_array_wrapper";
+        const string RootContent = "root('Content')";
+        const string JsonAuto = $" for json auto";
+
+        public static string Format(this RequestOptions options) => options switch
+             {
+                 RequestOptions.Unknown => $"Unknown format {options}",                 
+                 RequestOptions.JsonAuto => JsonAuto,
+                 RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
+                 RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
+                 RequestOptions.JsonPath | RequestOptions.Scalar => $"{JsonAuto},  {JsonNoWrap}",
+                 _ => throw new ArgumentException("Bad request options")
+             };
+        public static BotUnitRequest<TUnit> Create<TUnit>(TUnit unit) where TUnit : IBotUnit
+            => new BotUnitRequest<TUnit>(unit);
+    }
+    public class BotUnitRequest<TUnit> :  IUnitRequest<TUnit> where TUnit : IBotUnit
+    {
+        private readonly TUnit _unit;
+        private readonly IMetaData _parameters;
+
+        internal BotUnitRequest(TUnit unit)
         {
-            _format = format;
-            _arguments = new List<object>
-                {
-                    Unit<TUnit>.Key
-                };
-            if (info != null)
-                _arguments.AddRange(info);
+            _unit = unit;
+            _parameters = MetaData.Parse(unit);
+            Params = _unit.GetParameters().Select(s => _parameters.GetItem(s)).ToList();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
         }
 
-        internal static BotUnitRequest<TUnit> Create(string format, params object[] args)
-            => new BotUnitRequest<TUnit>(format, args);
+        public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
+        public IEnumerable<IMetaItem> Params { get; init; }
 
-        public override string Format
-            => _format;
-        public override object[] GetArguments()
-            => _arguments.ToArray();
-        public override int ArgumentCount
-            => _arguments.Count;
-
-        public RequestOptions RequestOptions { get; set; } = RequestOptions.JsonAuto;
-
-        public override object GetArgument(int index)
-                => _arguments[index];
-        public object this[string key]
+        public virtual string GetCommand()
         {
-            get => _parameters.Value[key];
-            set => _parameters.Value[key] = value;
-        }
-
-        public override string ToString(IFormatProvider formatProvider)
-        {
-            return string.Format(formatProvider, _format, _arguments.ToArray());
-        }
-
-        public virtual string GetCommand(RequestOptions options = RequestOptions.JsonAuto)
-        {
-            var opt = RequestOptions == RequestOptions.Unknown ? options.TrimSnakes() : RequestOptions.TrimSnakes();
-            return $"{base.ToString()} {opt}";
-        }
+            return $"{_unit.Payload} {Options.Format()}";
+        }       
     }
 
-    public class RequestProvider : IRequestProvider
-    {
-        private readonly IBotUnitFormatProvider provider;
-        public RequestProvider(IBotUnitFormatProvider formatProvider)
-        {
-            provider = formatProvider;
-        }
-
-        public IUnitRequest<TUnit> ReadRequest<TUnit>(Expression<Predicate<TUnit>> criteria) where TUnit : UnitBase
-            => BotUnitRequest<TUnit>.Create(Templates.ReadAllByCriteria, BotUnit<TUnit>.CreateCriteria(criteria));
-
-        public IUnitRequest<TUnit> FindRequest<TUnit>(string search, uint skip = 0, uint take = 0) where TUnit : UnitBase
-            => BotUnitRequest<TUnit>.Create(Templates.Search, search, skip, take);
-
-        public IUnitRequest<TUnit> FromRaw<TUnit>(string raw)
-            => BotUnitRequest<TUnit>.Create(raw);
-    }
 
     public abstract class Visitor
     {

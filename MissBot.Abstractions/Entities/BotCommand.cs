@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MissBot.Abstractions.Entities
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record BotCommand : UnitBase, IBotCommand
+    public record BotCommand : BaseUnit, IBotCommand
     {
         public virtual string Action { get; set; }
 
@@ -18,5 +18,9 @@ namespace MissBot.Abstractions.Entities
         public virtual string Payload { get; set; }
         public virtual string Template { get; set; }
         public virtual string Unit { get; set; }
+
+        public override void InitializeMetaData()
+        {            
+        }
     }
 }

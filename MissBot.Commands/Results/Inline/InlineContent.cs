@@ -6,15 +6,15 @@ using Telegram.Bot.Types.Enums;
 namespace MissBot.Entities.Results.Inline
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineContent
+    public record InlineContent<T>
     {
-        [JsonProperty]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? DisableWebPagePreview { get; set; }
-        [JsonProperty]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MessageEntity[] Entities { get; set; }
-        [JsonProperty]
-        public string MessageText { get; set; }
-        [JsonProperty]
-        public ParseMode? ParseMode { get; set; }
+        [JsonProperty("message_text")]
+        public string Value { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
     }
 }

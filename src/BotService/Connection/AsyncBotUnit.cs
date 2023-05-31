@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
 using MissBot.Extensions;
+using MissCore.Extensions;
 
 namespace BotService.Connection
 {

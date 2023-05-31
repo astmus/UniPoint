@@ -1,0 +1,35 @@
+using MissBot.Abstractions;
+using MissBot.Entities.Query;
+
+namespace MissCore.Response
+{
+    public class CallBackNotification : AnswerCallbackQueryRequest, IResponseNotification
+    {
+        private readonly IHandleContext context;
+        public CallBackNotification(IHandleContext context) : base(null)
+        {
+            this.context = context;
+        }
+
+        [JsonProperty(Required = Required.Always)]
+        public override string CallbackQueryId
+            => context.Get<CallbackQuery>().Id;
+
+        public Task Complete(CancellationToken cancel = default)
+            => context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+
+        public async Task SendTextAsync(string message, CancellationToken cancel = default)
+        {
+            Text = message;
+            ShowAlert = false;
+            var b = await context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+        }
+
+        public async Task ShowPopupAsync(string message, CancellationToken cancel = default)
+        {
+            Text = message;
+            ShowAlert = true;
+            await context.BotServices.Client.SendQueryRequestAsync(this, cancel);
+        }
+    }
+}

@@ -20,14 +20,12 @@ namespace MissBot.Abstractions.Entities
         string this[int index]
             => Parameters?.Split(";").ElementAtOrDefault(index);
         IEnumerable<string> GetParameters()
-            => Parameters?.Split(";",StringSplitOptions.RemoveEmptyEntries);
-        string Format(params object[] parameters)
-            => string.Format(null, Payload, parameters);
+            => Parameters?.Split(";",StringSplitOptions.RemoveEmptyEntries).DefaultIfEmpty();       
     }
 
     public interface IBotUnit<TUnit> : IBotEntity
     {
-        IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : UnitBase;
+        IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : BaseUnit;
         public IEnumerable<IBotUnit> Units { get; }
     }
 }

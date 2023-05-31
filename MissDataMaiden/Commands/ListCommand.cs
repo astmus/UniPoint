@@ -3,7 +3,7 @@ using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 
-namespace MissDataMaiden
+namespace MissDataMaiden.Commands
 {
     public record List : BotUnitCommand
     {
@@ -13,10 +13,10 @@ namespace MissDataMaiden
     {
         public ListCommandHadler(IBotCommandsRepository repository)
             => this.repository = repository;
-            
+
         private readonly IRepository<BotCommand> repository;
 
-        public override Task HandleCommandAsync(List command,  CancellationToken cancel = default)
+        public override Task HandleCommandAsync(List command, CancellationToken cancel = default)
         {
             Console.WriteLine(command);
             Context.IsHandled = true;

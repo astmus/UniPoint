@@ -1,18 +1,15 @@
-using System.Reflection.Metadata;
-using BotService.Connection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Abstractions.Response;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
-using MissCore;using MissCore.Bot;
-using MissCore.Data;
+using MissCore;using MissCore.Data;
 using MissCore.Data.Context;
 using MissCore.Handlers;
+using MissCore.Response;
 
 namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder, IBotBuilder<TBot> where TBot : class, IBot    {
         internal static BotBuilder<TBot> GetInstance(IHostBuilder rootHost)        {
@@ -110,9 +107,9 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             return this;
         }
 
-        public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandler        {
+        public IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandleComponent        {
             host.ConfigureServices((h, Services)
-                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetNextHandler(next));            return this;        }
+                => Services.AddScoped<THandler>());            _components.Add(                next =>                context =>                     context.GetBotService<THandler>().HandleAsync(context, next));// .GetNextHandler(next));            return this;        }
 
         public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
         {
@@ -138,16 +135,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                         return next(context);
                 });
             return this;
-        }
-        IBotBuilder<TBot> IBotBuilder<TBot>.AddCustomCommandHandler<THandler>()
-        {
-            host.ConfigureServices((h, Services)
-            =>
-            {
-                Services.AddScoped<IAsyncBotUnitActionHandler, THandler>();
-            });
-            return this;
-        }
+        }       
     }    internal abstract class BotBuilder : IBotBuilder    {
         protected IHostBuilder host;        internal AsyncHandler HandlerDelegate { get; private set; }        protected readonly ICollection<Func<AsyncHandler, AsyncHandler>> _components;        internal BotBuilder()
         {            _components = new List<Func<AsyncHandler, AsyncHandler>>();        }                      IBotBuilder IBotBuilder.AddInputParametersHandler()

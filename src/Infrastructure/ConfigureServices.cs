@@ -11,7 +11,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // services.AddScoped<AuditableEntitySaveChangesInterceptor>();
-        services.AddScoped<IApplicationGenericRepository, ApplicationDbContext>();
+        //services.AddScoped<IApplicationGenericRepository, ApplicationDbContext>();
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
 

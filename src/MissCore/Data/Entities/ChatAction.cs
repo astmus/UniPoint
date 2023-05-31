@@ -1,12 +1,15 @@
+using LinqToDB.Mapping;
 using MissBot.Abstractions.Actions;
 
 namespace MissCore.Data.Entities;
 
 
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+[Table("##BotUnits")]
 public class ChatAction : IUnitAction 
 {
     [JsonProperty("text", Required = Required.Always)]
+    [Column("Entity")]
     public string ActionName { get; set; }
 
     /// <summary>
@@ -54,6 +57,8 @@ public class ChatAction : IUnitAction
     /// </summary>
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool? RequestLocation { get; set; }
+    [Column]
+    public string Unit { get; set; }
 
     /// <summary>
     /// Optional. If specified, the user will be asked to create a poll and send it to the bot when the button
@@ -75,7 +80,7 @@ public class ChatAction : IUnitAction
     /// <param name="actoinTitle">Label text on the button</param>
     [JsonConstructor]
     public ChatAction(string actoinTitle) => ActionName = actoinTitle;
-
+    public ChatAction() {}
     /// <summary>
     /// Generate a keyboard button to request for contact
     /// </summary>

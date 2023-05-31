@@ -6,19 +6,18 @@ using Newtonsoft.Json.Linq;
 
 namespace MissCore.Collections
 {
-
-
     public class MetaCollection<TUnit> : IEnumerable<TUnit>, IMetaCollection<TUnit> where TUnit : class
     {
         private readonly IEnumerable<JObject> tokens;
         public MetaData<TUnit> Metadata { get; protected set; }
         public IEnumerable<KeyValuePair<string, object>> KeyValues { get; }
-
+        public readonly static MetaCollection<TUnit> Empty = new MetaCollection<TUnit>(Enumerable.Empty<TUnit>());
         public MetaCollection(IEnumerable<TUnit> items)
         {
             tokens = items.Select(s => JObject.FromObject(s));
             Metadata = MetaData<TUnit>.Parse(items.FirstOrDefault());
         }
+        
         public MetaCollection(IEnumerable<JToken> dataTokens)
         {
             tokens = dataTokens.Select(s => JObject.FromObject(s));
@@ -36,7 +35,7 @@ namespace MissCore.Collections
             {
                 Metadata.SetContainer(token);
                 var result = Metadata.Bring<TSub>();
-                if (result is UnitBase unit)
+                if (result is BaseUnit unit)
                     unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
                 yield return result;
             }
@@ -54,29 +53,25 @@ namespace MissCore.Collections
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        public IEnumerable<TEntity> Get<TEntity>(Predicate<TEntity> criteria = default) where TEntity : class
-        {
-            return BringTo<TEntity>();
-        }
 
         public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
-        => tokens.Select(token =>
         {
-            Metadata.SetContainer(token);
-            var result = Metadata.Bring<TSub>();
-            if (result is UnitBase unit)
-                unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
-            return result;
-        }).ToArray();
-
-
+            foreach (var token in tokens)
+            {
+                Metadata.SetContainer(token);
+                var result = Metadata.Bring<TSub>();
+                if (result is BaseUnit unit)
+                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+                yield return result;
+            }
+        }
 
         public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class,IUnit<TUnit>
         {
             foreach (var token in tokens)
             {
                 var result = token.ToObject<TEntity>();
-                if (result is UnitBase unit)
+                if (result is BaseUnit unit)
                     unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
                 yield return result;
             }
@@ -103,12 +98,7 @@ namespace MissCore.Collections
             {
                 Metadata.SetContainer(token);
                 foreach (var item in Metadata.Keys)
-                {
-                    //foreach (var prop in token.Children<JProperty>())
-
-
                     yield return KeyValuePair.Create(item, Metadata.GetValue(item));
-                }
             }
         }
 
@@ -124,14 +114,16 @@ namespace MissCore.Collections
         }
 
         public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
-            => tokens.Select(token =>
-                {
-                    Metadata.SetContainer(token);
+        {
+            foreach (var token in tokens)
+            {
+                Metadata.SetContainer(token);
                     var result = Metadata.Bring<TSub>();
-                    if (result is UnitBase unit)
+                    if (result is BaseUnit unit)
                         unit.Meta = MetaData.Parse(token);
-                    return result;
-                }).ToArray();
+                yield return result;                
+            }
+        }
 
         public IEnumerable<TUnit> BringTo<TUnit>() where TUnit : class
         {
@@ -149,23 +141,6 @@ namespace MissCore.Collections
                 yield return Metadata.StringValue;
             }
         }
-
-        public IEnumerable<TEntity> Get<TEntity>(Predicate<TEntity> criteria = null) where TEntity : class
-        {
-            return BringTo<TEntity>();
-        }
-
-
-
-        public IEnumerator<TEntity> GetEnumerator<TEntity>() where TEntity : class
-        {
-            foreach (var item in Metadata.Keys.Select(key => Metadata.BringChild<TEntity>(key)))
-            {
-                //Metadata.first = item;
-                yield return item;
-            }
-        }
-
        
     }
 

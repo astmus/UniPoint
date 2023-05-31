@@ -39,7 +39,7 @@ namespace MissBot.Abstractions
         /// <returns>Content of HTTP request</returns>
         public virtual HttpContent ToHttpContent()
         {
-            var payload = JsonConvert.SerializeObject(this);
+           var payload = JsonConvert.SerializeObject(this);
             return new StringContent(payload, Encoding.UTF8, "application/json");
         }
 

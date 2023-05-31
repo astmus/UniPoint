@@ -63,9 +63,8 @@ namespace MissBot.Abstractions
         public IActionsSet Actions { get; set; }
         public abstract int Length { get; }
 
-        public abstract void Write<TData>(TData unit) where TData : UnitBase, IUnit<TResponse>;
-        public abstract void WriteResult<TData>(TData unit) where TData : IEnumerable<IUnit<TResponse>>;
-        public abstract void Write<TData>(IEnumerable<TData> units) where TData : UnitBase, IUnit<TResponse>;
+        public abstract void Write<TData>(TData unit) where TData : BaseUnit;
+        public abstract void Write<TData>(IEnumerable<TData> units) where TData : BaseUnit;
         public abstract IResponse<TResponse> InputData(string description, IActionsSet options = null);
         public abstract IResponse CompleteInput(string message);
         public abstract Task Commit(CancellationToken cancel = default);

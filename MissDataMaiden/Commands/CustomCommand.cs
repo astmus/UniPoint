@@ -1,20 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
-using Azure;
-using Duende.IdentityServer.Validation;
-using Microsoft.AspNetCore.Components.Web;
 using MissBot.Abstractions;
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Abstractions.Utils;
 using MissBot.Entities;
 using MissCore.Bot;
-using MissCore.Data;
-using MissCore.Data.Entities;
 using MissCore.Handlers;
 
-namespace MissDataMaiden
+namespace MissDataMaiden.Commands
 {
     public record CustomCommand : BotUnitCommand
     {
@@ -25,7 +17,7 @@ namespace MissDataMaiden
 
     public class CustomCommandCreateHandler : BotUnitActionHadlerBase<CustomCommand>
     {
-        private readonly IRepository<BotCommand> repository;        
+        private readonly IRepository<BotCommand> repository;
 
         CustomCommand currentCommand;
         protected override void Initialize(IEnumerable<string> parameterNames)
@@ -82,7 +74,7 @@ namespace MissDataMaiden
         };
         object SetCommand(IHandleContext context, string input, string parameterName) => input switch
         {
-            null => Response.InputData("Enter command text"),            
+            null => Response.InputData("Enter command text"),
             _ => currentCommand.Request = input
         };
     }

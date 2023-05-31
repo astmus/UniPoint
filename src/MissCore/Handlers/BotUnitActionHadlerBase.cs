@@ -7,7 +7,7 @@ using MissCore.Data;
 
 namespace MissCore.Handlers
 {
-    public abstract class BotUnitActionHadlerBase<TUnit> : IAsyncBotUnitActionHandler where TUnit : UnitBase
+    public abstract class BotUnitActionHadlerBase<TUnit> : IAsyncBotUnitActionHandler where TUnit : BaseUnit
     {
         AsyncInputHandler CurrentHandler;
         AsyncInputHandler[] Handlers;
@@ -81,7 +81,7 @@ namespace MissCore.Handlers
         }
 
         Func<FormattableUnitBase, IHandleContext, Task> complete;
-        public async Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : UnitBase
+        public async Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : BaseUnit
         {
             complete = callBack;
             currentUnit = context.Get<FormattableUnit>(action.Identifier);

@@ -17,8 +17,17 @@ CREATE table ##UnitParameters
     Template    varchar(256),
     Value          varchar(1024),    
 )
+CREATE table ##SearchResults
+(       
+    Id            varchar(32) null,
+    Title         varchar(64) null,
+    Description    varchar(256) null,
+    Content          varchar(1024) null,
+    Entity              varchar(32),
+)
 
-
+INSERT INTO ##SearchResults
+VALUES ('', '', '','','DataBase');
 INSERT INTO ##UnitParameters
 VALUES ('Backup', '@path', 'DECLARE @path AS VARCHAR(256)=''{0}'';', 'Basic DBs information');
 INSERT INTO ##UnitParameters
@@ -75,11 +84,11 @@ VALUES ('ReadUnit', '', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Unit
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
 INSERT INTO ##BotUnits
-VALUES ('DataBase', 'info', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
+VALUES ('DataBase', 'info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info where Id = @Id', 'Id');
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'restore', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
 INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', 'iunitnfo', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info Where Id = ''@Id''', 'Id');
+VALUES ('DataBaseInfo', 'iunitnfo', '{0}.{1}.{2}', null, 'SELECT TOP(1) * FROM ##Info Where Id = @Id', 'Id');
 INSERT INTO ##BotUnits
 VALUES ('DataBase', 'backup', '{0}.{1}.{2}', null, 'DECLARE @fileName as VARCHAR(1024) = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
 
@@ -103,11 +112,12 @@ WHEN NOT MATCHED BY Target THEN
 IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
     DROP TABLE ##Info
 
-SELECT * 
+SELECT DISTINCT d.Id, Info.* 
 INTO ##Info
 FROM(
-SELECT CAST(database_id as VARCHAR(15)) as Id,
-'DataBase' as Unit,
+--SELECT CAST(database_id as VARCHAR(15)) as Id,
+SELECT
+'DataBase' as UnitName,
 CONVERT(VARCHAR(25), DB.name) AS DBName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],
 state_desc as State,
@@ -126,6 +136,6 @@ CASE WHEN is_read_only = 1 THEN 'read only' ELSE '' END AS IsReadOnly
  FROM sys.databases DB
 WHERE DB.name NOT IN ('model','tempdb','msdb','master')
 AND state = 0 -- database is online
-AND is_in_standby = 0 ) Info
+AND is_in_standby = 0   ) Info Left JOIN ##DataBase d ON d.Unit = Info.UnitName
 
 

@@ -7,7 +7,7 @@ using MissCore.Bot;
 
 namespace MissCore.Handlers
 {
-    public class InputParametersHandler : BotUnitActionHadlerBase<UnitBase>
+    public class InputParametersHandler : BotUnitActionHadlerBase<BaseUnit>
     {
         protected override void Initialize(IEnumerable<string> parameterNames)
         {

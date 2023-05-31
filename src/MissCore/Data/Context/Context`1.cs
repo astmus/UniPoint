@@ -38,7 +38,7 @@ namespace MissCore.Data.Context
             => BotServices.GetService<IAsyncHandler<T>>();
 
         public bool Contains<T>(Id<T> identifier)
-            => ContainsKey(identifier.id) || Map.AllKeys?.Contains(identifier.id) == true;
+            => ContainsKey(identifier.id) || Map.Contains(identifier.id);
 
         public IHandleContext SetNextHandler(AsyncHandler handler)
         {
@@ -54,9 +54,6 @@ namespace MissCore.Data.Context
 
         public AsyncHandler CurrentHandler
             => currentHandler;
-
-        public IRequestProvider Provider
-            => BotServices.GetRequiredService<IRequestProvider>();
 
         public IBotContext Bot
             => BotServices.GetRequiredService<IBotContext>();
