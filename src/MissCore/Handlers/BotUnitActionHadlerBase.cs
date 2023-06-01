@@ -4,6 +4,7 @@ using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 using MissCore.Data;
+using MissCore.DataAccess;
 
 namespace MissCore.Handlers
 {
@@ -84,9 +85,9 @@ namespace MissCore.Handlers
         public async Task HandleAsync<TUnitAction>(Func<FormattableUnitBase, IHandleContext, Task> callBack, IBotUnitAction<TUnitAction> action, IHandleContext context, CancellationToken cancel) where TUnitAction : BaseUnit
         {
             complete = callBack;
-            currentUnit = context.Get<FormattableUnit>(action.Identifier);
+            currentUnit = context.Get<FormattableUnit>(action.UnitIdentifier);
             currentUnit ??= FormattableUnit.Create(action.Payload, action.GetParameters().ToArray());
-            currentUnit["Id"] = action.Identifier.id;            
+            currentUnit["Id"] = action.UnitIdentifier.id;            
 
             await HandleAsync(context);
 

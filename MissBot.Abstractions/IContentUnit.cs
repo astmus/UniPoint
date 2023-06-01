@@ -1,11 +1,11 @@
 namespace MissBot.Abstractions
 {
-    public interface IContentUnit<TEntity>
+    public interface IContentUnit<out TEntity>
     {
         IEnumerable<TEntity> Content { get; }
     }
-    public interface IContent<TEntity>
+    public interface IUnitContainable<TEntity>
     {
-       TEntity Data { get; set; }
+        void Add<TUnit>(TUnit unit) where TUnit : IUnit<TEntity>;
     }
 }

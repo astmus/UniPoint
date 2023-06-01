@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using LinqToDB.Mapping;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
+using MissBot.Common.Extensions;
 
 namespace MissCore.Bot
 {
@@ -26,6 +28,7 @@ namespace MissCore.Bot
     {
         [Column]
         public override string Unit { get; set; }
+
         [Column]
         public override string Entity
             => Action;
@@ -34,12 +37,14 @@ namespace MissCore.Bot
         public override string Action { get; set; }
 
         [Column]
-        public override string Description { get => base.Description; set => base.Description = value; }
+        public override string Description { get; set; }
 
         [Column]
-        public override string Payload { get => base.Payload; set => base.Payload = value; }
+        public override string Payload { get ; set ; }
 
         [Column()]
         public virtual string Parameters { get; set; }
+
+       
     }
 }

@@ -4,7 +4,7 @@ using BotService;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using MissBot.Abstractions.Entities;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 
 namespace MissDataMaiden.Queries
 {

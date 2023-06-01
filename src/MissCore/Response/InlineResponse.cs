@@ -1,15 +1,13 @@
-using BotService.Internal;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissCore.Bot;
-using Newtonsoft.Json.Converters;
 
 namespace MissCore.Response
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineResponse<TUnit>(IHandleContext Context = default) : AnswerInlineRequest<TUnit>, IResponse<TUnit> where TUnit : InlineQuery, IBotEntity// BaseUnit, IBotEntity
+    public record InlineResponse<TUnit>(IHandleContext Context = default) : AnswerInlineRequest<TUnit>, IResponse<TUnit> where TUnit : BaseUnit, IBotEntity// BaseUnit, IBotEntity
     {
         InlineQuery InlineQuery
             => Context.Take<InlineQuery>();
@@ -28,17 +26,13 @@ namespace MissCore.Response
             => results.Count;
 
         public Paging Pager { get; set; }
-
-
-       public  TUnit Content { get; set; }
-        IUnit<TUnit> IResponse<TUnit>.Content { get; set; }
+        public  IUnit<TUnit> Content { get; set; }
 
         public async Task Commit(CancellationToken cancel)
         {
             if (results.Count > 0)
                 await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
         }
-
         
         public void Write<TData>(TData unit) where TData :IUnit<TUnit>
         {
@@ -51,14 +45,11 @@ namespace MissCore.Response
             }
         }
 
-
-
-
         public IResponse CompleteInput(string message)
         {
             throw new NotImplementedException();
         }
-        public void Write<TData>(IEnumerable<TData> units) where TData :IUnit< TUnit>
+        public void Write<TData>(IEnumerable<TData> units) where TData : TUnit
         {
         foreach(var unit in units)
             {

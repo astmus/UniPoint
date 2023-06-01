@@ -4,9 +4,9 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 
-namespace MissCore
+namespace MissCore.DataAccess
 {
     public static class BotUnitRequest
     {
@@ -15,18 +15,18 @@ namespace MissCore
         const string JsonAuto = $" for json auto";
 
         public static string Format(this RequestOptions options) => options switch
-             {
-                 RequestOptions.Unknown => $"Unknown format {options}",                 
-                 RequestOptions.JsonAuto => JsonAuto,
-                 RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
-                 RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
-                 RequestOptions.JsonPath | RequestOptions.Scalar => $"{JsonAuto},  {JsonNoWrap}",
-                 _ => throw new ArgumentException("Bad request options")
-             };
+        {
+            RequestOptions.Unknown => $"Unknown format {options}",
+            RequestOptions.JsonAuto => JsonAuto,
+            RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
+            RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
+            RequestOptions.JsonPath | RequestOptions.Scalar => $"{JsonAuto},  {JsonNoWrap}",
+            _ => throw new ArgumentException("Bad request options")
+        };
         public static BotUnitRequest<TUnit> Create<TUnit>(TUnit unit) where TUnit : IBotUnit
             => new BotUnitRequest<TUnit>(unit);
     }
-    public class BotUnitRequest<TUnit> :  IUnitRequest<TUnit> where TUnit : IBotUnit
+    public class BotUnitRequest<TUnit> : IUnitRequest<TUnit> where TUnit : IBotUnit
     {
         private readonly TUnit _unit;
         private readonly IMetaData _parameters;
@@ -39,12 +39,12 @@ namespace MissCore
         }
 
         public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
-        public IEnumerable<IMetaItem> Params { get; init; }
+        public IEnumerable<IUnitItem> Params { get; init; }
 
         public virtual string GetCommand()
         {
             return $"{_unit.Payload} {Options.Format()}";
-        }       
+        }
     }
 
 
@@ -77,7 +77,7 @@ namespace MissCore
         public override void Visit(string prefix)
         {
             Console.WriteLine($"{prefix}This expression is a {NodeType} expression type");
-            Console.WriteLine($"{prefix}The name of the lambda is {((node.Name == null) ? "<null>" : node.Name)}");
+            Console.WriteLine($"{prefix}The name of the lambda is {(node.Name == null ? "<null>" : node.Name)}");
             Console.WriteLine($"{prefix}The return type is {node.ReturnType}");
             Console.WriteLine($"{prefix}The expression has {node.Parameters.Count} argument(s). They are:");
             // Visit each parameter:

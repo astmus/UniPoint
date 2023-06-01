@@ -6,10 +6,10 @@ using Microsoft.Extensions.Options;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissBot.Entities;
-using MissCore;
 using MissCore.Bot;
-using MissCore.Collections;
+using MissCore.Data;
+using MissCore.Data.Collections;
+using MissCore.DataAccess;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -199,13 +199,13 @@ internal static class DBExtension
             cmd.Parameters.Add(p);
         }
     }
-    internal static void LoadParameters(this DbCommand cmd, IEnumerable<IMetaItem> parameters)
+    internal static void LoadParameters(this DbCommand cmd, IEnumerable<IUnitItem> parameters)
     {
         foreach (var arg in parameters)
         {
             var p = cmd.CreateParameter();
-            p.ParameterName = "@"+arg.UnitName;
-            p.Value = arg.UnitValue;
+            p.ParameterName = "@"+arg.ItemName;
+            p.Value = arg.ItemValue;
             cmd.Parameters.Add(p);
         }
     }

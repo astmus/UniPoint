@@ -1,7 +1,8 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissCore.Collections;
+using MissBot.Abstractions.Handlers;
+using MissCore.Data.Collections;
 using MissCore.Handlers;
 using MissDataMaiden.Commands;
 

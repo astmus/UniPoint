@@ -7,7 +7,7 @@ namespace BotService.Connection
     /// <summary>
     /// A client to use the Telegram Bot API
     /// </summary>
-    public class BotConnection : BaseConnection, IBotConnection, IBotClient
+    public class BotConnection : BaseBotConnection, IBotConnection, IBotClient
     {
         public BotConnection(IBotConnectionOptions options = null, HttpClient httpClient = null) : base(httpClient: httpClient)
         {

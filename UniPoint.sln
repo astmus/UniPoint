@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Abstractions", "Mis
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.DataAccess", "src\MissBot.DataAccess\MissBot.DataAccess.csproj", "{A8FDE566-D5C6-40B2-A256-1AA7F22400D1}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MissBot.Common", "src\Shared\MissBot.Common\MissBot.Common.shproj", "{F83DFA73-28BC-435A-8C02-7BBC31CEAA4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,5 +149,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3CB609D9-5D54-4C11-A371-DAAC8B74E430}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\Shared\MissBot.Common\MissBot.Common.projitems*{0145fd37-5652-4849-a3aa-b1ea62c0c50a}*SharedItemsImports = 5
+		src\Shared\MissBot.Common\MissBot.Common.projitems*{51b33f67-77db-4ad2-9647-4d23e1a01711}*SharedItemsImports = 5
+		src\Shared\MissBot.Common\MissBot.Common.projitems*{f83dfa73-28bc-435a-8c02-7bbc31ceaa4e}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

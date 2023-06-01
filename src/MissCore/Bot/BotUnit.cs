@@ -1,9 +1,8 @@
 using LinqToDB.Mapping;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
-using MissCore;
-using MissCore.Bot;
-using MissCore.Collections;
+using MissBot.Common.Extensions;
+using MissCore.Data.Collections;
+
 
 [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
 [Table("##BotUnits")]
@@ -20,8 +19,7 @@ public record BotUnit :BaseUnit, IBotUnit
     [Column()]
     public override string Unit { get ; set ; }
     [Column()]
-    public virtual string Parameters { get; set; }    
-
+    public virtual string Parameters { get; set; } = string.Empty;
     public override void InitializeMetaData()
         => Meta ??= MetaData.Parse(this);
 }

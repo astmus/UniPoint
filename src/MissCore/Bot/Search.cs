@@ -1,3 +1,5 @@
+using MissCore.DataAccess;
+
 namespace MissCore.Bot
 {
     public record Search : UnitRequest

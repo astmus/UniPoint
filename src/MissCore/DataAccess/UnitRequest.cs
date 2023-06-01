@@ -2,13 +2,13 @@ using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
 using MissBot.Entities;
 
-namespace MissCore
+namespace MissCore.DataAccess
 {
     public record UnitRequest : BotUnit, IUnitRequest
     {
         public UnitRequest()
         {
-            DataUnit = FormattableUnit.Create(Template);          
+            DataUnit = FormattableUnit.Create(Template);
         }
         public static implicit operator string(UnitRequest cmd)
             => cmd.GetCommand();
@@ -16,7 +16,7 @@ namespace MissCore
         FormattableUnit DataUnit { get; init; }
         public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
         [JsonIgnore]
-        public  IEnumerable<IMetaItem> Params { get; init; }
+        public IEnumerable<IUnitItem> Params { get; init; }
 
         public virtual string ToString(string? format, IFormatProvider? formatProvider)
             => string.Format(format, this);
@@ -29,7 +29,7 @@ namespace MissCore
     public record UnitRequest<TUnit>(string raw) : UnitRequest, IUnitRequest<TUnit>
     {
         public static implicit operator string(UnitRequest<TUnit> cmd)
-            => cmd.GetCommand();   
+            => cmd.GetCommand();
     }
 
 

@@ -1,4 +1,4 @@
-namespace MissBot.Abstractions
+namespace MissBot.Abstractions.Handlers
 {
     public abstract class BaseHandler<TData> : IAsyncHandler<TData>
     {
@@ -13,7 +13,7 @@ namespace MissBot.Abstractions
                 await context.GetNextHandler().ConfigureAwait(false);
                 return;
             }
-            
+
             Context = context;
             await HandleAsync(context.Get<TData>());
 

@@ -4,7 +4,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using Newtonsoft.Json.Linq;
 
-namespace MissCore.Collections
+namespace MissCore.Data.Collections
 {
     public class MetaCollection<TUnit> : IEnumerable<TUnit>, IMetaCollection<TUnit> where TUnit : class
     {
@@ -17,7 +17,7 @@ namespace MissCore.Collections
             tokens = items.Select(s => JObject.FromObject(s));
             Metadata = MetaData<TUnit>.Parse(items.FirstOrDefault());
         }
-        
+
         public MetaCollection(IEnumerable<JToken> dataTokens)
         {
             tokens = dataTokens.Select(s => JObject.FromObject(s));
@@ -33,11 +33,8 @@ namespace MissCore.Collections
         {
             foreach (var token in tokens)
             {
-                Metadata.SetContainer(token);
-                var result = Metadata.Bring<TSub>();
-                if (result is BaseUnit unit)
-                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
-                yield return result;
+                var res = Bring<TSub>(token);
+                yield return res;
             }
         }
 
@@ -45,12 +42,18 @@ namespace MissCore.Collections
         {
             foreach (var token in tokens)
             {
-                Metadata.SetContainer(token);
-                var result = Metadata.Bring<TUnit>();
-                if (result is BaseUnit unit)
-                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+                var result = Bring<TUnit>(token);
                 yield return result;
             }
+        }
+
+        private TRes Bring<TRes>(JObject token) where TRes:class
+        {
+            Metadata.SetContainer(token);
+            var result = Metadata.Bring<TRes>();
+            if (result is BaseUnit unit)
+                unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+            return result;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -61,10 +64,7 @@ namespace MissCore.Collections
         {
             foreach (var token in tokens)
             {
-                Metadata.SetContainer(token);
-                var result = Metadata.Bring<TSub>();
-                if (result is BaseUnit unit)
-                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+                var result = Bring<TSub>(token);
                 yield return result;
             }
         }
@@ -80,28 +80,28 @@ namespace MissCore.Collections
             }
         }
 
-        public IEnumerable<KeyValuePair<string, object>> GetValues()
+        public IEnumerable<IMetaValue> GetValues()
         {
             foreach (var token in tokens)
             {
                 Metadata.SetContainer(token);
                 foreach (var item in Metadata.Keys)
-                    yield return KeyValuePair.Create(item, (object)Metadata.GetValue(item));
+                    yield return new MetaValue(item, Metadata.GetValue(item));
             }
         }
     }
 
-    public class MetaCollection :  IMetaCollection
+    public class MetaCollection : IMetaCollection
     {
         private readonly IEnumerable<JToken> tokens;
         public MetaData Metadata { get; protected set; }
-        public IEnumerable<KeyValuePair<string, object>> GetValues()
+        public IEnumerable<IMetaValue> GetValues()
         {
             foreach (var token in tokens)
             {
                 Metadata.SetContainer(token);
                 foreach (var item in Metadata.Keys)
-                    yield return KeyValuePair.Create(item, Metadata.GetValue(item));
+                    yield return new MetaValue(item, Metadata.GetValue(item));
             }
         }
 
@@ -121,10 +121,10 @@ namespace MissCore.Collections
             foreach (var token in tokens)
             {
                 Metadata.SetContainer(token);
-                    var result = Metadata.Bring<TSub>();
-                    if (result is BaseUnit unit)
-                        unit.Meta = MetaData.Parse(token);
-                yield return result;                
+                var result = Metadata.Bring<TSub>();
+                if (result is BaseUnit unit)
+                    unit.Meta = MetaData.Parse(token);
+                yield return result;
             }
         }
 
@@ -144,7 +144,7 @@ namespace MissCore.Collections
                 yield return Metadata.StringValue;
             }
         }
-       
+
     }
 
 }

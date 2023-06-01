@@ -11,7 +11,7 @@ using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissBot.Entities.Results.Inline;
-using MissCore.Collections;
+using MissCore.Data;
 using MissCore.Data.Context;
 using MissCore.Data.Entities;
 using MissCore.Response;
@@ -30,22 +30,19 @@ namespace MissCore.Bot
     {
         ITable<TUnit> GetUnits<TUnit>() where TUnit : class, IBotEntity
             => this.GetTable<TUnit>();
-        ITable<TUnit> GetResults<TUnit>() where TUnit : ResultUnit
-        => this.GetTable<TUnit>();
         IQueryable<UnitAction<TUnit>> GetActions<TUnit>() where TUnit : BaseUnit
         => this.GetTable<UnitAction<TUnit>>().Where(w => w.Unit == Unit<TUnit>.Key);
         ITable<TUnit> GetParameters<TUnit>() where TUnit : BotUnitParameter
         => this.GetTable<TUnit>();
 
         ReadUnit GetBotUnit;
+        readonly Cache cache;
         public IList<BotCommand> Commands { get; protected set; }
-        public IList<BotUnitParameter> Parameters { get; protected set; }
-        Lazy<Cache> lazyCache = new Lazy<Cache>();
-        Cache cache => lazyCache.Value;
-      
+        public IList<BotUnitParameter> Parameters { get; protected set; }      
 
         public BotContext(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
         {
+            cache = new Cache();
         }
 
         public void LoadBotInfrastructure()
@@ -85,7 +82,6 @@ namespace MissCore.Bot
             }
             return result;
         }
-    
 
         DbConnection CreateConnection()
             => DataProvider.CreateConnection(ConnectionString);
@@ -96,7 +92,6 @@ namespace MissCore.Bot
                 return unit with { };
 
             unit = GetUnits<TUnit>().FirstOrDefault(w => w.Unit == BotUnit<TUnit>.Key.Unit);
-            //unit.InitializeMetaData();
             return cache.Set(unit, BotUnit<TUnit>.Id);
         }
 

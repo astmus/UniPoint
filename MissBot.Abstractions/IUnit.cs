@@ -2,9 +2,9 @@ using MissBot.Abstractions.Actions;
 
 namespace MissBot.Abstractions
 {
-    public interface IUnit<TUnit> : IUnit
+    public interface IUnit<in TUnit> : IUnit
     {
-        IMetaItem GetItem(int index);        
+        IUnitItem GetItem(int index);        
         IMetaData Meta { get; }
 
     }

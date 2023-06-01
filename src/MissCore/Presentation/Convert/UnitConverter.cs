@@ -4,13 +4,15 @@ using System.Text;
 using Microsoft.Extensions.Primitives;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Presentation;
 using MissBot.Abstractions.Utils;
-using MissCore.Collections;
+using MissCore.Data.Collections;
+using MissCore.Presentation.Decorators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static LinqToDB.Common.Configuration;
 
-namespace BotService.Internal
+namespace MissCore.Presentation.Convert
 {
     //public class UnitConverter : JsonConverter<BaseUnit>
     //{
@@ -44,12 +46,12 @@ namespace BotService.Internal
             typeName = serializedType.Name;
         }
     }
-    public class UnitConverter<TUnit> : JsonConverter where TUnit : BaseUnit,IUnit
+    public class UnitConverter<TUnit> : JsonConverter<IUnit<TUnit>> where TUnit : BaseUnit
     {
-        static readonly string shiftString = string.Join(' ',Enumerable.Repeat<char>(' ', 128));
-        readonly record struct ShiftStringBuilder(StringBuilder builder)
+        static readonly string shiftString = string.Join(' ', Enumerable.Repeat(' ', 128));
+        record ShiftStringBuilder(StringBuilder builder)
         {
-            public ShiftStringBuilder Append(string add, ref byte shift)
+            public ShiftStringBuilder Append(string add, ushort shift)
             {
                 builder.Append(shiftString.AsSpan(0, shift));
                 builder.AppendLine(add);
@@ -58,28 +60,16 @@ namespace BotService.Internal
             public override string ToString()
             => builder.ToString();
         }
-        public override bool CanConvert(Type objectType)
-        {
-            Console.WriteLine(objectType.Name+ objectType.IsAssignableFrom(typeof(TUnit)));
-            return objectType.IsAssignableTo(typeof(TUnit));
-        }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, IUnit<TUnit>? value, JsonSerializer serializer)
         {
-            if (reader.Value is string s)
-                return Activator.CreateInstance<TUnit>();
-            return default;
-        }
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            if (value is not TUnit unit) return;
-
-            ShiftStringBuilder builder = new ShiftStringBuilder(new StringBuilder());
-            MetaItemDecorator decor = new MetaItemDecorator();
-            Serialize(ref builder, 0, ref decor, (unit.Meta as MetaData).root);
+            var builder = new ShiftStringBuilder(new StringBuilder());
+            var decor = new BoldNameUnitItemDecorator();
+            Serialize(builder, 0, decor, (value.Meta as MetaData).root);
             writer.WriteValue(builder.ToString());
         }
-        static ShiftStringBuilder Serialize(ref ShiftStringBuilder builder, byte shift, ref MetaItemDecorator decor, JToken data)
+
+        static ShiftStringBuilder Serialize(ShiftStringBuilder builder, ushort shift, UnitItemSerializeDecorator decor, JToken data)
         {
             JToken GetItem(JToken token) => token switch
             {
@@ -88,34 +78,37 @@ namespace BotService.Internal
                 JObject obj => obj.First,
                 _ => null
             };
-            JToken? current = data;
-            foreach (var item in data.Reverse())
+
+            void Add(JProperty prop)
             {
-                IMetaItem mitem;
-                JProperty property = null;
+                var mitem = new UnitItem(prop);
+                decor.SetComponent(mitem);
+                builder.Append(decor.Serialize(), (ushort)(shift * 4));
+            }
+
+            var current = data;
+            foreach (var item in data)
+            {
                 switch (GetItem(item))
-                {                    
+                {
                     case JObject obj when obj.Parent is JProperty prop:
-                        property = prop;
-                        shift += 4;
-                        Serialize(ref builder, shift, ref decor, obj);             
+                        Add(prop);
+                        Serialize(builder, ++shift, decor, obj);
                         break;
                     case JValue value when value.Parent is JProperty prop:
-                        property = prop;
+                        Add(prop);
                         break;
                     case JProperty prop:
-                        property = prop;
+                        Add(prop);
                         break;
                 }
-                        mitem = new MetaItem(property);
-                        decor.SetComponent(ref mitem);
-                        builder.Append(decor.Serialize(), ref shift);
             }
-       
-                return builder;
+
+            return builder;
         }
-
-
-
+        public override IUnit<TUnit>? ReadJson(JsonReader reader, Type objectType, IUnit<TUnit>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

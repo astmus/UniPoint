@@ -4,7 +4,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
 
-namespace MissCore
+namespace MissCore.DataAccess
 {
     public class FormattableUnit : FormattableUnitBase
     {
@@ -60,12 +60,12 @@ namespace MissCore
                 if (de.Value != null)
                     Parameter.Forward();
                 else
-                    break;            
+                    break;
         }
 
         public override string ToString(IFormatProvider formatProvider)
         {
-            string result = _format;
+            var result = _format;
             foreach (DictionaryEntry item in _parameters)
                 result = result.Replace((string)item.Key, (string)_parameters[item.Key]);
             if (_arguments?.ToArray() is object[] args)

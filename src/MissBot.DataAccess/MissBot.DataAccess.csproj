@@ -23,4 +23,8 @@
     <ProjectReference Include="..\MissCore\MissCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfacet\" />
+  </ItemGroup>
+
 </Project>

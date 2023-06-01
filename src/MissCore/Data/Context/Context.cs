@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Utils;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Context

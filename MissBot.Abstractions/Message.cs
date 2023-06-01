@@ -1,7 +1,5 @@
 using MissBot.Entities;
-/// <summary>
-/// This object represents a message.
-/// </summary>
+
 namespace MissBot.Abstractions
 {
     public class Message<TEntity> : Message

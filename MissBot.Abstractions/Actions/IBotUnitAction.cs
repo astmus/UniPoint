@@ -10,6 +10,6 @@ namespace MissBot.Abstractions.Actions
 
     public interface IBotUnitAction<TEntity> : IBotUnitAction,IBotUnit
     {
-        Id<TEntity> Identifier { get; set; }        
+        Id<TEntity> UnitIdentifier { get; set; }        
     }
 }

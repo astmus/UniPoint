@@ -27,8 +27,8 @@ namespace MissBot.Abstractions
         int Length { get; }
         IUnit<TUnit> Content { get; set; }
         void WriteMetadata<TData>(TData meta) where TData :class, IMetaData;
-        void Write<TData>(TData unit) where TData : IUnit<TUnit>;        
-        void Write<TData>(IEnumerable<TData> units) where TData : IUnit<TUnit>;
+        void Write<TData>(TData unit) where TData:IUnit<TUnit>;//;= : IUnit<TUnit>;        
+        void Write<TData>(IEnumerable<TData> units) where TData : TUnit;
         IResponse<TUnit> InputData(string description, IActionsSet options = default);
     }
 }

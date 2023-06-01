@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 
-namespace MissCore.DataAccess
+namespace MissCore.Handlers
 {
     public class HandleContextFactory : IHandleContextFactory
     {

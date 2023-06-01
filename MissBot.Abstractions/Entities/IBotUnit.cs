@@ -1,5 +1,4 @@
-using MissBot.Abstractions.Actions;
-using Telegram.Bot.Types.ReplyMarkups;
+using MissBot.Common.Extensions;
 
 namespace MissBot.Abstractions.Entities
 {
@@ -18,9 +17,19 @@ namespace MissBot.Abstractions.Entities
         string Template { get; set; }
         string Parameters { get; }
         string this[int index]
-            => Parameters?.Split(";").ElementAtOrDefault(index);
+            => GetParameters().ElementAtOrDefault(index);
+
         IEnumerable<string> GetParameters()
-            => Parameters?.Split(";",StringSplitOptions.RemoveEmptyEntries).DefaultIfEmpty();       
+        {
+            IList<string> parameters = new List<string>();
+
+            var enumerator = Parameters.SplitParameters().GetEnumerator();
+            while (enumerator.MoveNext())            
+                parameters.Add(enumerator.Current);
+
+            return parameters;
+        }
+
     }
 
     public interface IBotUnit<TUnit> : IBotEntity

@@ -1,9 +1,9 @@
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 
-namespace MissBot.Abstractions
+namespace MissBot.Abstractions.Handlers
 {
-    public abstract class BotCommandHandler<TCommand> :  BaseHandler<TCommand> where TCommand : class,IBotUnitAction
+    public abstract class BotCommandHandler<TCommand> : BaseHandler<TCommand> where TCommand : class, IBotUnitAction
     {
         public virtual Task BeforeComamandHandleAsync(TCommand data)
                 => Task.CompletedTask;
@@ -11,11 +11,11 @@ namespace MissBot.Abstractions
             => Task.CompletedTask;
         public virtual Task OnComamandFailed(Exception error)
             => Task.CompletedTask;
-        
+
         public override async Task HandleAsync(TCommand data, CancellationToken cancel = default)
         {
             try
-            {            
+            {
                 await BeforeComamandHandleAsync(data).ConfigureAwait(false);
                 await HandleCommandAsync(data, cancel).ConfigureAwait(false);
                 await AfterComamandHandleAsync(data).ConfigureAwait(false);

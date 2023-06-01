@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
-using MissCore.Collections;
+using MissCore.Data;
 
 namespace MissCore.Bot
 {
@@ -23,7 +23,7 @@ namespace MissCore.Bot
         IEnumerable<TEntity> IContentUnit<TEntity>.Content
             => this.Content;
 
-        public static readonly TEntity Default = Activator.CreateInstance<TEntity>();
+        //public static readonly TEntity Default = Activator.CreateInstance<TEntity>();
         public record Empty : Unit<TEntity>
         {
             public override string Entity

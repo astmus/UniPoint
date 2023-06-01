@@ -5,7 +5,7 @@ using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results.Inline;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 
 namespace MissCore.Response
 {
@@ -18,13 +18,12 @@ namespace MissCore.Response
     //}
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     [Table("##SearchResults")]
-    public record InlineResultUnit<T> : ResultUnit<InlineContent<T>>, IUnit<InlineQuery<T>>
+    public record InlineResultUnit<T> : ResultUnit<T>, IUnit<T>
     {
         [JsonProperty]
         public InlineQueryResultType Type { get; set; } = InlineQueryResultType.Article;
 
-        [JsonProperty("input_message_content")]
-        //public override T Content { get; set; }            
+        [JsonProperty("input_message_content")]         
         public override InlineContent<T> Content { get; set; } = new InlineContent<T>();
         [JsonProperty]
         [Column]

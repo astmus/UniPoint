@@ -35,9 +35,14 @@ namespace MissDataMaiden
         {
             botContext.LoadBotInfrastructure();
         }
+        public static Task ErrorHandler(Exception error, CancellationToken cancel)
+        {
+            Console.WriteLine(error);
+            return Task.CompletedTask;
+        }
     }
 
-    public class MissDataMaidConfigurator : MissDataMaid.Configurator
+    public class MissDataMaidConfigurator : BaseBot.Configurator
     {
         public override void ConfigureOptions(IBotOptionsBuilder botBuilder)
             => botBuilder
@@ -49,6 +54,7 @@ namespace MissDataMaiden
         public override void ConfigureConnection(IBotConnectionOptionsBuilder connectionOptions)
             => connectionOptions
                     .SetToken(Environment.GetEnvironmentVariable("AliseBot", EnvironmentVariableTarget.User))
-                    .SetTimeout(TimeSpan.FromMinutes(2));
+                    .SetTimeout(TimeSpan.FromMinutes(2))
+                    .SetExceptionHandler(MissDataMaid.ErrorHandler);
     }
 }

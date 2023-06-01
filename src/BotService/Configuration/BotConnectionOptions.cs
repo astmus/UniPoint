@@ -1,40 +1,32 @@
-using System.ComponentModel;
-using System.Reflection;
-using BotService.Internal;
-using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
 
 namespace BotService.Configuration
 {
-
-
     /// <summary>
     /// This class is used to provide configuration for <see cref="BotClient"/>
     /// </summary>
-
     internal class BotConnectionOptions : IBotConnectionOptions
     {
         /// <summary>
         /// BotConnectionOptions
         /// </summary>
-        public BotConnectionOptions(IBotServicesProvider bs)
+        public BotConnectionOptions()
         {
-            SerializeSettings = new JsonSerializerSettings();
-            SerializeSettings.NullValueHandling = NullValueHandling.Ignore;
-            SerializeSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-            SerializeSettings.ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor;
-            SerializeSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
-            SerializeSettings.PreserveReferencesHandling = PreserveReferencesHandling.Arrays;
-            SerializeSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            var cnv = Assembly.GetEntryAssembly().GetTypes().Where(w => w.IsAssignableTo(typeof(IUnit))).Reverse().ToList();
-            foreach (var c in cnv)
-                SerializeSettings.Converters.Add((JsonConverter)ActivatorUtilities.CreateInstance(bs, typeof(UnitConverter<>).MakeGenericType(c)));
-            //if (c is JsonConverter conv)
-            //    conv);
+            SerializeConnectionSettings = new JsonSerializerSettings();
+            SerializeConnectionSettings.NullValueHandling = NullValueHandling.Ignore;
+            SerializeConnectionSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+            SerializeConnectionSettings.ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor;
+            SerializeConnectionSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
+            SerializeConnectionSettings.PreserveReferencesHandling = PreserveReferencesHandling.Arrays;
+            SerializeConnectionSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            
+            //var cnv = Assembly.GetAssembly(typeof(Unit)).GetTypes().Where(w => w.IsAssignableTo(typeof(IUnit<>))).Reverse().ToList();
+            //foreach (var c in cnv)
+            //    SerializeSettings.Converters.Add((JsonConverter)ActivatorUtilities.CreateInstance(bs, typeof(UnitConverter<>).MakeGenericType(typeof(IUnit<>).MakeGenericType(c))));
+        
         }
         public string Token { get; internal set; }
         public TimeSpan Timeout { get; internal set; }
@@ -78,7 +70,7 @@ namespace BotService.Configuration
         /// <summary>
         /// Serialization settings for parse response
         /// </summary>
-        public JsonSerializerSettings SerializeSettings { get; internal set; }
+        public static JsonSerializerSettings SerializeConnectionSettings { get; internal set; }
 
         /// <summary>
         /// Custom parser of throwed exception, defalt is <see cref="DefaultExceptionParser"/>
@@ -96,6 +88,6 @@ namespace BotService.Configuration
         /// Handler of connection exception
         /// </summary>
         public Func<Exception, CancellationToken, Task> ConnectionErrorHandler { get; internal set; }
-
+        public JsonSerializerSettings SerializeSettings => SerializeConnectionSettings;
     }
 }

@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 using Telegram.Bot.Requests;
 
 namespace MissCore.Data.Context

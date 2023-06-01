@@ -1,3 +1,5 @@
+using MissBot.Abstractions.Entities;
+
 namespace MissBot.Abstractions.Configuration
 {
     public interface IBotOptionsBuilder
@@ -6,5 +8,6 @@ namespace MissBot.Abstractions.Configuration
         IBotOptionsBuilder ReceiveInlineQueries();
         IBotOptionsBuilder ReceiveInlineResult();
         IBotOptionsBuilder TrackMessgeChanges();
+        IBotUnitBuilder AddResponseUnit<TUnit>() where TUnit: BaseUnit;
     }
 }

@@ -1,9 +1,8 @@
-using BotService.Internal;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
-using MissCore.Collections;
+using MissCore.Presentation.Convert;
 
 namespace MissCore.Data
 {
@@ -20,29 +19,13 @@ namespace MissCore.Data
             => Context.GetBotService<UnitConverter<T>>();
         public override async Task Commit(CancellationToken cancel)
         {
-            //if (string.IsNullOrEmpty(Content)) return;
             if (Content == null) return;
             CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
-            //Content = string.Empty;
             Content = default;
         }
-        [JsonConverter(typeof(UnitConverter<BaseUnit>))]
-        public override IUnit<T> Content { get => base.Content; set => base.Content = value; }
-
-
-        // public override T Content { get => base.Content; set => base.Content = value; }
 
         public override IActionsSet Actions
-            => Content.Actions;
-
-        //public override void Write<TData>(TData unit) where TData:T
-
-
-
-        //{
-        //  
-        //}
-        
+            => Content.Actions; 
 
         public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
         {
@@ -65,8 +48,6 @@ namespace MissCore.Data
                 
             return this;
         }
-
-
     }
 }
 

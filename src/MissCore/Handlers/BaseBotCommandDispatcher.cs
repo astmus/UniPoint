@@ -2,6 +2,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Handlers;
 using MissBot.Entities;
 using MissBot.Extensions.Entities;
 using MissCore.Bot;

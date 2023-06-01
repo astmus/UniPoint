@@ -2,7 +2,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Results;
 using MissCore;
-using MissCore.Collections;
+using MissCore.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

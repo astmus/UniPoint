@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using BotService.Internal;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Presentation;
 using MissBot.Entities;
 using Newtonsoft.Json;
 
@@ -15,13 +17,16 @@ namespace BotService.Configuration
         public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
         List<Action> updItems;
 
-        public BotOptionsBuilder(JsonConverter botConverter, IBotServicesProvider bs)
+        public BotOptionsBuilder(JsonConverter botConverter)
         {
             updItems = new List<Action>();
+
             With = action
-                =>
-            { updItems.Add(action); return this; };
-            Options = new(bs);
+                => { updItems.Add(action); return this; };
+            WithOptions = action
+                => { action(); return this; };
+
+            Options = new();
             Options.SerializeSettings.Converters.Add(botConverter);
             updates = updates.Append(UpdateType.Message);
         }
@@ -78,6 +83,7 @@ namespace BotService.Configuration
             return $"{baseUri.Scheme}://{baseUri.Authority}";
         }
         Func<Action, IBotOptionsBuilder> With;
+        Func<Action, IBotConnectionOptionsBuilder> WithOptions;
 
         public IBotOptionsBuilder ReceiveCallBacks()
             => With(() => updates = updates.Append(UpdateType.CallbackQuery));
@@ -87,30 +93,34 @@ namespace BotService.Configuration
             => With(() => updates = updates.Append(UpdateType.ChosenInlineResult));
         public IBotOptionsBuilder TrackMessgeChanges()
             => With(() => updates = updates.Append(UpdateType.EditedMessage));
+
         public IBotConnectionOptions Build()
         {
             foreach (var action in updItems)
                 action();
             Options.AllowedUpdates = updates.ToArray();
+            foreach (var action in updItems)
+                action();
             return Options;
         }
 
         public IBotConnectionOptionsBuilder SetTimeout(TimeSpan timeout)
-        {
-            Options.Timeout = timeout;
-            return this;
-        }
+            => WithOptions(() => Options.Timeout = timeout);
 
         public IBotConnectionOptionsBuilder SetExceptionHandler(Func<Exception, CancellationToken, Task> handlerFactory)
-        {
-            Options.ConnectionErrorHandler = handlerFactory;
-            return this;
-        }
+            => WithOptions(() => Options.ConnectionErrorHandler = handlerFactory);
 
         public IBotConnectionOptionsBuilder UseCustomUpdateHandler()
+            => WithOptions(() => Options.UseCustomParser = true);
+
+        public IBotUnitBuilder AddResponseUnit<TUnit>() where TUnit : BaseUnit
         {
-            Options.UseCustomParser = true;
-            return this;
+            throw new NotImplementedException();
+        }
+
+        public IBotUnitBuilder Apply<TDecorator>() where TDecorator : UnitItemSerializeDecorator
+        {
+            throw new NotImplementedException();
         }
     }
 }

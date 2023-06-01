@@ -21,4 +21,6 @@
     <ProjectReference Include="..\MissBot.Commands\MissBot.Entities.csproj" />
   </ItemGroup>
 
+  <Import Project="..\src\Shared\MissBot.Common\MissBot.Common.projitems" Label="Shared" />
+
 </Project>

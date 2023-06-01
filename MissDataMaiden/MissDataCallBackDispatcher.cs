@@ -4,7 +4,7 @@ using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissCore;
-using MissCore.Collections;
+using MissCore.Data.Collections;
 using MissCore.Handlers;
 using MissDataMaiden.Entities;
 
@@ -22,7 +22,7 @@ namespace MissDataMaiden
 
             await notifier.Complete().ConfigFalse();
 
-            botUnit.Identifier ??= Id<DataBase>.Value.With(id);
+            botUnit.UnitIdentifier ??= Id<DataBase>.Value.With(id);
             var handler = Context.GetBotService<InputParametersHandler>();
             await handler.HandleAsync(ParametersEntered, botUnit, Context, cancel);
 

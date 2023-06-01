@@ -9,8 +9,8 @@ using MissBot.Abstractions.Entities;
 using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Context;
-using MissCore.DataAccess;
 using MissCore.Handlers;
+using MissCore.Presentation.Convert;
 using Newtonsoft.Json;
 
 namespace BotService
@@ -18,7 +18,7 @@ namespace BotService
     public class BotHost : HostBuilder, IBotHost
     {
         public IBotBuilder<TBot> AddBot<TBot, TConfig>() where TBot : BaseBot where TConfig : BaseBot.Configurator
-        {
+        {            
             var botBuilder = BotBuilder<TBot>.GetInstance(this);
             ConfigureServices((ctx, services) => services
                                                                                     .AddHostedService<BotClient<TBot>>()                                                                              

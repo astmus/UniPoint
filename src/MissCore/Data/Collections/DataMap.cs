@@ -2,12 +2,12 @@ using System.Collections.Specialized;
 using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
 
-namespace MissCore.Collections
+namespace MissCore.Data.Collections
 {
     public class DataMap : NameValueCollection, IDataMap
     {
         JObject container;
-        public DataMap(): base(StringComparer.OrdinalIgnoreCase)
+        public DataMap() : base(StringComparer.OrdinalIgnoreCase)
         {
         }
 
@@ -40,8 +40,8 @@ namespace MissCore.Collections
             if (containerToken.Type == JTokenType.Object)
                 foreach (var child in containerToken.Children<JProperty>())
                 {
-                    if (child.Name.IndexOf('_')> -1)
-                        Add(child.Name.Replace("_",""), child.Path);
+                    if (child.Name.IndexOf('_') > -1 /*&& child.Name.AsSpan() is ReadOnlySpan<char> span*/)
+                        Add(child.Name.Replace("_", ""), child.Path);
                     else
                         Add(child.Name, child.Path);
                     ParseTokens(child.Value);

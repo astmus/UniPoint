@@ -3,7 +3,8 @@ using System.Linq.Expressions;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
-using MissCore.Collections;
+using MissCore.Data;
+using MissCore.DataAccess;
 
 namespace MissCore.Bot
 {

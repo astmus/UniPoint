@@ -1,9 +1,5 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
-using MissBot.Abstractions.Utils;
-using MissBot.Entities;
-using MissBot.Entities.Query;
-using MissCore.Collections;
+using MissCore.DataAccess;
 
 namespace MissCore.Bot
 {
@@ -20,7 +16,7 @@ namespace MissCore.Bot
     {
        public override string GetCommand()
         {
-            return $"{string.Format(Payload, Query)} {Pager?.ToString()} {Options.Format()}";
+            return $"{string.Format(Payload, Query)} {Pager} {Options.Format()}";
         }
     }
 }

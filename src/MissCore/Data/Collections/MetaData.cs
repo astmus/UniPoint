@@ -5,87 +5,11 @@ using System.Runtime.CompilerServices;
 using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
 
-namespace MissCore.Collections
+namespace MissCore.Data.Collections
 {
 
-    //public readonly record struct MetaItem(string name, string value) : IMetaItem
-    //{
-    //    public string Format(IMetaItem.Formats format)
-    //    {
-    //        uint bvalue = 0x01;
-    //        uint bits = Convert.ToUInt32(format);
-    //        var strFormat = String.Empty;
-    //        while (bvalue <= bits)
-    //        {
-    //            var b = bvalue & bits;
-    //            if ((bvalue & bits) > 0)
-    //                strFormat += GetFormat((IMetaItem.Formats)b);
-    //            bvalue <<= 1;
-    //        }
-    //        return string.Format(strFormat, name, value);
-    //    }
-    //    static string GetFormat(IMetaItem.Formats format) => format switch
-    //    {
-    //        IMetaItem.Formats.NewLine => "\n",
-    //        IMetaItem.Formats.B => "<b>{0} {1}</b>",
-    //        IMetaItem.Formats.I => "<i>{0} {1}</i>",
-    //        IMetaItem.Formats.Code => "<code>{0} {1}</code>",
-    //        IMetaItem.Formats.Strike => "<s>{0} {1}</s>",
-    //        IMetaItem.Formats.Under => "<u>{0} {1}</u>",
-    //        IMetaItem.Formats.Pre => "<pre>{0} {1}</pre>",
-    //        IMetaItem.Formats.Link => "<a href=\"{0}\">{1}</a>",
-    //        IMetaItem.Formats.BSection => "<b>{0}</b>: {1}",
-    //        IMetaItem.Formats.Percent => " % ",
-    //        IMetaItem.Formats.Equal => " = ",
-    //        IMetaItem.Formats.Section => "{0}: {1}",
-    //        _ => String.Empty
-    //    };
-    //    public override string ToString()
-    //    {
-    //        return ToString(default, default);
-    //    }
-    //    public string ToString(string format, IFormatProvider formatProvider)
-    //        => $"{name}: {value}";
-    //}
-    // Provides the Create factory method for KeyValuePair<TKey, TValue>.
-    
-    public readonly record struct MetaItem(JProperty token) : IMetaItem
-    {
-        public string UnitName
-            => token switch
-            {
-                { Parent:{ } } v when v.Parent is JProperty pa => pa.Name,
-                _ => token.Name
-            };
-        public object UnitValue
-            => token.Value is JValue val ? val.Value : null;
-        public override string ToString()
-            => Serialize();
-        public string Serialize()
-            => $"{UnitName}: {UnitValue}";
-    }
-
-    public record struct MetaItemDecorator : IMetaItem
-    {
-        IMetaItem component;
-
-        public string UnitName
-            => $"<b>{component.UnitName}:</b>";
-        public object UnitValue
-            => component.UnitValue;
-
-        public void SetComponent(ref IMetaItem component)
-        {
-            this.component = component;
-        }
-        public  string Serialize()
-        {            
-            return $"{UnitName} {UnitValue}";
-        }
-    }
     public class MetaData<TUnit> : MetaData, IMetaData
     {
-
         public static MetaData<TUnit> FromRaw(JObject container, MetaData<TUnit> clone)
         {
             var data = clone.MemberwiseClone() as MetaData<TUnit>;
@@ -94,7 +18,7 @@ namespace MissCore.Collections
         }
         public static new MetaData<TData> Parse<TData>(TData data)
             => data != null ? new MetaData<TData>().Parse(JObject.FromObject(data)) : null;
-     
+
         public MetaData<TUnit> Parse(JObject containerToken)
         {
             if (containerToken == null)
@@ -130,17 +54,17 @@ namespace MissCore.Collections
         {
 
         }
-        public IMetaItem GetItem(string key) 
+        public IUnitItem GetItem(string key)
         {
             if (this[key] is string path && root.SelectToken(path) is JValue val && val.Parent is JProperty prop)
-                return new MetaItem(prop);
+                return new UnitItem(prop);
             return null;
         }
 
-        public IMetaItem GetItem(int index) => this[index] switch
+        public IUnitItem GetItem(int index) => this[index] switch
         {
-            JValue value when value.Parent is JProperty prop => new MetaItem(prop),
-            JProperty prop when prop.Value is JValue value => new MetaItem(prop),
+            JValue value when value.Parent is JProperty prop => new UnitItem(prop),
+            JProperty prop when prop.Value is JValue value => new UnitItem(prop),
             _ => null
         };
 
@@ -153,12 +77,12 @@ namespace MissCore.Collections
         public string StringValue
             => string.Join(" ", Keys.Select(key => $"{key}: {GetValue(key)}"));
 
-        public IEnumerable<IMetaItem> Items
+        public IEnumerable<IUnitItem> Items
         {
             get
             {
-                for (byte i = 0; i < Count; i++)                
-                    yield return GetItem(i);                
+                for (byte i = 0; i < Count; i++)
+                    yield return GetItem(i);
             }
         }
 

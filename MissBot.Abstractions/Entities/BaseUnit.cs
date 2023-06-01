@@ -12,7 +12,6 @@ namespace MissBot.Abstractions.Entities
         [JsonIgnore]
         public virtual string StringValue
             => Entity;
-
         public abstract string Entity { get; set; }
         [JsonIgnore]
         public virtual IMetaData Meta { get; set; }
@@ -23,7 +22,7 @@ namespace MissBot.Abstractions.Entities
 
         public abstract void InitializeMetaData();
 
-        public virtual IMetaItem GetItem(int index)
+        public virtual IUnitItem GetItem(int index)
             => Meta.GetItem(index);
     }
 }

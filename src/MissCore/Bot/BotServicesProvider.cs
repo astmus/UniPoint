@@ -3,7 +3,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.Entities;
 
-namespace MissCore
+namespace MissCore.Bot
 {
     public class BotServicesProvider : IBotServicesProvider
     {
@@ -27,7 +27,7 @@ namespace MissCore
         public object? GetService(Type serviceType)
             => sp.GetService(serviceType);
 
-        public IResponse<T> Response<T>() where T:BaseUnit
+        public IResponse<T> Response<T>() where T : BaseUnit
             => sp.GetRequiredService<IResponse<T>>();
 
         public T Activate<T>() where T : class

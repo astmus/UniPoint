@@ -7,15 +7,16 @@ using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Entities;
 using MissBot.Abstractions.Utils;
+using MissCore.Data.Collections;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MissCore.Collections
+namespace MissCore.Data
 {
     [JsonObject]
     public record Unit : BaseUnit, IUnit
     {
-        public override IActionsSet Actions { get; set; }        
+        public override IActionsSet Actions { get; set; }
         public override string Entity { get; set; }
         public override void InitializeMetaData()
             => Meta ??= MetaData.Parse(this);
@@ -47,7 +48,7 @@ namespace MissCore.Collections
 
         public static Unit<TEntity> Parse<TData>(TData data)
         {
-            var unit = new Unit<TEntity>();            
+            var unit = new Unit<TEntity>();
             unit.Meta = MetaData.Parse(data);
             return unit;
         }

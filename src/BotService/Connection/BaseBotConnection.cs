@@ -12,7 +12,7 @@ namespace BotService.Connection
     /// <summary>
     /// A client to use the Telegram Bot API
     /// </summary>
-    public abstract class BaseConnection
+    public abstract class BaseBotConnection
     {
         public abstract IBotConnectionOptions Options { get; set; }
         readonly HttpClient _httpClient;
@@ -26,9 +26,8 @@ namespace BotService.Connection
             set => _httpClient.Timeout = value;
         }
 
-        public BaseConnection(HttpClient httpClient = default)
+        public BaseBotConnection(HttpClient httpClient = default)
         {
-            //Options = options ?? throw new ArgumentNullException(nameof(options));
             _httpClient = httpClient ?? new HttpClient();
         }
         public virtual async Task MakeRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
@@ -68,7 +67,6 @@ namespace BotService.Connection
                     .DeserializeContentAsync<ApiResponse>(
                         guard: response =>
                             response.ErrorCode == default ||
-                            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                             response.Description is null
                     )
                     .ConfigureAwait(false);
@@ -78,9 +76,7 @@ namespace BotService.Connection
 
             var apiResponse = await httpResponse
                 .DeserializeContentAsync<Telegram.Bot.Types.ApiResponse<object>>(
-                    guard: response => response.Ok == false ||
-                                       response.Result is null, Options.SerializeSettings
-                )
+                    guard: response => response.Ok == false || response.Result is null, Options.SerializeSettings)
                 .ConfigureAwait(false);
 
             [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
@@ -130,13 +126,10 @@ namespace BotService.Connection
             };
 #pragma warning restore CA2000
 
-
             var requestEventArgs = new ApiRequestEventArgs(
                 request: request,
                 httpRequestMessage: httpRequest
             );
-
-
 
             using var httpResponse = await SendRequestAsync(httpClient: _httpClient, httpRequest: httpRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -149,15 +142,12 @@ namespace BotService.Connection
                 apiRequestEventArgs: requestEventArgs
             );
 
-
-
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {
                 var failedApiResponse = await httpResponse
                     .DeserializeContentAsync<ApiResponse>(
                         guard: response =>
                             response.ErrorCode == default ||
-                            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                             response.Description is null
                     )
                     .ConfigureAwait(false);
@@ -251,7 +241,6 @@ namespace BotService.Connection
             {
                 var failedApiResponse = await httpResponse.DeserializeContentAsync<ApiResponse>(guard: response =>
                             response.ErrorCode == default || response.Description is null
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                     )
                     .ConfigureAwait(false);
 

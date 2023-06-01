@@ -39,12 +39,10 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Identity\" />
-  </ItemGroup>
-
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="echo $(ProjectDir)&#xD;&#xA;echo $(ProjectPath)&#xD;&#xA;echo $(TargetDir)&#xD;&#xA;echo $(TargetDir)$(OutDir)&#xD;&#xA;xcopy /y $(ProjectDir)Bot\BotInit.sql $(TargetDir)$(OutDir)&#xD;&#xA;xcopy /y $(ProjectDir)Bot\BotInit.sql $(TargetDir)" />
   </Target>
+
+  <Import Project="..\Shared\MissBot.Common\MissBot.Common.projitems" Label="Shared" />
 
 </Project>

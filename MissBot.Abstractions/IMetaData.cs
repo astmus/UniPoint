@@ -4,8 +4,8 @@ namespace MissBot.Abstractions
 {
     public interface IMetaData
     {
-        IMetaItem GetItem(int index);
-        IMetaItem GetItem(string key);
+        IUnitItem GetItem(int index);
+        IUnitItem GetItem(string key);
         void SetItem<TItem>(string name, TItem item);
         object GetValue(string path);
         IEnumerable<string> Values { get; }
@@ -13,16 +13,21 @@ namespace MissBot.Abstractions
         void SetContainer<TContainer>(TContainer container) where TContainer : JToken;
         string StringValue { get; }
         int Count { get; }
-        IEnumerable<IMetaItem> Items { get; }
+        IEnumerable<IUnitItem> Items { get; }
 
     }
-    public interface IMetaItem<TName, TValue>
+
+
+    public interface ISerializable
     {
-        TName UnitName { get; }
-        TValue UnitValue { get; }
-        string Serialize();
+        string Serialize();        
     }
-    public interface IMetaItem : IMetaItem<string, object>
+    public interface IUnitItem<TName, TValue> : ISerializable
+    {
+        TName ItemName { get; }
+        TValue ItemValue { get; }
+    }
+    public interface IUnitItem : IUnitItem<string, object>
     {
 
     }
