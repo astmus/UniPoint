@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace MissBot.Abstractions.Utils
 {
-    public struct Position
+    public record struct Position
     {
         int value;
 

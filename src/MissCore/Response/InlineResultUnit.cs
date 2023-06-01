@@ -18,7 +18,7 @@ namespace MissCore.Response
     //}
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     [Table("##SearchResults")]
-    public record InlineResultUnit<T> : ResultUnit<InlineContent<T>>
+    public record InlineResultUnit<T> : ResultUnit<InlineContent<T>>, IUnit<InlineQuery<T>>
     {
         [JsonProperty]
         public InlineQueryResultType Type { get; set; } = InlineQueryResultType.Article;
@@ -37,7 +37,7 @@ namespace MissCore.Response
         public override string Description { get; set; }
 
         [JsonProperty("reply_markup", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IActionsSet Actions { get; set; }
+        public override IActionsSet Actions { get; set; }
         [Column]
         public override string Entity { get; set; }
 

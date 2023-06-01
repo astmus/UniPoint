@@ -33,7 +33,9 @@ namespace BotService
                                                                                     .AddScoped<IBotUpdatesDispatcher<Update<TBot>>, AsyncBotUpdatesDispatcher<Update<TBot>>>()
                                                                                     .AddScoped<IBotUpdatesReceiver<Update<TBot>>, AsyncBotUpdatesReceiver<Update<TBot>>>()
                                                                                     .AddScoped<IBotClient>(sp => sp.GetRequiredService<IBotClient<TBot>>())
-                                                                                    .AddTransient<JsonConverter, BotConverter<TBot>>()                                                                                                                                                
+                                                                                    .AddTransient<JsonConverter, BotConverter<TBot>>()
+                                                                                    .AddTransient(typeof(UnitConverter<>))
+                                                                                    .AddScoped(typeof(IResponse<>),typeof(Response<>))
                                                                                      .AddScoped(sp
                                                                                         => sp.GetRequiredService<IContext<Update<TBot>>>() as IHandleContext)
                                                                                     .AddHttpClient<IBotClient<TBot>, BotConnectionClient<TBot>>(typeof(TBot).Name));

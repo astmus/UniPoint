@@ -15,10 +15,10 @@ namespace MissCore.Handlers
         public async override Task HandleAsync(CallbackQuery query, CancellationToken cancel = default)
         {
             data = query.GetCommandAndArgs();
-            var response = Context.BotServices.Response<CallbackQuery>();
+            //var response = Context.BotServices.Response<CallbackQuery>();
             try
             {
-                await HandleAsync(data.command, data.args[0], data.args[1], response, query, cancel).ConfigureAwait(false);
+                await HandleAsync(data.command, data.args[0], data.args[1], query, cancel).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -27,6 +27,6 @@ namespace MissCore.Handlers
             }
         }
 
-        protected abstract Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default);
+        protected abstract Task HandleAsync(string command, string unit, string id, CallbackQuery query, CancellationToken cancel = default);
     }
 }

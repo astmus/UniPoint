@@ -48,7 +48,7 @@ namespace MissCore.Handlers
             }
             else
             {
-                context.BotServices.Response<BotCommand>().Content = $"There is no handler for command {command}";
+              // context.BotServices.Response<BotCommand>().Content = command;//$"There is no handler for command {command}";
                 await context.BotServices.Response<BotCommand>().Commit();
             }
 

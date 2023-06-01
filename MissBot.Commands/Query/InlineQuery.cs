@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using static Telegram.Bot.Types.Enums.ChatType;
@@ -10,7 +9,7 @@ namespace MissBot.Entities.Query;
 /// some default or trending results.
 /// </summary>
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-public class InlineQuery
+public record InlineQuery 
 {
     /// <summary>
     /// Unique identifier for this query
@@ -54,5 +53,6 @@ public class InlineQuery
     /// Optional. Sender location, only for bots that request user location
     /// </summary>
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public Location Location { get; set; }    
+    public Location Location { get; set; }
+
 }

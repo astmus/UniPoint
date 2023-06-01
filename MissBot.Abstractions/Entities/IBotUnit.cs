@@ -25,7 +25,7 @@ namespace MissBot.Abstractions.Entities
 
     public interface IBotUnit<TUnit> : IBotEntity
     {
-        IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : BaseUnit;
+        void SetUnitActions<TSub>(TSub unit) where TSub : BaseUnit;
         public IEnumerable<IBotUnit> Units { get; }
     }
 }

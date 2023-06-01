@@ -4,6 +4,7 @@ using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using MissBot.Entities.Query;
 using MissBot.Entities.Results;
+using MissCore.Response;
 
 namespace MissBot.Abstractions.Configuration
 {
@@ -22,7 +23,7 @@ namespace MissBot.Abstractions.Configuration
     {
         IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository;        
         IBotBuilder<TBot> Use<THandler>() where THandler : class, IAsyncHandleComponent;        
-        IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>;
+        IBotBuilder<TBot> UseInlineHandler<TUnit,  THandler>() where THandler : class, IAsyncHandler<InlineQuery<TUnit>>;
         IBotBuilder<TBot> UseCallbackDispatcher<THandler>() where THandler : class, IAsyncHandler<CallbackQuery>;
         IBotBuilder<TBot> UseInlineAnswerHandler<THandler>() where THandler : class, IAsyncHandler<ChosenInlineResult>;
         IBotBuilder<TBot> UseCommandDispatcher<THandler>() where THandler : class, IAsyncBotCommandDispatcher;

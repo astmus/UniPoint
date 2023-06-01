@@ -1,23 +1,25 @@
 using MissBot.Abstractions;
+using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissCore.Bot;
 using MissCore.Response;
 
 namespace MissCore.Handlers
 {
-    public abstract class InlineQueryHandler : BaseHandler<InlineQuery>
+    public abstract class InlineQueryHandler<TUnit> : BaseHandler<InlineQuery<TUnit>> where TUnit:BaseUnit,IBotEntity
     {
-        public async override Task HandleAsync(InlineQuery query, CancellationToken cancel = default)
+        public async override Task HandleAsync(InlineQuery<TUnit> query, CancellationToken cancel = default)
         {
-            var paging = Context.Bot.Get<Paging>() with { Page = query.Page };
+            var q = Context.Get<InlineQuery>();
+            var paging = Context.Bot.Get<Paging>() with { Page = q.Page };
 
-            var response = Context.BotServices.GetRequiredService<InlineResponse<InlineQuery>>();
+            var response = Context.BotServices.Activate<InlineResponse<InlineQuery<TUnit>>>();
             response.Pager = paging;
 
-            await LoadAsync(paging, response, query, cancel);
+            await LoadAsync(paging, response, q, cancel);
             Context.IsHandled = true;
         }
 
-        public abstract Task LoadAsync(Paging pager, InlineResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default);
+        public abstract Task LoadAsync(Paging pager, InlineResponse<InlineQuery<TUnit>> response, InlineQuery query, CancellationToken cancel = default);
     }
 }

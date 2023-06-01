@@ -6,6 +6,7 @@ namespace MissBot.Abstractions
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public abstract record BaseRequest<TResponse> : IBotRequest<TResponse>
     {
+        protected virtual JsonConverter CustomConverter { get; }
         /// <inheritdoc />
         [JsonIgnore]
         public HttpMethod Method { get; }
@@ -38,9 +39,9 @@ namespace MissBot.Abstractions
         /// </summary>
         /// <returns>Content of HTTP request</returns>
         public virtual HttpContent ToHttpContent()
-        {
-           var payload = JsonConvert.SerializeObject(this);
-            return new StringContent(payload, Encoding.UTF8, "application/json");
+        {            
+           var payload = CustomConverter is JsonConverter converter ? JsonConvert.SerializeObject(this,converter) : JsonConvert.SerializeObject(this);           
+           return new StringContent(payload, Encoding.UTF8, "application/json");
         }
 
         /// <summary>

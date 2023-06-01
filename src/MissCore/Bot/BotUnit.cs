@@ -18,7 +18,7 @@ public record BotUnit :BaseUnit, IBotUnit
     [Column()]
     public virtual string Payload { get; set; }    
     [Column()]
-    public virtual string Unit { get ; set ; }
+    public override string Unit { get ; set ; }
     [Column()]
     public virtual string Parameters { get; set; }    
 

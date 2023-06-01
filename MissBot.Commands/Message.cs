@@ -169,7 +169,7 @@ public class Message
     public IEnumerable<string> EntityValues =>
         Text is null
             ? default
-            : Entities?.Select(entity => Text.Substring(entity.Offset, entity.Length));
+            : Entities?.Select(entity => Text.AsSpan(entity.Offset, entity.Length).ToString());
 
     /// <summary>
     /// Optional. Message is an animation, information about the animation. For backward compatibility, when this

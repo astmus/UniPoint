@@ -51,7 +51,7 @@ namespace MissDataMaiden
                     var response = Context.BotServices.Response<BotCommand>();
                     foreach (var item in result.Content)
                     {                    
-                        response.Write(item.ToUnit<BotCommand>());
+                        //response.Write(item.ToUnit<BotCommand>());
                         if (response.Length > 1500)
                             await response.Commit(default);
                     }

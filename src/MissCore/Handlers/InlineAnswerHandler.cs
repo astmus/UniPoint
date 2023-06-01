@@ -9,8 +9,8 @@ namespace MissCore.Handlers
     {
         public async override Task HandleAsync(ChosenInlineResult data, CancellationToken cancel = default)
         {
-            await HandleResultAsync(Context.BotServices.Response<ChosenInlineResult>(), Context.Get<Message>(), data, cancel).ConfigureAwait(false);
+            await HandleResultAsync(Context.Get<Message>(), data, cancel).ConfigureAwait(false);
         }
-        public abstract Task HandleResultAsync(IResponse<ChosenInlineResult> response, Message message, ChosenInlineResult result, CancellationToken cancel = default);
+        public abstract Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default);
     }
 }

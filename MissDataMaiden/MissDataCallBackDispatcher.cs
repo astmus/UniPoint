@@ -14,10 +14,10 @@ namespace MissDataMaiden
     {
         public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
         { }
-        IResponse<CallbackQuery> response;
-        protected override async Task HandleAsync(string command, string unit, string id, IResponse<CallbackQuery> response, CallbackQuery query, CancellationToken cancel = default)
+       // IResponse<CallbackQuery> response;
+        protected override async Task HandleAsync(string command, string unit, string id, CallbackQuery query, CancellationToken cancel = default)
         {
-            this.response = response;
+            //this.response = response;
             var botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
 
             await notifier.Complete().ConfigFalse();
@@ -31,15 +31,15 @@ namespace MissDataMaiden
 
         async Task ParametersEntered(FormattableUnitBase result, IHandleContext context)
         {
-            await response.CompleteInput(result.ToString()).Commit();
+            //await response.CompleteInput(result.ToString()).Commit();
 
             var repository = Context.GetBotService<IJsonRepository>();
         
             var unitRes = await repository.RawAsync<GenericUnit>(result.Format, default, result.ToArray());
-            if (unitRes != null)
-                await response.CompleteInput(unitRes.Content.FirstOrDefault()?.Format("TB")).Commit();
-            else
-                await response.CompleteInput("Not found").Commit();
+            //if (unitRes != null)
+            //    await response.CompleteInput(unitRes.Content.FirstOrDefault()?.Format("TB")).Commit();
+            //else
+            //    await response.CompleteInput("Not found").Commit();
             Context.IsHandled = true;
         }
     }

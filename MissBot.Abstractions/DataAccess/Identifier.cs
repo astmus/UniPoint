@@ -4,7 +4,13 @@ namespace MissBot.Abstractions.DataAccess
 {
     public record Id<T>(string id) : Id(id)
     {
-        public static readonly Id<T> Value = new Id<T>(typeof(T).Name);        
+        public static readonly Id<T> Value;
+        static Id()
+        {
+            var span = typeof(T).Name.AsSpan();
+
+                 Value = new Id<T>(span.TrimEnd("`1").ToString());
+        }
         public Id<T> Add(string add) => Value with { id = id + add };
         public Id<T> With(string id) => Value with { id = id };
     }

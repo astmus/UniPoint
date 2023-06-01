@@ -12,12 +12,15 @@ namespace MissBot.Abstractions
         IEnumerable<string> Keys { get; }
         void SetContainer<TContainer>(TContainer container) where TContainer : JToken;
         string StringValue { get; }
+        int Count { get; }
+        IEnumerable<IMetaItem> Items { get; }
 
     }
     public interface IMetaItem<TName, TValue>
     {
         TName UnitName { get; }
         TValue UnitValue { get; }
+        string Serialize();
     }
     public interface IMetaItem : IMetaItem<string, object>
     {

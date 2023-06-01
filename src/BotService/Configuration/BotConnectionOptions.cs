@@ -1,4 +1,9 @@
+using System.ComponentModel;
+using System.Reflection;
+using BotService.Internal;
+using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 using Newtonsoft.Json;
 using Telegram.Bot.Exceptions;
@@ -16,7 +21,7 @@ namespace BotService.Configuration
         /// <summary>
         /// BotConnectionOptions
         /// </summary>
-        public BotConnectionOptions()
+        public BotConnectionOptions(IBotServicesProvider bs)
         {
             SerializeSettings = new JsonSerializerSettings();
             SerializeSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -25,7 +30,11 @@ namespace BotService.Configuration
             SerializeSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
             SerializeSettings.PreserveReferencesHandling = PreserveReferencesHandling.Arrays;
             SerializeSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-
+            var cnv = Assembly.GetEntryAssembly().GetTypes().Where(w => w.IsAssignableTo(typeof(IUnit))).Reverse().ToList();
+            foreach (var c in cnv)
+                SerializeSettings.Converters.Add((JsonConverter)ActivatorUtilities.CreateInstance(bs, typeof(UnitConverter<>).MakeGenericType(c)));
+            //if (c is JsonConverter conv)
+            //    conv);
         }
         public string Token { get; internal set; }
         public TimeSpan Timeout { get; internal set; }

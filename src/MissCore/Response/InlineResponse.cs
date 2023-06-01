@@ -1,17 +1,18 @@
+using BotService.Internal;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities.Query;
 using MissCore.Bot;
+using Newtonsoft.Json.Converters;
 
 namespace MissCore.Response
 {
-
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineResponse<T>(IHandleContext Context = default) : AnswerInlineRequest<T>, IResponse<T> where T : InlineQuery
+    public record InlineResponse<TUnit>(IHandleContext Context = default) : AnswerInlineRequest<TUnit>, IResponse<TUnit> where TUnit : InlineQuery, IBotEntity// BaseUnit, IBotEntity
     {
-        T InlineQuery
-            => Context.Take<T>();
+        InlineQuery InlineQuery
+            => Context.Take<InlineQuery>();
 
         public override string InlineQueryId
             => InlineQuery.Id;
@@ -25,8 +26,12 @@ namespace MissCore.Response
         public override int? CacheTime { get; set; } = 300;
         public int Length
             => results.Count;
-        public string Content { get; set; }
+
         public Paging Pager { get; set; }
+
+
+       public  TUnit Content { get; set; }
+        IUnit<TUnit> IResponse<TUnit>.Content { get; set; }
 
         public async Task Commit(CancellationToken cancel)
         {
@@ -34,42 +39,50 @@ namespace MissCore.Response
                 await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
         }
 
-        public void Write<TUnitData>(TUnitData unit) where TUnitData : BaseUnit
+        
+        public void Write<TData>(TData unit) where TData :IUnit<TUnit>
         {
             if (unit is ResultUnit item)
             {
-                //item.Id += InlineQuery.Query;
-                item.Title ??= item.Meta.GetItem(2).ToString();
-                item.Description ??= item.Meta.GetItem(3).UnitValue.ToString();
+                item.Id += InlineQuery.Query;
+                item.Title ??= item.Meta.GetItem(2).Serialize();
+                item.Description ??= item.Meta.GetItem(3).Serialize();
                 results.Add(item);
             }
         }
 
-        public void Write<TUnitData>(IEnumerable<TUnitData> units) where TUnitData : BaseUnit
+
+
+
+        public IResponse CompleteInput(string message)
         {
-            foreach (var unit in units)
+            throw new NotImplementedException();
+        }
+        public void Write<TData>(IEnumerable<TData> units) where TData :IUnit< TUnit>
+        {
+        foreach(var unit in units)
             {
                 if (unit is ResultUnit result)
                 {
-                    Write(unit);
+                    //Write(unit);
                 }
             }
         }
 
-        public void WriteMetadata<TMetaData>(TMetaData meta) where TMetaData : class, IMetaData
+        void IResponse<TUnit>.WriteMetadata<TData>(TData meta)
         {
             throw new NotImplementedException();
         }
 
-        public IResponse<T> InputData(string description, IActionsSet options = null)
-        {
+        IResponse<TUnit> IResponse<TUnit>.InputData(string description, IActionsSet options)
+        {        
             return this;
-        }
+        }        
+        //public IResponse<T> InputData(string description, IActionsSet options = null)
+        //{
+        //}
 
-        public IResponse CompleteInput(string message)
-        {
-            return this;
-        }
+
     }
 
 

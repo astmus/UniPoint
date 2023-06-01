@@ -15,7 +15,7 @@ namespace MissBot.Abstractions
         Task HandleBotCommandAsync<TCommand>(IHandleContext context, CancellationToken cancel = default) where TCommand : BotCommand, IBotUnitAction; 
     }
 
-    public interface IAsyncHandler<T> : IAsyncHandler
+    public interface IAsyncHandler<in T> : IAsyncHandler
     {
         Task HandleAsync(T data, CancellationToken cancel = default);
     }

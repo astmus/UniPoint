@@ -48,47 +48,44 @@ namespace MissCore.Collections
     //        => $"{name}: {value}";
     //}
     // Provides the Create factory method for KeyValuePair<TKey, TValue>.
-    public static class MetaIUnit
-    {
-        //// Creates a new KeyValuePair<TKey, TValue> from the given values.
-        //public static MetaItem Create<TKey, TValue>(TKey key, TValue value) =>
-        //    new KeyValuePair<TKey, TValue>(key, value);
-
-        ///// <summary>Used by KeyValuePair.ToString to reduce generic code</summary>
-        //internal static string PairToString(object? key, object? value) =>
-        //    string.Create(null, stackalloc char[256], $"[{key}, {value}]");
-    }
-
+    
     public readonly record struct MetaItem(JProperty token) : IMetaItem
     {
         public string UnitName
-            => token.Name;
+            => token switch
+            {
+                { Parent:{ } } v when v.Parent is JProperty pa => pa.Name,
+                _ => token.Name
+            };
         public object UnitValue
-            => (token.Value as JValue).Value;
+            => token.Value is JValue val ? val.Value : null;
+        public override string ToString()
+            => Serialize();
+        public string Serialize()
+            => $"{UnitName}: {UnitValue}";
     }
 
-    //public record MetaDecorator : MetaUnit
-    //{
-    //    protected IMetaUnit component;
-    //    public void SetComponent(IMetaUnit component)
-    //    {
-    //        this.component = component;
-    //    }
-    //    public override void Operation()
-    //    {
-    //        if (component != null)
-    //        {
-    //            component.Operation();
-    //        }
-    //    }
-    //}
+    public record struct MetaItemDecorator : IMetaItem
+    {
+        IMetaItem component;
+
+        public string UnitName
+            => $"<b>{component.UnitName}:</b>";
+        public object UnitValue
+            => component.UnitValue;
+
+        public void SetComponent(ref IMetaItem component)
+        {
+            this.component = component;
+        }
+        public  string Serialize()
+        {            
+            return $"{UnitName} {UnitValue}";
+        }
+    }
     public class MetaData<TUnit> : MetaData, IMetaData
     {
-        //public IMetaItem GetItem(int index)
-        //{
-        //    var token = this[index];
-        //    return new MetaItem(token.Path, token.ToString());
-        //}
+
         public static MetaData<TUnit> FromRaw(JObject container, MetaData<TUnit> clone)
         {
             var data = clone.MemberwiseClone() as MetaData<TUnit>;
@@ -97,24 +94,7 @@ namespace MissCore.Collections
         }
         public static new MetaData<TData> Parse<TData>(TData data)
             => data != null ? new MetaData<TData>().Parse(JObject.FromObject(data)) : null;
-        //public string Value
-        //    => string.Join(" ", Items.Select(s => string.Format(new MetaItem(first.Path, first.SelectToken(s).ToString()).ToString("<b>{0}</b>", null))));
-
-        //protected IEnumerable<string> Items
-        //    => Values.Cast<string>();
-
-        //protected JToken this[int index]
-        //    => first.SelectToken(Items.ElementAt(index));
-
-        //public virtual TSubUnit Bring<TSubUnit>() where TSubUnit : class
-        //    => first.ToObject<TSubUnit>();
-
-        //public virtual TChild BringChild<TChild>(string childPath = default) where TChild : class
-        //{
-        //    if (this[childPath ?? typeof(TChild).Name] is string path)
-        //        return first.SelectToken(path).ToObject<TChild>();
-        //    else return default;
-        //}
+     
         public MetaData<TUnit> Parse(JObject containerToken)
         {
             if (containerToken == null)
@@ -128,15 +108,14 @@ namespace MissCore.Collections
             if (containerToken.Type == JTokenType.Object)
                 foreach (var child in containerToken.Children<JProperty>())
                 {
-                    if (!Contains(child.Name))
-                        Add(child.Name, child.Path);
+                    Add(child.Name, child.Path);
                     ParseTokens(child.Value);
                 }
             else if (containerToken.Type == JTokenType.Array)
                 foreach (var children in containerToken.Children())
                     foreach (var child in children.Children<JProperty>())
                     {
-                        Add(child.Path, child.Path);
+                        Add(child.Name, child.Path);
                         ParseTokens(child.Value);
                     }
 
@@ -146,7 +125,7 @@ namespace MissCore.Collections
 
     public class MetaData : ListDictionary, IMetaData
     {
-        protected JToken root;
+        protected internal JToken root;
         public MetaData() : base(StringComparer.OrdinalIgnoreCase)
         {
 
@@ -160,13 +139,10 @@ namespace MissCore.Collections
 
         public IMetaItem GetItem(int index) => this[index] switch
         {
-            JProperty token => new MetaItem(token),
             JValue value when value.Parent is JProperty prop => new MetaItem(prop),
+            JProperty prop when prop.Value is JValue value => new MetaItem(prop),
             _ => null
         };
-
-        //public string Value
-        //    => string.Join(" ", Values.Select(s => new MetaItem(s, first.SelectToken(s).ToString()).ToString()));
 
         public new IEnumerable<string> Values
             => base.Values.Cast<string>();
@@ -176,6 +152,15 @@ namespace MissCore.Collections
 
         public string StringValue
             => string.Join(" ", Keys.Select(key => $"{key}: {GetValue(key)}"));
+
+        public IEnumerable<IMetaItem> Items
+        {
+            get
+            {
+                for (byte i = 0; i < Count; i++)                
+                    yield return GetItem(i);                
+            }
+        }
 
         protected JToken this[int index]
         {
@@ -246,7 +231,5 @@ namespace MissCore.Collections
         {
             root = container;
         }
-
-        
     }
 }

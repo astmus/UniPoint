@@ -51,7 +51,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 =>
             {
                 Services.AddScoped<IAsyncHandler<ChosenInlineResult>, THandler>();
-                Services.AddScoped<IResponse<ChosenInlineResult>, Response<ChosenInlineResult>>();
+                //Services.AddScoped<IResponse<ChosenInlineResult>, Response<ChosenInlineResult>>();
                 Services.AddScoped<IContext<ChosenInlineResult>, Context<ChosenInlineResult>>();
             });
             _components.Add(
@@ -72,7 +72,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             {
                 Services.AddScoped<IAsyncHandler<CallbackQuery>, THandler>();
                 Services.AddScoped<IResponseNotification, CallBackNotification>();
-                Services.AddScoped<IResponse<CallbackQuery>, Response<CallbackQuery>>();
+                //Services.AddScoped<IResponse<CallbackQuery>, Response<CallbackQuery>>();
                 Services.AddScoped<IContext<CallbackQuery>, Context<CallbackQuery>>();
             });
             _components.Add(
@@ -86,21 +86,21 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 });
             return this;
         }
-        public IBotBuilder<TBot> UseInlineHandler<THandler>() where THandler : class, IAsyncHandler<InlineQuery>
+        public IBotBuilder<TBot> UseInlineHandler<TUnit, THandler>() where THandler : class, IAsyncHandler<InlineQuery<TUnit>>
         {
             host.ConfigureServices((h, Services)
                 =>
                 {
-                    Services.AddScoped<IAsyncHandler<InlineQuery>, THandler>();                    
-                    Services.AddScoped<InlineResponse<InlineQuery>>();
-                    Services.AddScoped<IContext<InlineQuery>, Context<InlineQuery>>();
+                    Services.AddScoped<IAsyncHandler<InlineQuery<TUnit>>, THandler>();                    
+                   Services.AddScoped<InlineResponse<InlineQuery<TUnit>>>();
+                    Services.AddScoped<IContext<InlineQuery<TUnit>>, Context<InlineQuery<TUnit>>>();
                 });
             _components.Add(
                 next =>
                 context =>
                 {
                     if (context.Contains(Id<InlineQuery>.Value))
-                        return context.GetAsyncHandlerOf<InlineQuery>().AsyncDelegate(context.SetNextHandler(next));
+                        return context.GetAsyncHandlerOf<InlineQuery<TUnit>>().AsyncDelegate(context.SetNextHandler(next));
                     else
                         return next(context);
                 });
@@ -125,7 +125,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
                 {
                     Services.AddScoped<IAsyncHandler<Message>, THandler>();
                     Services.AddScoped<IContext<Message>, Context<Message>>();
-                    Services.AddScoped<IResponse<Message>, Response<Message>>();
+                    //Services.AddScoped<IResponse<Message>, Response<Message>>();
                 });
             _components.Add(                next =>                context =>
                 {
@@ -143,7 +143,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             host.ConfigureServices((h, Services)
             =>
             {
-                Services.AddScoped<InputParametersHandler>();
+                Services.AddScoped<InputParametersHandler>();  
             });
             return this;
         }        public IBotBuilder Use(Func<IHandleContext, AsyncHandler> component)        {            throw new NotImplementedException();        }
@@ -197,7 +197,7 @@ namespace BotService.Internal{    internal class BotBuilder<TBot> : BotBuilder
             =>
             {
                 Services.AddScoped<IAsyncHandler<TAction>, THandler>();
-                Services.AddScoped<IResponse<TAction>, Response<TAction>>();
+                //Services.AddScoped<IResponse<TAction>, Response<TAction>>();
                 Services.AddScoped<IContext<TAction>, Context<TAction>>();
             });
             return this;

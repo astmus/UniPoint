@@ -46,7 +46,10 @@ namespace MissCore.Collections
             foreach (var token in tokens)
             {
                 Metadata.SetContainer(token);
-                yield return Metadata.Bring<TUnit>();
+                var result = Metadata.Bring<TUnit>();
+                if (result is BaseUnit unit)
+                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+                yield return result;
             }
         }
 
@@ -66,7 +69,7 @@ namespace MissCore.Collections
             }
         }
 
-        public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class,IUnit<TUnit>
+        public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class
         {
             foreach (var token in tokens)
             {

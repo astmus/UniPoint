@@ -11,4 +11,5 @@ namespace MissBot.Abstractions.Entities
         public abstract string Title { get; set; }
         public abstract string Description { get; set; }
     }
-}
+    
+    }

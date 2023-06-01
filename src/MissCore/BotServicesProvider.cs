@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
+using MissBot.Abstractions.Entities;
 
 namespace MissCore
 {
@@ -21,11 +22,12 @@ namespace MissCore
 
         public T GetService<T>()
             => sp.GetService<T>();
-
+        public IEnumerable<object?> GetServices(Type serviceType)
+        => sp.GetServices(serviceType);
         public object? GetService(Type serviceType)
             => sp.GetService(serviceType);
 
-        public IResponse<T> Response<T>()
+        public IResponse<T> Response<T>() where T:BaseUnit
             => sp.GetRequiredService<IResponse<T>>();
 
         public T Activate<T>() where T : class

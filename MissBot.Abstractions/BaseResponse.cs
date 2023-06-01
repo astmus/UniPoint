@@ -5,7 +5,7 @@ using MissBot.Entities;
 namespace MissBot.Abstractions
 {
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage"), IResponse<TResponse>
+    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage"), IResponse<TResponse> where TResponse:BaseUnit, IUnit, IBotEntity
     {
         /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
@@ -19,11 +19,13 @@ namespace MissBot.Abstractions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? MessageThreadId { get; set; }
 
+        
         /// <summary>
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty("text", Required = Required.Always)]
-        public string Content { get; set; }
+
+        public virtual IUnit<TResponse> Content { get; set; }
 
         /// <summary>
         /// New caption of the message, 0-1024 characters after entities parsing
@@ -60,11 +62,10 @@ namespace MissBot.Abstractions
 
         /// <inheritdoc cref="Abstractions.Documentation.ReplyMarkup"/>
         [JsonProperty("reply_markup",DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IActionsSet Actions { get; set; }
+        public virtual IActionsSet Actions { get; }
         public abstract int Length { get; }
 
-        public abstract void Write<TData>(TData unit) where TData : BaseUnit;
-        public abstract void Write<TData>(IEnumerable<TData> units) where TData : BaseUnit;
+    
         public abstract IResponse<TResponse> InputData(string description, IActionsSet options = null);
         public abstract IResponse CompleteInput(string message);
         public abstract Task Commit(CancellationToken cancel = default);
@@ -72,6 +73,17 @@ namespace MissBot.Abstractions
         void IResponse<TResponse>.WriteMetadata<TData>(TData meta)
         {
             throw new NotImplementedException();
+        }
+
+        public void Write<TData>(TData unit) where TData : IUnit<TResponse>
+        {
+            Content = unit;
+        }
+
+        public void Write<TData>(IEnumerable<TData> units) where TData:IUnit<TResponse>
+        {
+            foreach (var unit in units)
+                Write(unit);
         }
     }
 }

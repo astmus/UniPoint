@@ -17,11 +17,11 @@ namespace MissDataMaiden.Entities
         Restore,
         Delete
     }
-    public record Info : DataBase
+
+
+    public record Info : Unit<DataBase>
     {
-        public string Id { get; set; }
-        public string Unit { get; set; }
-        public string DBName { get; set; }
+        public string DBName { get; set; }       
         public string Status { get; set; }
         public string State { get; set; }
         public int DataFiles { get; set; }
@@ -33,25 +33,30 @@ namespace MissDataMaiden.Entities
         public string IsReadOnly { get; set; }
     }
 
-    
-    public record DataBase : Unit<ChosenInlineResult>, IBotEntity
+    [JsonObject(MemberSerialization.OptOut,Title =nameof(DataBase))]
+    public record DataBase : Unit, IBotEntity
     {
         public override object Identifier => Id;
-        public string Id { get; set ; }
+        [JsonProperty(Order = 2)]
+        public string Id { get; set; }
+        [JsonProperty("DBName",Order = 3)]
         public string Name { get; set ; }
         public float? Size { get; set; }
+        [JsonProperty(Order = 0)]
         public string Created { get; set ; }
-
+        [JsonProperty("Unit", Order = 1)]
         public override string Entity
             => nameof(DataBase);
-        [JsonIgnore]
-        public string Unit { get; set; }
+        [JsonProperty(Order = 4)]
+        public Progress Progress = new Progress(60, TimeSpan.FromMilliseconds(12345));
     }
-
+    public record Progress([JsonProperty(Order = 6)] byte Completed, [JsonProperty(Order = 7)] TimeSpan Elapsed) { }
     public record DataBaseInfo : BotUnit
     {
+        public override object Identifier
+            => Id;
+
         public string Id { get; set; }        
-        public string DBName { get; set; }
         public string Status { get; set; }
         public string State { get; set; }
         public int DataFiles { get; set; }
@@ -61,10 +66,6 @@ namespace MissDataMaiden.Entities
         public string RecoveryModel { get; set; }
         public string LastBackup { get; set; }
         public string IsReadOnly { get; set; }
-        public override string Format(IUnit.Formats? format = null)
-        {
-            return this.ToString();
-        }
         //public string Id { get => Get<string>(); set => Set(value); }
         //public string Info { get => Get<string>(); set => Set(value); }
         //public string DBName { get => Get<string>(); set => Set(value); }

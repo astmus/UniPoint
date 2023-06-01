@@ -19,9 +19,17 @@ namespace MissBot.Abstractions
     }
     public readonly record struct BaseParameter(string UnitName, object UnitValue) : IMetaItem
     {
+        public string Serialize()
+        {
+            throw new NotImplementedException();
+        }
     }
     public readonly record struct BaseParameter<TName, TValue>(TName UnitName, TValue UnitValue) : IMetaItem<TName, TValue>
     {
+        public string Serialize()
+        {
+            throw new NotImplementedException();
+        }
     }
     [Flags]
     public enum RequestOptions
@@ -34,7 +42,7 @@ namespace MissBot.Abstractions
     }
     public interface IMetaCollection<TUnit> : IEnumerable<TUnit>, IMetaCollection where TUnit : class
     {
-        IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity:class, IUnit<TUnit>;
+        IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity:class;
     }
 
     public interface IMetaCollection

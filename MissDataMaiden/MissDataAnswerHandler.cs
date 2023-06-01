@@ -19,23 +19,23 @@ namespace MissDataMaiden
             repository = jsonRepository;
         }
         
-        public override async Task HandleResultAsync(IResponse<ChosenInlineResult> response, Message message, ChosenInlineResult result, CancellationToken cancel = default)
+        public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
         {         
             var unit = Context.Bot.Get<DataBaseInfo>();
             unit.Id = result.Id;
-            var request = BotUnitRequest.Create(unit);
 
+            var request = BotUnitRequest.Create(unit);
+            var r = Context.BotServices.Response<DataBase>();
             var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
             
-            if (response is Response<ChosenInlineResult> answer)
-            {
-                var bunit = await Context.Bot.GetBotUnitAsync<DataBase>();
-                answer.Actions = bunit.GetUnitActions(dbInfo);
-            }
+            
+            var bunit = await Context.Bot.GetBotUnitAsync<DataBase>();
+            bunit.SetUnitActions(dbInfo);
+            
 
-            response.Write(dbInfo);
+            r.Write(dbInfo);
         
-            await response.Commit(cancel);
+            await r.Commit(cancel);
 
         }
     }

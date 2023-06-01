@@ -8,16 +8,17 @@ namespace MissBot.Abstractions
         public IHandleContext Context { get; private set; }
         async Task HandleAsync(IHandleContext context)
         {
-            if (context.Get<TData>() is TData data)
+            if (context.Get<TData>() is not TData data)
             {
-                Context = context;
-                await HandleAsync(data);
+                await context.GetNextHandler().ConfigureAwait(false);
+                return;
             }
+            
+            Context = context;
+            await HandleAsync(context.Get<TData>());
 
             if (context.IsHandled.HasValue)
                 return;
-
-            await context.GetNextHandler().ConfigureAwait(false);
         }
 
         public void SetContext(IHandleContext context)

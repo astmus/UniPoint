@@ -65,7 +65,7 @@ namespace BotService
         protected AsyncInputHandler ReTry(AsyncInputHandler handler, string message)
         {
             handler(null, null, string.Empty);
-            Response.Content = message + "\n" + Response.Content;
+            //Response.Content = message + "\n" + Response.Content;
             return CurrentHandler = handler;
         }
 

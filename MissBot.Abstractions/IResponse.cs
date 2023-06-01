@@ -22,13 +22,13 @@ namespace MissBot.Abstractions
         IResponseError Write(Exception error);
     }
 
-    public interface IResponse<TUnit> : IResponse
+    public interface IResponse<TUnit> : IResponse where TUnit:class,IBotEntity
     {
         int Length { get; }
-        string Content { get; set; }
+        IUnit<TUnit> Content { get; set; }
         void WriteMetadata<TData>(TData meta) where TData :class, IMetaData;
-        void Write<TData>(TData unit) where TData : BaseUnit;        
-        void Write<TData>(IEnumerable<TData> units) where TData : BaseUnit;
+        void Write<TData>(TData unit) where TData : IUnit<TUnit>;        
+        void Write<TData>(IEnumerable<TData> units) where TData : IUnit<TUnit>;
         IResponse<TUnit> InputData(string description, IActionsSet options = default);
     }
 }

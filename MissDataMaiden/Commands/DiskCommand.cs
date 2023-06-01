@@ -36,7 +36,7 @@ namespace MissDataMaiden.Commands
             
             foreach (var item in metaCollection.EnumarateAs<Unit<Disk>>())
             {                                
-                response.Write(item);
+               // response.Write(item);
             }
 
             await response.Commit(default);

@@ -8,7 +8,7 @@ using MissDataMaiden.Entities;
 namespace MissDataMaiden.Queries
 {
 
-    public class SearchDataBaseHandler : InlineQueryHandler
+    public class SearchDataBaseHandler : InlineQueryHandler<DataBase>
     {
         private readonly IBotContext botContext;
         IJsonRepository repository;
@@ -19,7 +19,7 @@ namespace MissDataMaiden.Queries
             repository = jsonRepository;
         }
 
-        public async override Task LoadAsync(Paging pager, InlineResponse<InlineQuery> response, InlineQuery query, CancellationToken cancel = default)
+        public async override Task LoadAsync(Paging pager, InlineResponse<InlineQuery<DataBase>> response, InlineQuery query, CancellationToken cancel = default)
         {
             var search = botContext.Get<Search<DataBase>>();
             
@@ -27,14 +27,16 @@ namespace MissDataMaiden.Queries
             var items = await repository.HandleQueryAsync(search with { Query = query.Query, Pager = pager, }, cancel);
             var ite = botContext.GetUnitActions<DataBase>();
 
- //               => new InlineResultUnit < DataBase >() { Id = d.Id + query.Query, Title = d.Name, Description = d.Created });
-            var units = items.SupplyTo<InlineResultUnit<DataBase>>();
+            //=> new InlineResultUnit<DataBase >() { Id = d.Id + query.Query, Title = d.Name, Description = d.Created });
+            var units = items.SupplyTo<InlineResultUnit<DataBase>>();            
+            response.Pager = pager;
             foreach (var u in units)
             {                 
                 var item = u.GetItem(2);
+                
                 u.Content.Value = item.UnitName + ": " + item.UnitValue;
-                u.Title = item.UnitName + ": " + item.UnitValue;
-                u.Actions = botUnit.GetUnitActions(u);
+                //u.Title = item.UnitName + ": " + item.UnitValue;
+                botUnit.SetUnitActions(u);
                 response.Write(u);
             }
 

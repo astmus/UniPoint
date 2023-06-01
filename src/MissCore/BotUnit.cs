@@ -22,7 +22,7 @@ namespace MissCore
         [Column()]
         public override string Entity { get;set; } = Key.Entity;
         [Column]
-        public string Unit { get; set; } = Key.Unit;
+        public override string Unit { get; set; } = Key.Unit;
         [Column]
         public string Payload { get; set; }
 
@@ -38,11 +38,11 @@ namespace MissCore
         //    return RequestInfo with { EntityFields = fields, Criteria = icriteria };
         //}        
 
-        public IActionsSet GetUnitActions<TSub>(TSub unit) where TSub : BaseUnit
+        public void SetUnitActions<TSub>(TSub unit) where TSub : BaseUnit
         {
             IEnumerable<UnitAction> actions = Units.Select(s
                     => UnitAction.WithData(s.Entity.Capitalize(), string.Format(s.Template, s.Entity, s.Unit, unit.Meta.GetValue(s[0])))).ToList();
-            return new UnitActions(actions);
+             unit.Actions = new UnitActions(actions);
         }
 
         public override void InitializeMetaData()

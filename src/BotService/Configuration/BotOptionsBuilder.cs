@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using BotService.Internal;
+using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
 using Newtonsoft.Json;
@@ -13,13 +15,13 @@ namespace BotService.Configuration
         public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
         List<Action> updItems;
 
-        public BotOptionsBuilder(JsonConverter botConverter)
+        public BotOptionsBuilder(JsonConverter botConverter, IBotServicesProvider bs)
         {
             updItems = new List<Action>();
             With = action
                 =>
             { updItems.Add(action); return this; };
-            Options = new();
+            Options = new(bs);
             Options.SerializeSettings.Converters.Add(botConverter);
             updates = updates.Append(UpdateType.Message);
         }
