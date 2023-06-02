@@ -21,7 +21,7 @@ namespace MissDataMaiden.Queries
 
         public async override Task LoadAsync(Paging pager, InlineResponse<DataBase> response, InlineQuery query, CancellationToken cancel = default)
         {
-            var search = botContext.Get<Search<DataBase>>();
+            var search = botContext.GetUnit<Search<DataBase>>();
             
             var botUnit = await botContext.GetBotUnitAsync<DataBase>();
             var items = await repository.HandleQueryAsync(search with { Query = query.Query, Pager = pager, }, cancel);

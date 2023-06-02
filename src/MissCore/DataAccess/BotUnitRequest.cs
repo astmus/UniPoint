@@ -35,7 +35,7 @@ namespace MissCore.DataAccess
         {
             _unit = unit;
             _parameters = MetaData.Parse(unit);
-            Params = _unit.GetParameters().Select(s => _parameters.GetItem(s)).ToList();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
+            Params = _unit.GetParameters().Select(s => new BaseParameter(s, _parameters.GetValue(s))).Cast<IUnitItem>().ToList();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
         }
 
         public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;

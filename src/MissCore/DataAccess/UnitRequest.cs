@@ -18,8 +18,8 @@ namespace MissCore.DataAccess
         [JsonIgnore]
         public IEnumerable<IUnitItem> Params { get; init; }
 
-        public virtual string ToString(string? format, IFormatProvider? formatProvider)
-            => string.Format(format, this);
+        public override string ToString()
+            => GetCommand();
 
         public virtual string GetCommand()
         {

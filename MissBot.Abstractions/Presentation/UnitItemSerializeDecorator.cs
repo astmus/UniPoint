@@ -4,7 +4,7 @@ namespace MissBot.Abstractions.Presentation
 {
     public interface IDecorator<in TComponent>
     {
-        void SetComponent(TComponent item);
+        IUnitItem SetComponent(TComponent item);
     }
     public interface ISerializeDecorator<in TUnit> : IDecorator<TUnit> where TUnit: IUnitItem
     {
@@ -23,8 +23,11 @@ namespace MissBot.Abstractions.Presentation
         public abstract string ItemName { get; }
         public abstract object ItemValue { get; }
 
-        public void SetComponent(IUnitItem item)
-            => component = item;
+        public IUnitItem SetComponent(IUnitItem item)
+        {
+            component = item;
+            return this;
+        }
 
         public abstract string Serialize();
     }

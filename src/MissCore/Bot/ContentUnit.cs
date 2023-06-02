@@ -17,7 +17,7 @@ namespace MissCore.Bot
                 content ?? (content = new Collection());
             set => content = value;
         }
-        public override string Entity
+        public override string EntityKey
             => Key;
 
         IEnumerable<TEntity> IContentUnit<TEntity>.Content
@@ -26,7 +26,7 @@ namespace MissCore.Bot
         //public static readonly TEntity Default = Activator.CreateInstance<TEntity>();
         public record Empty : Unit<TEntity>
         {
-            public override string Entity
+            public override string EntityKey
                 => Unit<TEntity>.Key;
         }
     }

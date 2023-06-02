@@ -4,8 +4,10 @@ namespace MissBot.Abstractions.Entities
 {
     public interface IBotEntity
     {
-        string Unit { get; set; }
-        string Entity { get; }
+        string UnitKey { get; }
+        string EntityKey { get; }
+        virtual string StringValue
+            => EntityKey;
     }
     public interface IBotDataEntity
     {

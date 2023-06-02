@@ -3,22 +3,21 @@ using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions.Entities
 {
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
     public abstract record BaseUnit : IUnit, IBotEntity
     {
-        [JsonProperty(Order = 1)]
-        public virtual string Unit { get; set; }
         [JsonIgnore]
-        public virtual object Identifier { get; }
-        [JsonIgnore]
-        public virtual string StringValue
-            => Entity;
-        public abstract string Entity { get; set; }
-        [JsonIgnore]
+        public virtual object Identifier
+            => $"{UnitKey}.{EntityKey}";
+
+        [JsonProperty("Unit", Order = int.MinValue)]
+        public abstract string UnitKey { get; set; }
+
+       [JsonProperty("Entity", Order = int.MinValue + 1)]
+        public virtual string EntityKey { get; set; }
         public virtual IMetaData Meta { get; set; }
-        [JsonIgnore]
+        
         public virtual IActionsSet Actions { get; set; }
-        [JsonIgnore]
-        public virtual IUnit.DisplayFormat DisplayAs { get; set; } = IUnit.DisplayFormat.Table;
 
         public abstract void InitializeMetaData();
 

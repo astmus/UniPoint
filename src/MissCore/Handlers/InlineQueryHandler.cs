@@ -11,9 +11,9 @@ namespace MissCore.Handlers
         public async override Task HandleAsync(InlineQuery<TUnit> query, CancellationToken cancel = default)
         {
 
-            var paging = Context.Bot.Get<Paging>() with { Page = query.Page };
+            var paging = Context.Bot.GetUnitEntity<Paging>() with { Page = query.Page };
 
-            var response = Context.BotServices.Activate<InlineResponse<TUnit>>();
+            var response = Context.GetBotService<InlineResponse<TUnit>>();
             response.Pager = paging;
 
             await LoadAsync(paging, response, query, cancel);

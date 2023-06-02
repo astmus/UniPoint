@@ -18,10 +18,13 @@ namespace MissBot.Entities.Results.Inline
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? DisableWebPagePreview { get; set; }
+
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MessageEntity[] Entities { get; set; }
+
         [JsonProperty("message_text")]
         public string Value { get; set; }
+
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
     }

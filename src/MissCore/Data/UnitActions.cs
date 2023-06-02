@@ -13,7 +13,7 @@ namespace MissCore.Data
         public static implicit operator BotUnitAction<TUnit>(string data)
             => JsonConvert.DeserializeObject<BotUnitAction<TUnit>>(data);
         public static implicit operator InlineKeyboardButton(BotUnitAction<TUnit> s) =>
-            InlineKeyboardButton.WithCallbackData(s.Action ?? string.Format(s.Template, s.Entity, s.Action));
+            InlineKeyboardButton.WithCallbackData(s.Action ?? string.Format(s.Template, s.EntityKey, s.Action));
     }
 
     public record InlineEntityAction<TEntity> : BotUnitAction<TEntity>, IBotUnitAction<TEntity> where TEntity : class

@@ -33,14 +33,14 @@ namespace MissCore.Data.Collections
                 foreach (var child in containerToken.Children<JProperty>())
                 {
                     Add(child.Name, child.Path);
-                    ParseTokens(child.Value);
+                    //ParseTokens(child.Value);
                 }
             else if (containerToken.Type == JTokenType.Array)
                 foreach (var children in containerToken.Children())
                     foreach (var child in children.Children<JProperty>())
                     {
                         Add(child.Name, child.Path);
-                        ParseTokens(child.Value);
+                        //ParseTokens(child.Value);
                     }
 
             return this;
@@ -56,8 +56,8 @@ namespace MissCore.Data.Collections
         }
         public IUnitItem GetItem(string key)
         {
-            if (this[key] is string path && root.SelectToken(path) is JValue val && val.Parent is JProperty prop)
-                return new UnitItem(prop);
+            if (this[key] is string path && root.SelectToken(path) is JValue val)
+                return new UnitItem(val.Parent as JProperty);
             return null;
         }
 
@@ -97,7 +97,7 @@ namespace MissCore.Data.Collections
         }
 
         public static MetaData Parse<TData>(TData data)
-            => new MetaData().ParseTokens(JToken.FromObject(data));
+            => Activator.CreateInstance<MetaData>().ParseTokens(JToken.FromObject(data));
 
         public virtual TUnit Bring<TUnit>() where TUnit : class
             => root.ToObject<TUnit>();
@@ -109,23 +109,29 @@ namespace MissCore.Data.Collections
             else return default;
         }
 
-        protected virtual MetaData ParseTokens(JToken containerToken)
+        protected virtual MetaData ParseTokens(JToken token)
         {
-            if (containerToken.Type == JTokenType.Object)
-                foreach (var child in containerToken.Children<JProperty>())
+            if (token.Type == JTokenType.Object)
+                foreach (var child in token.Children<JProperty>())
                 {
-                    Add(child.Name, child.Path);
-                    ParseTokens(child.Value);
+#if DEBUG
+                    Console.WriteLine($"{child.Name}:{child.Path}");
+#endif
+                    //if (!Contains(child.Name))
+                        Add(child.Name, child.Path);
+                    //else
+                    //    Add(child.Path, child.Path);
+                    //ParseTokens(child.Value);
                 }
-            else if (containerToken.Type == JTokenType.Array)
-                foreach (var children in containerToken.Children())
+            else if (token.Type == JTokenType.Array)
+                foreach (var children in token.Children())
                     foreach (var child in children.Children<JProperty>())
                     {
                         Add(child.Path, child.Path);
-                        ParseTokens(child.Value);
+                        //ParseTokens(child.Value);
                     };
 
-            root = containerToken;
+            root = token;
             return this;
         }
 

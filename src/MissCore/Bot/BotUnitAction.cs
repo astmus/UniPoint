@@ -10,10 +10,10 @@ namespace MissCore.Bot
     public record BotUnitAction : BotUnit, IBotUnitAction, IBotDataEntity, IBotEntity
     {
         [Column]
-        public override string Unit { get; set; }
+        public override string UnitKey { get; set; }
 
         [Column]
-        public override string Entity
+        public override string EntityKey
             => Action;
 
         [Column("Entity")]
@@ -26,11 +26,11 @@ namespace MissCore.Bot
     [Table("##BotUnits")]
     public record BotUnitCommand : BotCommand, IBotUnitAction, IBotDataEntity, IBotEntity, IBotUnit
     {
-        [Column]
-        public override string Unit { get; set; }
+        [Column("Unit")]
+        public override string UnitKey { get; set; }
 
-        [Column]
-        public override string Entity
+        [Column("Entity")]
+        public override string EntityKey
             => Action;
 
         [Column("Entity")]

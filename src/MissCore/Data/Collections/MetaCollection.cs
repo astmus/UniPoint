@@ -119,7 +119,7 @@ namespace MissCore.Data.Collections
         public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
         {
             foreach (var token in tokens)
-            {
+            {                
                 Metadata.SetContainer(token);
                 var result = Metadata.Bring<TSub>();
                 if (result is BaseUnit unit)

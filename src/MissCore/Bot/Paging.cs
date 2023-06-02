@@ -12,9 +12,10 @@ namespace MissCore.Bot
         public override string ToString()
             => string.Format(Payload, Skip, PageSize);       
     }
+
     public record Search<TUnit> : Search, ISearchUnitRequest<TUnit>
     {
-       public override string GetCommand()
+        public override string GetCommand()
         {
             return $"{string.Format(Payload, Query)} {Pager} {Options.Format()}";
         }

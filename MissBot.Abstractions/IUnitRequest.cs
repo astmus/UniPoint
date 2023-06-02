@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using MissBot.Abstractions.Entities;
 using MissBot.Entities;
 
@@ -9,7 +10,7 @@ namespace MissBot.Abstractions
     }
     public interface ISearchUnitRequest<TUnit> : IUnitRequest<TUnit>
     {
-        
+        string Query { get; set; }
     }
     public interface IUnitRequest
     {

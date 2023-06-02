@@ -8,20 +8,12 @@ using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden.Entities
 {
-    [JsonConverter(typeof(DbActionConverter))]
-    public enum DbAction : byte
-    {
-        Unknown = 0,
-        Details,
-        Info,
-        Restore,
-        Delete
-    }
-
-
     public record Info : Unit<DataBase>
     {
-        public string DBName { get; set; }       
+        public override string UnitKey
+            => base.UnitKey + nameof(Info);
+
+        public string DBName { get; set; }
         public string Status { get; set; }
         public string State { get; set; }
         public int DataFiles { get; set; }
@@ -33,24 +25,24 @@ namespace MissDataMaiden.Entities
         public string IsReadOnly { get; set; }
     }
 
-    [JsonObject(MemberSerialization.OptOut,Title =nameof(DataBase))]
+    
     public record DataBase : Unit, IBotEntity
     {
-        public override object Identifier => Id;
-        [JsonProperty(Order = 2)]
+        [JsonProperty("Unit", Order = int.MinValue)]
+        public override string UnitKey
+            => nameof(DataBase);
+
+        public override object Identifier
+            => Id;
+           
+        [JsonProperty]
         public string Id { get; set; }
-        [JsonProperty("DBName",Order = 3)]
         public string Name { get; set ; }
         public float? Size { get; set; }
-        [JsonProperty(Order = 0)]
-        public string Created { get; set ; }
-        [JsonProperty("Unit", Order = 1)]
-        public override string Entity
-            => nameof(DataBase);
-        [JsonProperty(Order = 4)]
-        public Progress Progress = new Progress(60, TimeSpan.FromMilliseconds(12345));
+        public string Created { get; set ; }        
     }
-    public record Progress([JsonProperty(Order = 6)] byte Completed, [JsonProperty(Order = 7)] TimeSpan Elapsed) { }
+    [JsonObject]
+    public record Progress([JsonProperty(Order = int.MinValue)] byte Completed, [JsonProperty(Order = int.MinValue+1)]  TimeSpan Elapsed) { }
     public record DataBaseInfo : BotUnit
     {
         public override object Identifier

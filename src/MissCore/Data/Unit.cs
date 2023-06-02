@@ -1,3 +1,4 @@
+
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -13,11 +14,19 @@ using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data
 {
-    [JsonObject]
+    
+    [Table("##BotUnits")]    
     public record Unit : BaseUnit, IUnit
-    {
+    {        
+        [Column("Unit")]
+        public override string UnitKey { get; set; }
+        
+        [Column("Entity")]
+        public override string EntityKey { get; set; }
+
+        [JsonIgnore]
         public override IActionsSet Actions { get; set; }
-        public override string Entity { get; set; }
+
         public override void InitializeMetaData()
             => Meta ??= MetaData.Parse(this);
     }
@@ -26,29 +35,32 @@ namespace MissCore.Data
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="Entity"></param>
-    [JsonObject]
+    
     [Table("##BotUnits")]
+    [JsonObject(MemberSerialization = MemberSerialization.OptOut, ItemNullValueHandling = NullValueHandling.Ignore)]
     public record Unit<TEntity> : Unit, IUnit<TEntity>
     {
         public static readonly string Key = typeof(TEntity).Name;
         public static readonly Id<TEntity> Id = Id<TEntity>.Value;
+        
+        public override string UnitKey { get; set; }
 
-        [JsonProperty("Unit", Order = int.MinValue)]
-        public TEntity UnitValue { get; set; }
+        [Column("Entity")]        
+        public override string EntityKey { get; set; } = Key;
+
+        [JsonProperty("Item", Order = int.MinValue+1)]
+        public virtual TEntity Entity { get; set; }
 
         [JsonIgnore]
-        public override string StringValue
+        public virtual string StringValue
             => Meta?.StringValue ?? Key;
 
-        [Column()]
-        [JsonIgnore]
-        public override string Entity { get; set; } = Key;
         [JsonIgnore]
         public override IMetaData Meta { get; set; }
 
         public static Unit<TEntity> Parse<TData>(TData data)
         {
-            var unit = new Unit<TEntity>();
+            var unit = Activator.CreateInstance<Unit<TEntity>>();
             unit.Meta = MetaData.Parse(data);
             return unit;
         }

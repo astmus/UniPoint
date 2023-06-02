@@ -113,9 +113,9 @@ namespace MissBot.DataAccess
                             unit.InitializeMetaData();
                     }
                 }
-                catch
+                catch(Exception error)
                 {
-                    throw;
+                    throw error;
                 }
                 finally
                 {

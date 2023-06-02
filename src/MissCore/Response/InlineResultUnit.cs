@@ -16,7 +16,7 @@ namespace MissCore.Response
     //    public  string this[string path]
     //        => empty;
     //}
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     [Table("##SearchResults")]
     public record InlineResultUnit<T> : ResultUnit<T>, IUnit<T>
     {
@@ -25,24 +25,32 @@ namespace MissCore.Response
 
         [JsonProperty("input_message_content")]         
         public override InlineContent<T> Content { get; set; } = new InlineContent<T>();
-        [JsonProperty]
+
         [Column]
+        [JsonProperty]
         public override string Id { get; set; }
-        [JsonProperty]
+
         [Column]
+        [JsonProperty]
         public override string Title { get; set; }
-        [JsonProperty]
+
         [Column]
+        [JsonProperty]
         public override string Description { get; set; }
 
         [JsonProperty("reply_markup", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public override IActionsSet Actions { get; set; }
-        [Column]
-        public override string Entity { get; set; }
 
+        [Column("Entity")]
+        [JsonProperty("Entity")]
+        public override string EntityKey { get; set; }
+
+
+        [Column("Unit")]
+        [JsonProperty("Unit")]
+        public override string UnitKey { get; set; }
         public override void InitializeMetaData()
-        {
-            Meta ??= MetaData.Parse(Content);
-        }
+            => Meta ??= MetaData.Parse(Content);
+        
     }
 }

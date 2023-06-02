@@ -18,14 +18,14 @@ namespace MissDataMaiden
         
         public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
         {         
-            var unit = Context.Bot.Get<DataBaseInfo>();
+            var unit = Context.Bot.GetUnit<DataBaseInfo>();
             unit.Id = result.Id;
 
             var request = BotUnitRequest.Create(unit);
             var r = Context.BotServices.Response<DataBase>();
-             var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
-            
-            
+            var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
+
+            dbInfo.Entity = new DataBase() { Name = "Db Name", Created = "_!_", Size = 10 };
             var bunit = await Context.Bot.GetBotUnitAsync<DataBase>();
             bunit.SetUnitActions(dbInfo);
             
