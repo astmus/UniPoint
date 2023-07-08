@@ -6,8 +6,16 @@ CREATE table ##BotUnits
     Entity     varchar(32),
     Template varchar(128) null,
     Description varchar(256)  null,
-    Payload     varchar(2048) null,
+    Extension     varchar(2048) null,
     Parameters varchar(256) null,
+)
+
+CREATE table ##UnitActions
+(
+    Unit      varchar(32),
+    Action     varchar(32),
+    Template varchar(2048) null,
+    Parameters varchar(256) null,    
 )
 
 CREATE table ##UnitParameters
@@ -24,10 +32,11 @@ CREATE table ##SearchResults
     Description    varchar(256) null,
     Content          varchar(1024) null,
     Entity              varchar(32),
+    Unit              varchar(32),
 )
 
 INSERT INTO ##SearchResults
-VALUES ('', '', '','','DataBase');
+VALUES ('', '', '','','DataBase','DataBase');
 INSERT INTO ##UnitParameters
 VALUES ('Backup', '@path', 'DECLARE @path AS VARCHAR(256)=''{0}'';', 'Basic DBs information');
 INSERT INTO ##UnitParameters
@@ -42,9 +51,9 @@ VALUES ('BotCommand', 'Info', '/{0}', 'Basic DBs information',
         FETCH NEXT {1} ROWS ONLY', null);
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'List', '/{0}', 'List of data bases with info', '
-        SELECT D.database_id                                               as Id,
-               D.name                                                      as Name,
-               cast(D.create_date as varchar(17))                          as Created,
+        SELECT D.database_id                                                    as Id,
+               D.name                                                                    as Name,
+               cast(D.create_date as varchar(17))                           as Created,
                CAST(DATEDIFF(Day, D.create_date, GETDATE()) as INT)        as [DaysAgo],
                CONVERT(decimal(10, 2), round(SUM(F.size * 8) / 1024.0, 1)) AS Size
         FROM sys.master_files F
@@ -54,11 +63,11 @@ VALUES ('BotCommand', 'List', '/{0}', 'List of data bases with info', '
         ', null);
 INSERT INTO ##BotUnits
 VALUES ('BotCommand', 'Disk', '/{0}', 'Disk space information',
-        'SELECT DISTINCT dovs.logical_volume_name                                                                                                      AS Name,
-                        dovs.volume_mount_point                                                                                                       AS Drive,
-                        CONVERT(NUMERIC(10, 1), ROUND(dovs.available_bytes / 1073741824.0, 1))                                                        AS Free,
-                        CONVERT(NUMERIC(10, 1), Round((dovs.total_bytes - dovs.available_bytes) / 1073741824.0, 1))                                   AS Used,
-                        CONVERT(NUMERIC(10, 1), round(dovs.total_bytes / 1073741824.0, 1))                                                            AS Total,
+        'SELECT DISTINCT dovs.logical_volume_name                                                                                                       AS Name,
+                        dovs.volume_mount_point                                                                                                                     AS Drive,
+                        CONVERT(NUMERIC(10, 1), ROUND(dovs.available_bytes / 1073741824.0, 1))                                     AS Free,
+                        CONVERT(NUMERIC(10, 1), Round((dovs.total_bytes - dovs.available_bytes) / 1073741824.0, 1))        AS Used,
+                        CONVERT(NUMERIC(10, 1), round(dovs.total_bytes / 1073741824.0, 1))                                               AS Total,
                         CONVERT(varchar, (CONVERT(NUMERIC(5, 1), 100.0 - ((dovs.available_bytes / CAST(dovs.total_bytes as real) * 100))))) + '' % '' as Perc
         FROM sys.master_files mf
                  CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs', null);
@@ -73,24 +82,26 @@ VALUES ('BotUnit', 'Paging', '' , '','OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY',
 INSERT INTO ##BotUnits
 VALUES ('Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
 INSERT INTO ##BotUnits
-VALUES ('BotUnit', 'ReadUnit', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''{0}'')
-                                            SELECT u.Unit,Entities.* FROM u
-                                            INNER JOIN(
-                                            SELECT Units.Unit, Units.Entity as Action, Entities.Entity, Entities.Template, Entities.Payload, Entities.Parameters 
-                                            FROM ##BotUnits Units inner join ##BotUnits Entities 
-                                            ON Units.Unit = Entities.Unit and Units.Entity = Entities.Entity and Units.Unit = ''{0}'')
-                                            Entities ON u.Entity = Entities.Entity  ORDER BY u.Payload', null);
+VALUES ('BotUnit', 'DataBase', '' , '','SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''DataBase''',null);
+INSERT INTO ##BotUnits
+VALUES ('BotUnit', 'ReadUnit', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'' and Unit = ''BotUnit'')                                            
+                                            SELECT u.Unit as ''Entity'', Actions.* FROM u                                            
+                                            Inner join ##UnitActions Actions
+                                            ON Actions.Unit = U.eNTITY order by Actions.Action', null);
+INSERT INTO ##BotUnits
+VALUES ('BotUnit', 'GenericUnit', 'WITH {0} as ({1}) for json auto, root(''{0}'')' ,  '','', null);
+INSERT INTO ##BotUnits
+VALUES ('DataBaseInfo', '', '', '' , 'SELECT TOP(1) * FROM ##Info Where Id = @Id', 'Id');
                                                                                                                                              
-INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Delete', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
-INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Info', '{0}.{1}.{2}', null, 'SELECT * FROM ##Info where Id = @Id', 'Id');
-INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Restore', '{0}.{1}.{2}', null, 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
-INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', '', '{0}.{1}.{2}', null, 'SELECT TOP(1) * FROM ##Info Where Id = @Id', 'Id');
-INSERT INTO ##BotUnits
-VALUES ('DataBase', 'Backup', '{0}.{1}.{2}', null, 'DECLARE @fileName as VARCHAR(1024) = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
+INSERT INTO ##UnitActions
+VALUES ('DataBase', 'Delete', 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
+INSERT INTO ##UnitActions
+VALUES ('DataBase', 'Info', 'SELECT * FROM ##Info where Id = @Id', 'Id');
+INSERT INTO ##UnitActions
+VALUES ('DataBase', 'Restore', 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
+INSERT INTO ##UnitActions
+VALUES ('DataBase', 'Backup', 'DECLARE @fileName as VARCHAR(1024) = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
+
 
 IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase
@@ -107,7 +118,7 @@ ON S.Id = T.Id
 WHEN NOT MATCHED BY Target THEN
     INSERT (Unit,Id,Name, Created) 
     VALUES ('DataBase',S.Id,S.Title, GetDate());
-
+     
 
 IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
     DROP TABLE ##Info
@@ -116,8 +127,8 @@ SELECT DISTINCT  d.Id, Info.*
 INTO ##Info
 FROM(
 --SELECT CAST(database_id as VARCHAR(15)) as Id,
-SELECT     TOP(100)
-'DataBase' as UnitName,
+SELECT  DISTINCT   TOP(100)
+'DataBase' as Unit,
 CONVERT(VARCHAR(25), DB.name) AS DBName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],
 state_desc as State,
@@ -136,6 +147,6 @@ CASE WHEN is_read_only = 1 THEN 'read only' ELSE '' END AS IsReadOnly
  FROM sys.databases DB
 WHERE DB.name NOT IN ('model','tempdb','msdb','master')
 AND state = 0 -- database is online
-AND is_in_standby = 0) Info Left JOIN ##DataBase d ON d.Unit = Info.UnitName
+AND is_in_standby = 0) Info Left JOIN ##DataBase d ON d.Unit = Info.Unit
 
 

@@ -1,4 +1,5 @@
-using Telegram.Bot.Types.Enums;
+
+using MissBot.Entities.Enums;
 
 namespace MissBot.Entities;
 

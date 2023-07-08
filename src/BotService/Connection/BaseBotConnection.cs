@@ -2,294 +2,289 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using BotService.Connection.Extensions;
 using MissBot.Abstractions;
-using MissBot.Abstractions.Args;
 using MissBot.Abstractions.Configuration;
 using MissBot.Entities;
-using Telegram.Bot.Exceptions;
+using MissBot.Entities.API;
+using MissBot.Entities.Exceptions;
 
 namespace BotService.Connection
 {
-    /// <summary>
-    /// A client to use the Telegram Bot API
-    /// </summary>
-    public abstract class BaseBotConnection
-    {
-        public abstract IBotConnectionOptions Options { get; set; }
-        readonly HttpClient _httpClient;
+	/// <summary>
+	/// A client to use the Telegram Bot API
+	/// </summary>
+	public abstract class BaseBotConnection
+	{
+		public abstract IBotConnectionOptions Options { get; set; }
+		readonly HttpClient _httpClient;
 
-        /// <summary>
-        /// Timeout for requests
-        /// </summary>
-        public TimeSpan Timeout
-        {
-            get => Options.Timeout;
-            set => _httpClient.Timeout = value;
-        }
+		/// <summary>
+		/// Timeout for requests
+		/// </summary>
+		public TimeSpan Timeout
+		{
+			get => Options.Timeout;
+			set => _httpClient.Timeout = value;
+		}
 
-        public BaseBotConnection(HttpClient httpClient = default)
-        {
-            _httpClient = httpClient ?? new HttpClient();
-        }
-        public virtual async Task MakeRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
-        {
-            /// <inheritdoc />
-            if (request is null) { throw new ArgumentNullException(nameof(request)); }
+		public BaseBotConnection(HttpClient httpClient = default)
+		{
+			_httpClient = httpClient ?? new HttpClient();
+		}
+		public virtual async Task MakeRequestAsync(IBotRequest request, CancellationToken cancellationToken = default)
+		{
+			/// <inheritdoc />
+			if (request is null) { throw new ArgumentNullException(nameof(request)); }
 
-            var url = $"{Options.BaseRequestUrl}/{request.MethodName}";
+			var url = $"{Options.BaseRequestUrl}/{request.MethodName}";
 
 #pragma warning disable CA2000
-            var httpRequest = new HttpRequestMessage(method: request.Method, requestUri: url)
-            {
-                Content = request.ToHttpContent()
-            };
+			var httpRequest = new HttpRequestMessage(method: request.Method, requestUri: url)
+			{
+				Content = request.ToHttpContent()
+			};
 #pragma warning restore CA2000
 
 
-            var requestEventArgs = new ApiRequestEventArgs(
-                request: request,
-                httpRequestMessage: httpRequest
-            );
+			var requestEventArgs = new ApiRequestEventArgs(
+				request: request,
+				httpRequestMessage: httpRequest
+			);
 
-            using var httpResponse = await SendRequestAsync(httpClient: _httpClient, httpRequest: httpRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
+			using var httpResponse = await SendRequestAsync(httpClient: _httpClient, httpRequest: httpRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            requestEventArgs = new ApiRequestEventArgs(
-                request: request,
-                httpRequestMessage: httpRequest
-            );
-            var responseEventArgs = new ApiResponseEventArgs(
-                responseMessage: httpResponse,
-                apiRequestEventArgs: requestEventArgs
-            );
+			requestEventArgs = new ApiRequestEventArgs(
+				request: request,
+				httpRequestMessage: httpRequest
+			);
+			var responseEventArgs = new ApiResponseEventArgs(
+				responseMessage: httpResponse,
+				apiRequestEventArgs: requestEventArgs
+			);
 
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                var failedApiResponse = await httpResponse
-                    .DeserializeContentAsync<ApiResponse>(
-                        guard: response =>
-                            response.ErrorCode == default ||
-                            response.Description is null
-                    )
-                    .ConfigureAwait(false);
+			if (httpResponse.StatusCode != HttpStatusCode.OK)
+			{
+				var failedApiResponse = await httpResponse
+					.DeserializeContentAsync<ApiResponse>(
+						guard: response =>
+							response.ErrorCode == default ||
+							response.Description is null, Options.SerializeSettings)
+					.ConfigureAwait(false);
 
-                throw Options.ExceptionsParser.Parse(failedApiResponse);
-            }
+				throw Options.ExceptionsParser.Parse(failedApiResponse);
+			}
 
-            var apiResponse = await httpResponse
-                .DeserializeContentAsync<Telegram.Bot.Types.ApiResponse<object>>(
-                    guard: response => response.Ok == false || response.Result is null, Options.SerializeSettings)
-                .ConfigureAwait(false);
+			var apiResponse = await httpResponse
+				.DeserializeContentAsync<ApiResponse<object>>(
+					guard: response => response.Ok == false || response.Result is null, Options.SerializeSettings)
+				.ConfigureAwait(false);
 
-            [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
-            static async Task<HttpResponseMessage> SendRequestAsync(
-                HttpClient httpClient,
-                HttpRequestMessage httpRequest,
-                CancellationToken cancellationToken)
-            {
-                HttpResponseMessage httpResponse;
-                try
-                {
-                    httpResponse = await httpClient
-                        .SendAsync(request: httpRequest, cancellationToken: cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-                }
-                catch (TaskCanceledException exception)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        throw;
-                    }
+			[MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
+			static async Task<HttpResponseMessage> SendRequestAsync(HttpClient httpClient, HttpRequestMessage httpRequest, CancellationToken cancellationToken)
+			{
+				HttpResponseMessage httpResponse;
+				try
+				{
+					httpResponse = await httpClient
+						.SendAsync(request: httpRequest, cancellationToken: cancellationToken)
+						.ConfigureAwait(continueOnCapturedContext: false);
+				}
+				catch (TaskCanceledException exception)
+				{
+					if (cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
 
-                    throw new RequestException(message: "Request timed out", innerException: exception);
-                }
-                catch (Exception exception)
-                {
-                    throw new RequestException(
-                        message: "Exception during making request",
-                        innerException: exception
-                    );
-                }
+					throw new RequestException(message: "Request timed out", innerException: exception);
+				}
+				catch (Exception exception)
+				{
+					throw new RequestException(
+						message: "Exception during making request",
+						innerException: exception
+					);
+				}
 
-                return httpResponse;
-            }
-        }
-        public virtual async Task<TResponse> HandleQueryAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
-        {
-            /// <inheritdoc />
-            if (request is null) { throw new ArgumentNullException(nameof(request)); }
+				return httpResponse;
+			}
+		}
+		public virtual async Task<TResponse> HandleQueryAsync<TResponse>(IBotRequest<TResponse> request, CancellationToken cancellationToken = default)
+		{
+			/// <inheritdoc />
+			if (request is null) { throw new ArgumentNullException(nameof(request)); }
 
-            var url = $"{Options.BaseRequestUrl}/{request.MethodName}";
+			var url = $"{Options.BaseRequestUrl}/{request.MethodName}";
 
 #pragma warning disable CA2000
-            var httpRequest = new HttpRequestMessage(method: request.Method, requestUri: url)
-            {
-                Content = request.ToHttpContent()
-            };
+			var httpRequest = new HttpRequestMessage(method: request.Method, requestUri: url)
+			{
+				Content = request.ToHttpContent()
+			};
 #pragma warning restore CA2000
 
-            var requestEventArgs = new ApiRequestEventArgs(
-                request: request,
-                httpRequestMessage: httpRequest
-            );
+			var requestEventArgs = new ApiRequestEventArgs(
+				request: request,
+				httpRequestMessage: httpRequest
+			);
 
-            using var httpResponse = await SendRequestAsync(httpClient: _httpClient, httpRequest: httpRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
+			using var httpResponse = await SendRequestAsync(httpClient: _httpClient, httpRequest: httpRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            requestEventArgs = new ApiRequestEventArgs(
-                request: request,
-                httpRequestMessage: httpRequest
-            );
-            var responseEventArgs = new ApiResponseEventArgs(
-                responseMessage: httpResponse,
-                apiRequestEventArgs: requestEventArgs
-            );
+			requestEventArgs = new ApiRequestEventArgs(
+				request: request,
+				httpRequestMessage: httpRequest
+			);
+			var responseEventArgs = new ApiResponseEventArgs(
+				responseMessage: httpResponse,
+				apiRequestEventArgs: requestEventArgs
+			);
 
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                var failedApiResponse = await httpResponse
-                    .DeserializeContentAsync<ApiResponse>(
-                        guard: response =>
-                            response.ErrorCode == default ||
-                            response.Description is null
-                    )
-                    .ConfigureAwait(false);
+			if (httpResponse.StatusCode != HttpStatusCode.OK)
+			{
+				var failedApiResponse = await httpResponse
+					.DeserializeContentAsync<ApiResponse>(
+						guard: response =>
+							response.ErrorCode == default ||
+							response.Description is null, Options.SerializeSettings)
+					.ConfigureAwait(false);
 
-                throw Options.ExceptionsParser.Parse(failedApiResponse);
-            }
+				throw Options.ExceptionsParser.Parse(failedApiResponse);
+			}
 
-            var apiResponse = await httpResponse
-                .DeserializeContentAsync<Telegram.Bot.Types.ApiResponse<TResponse>>(
-                    guard: response => response.Ok == false ||
-                                       response.Result is null, Options.SerializeSettings
-                )
-                .ConfigureAwait(false);
+			var apiResponse = await httpResponse
+				.DeserializeContentAsync<ApiResponse<TResponse>>(
+					guard: response => response.Ok == false ||
+									   response.Result is null, Options.SerializeSettings
+				)
+				.ConfigureAwait(false);
 
-            return apiResponse.Result!;
+			return apiResponse.Result!;
 
-            [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
-            static async Task<HttpResponseMessage> SendRequestAsync(
-                HttpClient httpClient,
-                HttpRequestMessage httpRequest,
-                CancellationToken cancellationToken)
-            {
-                HttpResponseMessage httpResponse;
-                try
-                {
-                    httpResponse = await httpClient
-                        .SendAsync(request: httpRequest, cancellationToken: cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-                }
-                catch (TaskCanceledException exception)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        throw;
-                    }
+			[MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
+			static async Task<HttpResponseMessage> SendRequestAsync(
+				HttpClient httpClient,
+				HttpRequestMessage httpRequest,
+				CancellationToken cancellationToken)
+			{
+				HttpResponseMessage httpResponse;
+				try
+				{
+					httpResponse = await httpClient
+						.SendAsync(request: httpRequest, cancellationToken: cancellationToken)
+						.ConfigureAwait(continueOnCapturedContext: false);
+				}
+				catch (TaskCanceledException exception)
+				{
+					if (cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
 
-                    throw new RequestException(message: "Request timed out", innerException: exception);
-                }
-                catch (Exception exception)
-                {
-                    throw new RequestException(
-                        message: "Exception during making request",
-                        innerException: exception
-                    );
-                }
+					throw new RequestException(message: "Request timed out", innerException: exception);
+				}
+				catch (Exception exception)
+				{
+					throw new RequestException(
+						message: "Exception during making request",
+						innerException: exception
+					);
+				}
 
-                return httpResponse;
-            }
-        }
+				return httpResponse;
+			}
+		}
 
-        /// <summary>
-        /// Test the API token
-        /// </summary>
-        /// <returns><c>true</c> if token is valid</returns>
-        public async Task<bool> GetBotClientAsync(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                await HandleQueryAsync<User>(request: new BaseParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-                return true;
-            }
-            catch (ApiRequestException e)
-                when (e.ErrorCode == 401)
-            {
-                return false;
-            }
-        }
+		/// <summary>
+		/// Test the API token
+		/// </summary>
+		/// <returns><c>true</c> if token is valid</returns>
+		public async Task<bool> GetBotClientAsync(CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				await HandleQueryAsync<User>(request: new BaseParameterlessRequest<User>("getMe"), cancellationToken: cancellationToken)
+					.ConfigureAwait(false);
+				return true;
+			}
+			catch (ApiRequestException e)
+				when (e.ErrorCode == 401)
+			{
+				return false;
+			}
+		}
 
-        /// <inheritdoc />
-        public async Task DownloadFileAsync(
-            string filePath,
-            Stream destination,
-            CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(filePath) || filePath.Length < 2)
-            {
-                throw new ArgumentException(message: "Invalid file path", paramName: nameof(filePath));
-            }
+		/// <inheritdoc />
+		public async Task DownloadFileAsync(
+			string filePath,
+			Stream destination,
+			CancellationToken cancellationToken = default)
+		{
+			if (string.IsNullOrWhiteSpace(filePath) || filePath.Length < 2)
+			{
+				throw new ArgumentException(message: "Invalid file path", paramName: nameof(filePath));
+			}
 
-            if (destination is null) { throw new ArgumentNullException(nameof(destination)); }
+			if (destination is null) { throw new ArgumentNullException(nameof(destination)); }
 
-            var fileUri = $"{Options.BaseFileUrl}/{filePath}";
-            using var httpResponse = await GetResponseAsync(
-                httpClient: _httpClient,
-                fileUri: fileUri,
-                cancellationToken: cancellationToken
-            ).ConfigureAwait(false);
+			var fileUri = $"{Options.BaseFileUrl}/{filePath}";
+			using var httpResponse = await GetResponseAsync(
+				httpClient: _httpClient,
+				fileUri: fileUri,
+				cancellationToken: cancellationToken
+			).ConfigureAwait(false);
 
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                var failedApiResponse = await httpResponse.DeserializeContentAsync<ApiResponse>(guard: response =>
-                            response.ErrorCode == default || response.Description is null
-                    )
-                    .ConfigureAwait(false);
+			if (!httpResponse.IsSuccessStatusCode)
+			{
+				var failedApiResponse = await httpResponse.DeserializeContentAsync<ApiResponse>(guard: response =>
+							response.ErrorCode == default || response.Description is null, Options.SerializeSettings
+					)
+					.ConfigureAwait(false);
 
-                throw Options.ExceptionsParser.Parse(failedApiResponse);
-            }
+				throw Options.ExceptionsParser.Parse(failedApiResponse);
+			}
 
-            if (httpResponse.Content is null)
-            {
-                throw new RequestException(
-                    message: "Response doesn't contain any content",
-                    httpResponse.StatusCode
-                );
-            }
+			if (httpResponse.Content is null)
+			{
+				throw new RequestException(
+					message: "Response doesn't contain any content",
+					httpResponse.StatusCode
+				);
+			}
 
-            try
-            {
-                await httpResponse.Content.CopyToAsync(destination).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                throw new RequestException(
-                    message: "Exception during file download",
-                    httpResponse.StatusCode,
-                    exception
-                );
-            }
+			try
+			{
+				await httpResponse.Content.CopyToAsync(destination).ConfigureAwait(false);
+			}
+			catch (Exception exception)
+			{
+				throw new RequestException(
+					message: "Exception during file download",
+					httpResponse.StatusCode,
+					exception
+				);
+			}
 
-            [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
-            static async Task<HttpResponseMessage> GetResponseAsync(HttpClient httpClient, string fileUri, CancellationToken cancellationToken)
-            {
-                HttpResponseMessage httpResponse;
-                try
-                {
-                    httpResponse = await httpClient
-                        .GetAsync(requestUri: fileUri, completionOption: HttpCompletionOption.ResponseHeadersRead, cancellationToken: cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-                }
-                catch (TaskCanceledException exception)
-                {
-                    if (cancellationToken.IsCancellationRequested) { throw; }
-                    throw new RequestException(message: "Request timed out", innerException: exception);
-                }
-                catch (Exception exception)
-                {
-                    throw new RequestException(message: "Exception during file download", innerException: exception);
-                }
+			[MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
+			static async Task<HttpResponseMessage> GetResponseAsync(HttpClient httpClient, string fileUri, CancellationToken cancellationToken)
+			{
+				HttpResponseMessage httpResponse;
+				try
+				{
+					httpResponse = await httpClient
+						.GetAsync(requestUri: fileUri, completionOption: HttpCompletionOption.ResponseHeadersRead, cancellationToken: cancellationToken)
+						.ConfigureAwait(continueOnCapturedContext: false);
+				}
+				catch (TaskCanceledException exception)
+				{
+					if (cancellationToken.IsCancellationRequested) { throw; }
+					throw new RequestException(message: "Request timed out", innerException: exception);
+				}
+				catch (Exception exception)
+				{
+					throw new RequestException(message: "Exception during file download", innerException: exception);
+				}
 
-                return httpResponse;
-            }
-        }
-    }
+				return httpResponse;
+			}
+		}
+	}
 }

@@ -1,12 +1,12 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
 using MissBot.Entities.Results.Inline;
+using MissCore.Data.Entities;
 
 namespace MissCore.Response
 {
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record AnswerInlineRequest<TResponse> : BaseRequest<bool>
+    public abstract record AnswerInlineRequest<TResponse> : BaseRequest<bool> where TResponse : class
     {
         /// <summary>
         /// Unique identifier for the answered query
@@ -18,7 +18,7 @@ namespace MissCore.Response
         /// An array of results for the inline query
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public abstract IEnumerable<ResultUnit> Results { get; }
+        public abstract ICollection<ResultUnit<TResponse>> Results { get; init; }
 
         /// <summary>
         /// The maximum amount of time in seconds that the result of the

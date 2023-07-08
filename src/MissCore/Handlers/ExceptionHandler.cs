@@ -12,7 +12,7 @@ namespace MissCore.Handlers
             }
             catch (Exception e)
             {
-                await context.BotServices.ResponseError().Write(e).Commit();
+                await context.BotServices.ResponseError().Write(e).Commit(cancel);
                 context.IsHandled = true;
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;

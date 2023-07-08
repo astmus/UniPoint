@@ -1,53 +1,69 @@
-using System.Collections.Specialized;
+using System.Collections;
 using System.Text.RegularExpressions;
+
 using LinqToDB.Mapping;
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using MissBot.Extensions.Entities;
-using MissCore.Data.Collections;
-using MissCore.Data.Entities;
+
+using MissBot.Abstractions;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities.Abstractions;
+using MissBot.Identity;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
-    [Table("##BotUnits")]
-    [JsonObject(MemberSerialization.OptOut)]
-    public record BotUnit<TUnit> : BotUnit, IBotUnit<TUnit> where TUnit : BaseUnit
-    {
-        public static readonly (string Unit, string Entity) Key = new(Regex.Replace(typeof(TUnit).Name, "`1", ""), typeof(TUnit).GetGenericArguments().FirstOrDefault()?.Name);
-        public static readonly Id<TUnit> Id = new Id<TUnit>($"{Key.Unit ?? nameof(BotUnit)}{Key.Entity}");
-        public IEnumerable<IBotUnit> Units
-            => Entities;
-        public List<BotUnit> Entities { get; set; }
+	[Table("##BotUnits")]
+	[JsonObject(MemberSerialization.OptOut, ItemNullValueHandling = NullValueHandling.Ignore)]
+	public record BotUnit<TData> : BaseBotUnit, IBotUnit<TData>, IInteractableUnit<TData>, IParameterizedUnit where TData : class, IIdentibleUnit
+	{
+		public static readonly (string Unit, string Entity) Key = new(Regex.Replace(typeof(TData).Name, "`1", ""), typeof(TData).GetGenericArguments().FirstOrDefault()?.Name);
+		public static readonly Id<TData> UnitId = Id<TData>.Join(Key.Unit, Key.Entity);
 
-        [Column("Entity")]
-        public override string EntityKey { get; set; } = Key.Entity;
-        [Column("Unit")]
-        public override string UnitKey { get; set; } = Key.Unit;        
+		[Column("Entity")]
+		public override string EntityKey { get; set; } = Key.Entity;
 
-        public record Content : ContentUnit<TUnit>;
-        public void SetUnitActions<TSub>(TSub unit) where TSub : BaseUnit
-        {
-            IEnumerable<UnitAction> actions = Units.Select(s
-                    => UnitAction.WithData(s.EntityKey, string.Format(s.Template, s.EntityKey, s.UnitKey, unit.Meta.GetValue(s[0])))).ToList();
-            unit.Actions = new UnitActions(actions);
-        }
+		[Column("Unit")]
+		public override string UnitKey { get; set; } = Key.Unit;
 
-        public override void InitializeMetaData()
-        {
-            Meta ??= MetaData<TUnit>.Parse(this);
-        }
-    }
+		[Column]
+		public string Parameters { get; set; }
+
+		[Column]
+		public string Extension { get; set; }
+
+		public IUnitContext DataContext { get; set; }
+
+		public IEnumerable<IEnumerable<IUnitAction<TData>>> Actions { get; set; }
+		public TData UnitData
+			=> DataContext.GetUnitEntity<TData>();
+
+		public IEnumerator UnitEntities
+			=> DataContext?.UnitEntities;
+
+		public void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<TData>
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SetContext(object data)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
-        //public static RequestInformation<TUnit> GetRequestInfo(Expression<Func<TUnit, object[]>> selector = default, Expression<Predicate<TUnit>> criteria = default)
-        //{
-        //    string[] fields = AllFileds;
-        //    ICriteria icriteria = null;
-        //    if (selector?.Body is NewArrayExpression exp)
-        //        fields = (selector.Body as NewArrayExpression)?.Expressions.OfType<MemberExpression>().Select(s => s.Member.Name).ToArray();
-        //    icriteria = CreateCriteria(criteria);
-        //    return RequestInfo with { EntityFields = fields, Criteria = icriteria };
-        //}        
+//public static RequestInformation<TUnit> GetRequestInfo(Expression<Func<TUnit, object[]>> selector = default, Expression<Predicate<TUnit>> criteria = default)
+//{
+//    string[] fields = AllFileds;
+//    ICriteria icriteria = null;
+//    if (selector?.Body is NewArrayExpression exp)
+//        fields = (selector.Body as NewArrayExpression)?.Expressions.OfType<MemberExpression>().Select(s => s.Member.Name).ToArray();
+//    icriteria = CreateCriteria(criteria);
+//    return RequestInfo with { EntityFields = fields, Criteria = icriteria };
+//}        
 
 //public record Criteria(Expression left, ExpressionType operand, Expression right, CriteriaFormat Format = CriteriaFormat.SQL) : ICriteria
 //{

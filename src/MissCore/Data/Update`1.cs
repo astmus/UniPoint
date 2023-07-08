@@ -1,14 +1,13 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
-using MissCore.Bot;
-using Telegram.Bot.Types.Enums;
+using MissBot.Entities.Enums;
 
 namespace MissCore.Data
 {
     public class Update<TEntity> : UnitUpdate, IUpdateInfo, IUpdate<TEntity>
-    {        
+    {
         public TEntity Data { get; set; }
-        
+
     }
     public class UnitUpdate : Update, IUpdateInfo, IUnitUpdate
     {
@@ -19,13 +18,13 @@ namespace MissCore.Data
 
         public Message CurrentMessage
             => Message ?? EditedMessage ?? ChannelPost ?? EditedChannelPost;
-        
+
         public bool IsCommand => this switch
         {
             { Message: { } } when CurrentMessage.Entities is MessageEntity[] ent && ent.Any(a => a.Type == MessageEntityType.BotCommand) => true,
             _ => false
         };
 
-        public uint UpdateId => Id;    
+        public uint UpdateId => Id;
     }
 }

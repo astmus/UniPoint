@@ -1,41 +1,37 @@
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Converters;
 using MissBot.Entities;
+using MissBot.Entities.Abstractions;
+using MissBot.Entities.Enums;
 
 namespace MissBot.Abstractions
 {
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract record BaseResponse<TResponse>(IHandleContext Context = default) : BaseRequest<Message<TResponse>>("sendMessage"), IResponse<TResponse>, IUnitContainable<TResponse> where TResponse:BaseUnit, IUnit, IBotEntity
+	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+    public abstract record BaseResponse<TUnit>(IHandleContext Context = default) : BaseRequest<Message<TUnit>>("sendMessage"), IResponse<TUnit> where TUnit : class
     {
-        /// <inheritdoc />
         [JsonProperty(Required = Required.Always)]
         public ChatId ChatId
             => Chat.Id;
+
         protected Chat Chat
             => Context.Take<Chat>() ?? Context.Any<IUnitUpdate>().Chat;
+
         /// <summary>
         /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? MessageThreadId { get; set; }
-        
+
         /// <summary>
         /// Text of the message to be sent, 1-4096 characters after entities parsing
         /// </summary>
         [JsonProperty("text", Required = Required.Always)]
-        public virtual IUnit<TResponse> Content { get; set; }
-        public abstract int Length { get; }
-
-    
-        public abstract IResponse<TResponse> InputData(string description, IActionsSet options = null);
-        public abstract IResponse CompleteInput(string message);
-        public abstract Task Commit(CancellationToken cancel = default);
+        public abstract IUnitEntity Content { get; protected set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Caption { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Telegram.Bot.Types.Enums.ParseMode? ParseMode { get; set; } = Telegram.Bot.Types.Enums.ParseMode.Html;
+        public ParseMode? ParseMode { get; set; } = MissBot.Entities.Enums.ParseMode.Html;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IEnumerable<MessageEntity> Entities { get; set; }
@@ -55,28 +51,30 @@ namespace MissBot.Abstractions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? AllowSendingWithoutReply { get; set; }
 
-        [JsonProperty("reply_markup",DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public virtual IActionsSet Actions { get; }
+        [JsonProperty("reply_markup", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonConverter(typeof(UnitActionsConverter), "inline_keyboard")]
+        public IEnumerable<IEnumerable<IUnitAction<TUnit>>> Actions { get; set; }
 
-        void IResponse<TResponse>.WriteMetadata<TData>(TData meta)
+        public virtual IActionsSet ActionsSet { get; set; }
+
+        public abstract int Length { get; }
+        public abstract IResponse<TUnit> InputDataInteraction(string description, IActionsSet options = null);
+        public abstract IResponse CompleteInteraction(object completeObject);
+        public abstract Task Commit(CancellationToken cancel = default);
+
+
+        public virtual void AddUnits<TData>(IEnumerable<IUnit<TData>> units) where TData : class, TUnit
         {
-            throw new NotImplementedException();
+            InitializeCombinedContent();
+            foreach (var unit in units)
+                AddUnit(unit);
         }
 
-        public void Write<TData>(TData unit) where TData : IUnit<TResponse>//IUnit<TResponse>
-        {
-            Content = unit;
-        }
-
-        public void Write<TData>(IEnumerable<TData> units) where TData:TResponse
-        {
-            //foreach (var unit in units)
-            //    Write(unit);
-        }
-
-        public void Add<TUnit>(TUnit unit) where TUnit : IUnit<TResponse>
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void WriteUnit<TData>(TData unit) where TData : class, IUnit<TUnit>;
+        public abstract void InitializeCombinedContent();
+        public abstract IResponse Write(object data);
+        public abstract void AddUnit<TData>(IUnit<TData> unit) where TData : class, TUnit;
+        public abstract void WriteMetadata<TData>(TData meta) where TData : class, IMetaData;
+        public abstract void AddUnits<TData>(IEnumerable<TData> units) where TData : class, IUnit<TUnit>;
     }
 }

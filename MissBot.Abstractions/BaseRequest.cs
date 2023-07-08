@@ -20,8 +20,7 @@ namespace MissBot.Abstractions
         /// </summary>
         /// <param name="methodName">Bot API method</param>
         protected BaseRequest(string methodName)
-            : this(methodName, HttpMethod.Post)
-        { }
+            : this(methodName, HttpMethod.Post) { }
 
         /// <summary>
         /// Initializes an instance of request
@@ -39,9 +38,9 @@ namespace MissBot.Abstractions
         /// </summary>
         /// <returns>Content of HTTP request</returns>
         public virtual HttpContent ToHttpContent()
-        {            
-           var payload = CustomConverter is JsonConverter converter ? JsonConvert.SerializeObject(this,converter) : JsonConvert.SerializeObject(this);           
-           return new StringContent(payload, Encoding.UTF8, "application/json");
+        {
+            var payload = CustomConverter is JsonConverter converter ? JsonConvert.SerializeObject(this, converter) : JsonConvert.SerializeObject(this);
+            return new StringContent(payload, Encoding.UTF8, "application/json");
         }
 
         /// <summary>

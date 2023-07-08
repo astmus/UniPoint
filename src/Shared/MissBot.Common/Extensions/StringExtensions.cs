@@ -1,14 +1,21 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MissBot.Common.Extensions
+namespace MissBot.Extensions
 {
     internal static class StringExtensions
     {
         public static LineSplitEnumerator SplitLines(this string str)
             => new LineSplitEnumerator(str.AsSpan());
+        /*
+                    <Text inside angle brackets>	Placeholder for which you must supply a value.        
+                    [Text inside square brackets]	Optional items.
+                    {Text inside braces}	Set of required items. You must choose one.
+                    Vertical bar ( \| )	Separator for mutually exclusive items. You must choose one.
+                    Ellipsis (…)	Items that can be repeated and used multiple times.
+        */
+        public static SplitEnumerator SplitCommandArguments(this string str)
+            => new SplitEnumerator(str.AsSpan(1), '/', '-', '|', ' ');
+
+        public static SplitEnumerator SplitCommandArguments(this string str, params char[] delimiters)
+            => new SplitEnumerator(str.AsSpan(1), delimiters);
 
         public static SplitEnumerator SplitParameters(this string str)
             => new SplitEnumerator(str.AsSpan(), ';');
@@ -17,7 +24,6 @@ namespace MissBot.Common.Extensions
         {
             private ReadOnlySpan<char> _str;
             private ReadOnlySpan<char> _separators;
-
 
             public SplitEnumerator(ReadOnlySpan<char> splitTarget, params char[] separators)
             {
@@ -29,6 +35,16 @@ namespace MissBot.Common.Extensions
             public SplitEnumerator GetEnumerator()
                 => this;
 
+            public byte SlicesCount()
+            {
+                byte count = 0;
+                int index = 0;
+
+                while ((index = _str[index..].IndexOfAny(_separators)) != -1)
+                    count++;
+
+                return count;
+            }
             public bool MoveNext()
             {
                 var span = _str;
@@ -46,8 +62,8 @@ namespace MissBot.Common.Extensions
                 if (index < span.Length - 1)
                     if (span[index + 1] is char next && !_separators.Contains(next))
                     {
-                        var start = span[..index];                                            
-                        Current = new SplitEntry(start, span.Slice(index,1));
+                        var start = span[..index];
+                        Current = new SplitEntry(start, span.Slice(index, 1));
                         _str = span[(index + 1)..];
                         return true;
                     }

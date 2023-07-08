@@ -1,0 +1,54 @@
+{
+    "ok": true, 
+    "result": [
+        {
+            "update_id": 971737930,
+            "message": {
+                "message_id": 5758,
+                "from": {
+                    "id": 506545376,
+                    "is_bot": false,
+                    "first_name": "Maseva",
+                    "username": "JustMaseva",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": 506545376,
+                    "first_name": "Maseva",
+                    "username": "JustMaseva",
+                    "type": "private"
+                },
+                "date": 1688743212,
+                "text": "DataBase 25529 0018.jpg Jul  7 2023  7:19",
+                "reply_markup": {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "Delete",
+                                "callback_data": "DataBase.Delete.25529"
+                            },
+                            {
+                                "text": "Info",
+                                "callback_data": "DataBase.Info.25529"
+                            },
+                            {
+                                "text": "Restore",
+                                "callback_data": "DataBase.Restore.25529"
+                            },
+                            {
+                                "text": "Backup",
+                                "callback_data": "DataBase.Backup.25529"
+                            }
+                        ]
+                    ]
+                },
+                "via_bot": {
+                    "id": 1687540638,
+                    "is_bot": true,
+                    "first_name": "AliseBot",
+                    "username": "CloudSyncBot"
+                }
+            }
+        }
+    ]
+}

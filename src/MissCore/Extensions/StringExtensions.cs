@@ -1,23 +1,29 @@
 using MissBot.Entities.Query;
-
+using MissBot.Extensions;
 namespace MissCore.Extensions
 {
 
     public static class StringExtensions
     {
 
-        internal static (string command, string[] args) GetCommandAndArgs(this CallbackQuery query)
+        internal static (string unit, string command, string[] args) GetCommandAndArgs(this CallbackQuery query)
             => ParseCommand(query.Data);
-        static (string command, string[] args) ParseCommand(string message)
+        static (string unit, string command, string[] args) ParseCommand(string message)
         {
             if (message.Contains("."))
             {
-                var items = message.Split(".");
-                return (items[0], items[1..]);
-                //return (items[0], items[1..^1]);
+                var iterator = message.SplitCommandArguments().GetEnumerator();
+                var itemsCount = iterator.SlicesCount();
+                string[] items = new string[itemsCount];
+                byte index = 0;
+
+                while (iterator.MoveNext())
+                    items[index++] = iterator.Current;
+
+                return (items[0], items[1], items[2..]);
             }
             else
-                return (message, null);
+                return (message, null, null);
         }
         //public static string[] GetArgs(this InlineQuery query)
         //    => query.Query.Contains("--") ? query.Query.Split("--") : new string[] { query.Query };

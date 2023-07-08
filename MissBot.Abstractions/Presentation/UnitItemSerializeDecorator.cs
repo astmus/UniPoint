@@ -1,12 +1,12 @@
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 
 namespace MissBot.Abstractions.Presentation
 {
-    public interface IDecorator<in TComponent>
+    public interface IUnitDecorator<in TComponent>
     {
         IUnitItem SetComponent(TComponent item);
     }
-    public interface ISerializeDecorator<in TUnit> : IDecorator<TUnit> where TUnit: IUnitItem
+    public interface ISerializeDecorator<in TUnit> : IUnitDecorator<TUnit> where TUnit: IUnitItem
     {
         string Serialize();
     }

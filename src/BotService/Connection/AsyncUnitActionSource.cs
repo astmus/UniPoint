@@ -1,13 +1,12 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 using MissBot.Entities;
 using MissBot.Extensions;
-using MissCore.Extensions;
 using MissCore.Handlers;
 
 namespace BotService.Connection
 {
-    public class AsyncUnitActionSource<TUnit> : BaseDataSource<TUnit>, IAsyncUnitActionSource<TUnit> where TUnit : BaseUnit
+    public class AsyncUnitActionSource<TUnit> : BaseDataSource<TUnit>, IAsyncUnitActionSource<TUnit> where TUnit : BaseBotUnit
     {
         IHandleContextFactory context { get; }
         public ILogger<AsyncUnitActionSource<TUnit>> log { get; protected set; }

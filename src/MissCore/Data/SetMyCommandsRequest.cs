@@ -1,5 +1,6 @@
 using MissBot.Abstractions;
-using Telegram.Bot.Types;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities.API;
 
 namespace MissCore.Data;
 

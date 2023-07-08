@@ -1,9 +1,9 @@
 using LinqToDB.Mapping;
-using MissBot.Abstractions.Entities;
+using MissBot.Entities.Abstractions;
 
 namespace MissCore.Bot
 {
-    [Table("##BotUnits")]
+	[Table("##BotUnits")]
     public record BotEntity<TEntity> :  IBotEntity
     {
         [Column("Unit")]

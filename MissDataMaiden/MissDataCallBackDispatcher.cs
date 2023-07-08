@@ -1,46 +1,49 @@
-using BotService;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities;
 using MissBot.Entities.Query;
-using MissCore;
+using MissBot.Extensions;
 using MissCore.Data.Collections;
 using MissCore.Handlers;
+
 using MissDataMaiden.Entities;
+using MissBot.Identity;
 
 namespace MissDataMaiden
 {
-    internal class MissDataCallBackDispatcher : CallbackQueryHandler
-    {
-        public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
-        { }
-       // IResponse<CallbackQuery> response;
-        protected override async Task HandleAsync(string command, string unit, string id, CallbackQuery query, CancellationToken cancel = default)
-        {
-            //this.response = response;
-            var botUnit = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
+	internal class MissDataCallBackDispatcher : CallbackQueryHandler
+	{
+		public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
+		{ }
 
-            await notifier.Complete().ConfigFalse();
+		IInteraction<DataBase> response;
+		protected override async Task HandleAsync(string command, string unit, string id, CallbackQuery query, CancellationToken cancel = default)
+		{
+			response = Context.BotServices.InteractionOf<DataBase>();
+			var unitAction = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
 
-            botUnit.UnitIdentifier ??= Id<DataBase>.Value.With(id);
-            var handler = Context.GetBotService<InputParametersHandler>();
-            await handler.HandleAsync(ParametersEntered, botUnit, Context, cancel);
+			await notifier.Complete().ConfigFalse();
 
-            Context.SetNextHandler(handler.AsyncDelegate);
-        }
+			unitAction.Id = Id<DataBase>.Instance.With(id);
+			var handler = Context.GetBotService<InputParametersHandler>();
+			await handler.HandleAsync(ParametersEntered, unitAction, Context, cancel);
 
-        async Task ParametersEntered(FormattableUnitBase result, IHandleContext context)
-        {
-            //await response.CompleteInput(result.ToString()).Commit();
+			Context.SetNextHandler(handler.AsyncDelegate);
+		}
 
-            var repository = Context.GetBotService<IJsonRepository>();
-        
-            var unitRes = await repository.RawAsync<GenericUnit>(result.Format, default, result.ToArray());
-            //if (unitRes != null)
-            //    await response.CompleteInput(unitRes.Content.FirstOrDefault()?.Format("TB")).Commit();
-            //else
-            //    await response.CompleteInput("Not found").Commit();
-            Context.IsHandled = true;
-        }
-    }
+		async Task ParametersEntered(FormattableUnitBase result, IHandleContext context)
+		{
+			//await response.CompleteInteraction(result).Commit();
+
+			var repository = Context.GetBotService<IJsonRepository>();
+
+			var unitRes = await repository.RawAsync<GenericUnit>(result.Format, default, result.ToArray());
+			if (unitRes != null)
+				await response.CompleteInteraction(unitRes.Content).Commit();
+			else
+				await response.CompleteInteraction("Not found").Commit();
+			Context.IsHandled = true;
+		}
+	}
 }

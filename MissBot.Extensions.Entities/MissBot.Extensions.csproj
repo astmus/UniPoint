@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>annotations</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
+    <ProjectReference Include="..\MissBot.Commands\MissBot.Entities.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\src\Shared\MissBot.Common\MissBot.Common.projitems" Label="Shared" />
+
+</Project>

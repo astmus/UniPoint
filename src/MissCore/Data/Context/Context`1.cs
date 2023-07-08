@@ -1,61 +1,62 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Identity;
 using MissCore.Data.Collections;
-using Telegram.Bot.Requests;
 
 namespace MissCore.Data.Context
 {
-    public class Context<TScope> : Context, IContext<TScope>, IHandleContext
-    {
-        protected IHandleContext Root { get; set; }
-        IBotServicesProvider botServices;
-        public bool? IsHandled { get; set; }
-        AsyncHandler currentHandler;
-        public Context(IBotServicesProvider botServiceProvider)
-        {
-            botServices = botServiceProvider;
-            Root = this;
-        }
-        public IBotServicesProvider BotServices
-            => botServices ?? Root.BotServices;
+	public class Context<TScope> : Context, IContext<TScope>, IHandleContext
+	{
+		protected IHandleContext Root { get; set; }
+		IBotServicesProvider botServices;
+		public bool? IsHandled { get; set; }
+		AsyncHandler currentHandler;
+		public Context(IBotServicesProvider botServiceProvider)
+		{
+			botServices = botServiceProvider;
+			Root = this;
+		}
+		public IBotServicesProvider BotServices
+			=> botServices ?? Root.BotServices;
 
-        public IContext<TScope> SetData(TScope data)
-        {
-            if (Map is DataMap map)
-                map.JoinData(data);
-            else
-                Map = DataMap.Parse(data);
-            Root.Set(data);
-            return this;
-        }
+		public IContext<TScope> SetData(TScope data)
+		{
+			if (Map is DataMap map)
+				map.JoinData(data);
+			else
+				Map = DataMap.Parse(data);
 
-        public T GetBotService<T>() where T : class
-            => BotServices.GetService<T>();
-        public THandler GetAsyncHandler<THandler>() where THandler : class, IAsyncHandler
-            => BotServices.GetService<THandler>();
+			Root.Set(data);
+			return this;
+		}
 
-        public IAsyncHandler<T> GetAsyncHandlerOf<T>()
-            => BotServices.GetService<IAsyncHandler<T>>();
+		public T GetBotService<T>() where T : class
+			=> BotServices.GetService<T>();
+		public THandler GetAsyncHandler<THandler>() where THandler : class, IAsyncHandler
+			=> BotServices.GetService<THandler>();
 
-        public bool Contains<T>(Id<T> identifier)
-            => ContainsKey(identifier.id) || Map.Contains(identifier.id);
+		public IAsyncHandler<T> GetAsyncHandlerOf<T>()
+			=> BotServices.GetService<IAsyncHandler<T>>();
 
-        public IHandleContext SetNextHandler(AsyncHandler handler)
-        {
-            Set(handler);
-            return this;
-        }
+		public bool Contains<T>(Id<T> identifier)
+			=> ContainsKey(identifier.Key) || Map.Contains(identifier.Key);
 
-        public Task GetNextHandler(AsyncHandler defHandler = default)
-        {
-            currentHandler = Get<AsyncHandler>(defHandler);
-            return currentHandler(this);
-        }
+		public IHandleContext SetNextHandler(AsyncHandler handler)
+		{
+			Set(handler);
+			return this;
+		}
 
-        public AsyncHandler CurrentHandler
-            => currentHandler;
+		public Task GetNextHandler(AsyncHandler defHandler = default)
+		{
+			currentHandler = Get<AsyncHandler>(defHandler);
+			return currentHandler(this);
+		}
 
-        public IBotContext Bot
-            => BotServices.GetRequiredService<IBotContext>();
-    }
+		public AsyncHandler CurrentHandler
+			=> currentHandler;
+
+		public IBotContext Bot
+			=> BotServices.GetRequiredService<IBotContext>();
+	}
 }

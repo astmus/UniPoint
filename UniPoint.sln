@@ -44,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotService", "src\BotServic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissCore", "src\MissCore\MissCore.csproj", "{0145FD37-5652-4849-A3AA-B1EA62C0C50A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Extensions.Entities", "MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj", "{E9EB6953-A065-48B3-9C13-9726C181241B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Extensions", "MissBot.Extensions.Entities\MissBot.Extensions.csproj", "{E9EB6953-A065-48B3-9C13-9726C181241B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissBot.Entities", "MissBot.Commands\MissBot.Entities.csproj", "{138D1439-A20B-4BF7-8E94-558214FC6817}"
 EndProject
@@ -153,6 +153,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{0145fd37-5652-4849-a3aa-b1ea62c0c50a}*SharedItemsImports = 5
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{51b33f67-77db-4ad2-9647-4d23e1a01711}*SharedItemsImports = 5
+		src\Shared\MissBot.Common\MissBot.Common.projitems*{e9eb6953-a065-48b3-9c13-9726c181241b}*SharedItemsImports = 5
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{f83dfa73-28bc-435a-8c02-7bbc31ceaa4e}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

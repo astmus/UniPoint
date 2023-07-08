@@ -10,16 +10,16 @@ namespace MissCore.Handlers
         public CallbackQueryHandler(IResponseNotification notifier)
             => this.notifier = notifier;
 
-        protected (string command, string[] args) data;
+        protected (string unit, string command, string[] args) data;
         protected readonly IResponseNotification notifier;
 
         public async override Task HandleAsync(CallbackQuery query, CancellationToken cancel = default)
         {
             data = query.GetCommandAndArgs();
-            //var response = Context.BotServices.Response<CallbackQuery>();
+
             try
             {
-                await HandleAsync(data.command, data.args[0], data.args[1], query, cancel).ConfigureAwait(false);
+                await HandleAsync(data.command, data.unit, data.args[0], query, cancel).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -1,23 +1,20 @@
-using MediatR;
-using System.Linq.Expressions;
-using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
-using MissBot.Entities.Query;
+using MissBot.Abstractions.Actions;
 using MissCore.Data;
 using MissCore.DataAccess;
 
 namespace MissCore.Bot
 {
-    public record ReadUnit : UnitRequest, IUnitRequest
+    public record ReadUnit : UnitRequest
     {
         public ReadUnit()
         {
             Options = RequestOptions.JsonAuto | RequestOptions.Scalar;
         }
+
         public IUnitRequest Read<TEntity>() where TEntity : class
-            => this with { Payload = string.Format(Payload, Unit<TEntity>.Key) };        
+            => this with { Extension = string.Format(Extension, Unit<TEntity>.Key) };
         public override string ToString()
-            => Payload  + Options.Format();
+            => Extension  + Options.Format();
         public override string GetCommand()
             => ToString();
     }

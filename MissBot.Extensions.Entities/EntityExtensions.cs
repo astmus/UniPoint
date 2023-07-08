@@ -1,6 +1,4 @@
-
-
-namespace MissBot.Entities
+namespace MissBot.Extensions
 {
     public static class EntityExtensions
     {

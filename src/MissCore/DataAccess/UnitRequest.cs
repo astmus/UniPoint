@@ -1,37 +1,45 @@
-using System.Runtime.CompilerServices;
-using MissBot.Abstractions;
-using MissBot.Entities;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Bot;
+
+using MissCore.Bot;
 
 namespace MissCore.DataAccess
 {
     public record UnitRequest : BotUnit, IUnitRequest
     {
-        public UnitRequest()
-        {
-            DataUnit = FormattableUnit.Create(Template);
-        }
+        Lazy<FormattableUnit> LazyUnit;
         public static implicit operator string(UnitRequest cmd)
             => cmd.GetCommand();
 
-        FormattableUnit DataUnit { get; init; }
-        public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
+        public UnitRequest(string cmd = default)
+        {
+            LazyUnit = new Lazy<FormattableUnit>(()
+                => FormattableUnit.Create(cmd ?? Extension));
+        }
+
+        public RequestOptions Options { get; set; } = RequestOptions.JsonPath | RequestOptions.RootContent;
+
         [JsonIgnore]
-        public IEnumerable<IUnitItem> Params { get; init; }
+        public IEnumerable<IUnitParameter> Params { get; init; }
 
         public override string ToString()
             => GetCommand();
 
         public virtual string GetCommand()
-        {
-            return DataUnit.GetCommand();
-        }
+            => LazyUnit.Value.GetCommand();
     }
-    public record UnitRequest<TUnit>(string raw) : UnitRequest, IUnitRequest<TUnit>
+
+    public record UnitRequest<TUnit>(string raw = default) : UnitRequest(raw), IUnitRequest<TUnit> where TUnit : class
     {
         public static implicit operator string(UnitRequest<TUnit> cmd)
             => cmd.GetCommand();
     }
 
+    public record BotCommandUnitRequest<TUnit> : UnitRequest<TUnit>, IUnitRequest<TUnit> where TUnit : class
+    {
+        public static implicit operator string(BotCommandUnitRequest<TUnit> cmd)
+            => cmd.GetCommand();
+    }
 
     //internal static class Templates
     //{

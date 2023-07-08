@@ -1,39 +1,34 @@
 using LinqToDB.Mapping;
-using MissBot.Abstractions.Entities;
-using MissBot.Common.Extensions;
+using MissBot.Abstractions;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities.Abstractions;
+using MissCore.Data;
 using MissCore.Data.Collections;
 
+namespace MissCore.Bot;
 
 [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(CamelCaseNamingStrategy))]
 [Table("##BotUnits")]
-public record BotUnit : BaseUnit, IBotUnit
+public record BotUnit : BaseBotUnit, IBotUnit
 {
-    public override object Identifier
-        => $"{UnitKey}.{EntityKey}";
-
-    [JsonProperty("Unit")]
     [Column("Unit")]
-    public override string UnitKey { get ; set ; }
+    public override string UnitKey { get; set; }
 
-    [JsonProperty("Entity")]
     [Column("Entity")]
     public override string EntityKey { get; set; }
 
-    [JsonProperty]
     [Column]
     public virtual string Template { get; set; }
 
-    [JsonProperty]
     [Column]
     public string Description { get; set; }
 
-    [JsonProperty]
     [Column]
-    public virtual string Payload { get; set; }
+    public virtual string Extension { get; set; }
 
-    [JsonProperty]
     [Column]
     public virtual string Parameters { get; set; } = string.Empty;
-    public override void InitializeMetaData()
-        => Meta ??= MetaData.Parse(this);
+
+    public override string ToString()
+        => Extension;
 }

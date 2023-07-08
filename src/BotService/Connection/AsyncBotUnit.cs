@@ -1,7 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Entities;
 using MissBot.Extensions;
-using MissCore.Extensions;
 
 namespace BotService.Connection
 {
@@ -39,8 +38,7 @@ namespace BotService.Connection
                         if (ctx is IHandleContext context)
                         {
                             await handler.HandleUpdateAsync(update, context, cts.Token).ConfigFalse();
-
-                            if (ctx.IsHandled == true) Factory.Remove(id);                          
+                            if (ctx.IsHandled == true) Factory.Remove(id);
                         }
                     }
                 };
@@ -51,8 +49,8 @@ namespace BotService.Connection
             }
             finally
             {
-            if (!src.IsCancellationRequested)
-                StartInThread();
+                if (!src.IsCancellationRequested)
+                    StartInThread();
             }
         }
 

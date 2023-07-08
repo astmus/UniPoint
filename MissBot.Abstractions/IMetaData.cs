@@ -1,33 +1,56 @@
+using System.Collections;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions
 {
+    public enum MetaType : byte
+    {
+        Null,
+        Empty,
+        Value,
+        Item,
+        Unit,
+        Union
+    }
+
+    public interface IUnitContext : IMetaData
+    {
+        JToken Root { get; }
+        TEntity GetUnitEntity<TEntity>() where TEntity : class;
+        IEnumerator UnitEntities { get; }
+        //void SetContext<TUnitData>(TUnitData data) where TUnitData : JToken;
+    }
+
+    public interface IUnitContext<TUnit>
+    {
+        [JsonIgnore]
+        IUnitContext DataContext { get; set; }
+    }
+
     public interface IMetaData
     {
-        IUnitItem GetItem(int index);
-        IUnitItem GetItem(string key);
-        void SetItem<TItem>(string name, TItem item);
-        object GetValue(string path);
-        IEnumerable<string> Values { get; }
-        IEnumerable<string> Keys { get; }
-        void SetContainer<TContainer>(TContainer container) where TContainer : JToken;
-        string StringValue { get; }
+        object? this[string propertyName]
+        {
+            get;
+        }
+
+        IEnumerable<string> Paths { get; }
+        IEnumerable<string> Names { get; }
         int Count { get; }
-        IEnumerable<IUnitItem> Items { get; }
-
     }
 
-
-    public interface ISerializable
+    public interface ISerializableItem
     {
-        string Serialize();        
+        string Serialize();
     }
-    public interface IUnitItem<TName, TValue> : ISerializable
+
+    public interface IUnitItem<TName, TValue>
     {
         TName ItemName { get; }
         TValue ItemValue { get; }
     }
-    public interface IUnitItem : IUnitItem<string, object>
+    public interface IUnitItem : IUnitItem<string, object>, ISerializableItem
     {
 
     }

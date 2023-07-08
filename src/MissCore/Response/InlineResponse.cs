@@ -1,82 +1,100 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.DataAccess;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities;
 using MissBot.Entities.Query;
+
 using MissCore.Bot;
+using MissCore.Data.Entities;
+using MissBot.Identity;
 
 namespace MissCore.Response
 {
-    [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record InlineResponse<TUnit>(IHandleContext Context = default) : AnswerInlineRequest<TUnit>, IResponse<TUnit> where TUnit : BaseUnit, IBotEntity// BaseUnit, IBotEntity
-    {
-        InlineQuery InlineQuery
-            => Context.Take<InlineQuery>();
+	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+	public record InlineResponse<TUnit>(IHandleContext Context = default) : AnswerInlineRequest<TUnit>, IResponse<TUnit> where TUnit : BaseUnit
+	{
+		InlineQuery InlineQuery
+			=> Context.Take<InlineQuery>();
 
-        public override string InlineQueryId
-            => InlineQuery.Id;
-        public override IEnumerable<ResultUnit> Results
-            => results;
+		[JsonProperty(Required = Required.Always)]
+		public override string InlineQueryId
+			=> InlineQuery.Id;
 
-        List<ResultUnit> results = new List<ResultUnit>();
+		[JsonProperty(Required = Required.Always)]
+		public override ICollection<ResultUnit<TUnit>> Results { get; init; } = new List<ResultUnit<TUnit>>();
 
-        public override string NextOffset
-            => results?.Count < Pager.PageSize ? null : Convert.ToString(Pager.Page + 1);
-        public override int? CacheTime { get; set; } = 300;
-        public int Length
-            => results.Count;
+		public override string NextOffset
+			=> Results?.Count < Pager.PageSize ? null : Convert.ToString(Pager.Page + 1);
 
-        public Paging Pager { get; set; }
-        public  IUnit<TUnit> Content { get; set; }
+		public override int? CacheTime { get; set; } = 300;
+		public int Length
+			=> Results.Count;
+		public Paging Pager { get; set; }
 
-        public async Task Commit(CancellationToken cancel)
-        {
-            if (results.Count > 0)
-                await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
-        }
-        
-        public void Write<TData>(TData unit) where TData :IUnit<TUnit>
-        {
-            if (unit is ResultUnit item)
-            {
-                item.Id += InlineQuery.Query;
-                item.Title ??= item.Meta.GetItem(2).Serialize();
-                item.Description ??= item.Meta.GetItem(3).Serialize();
-                results.Add(item);
-            }
-        }
+		public async Task Commit(CancellationToken cancel)
+		{
+			if (Results.Count > 0)
+				try
+				{
+					await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
+				}
+				finally
+				{
+					Results.Clear();
+				}
+		}
 
-        public IResponse CompleteInput(string message)
-        {
-            throw new NotImplementedException();
-        }
-        public void Write<TData>(IEnumerable<TData> units) where TData : TUnit
-        {
-        foreach(var unit in units)
-            {
-                if (unit is ResultUnit result)
-                {
-                    //Write(unit);
-                }
-            }
-        }
+		public void WriteUnit<TData>(TData unit) where TData : class, IUnit<TUnit>
+		{
+			if (unit is InlineResultUnit<TUnit> item)
+			{
+				var entities = unit.UnitEntities;
+				entities.MoveNext();
+				item.Id = Id<TUnit>.Instance.Combine(unit.UnitKey, unit.Identifier, InlineQuery.Query);
+				item.QueryId = InlineQuery.Query;
+				item.Title ??= entities.Current.ToString();
+				entities.MoveNext();
+				item.Description ??= entities.Current.ToString();
+				// item.Content.Value = item.Data.StringValue;
+				Results.Add(item);
+			}
+		}
+		public void AddUnit<TData>(IUnit<TData> unit) where TData : class, TUnit
+		{
+			var item = Context.BotServices.Activate<InlineResultUnit<TUnit>>();
+			item.SetContext(unit);
+			var entities = unit.UnitEntities;
+			entities.MoveNext();
+			item.Id = Id<TUnit>.Instance.Combine(unit.Identifier).Combine(InlineQuery.Query);
+			item.Title ??= entities.Current.ToString();
+			entities.MoveNext();
+			item.Description ??= entities.Current.ToString();
+			//item.Content.Value = item.Data.StringValue;
+			Results.Add(item);
+		}
 
-        void IResponse<TUnit>.WriteMetadata<TData>(TData meta)
-        {
-            throw new NotImplementedException();
-        }
+		public void AddUnits<TData>(IEnumerable<TUnit> units) where TData : class, IUnit<TUnit>
+		{
+			foreach (IUnit<TUnit> unit in units)
+				if (unit is ResultUnit<TUnit> result)
+					WriteUnit(unit);
+		}
 
-        IResponse<TUnit> IResponse<TUnit>.InputData(string description, IActionsSet options)
-        {        
-            return this;
-        }        
-        //public IResponse<T> InputData(string description, IActionsSet options = null)
-        //{
-        //}
+		void IResponse<TUnit>.WriteMetadata<TData>(TData meta)
+		{
+			throw new NotImplementedException();
+		}
 
+		public IResponse Write(object data)
+		{
+			throw new NotImplementedException();
+		}
 
-    }
-
-
+		void IResponse<TUnit>.AddUnits<TData>(IEnumerable<TData> units)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
 
 

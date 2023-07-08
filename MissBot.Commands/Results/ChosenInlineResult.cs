@@ -10,14 +10,40 @@ namespace MissBot.Entities.Results;
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 public class ChosenInlineResult
 {
-    public string Id
-        => Query.Length > 0 ? ResultId.AsSpan(0,ResultId.IndexOf(Query, StringComparison.InvariantCultureIgnoreCase)).ToString() : ResultId;
+    public ChosenInlineResult()
+    {
+
+    }
+
+    void UpdateValues()
+    {
+        var strSpan = ResultId.AsSpan();
+        var unitundex = strSpan.IndexOf('.');
+        var queryindex = strSpan.LastIndexOf('.');
+        Unit = strSpan[0..unitundex].ToString();
+        unitundex++;
+        Id = strSpan[unitundex..queryindex].ToString();
+        queryindex++;
+        Query = strSpan[queryindex..].ToString();
+    }
+
+    public string Id { get; protected set; }
+    public string Unit { get; protected set; }
+
     /// <summary>
     /// The unique identifier for the result that was chosen.
     /// </summary>
     [JsonProperty(Required = Required.Always)]
-    public string ResultId { get; set; } = default!;
-
+    public string ResultId
+    {
+        get => _resultId;
+        set
+        {
+            _resultId = value;
+            UpdateValues();
+        }
+    }
+    string _resultId;
     /// <summary>
     /// The user that chose the result.
     /// </summary>

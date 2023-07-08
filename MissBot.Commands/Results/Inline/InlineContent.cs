@@ -10,7 +10,7 @@ namespace MissBot.Entities.Results.Inline
         bool? DisableWebPagePreview { get; set; }
         MessageEntity[] Entities { get; set; }
         ParseMode? ParseMode { get; set; }
-        string Value { get; set; }
+        string Value { get; }
     }
 
     [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]

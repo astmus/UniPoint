@@ -5,7 +5,7 @@ namespace MissBot.Entities
         HttpMethod Method { get; }
         string MethodName { get; }
         bool IsWebhookResponse { get; set; }
-        HttpContent? ToHttpContent();
+        HttpContent ToHttpContent();
     }
     public interface IBotRequest<TResponse> : IBotRequest { }
 }

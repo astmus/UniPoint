@@ -1,5 +1,5 @@
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types.Enums;
+using MissBot.Entities.Exceptions;
+
 
 namespace MissBot.Abstractions.Configuration
 {
@@ -8,8 +8,6 @@ namespace MissBot.Abstractions.Configuration
     /// </summary>
     public interface IConnectionOptions
     {
-
-
         /// <summary>
         /// Waiting time before create new request
         /// </summary>
@@ -31,6 +29,5 @@ namespace MissBot.Abstractions.Configuration
         IExceptionParser ExceptionsParser { get; }
 
         JsonSerializerSettings SerializeSettings { get; }
-
     }
 }

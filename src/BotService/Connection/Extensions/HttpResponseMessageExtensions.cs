@@ -1,11 +1,9 @@
 using System.Runtime.CompilerServices;
-
+using MissBot.Entities.Exceptions;
 using Newtonsoft.Json;
-using Telegram.Bot.Extensions;
 
 namespace BotService.Connection.Extensions
 {
-
     internal static class HttpResponseMessageExtensions
     {
         /// <summary>
@@ -19,19 +17,13 @@ namespace BotService.Connection.Extensions
         /// Thrown when body in the response can not be deserialized into <typeparamref name="T"/>
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static async Task<T> DeserializeContentAsync<T>(
-            this HttpResponseMessage httpResponse,
-            Func<T, bool> guard, JsonSerializerSettings settings = null)
-            where T : class
+        internal static async Task<T> DeserializeContentAsync<T>(this HttpResponseMessage httpResponse, Func<T, bool> guard, JsonSerializerSettings settings = null) where T : class
         {
             Stream? contentStream = null;
 
             if (httpResponse.Content is null)
             {
-                throw new RequestException(
-                    message: "Response doesn't contain any content",
-                    httpStatusCode: httpResponse.StatusCode
-                );
+                throw new RequestException(message: "Response doesn't contain any content", httpStatusCode: httpResponse.StatusCode);
             }
 
             try
@@ -44,8 +36,7 @@ namespace BotService.Connection.Extensions
                         .ReadAsStreamAsync()
                         .ConfigureAwait(continueOnCapturedContext: false);
 
-                    deserializedObject = contentStream
-                        .DeserializeJsonFromStream<T>(settings);
+                    deserializedObject = contentStream.DeserializeJsonFromStream<T>(settings);
                 }
                 catch (Exception exception)
                 {
@@ -86,12 +77,8 @@ namespace BotService.Connection.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static RequestException CreateRequestException(
-            HttpResponseMessage httpResponse,
-            string message,
-            Exception? exception = default
-        ) =>
-            exception is null
+        static RequestException CreateRequestException(HttpResponseMessage httpResponse, string message, Exception? exception = default)
+            => exception is null
                 ? new(
                     message: message,
                     httpStatusCode: httpResponse.StatusCode

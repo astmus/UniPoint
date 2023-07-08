@@ -1,5 +1,5 @@
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 
 
 namespace MissDataMaiden.DataAccess

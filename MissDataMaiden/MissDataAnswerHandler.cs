@@ -3,38 +3,36 @@ using MissBot.Entities;
 using MissBot.Entities.Results;
 using MissCore.DataAccess;
 using MissCore.Handlers;
-using MissDataMaiden.Entities;
 
+using MissDataMaiden.Entities;
 
 namespace MissDataMaiden
 {
-    internal class MissDataAnswerHandler : InlineAnswerHandler
-    {
-        IJsonRepository repository;
-        public MissDataAnswerHandler(IJsonRepository jsonRepository)
-        {
-            repository = jsonRepository;
-        }
-        
-        public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
-        {         
-            var unit = Context.Bot.GetUnit<DataBaseInfo>();
-            unit.Id = result.Id;
+	internal class MissDataAnswerHandler : InlineAnswerHandler
+	{
+		IJsonRepository repository;
+		public MissDataAnswerHandler(IJsonRepository jsonRepository)
+		{
+			repository = jsonRepository;
+		}
 
-            var request = BotUnitRequest.Create(unit);
-            var r = Context.BotServices.Response<DataBase>();
-            var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
+		public override async Task HandleResultAsync(Message message, ChosenInlineResult result, CancellationToken cancel = default)
+		{
+			var unit = Context.Bot.GetUnit<DataBaseInfo>();
+			unit.Id = long.Parse(result.Id);
 
-            dbInfo.Entity = new DataBase() { Name = "Db Name", Created = "_!_", Size = 10 };
-            var bunit = await Context.Bot.GetBotUnitAsync<DataBase>();
-            bunit.SetUnitActions(dbInfo);
-            
+			var request = BotUnitRequest.Create(unit);
+			var response = Context.BotServices.Response<DataBase>();
 
-            r.Write(dbInfo);
-        
-            await r.Commit(cancel);
+			var dbInfo = await repository.HandleScalarAsync<Info>(request, cancel);
 
-        }
-    }
+			Context.Bot.UnitActions(dbInfo);
+
+			response.WriteUnit(dbInfo);
+
+			await response.Commit(cancel);
+
+		}
+	}
 }
 

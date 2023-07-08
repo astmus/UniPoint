@@ -1,150 +1,167 @@
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Bot;
+using MissCore.Data.Entities;
 using Newtonsoft.Json.Linq;
+
 
 namespace MissCore.Data.Collections
 {
-    public class MetaCollection<TUnit> : IEnumerable<TUnit>, IMetaCollection<TUnit> where TUnit : class
+    [JsonArray]
+    public class MetaCollection<TData> : MetaCollection, IMetaCollection<TData> where TData : class
     {
-        private readonly IEnumerable<JObject> tokens;
-        public MetaData<TUnit> Metadata { get; protected set; }
-        public IEnumerable<KeyValuePair<string, object>> KeyValues { get; }
-        public readonly static MetaCollection<TUnit> Empty = new MetaCollection<TUnit>(Enumerable.Empty<TUnit>());
-        public MetaCollection(IEnumerable<TUnit> items)
+        public readonly static new MetaCollection<TData> Empty = new MetaCollection<TData>();
+        #region Constructors
+        public MetaCollection(params object[] content) : base(content) { }
+        public MetaCollection(IEnumerable<JToken> items) : base(items)
         {
-            tokens = items.Select(s => JObject.FromObject(s));
-            Metadata = MetaData<TUnit>.Parse(items.FirstOrDefault());
         }
 
-        public MetaCollection(IEnumerable<JToken> dataTokens)
+        public MetaCollection() : base()
         {
-            tokens = dataTokens.Select(s => JObject.FromObject(s));
-            Metadata = new MetaData<TUnit>().Parse(tokens.FirstOrDefault());
-        }
-        public MetaCollection(JArray items)
-        {
-            tokens = items.Select(s => JObject.FromObject(s));
-            Metadata = new MetaData<TUnit>().Parse(tokens.FirstOrDefault());
         }
 
-        public virtual IEnumerable<TSub> BringTo<TSub>() where TSub : class
+        public MetaCollection(JArray items) : base(items)
         {
-            foreach (var token in tokens)
-            {
-                var res = Bring<TSub>(token);
-                yield return res;
-            }
         }
 
-        public IEnumerator<TUnit> GetEnumerator()
+        public MetaCollection(object content) : base(content)
         {
-            foreach (var token in tokens)
-            {
-                var result = Bring<TUnit>(token);
-                yield return result;
-            }
         }
+        #endregion
 
-        private TRes Bring<TRes>(JObject token) where TRes:class
+        protected override void Init()
         {
-            Metadata.SetContainer(token);
-            var result = Metadata.Bring<TRes>();
-            if (result is BaseUnit unit)
-                unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
-            return result;
+            if (ChildrenTokens.FirstOrDefault() is JToken token)
+                MetaData = Unit<TData>.ReadMetadata<TData>(token);
         }
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
-
-
-        public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
+        public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class, TData
         {
-            foreach (var token in tokens)
-            {
-                var result = Bring<TSub>(token);
-                yield return result;
-            }
-        }
-
-        public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class
-        {
-            foreach (var token in tokens)
+            foreach (var token in this)
             {
                 var result = token.ToObject<TEntity>();
-                if (result is BaseUnit unit)
-                    unit.Meta = MetaData<TUnit>.FromRaw(token, Metadata);
+                //if (result is Unit unit)
+                //    unit.Metadata = Unit.MetaData.FromRootToken<TEntity>(token);// Setup(token, out unit, Data);
                 yield return result;
             }
         }
 
-        public IEnumerable<IMetaValue> GetValues()
+        //public override IEnumerable<IMetaValue> GetValues()
+        //{
+        //    foreach (var token in this)
+        //    {
+        //        Metadata.SetRoot(token);
+        //        foreach (var item in Metadata.Items)
+        //            yield return new MetaValue(item, Metadata.GetValue(item));
+        //    }
+        //}
+        public IEnumerable<IUnit<TData>> EnumarateUnits()
         {
-            foreach (var token in tokens)
+            foreach (var token in this)
             {
-                Metadata.SetContainer(token);
-                foreach (var item in Metadata.Keys)
-                    yield return new MetaValue(item, Metadata.GetValue(item));
+                var result = token.ToObject<Unit<TData>>();
+                yield return default;//result.DataContext[MetaData];
+                //if (result is Unit unit)
+                //    unit.Metadata = Unit.MetaData.FromRootToken<TUnit>(token);
+                // result.Entity = token.ToObject<TUnit>();
+                //Metadata.SetContainer(token);
+                //Unit.MetaData.Setup(token, out result, Metadata);
+                //yield return result;
             }
+        }
+        public IEnumerable<TUnit> EnumarateUnits<TUnit>() where TUnit : BaseUnit, IUnit<TData>
+        {
+            foreach (var token in this)
+            {
+                var result = token.ToObject<TUnit>();
+                result.SetContext(token);
+                //if (result is Unit unit)
+                //    unit.Metadata = Unit.MetaData.FromRootToken<TUnit>(token);
+                // result.Entity = token.ToObject<TUnit>();
+                //Metadata.SetContainer(token);
+                //Unit.MetaData.Setup(token, out result, Metadata);
+                yield return result;
+            }
+        }
+
+        IEnumerator<TData> IEnumerable<TData>.GetEnumerator()
+        {
+            return SupplyTo<TData>().GetEnumerator();
         }
     }
 
-    public class MetaCollection : IMetaCollection
+    public class MetaCollection : JArray, IMetaCollection, IList<JToken>
     {
-        private readonly IEnumerable<JToken> tokens;
-        public MetaData Metadata { get; protected set; }
-        public IEnumerable<IMetaValue> GetValues()
+        public readonly static MetaCollection Empty = new MetaCollection();
+
+        public IMetaData MetaData { get; protected set; }
+        public string UnitKey
+            => this.FirstOrDefault()?.Value<string>() ?? nameof(MetaCollection);
+        public MetaCollection(IEnumerable<JToken> items) : base(items.ToArray())
+            => Init();
+
+        public MetaCollection(JArray items) : base(items)
+            => Init();
+
+        public MetaCollection()
+            => Init();
+
+        public MetaCollection(params object[] content) : base(content)
+            => Init();
+
+        public MetaCollection(object content) : base(content)
+            => Init();
+
+        protected virtual void Init()
+            => MetaData = Unit.ReadMetadata(this.FirstOrDefault());
+
+        protected virtual IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
         {
-            foreach (var token in tokens)
+
+            foreach (var token in this)
             {
-                Metadata.SetContainer(token);
-                foreach (var item in Metadata.Keys)
-                    yield return new MetaValue(item, Metadata.GetValue(item));
+                //Metadata. .SetRoot(token);
+                //var result = (Metadata as Unit.MetaData). Clone<TSub>();
+                //if (result is Unit unit)
+                //    unit.Metadata = Unit.MetaData.FromRootToken<TSub>(token);
+                //if (result is Unit unit)
+                //    Unit.MetaData.Setup(token, out unit, Data);
+                yield return token.ToObject<TSub>();
             }
         }
 
-        public MetaCollection(IEnumerable<JToken> items)
-        {
-            Metadata = MetaData.Parse(items.FirstOrDefault());
-            tokens = items;
-        }
-        public MetaCollection(JArray items)
-        {
-            tokens = items.Select(s => JObject.FromObject(s));
-            Metadata = MetaData.Parse(tokens.FirstOrDefault());
-        }
+        //public IEnumerable<TUnit> BringTo<TUnit>() where TUnit : class
+        //{
+        //    foreach (var item in tokens)
+        //    {
+        //        Metadata.SetContainer(item);
+        //        yield return Metadata.SupplayTo<TUnit>();
+        //    }
+        //}
 
-        public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
+        public virtual IEnumerable<TUnit> Enumarate<TUnit>() where TUnit : class
         {
-            foreach (var token in tokens)
-            {                
-                Metadata.SetContainer(token);
-                var result = Metadata.Bring<TSub>();
-                if (result is BaseUnit unit)
-                    unit.Meta = MetaData.Parse(token);
+            foreach (var token in this)
+            {
+                var result = token.ToObject<TUnit>();
+                if (result is ResultUnit<TUnit> unit)
+                    unit.SetContext(unit);// = Unit<TUnit>.ReadMetadata(unit.Entity);
                 yield return result;
             }
         }
+        //public IEnumerable<string> GetEnumerator()
+        //{
+        //    foreach (var item in tokens)
+        //    {
+        //        Metadata.SetContainer(item);
+        //        yield return Metadata.StringValue;
+        //    }
+        //}
 
-        public IEnumerable<TUnit> BringTo<TUnit>() where TUnit : class
-        {
-            foreach (var item in tokens)
-            {
-                Metadata.SetContainer(item);
-                yield return Metadata.Bring<TUnit>();
-            }
-        }
-        public IEnumerable<string> GetEnumerator()
-        {
-            foreach (var item in tokens)
-            {
-                Metadata.SetContainer(item);
-                yield return Metadata.StringValue;
-            }
-        }
 
     }
-
 }
+
+

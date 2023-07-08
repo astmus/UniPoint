@@ -1,31 +1,25 @@
 using System.Text.Json.Nodes;
-using MissBot.Abstractions;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 using System.Linq;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Collections
 {
     [JsonArray]
-    public class Union<TUnit> : Unit<TUnit>.Collection, IList<TUnit>, IMetaCollection where TUnit : IBotUnit
+    public class Union<TUnit> : Unit<TUnit>.UnitCollection, IMetaCollection where TUnit : class
     {
-        public IEnumerable<IMetaValue> KeyValues { get; }
-
-        public void Add<TEntity>(TEntity obj) where TEntity : TUnit
-                => Add(obj);
-
-        public IEnumerable<TSubUnit> BringTo<TSubUnit>() where TSubUnit : class
+        public Union(IEnumerable<IUnit<TUnit>> items) : base(items)
         {
-            throw new NotImplementedException();
         }
 
-        public IEnumerable<IMetaValue> GetValues()
+        public Union(IEnumerable<JToken> items) : base(items)
         {
-            throw new NotImplementedException();
         }
 
-        public IEnumerable<TSub> SupplyTo<TSub>() where TSub : class
+        public Union(JArray items) : base(items)
         {
-            throw new NotImplementedException();
         }
     }
 }

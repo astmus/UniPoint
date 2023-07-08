@@ -12,6 +12,12 @@
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Remove="Interfacet\**" />
+      <EmbeddedResource Remove="Interfacet\**" />
+      <None Remove="Interfacet\**" />
+    </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="linq2db" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
@@ -21,10 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
     <ProjectReference Include="..\MissCore\MissCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Interfacet\" />
   </ItemGroup>
 
 </Project>

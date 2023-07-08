@@ -5,7 +5,6 @@ using MissCore.Handlers;
 using MissDataMaiden.Commands;
 using MissDataMaiden.DataAccess;
 using MissDataMaiden.Entities;
-using MissDataMaiden.Queries;
 
 namespace MissDataMaiden
 {
@@ -23,10 +22,10 @@ namespace MissDataMaiden
                     .UseCallbackDispatcher<MissDataCallBackDispatcher>()
                     .UseInlineHandler<DataBase, SearchDataBaseHandler>()
                     .UseMessageHandler<MessageHandler>()
-                    .AddRepository<IJsonRepository, JsonRepository>()                    
+                    .AddRepository<IJsonRepository, JsonRepository>()
                     .AddInputParametersHandler()
-                    .AddCustomCommandCreator<AddCommandHadler>()     
-                    
+                    .AddCustomCommandCreator<AddCommandHadler>()
+
                     .AddCommand<Disk, DiskCommandHandler>()
                     //.AddCommand<Info, InfoCommandHadler>()
                     .AddCommand<List, ListCommandHadler>();

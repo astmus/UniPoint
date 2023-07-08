@@ -1,6 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Entities;
+using MissBot.Extensions;
 using MissCore.Data.Context;
 
 namespace BotService
@@ -19,7 +20,7 @@ namespace BotService
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            await base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken).ConfigFalse();
             _logger.LogInformation("Worker runned at: {time}", DateTimeOffset.Now);
         }
 

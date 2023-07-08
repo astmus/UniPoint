@@ -1,35 +1,57 @@
 using System;
+using System.Collections;
 using System.Text.Json.Nodes;
 using MissBot.Abstractions;
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
+using MissBot.Abstractions.Utils;
 using MissCore.Data;
+using MissCore.Data.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
-    [JsonObject]
-    public record ContentUnit<TEntity> : Unit<TEntity>, IContentUnit<TEntity>
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
+    public record ContentUnit<TData> : Unit, IContentUnit<TData>, IUnitContainable<TData> where TData : class
     {
-        Collection content;
-        public Collection Content
+        [JsonProperty(nameof(Content))]
+        Union<TData> _content;
+        Position _posIndex;
+        protected Union<TData> content
         {
             get =>
-                content ?? (content = new Collection());
-            set => content = value;
+                _content ?? (_content = new Union<TData>(Enumerable.Empty<JToken>()));
+            set =>
+                _content = value;
         }
-        public override string EntityKey
-            => Key;
 
-        IEnumerable<TEntity> IContentUnit<TEntity>.Content
-            => this.Content;
 
-        //public static readonly TEntity Default = Activator.CreateInstance<TEntity>();
-        public record Empty : Unit<TEntity>
+        [JsonIgnore]
+        public IUnitCollection<TData> Content
+            => _content;
+
+        public void Add<TUnit>(TUnit unit) where TUnit : IUnit<TData>
+            => content.Add(unit);
+
+        public void Add(IUnit<TData> unit)
         {
-            public override string EntityKey
-                => Unit<TEntity>.Key;
+            content.Add(unit);
+        }
+
+        public MetaType ContentType => _content switch
+        {
+            null => MetaType.Null,
+            { Count: 0 } => MetaType.Empty,
+            _ => MetaType.Union
+        };
+
+        IMetaCollection IContentUnit.Content { get; }
+
+        public record Empty : Unit<TData>
+        {
+            public override string UnitKey
+                => Unit<TData>.Key;
         }
     }
-
-
 }

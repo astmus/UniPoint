@@ -2,125 +2,131 @@ using System.Runtime.CompilerServices;
 using BotService.Internal;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 using MissBot.Abstractions.Presentation;
 using MissBot.Entities;
+using MissBot.Entities.Enums;
 using Newtonsoft.Json;
 
 namespace BotService.Configuration
 {
 
-    internal class BotOptionsBuilder : IBotOptionsBuilder, IBotConnectionOptionsBuilder
-    {
-        const string BaseTelegramUrl = "https://api.telegram.org";
-        public BotConnectionOptions Options;
-        public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
-        List<Action> updItems;
+	internal class BotOptionsBuilder : IBotOptionsBuilder, IBotConnectionOptionsBuilder
+	{
+		const string BaseTelegramUrl = "https://api.telegram.org";
+		public BotConnectionOptions Options;
+		public IEnumerable<UpdateType> updates = Enumerable.Empty<UpdateType>();
+		List<Action> updItems;
 
-        public BotOptionsBuilder(JsonConverter botConverter)
-        {
-            updItems = new List<Action>();
+		public BotOptionsBuilder(IEnumerable<JsonConverter> converters)
+		{
+			updItems = new List<Action>();
 
-            With = action
-                => { updItems.Add(action); return this; };
-            WithOptions = action
-                => { action(); return this; };
+			With = action
+				=>
+			{ updItems.Add(action); return this; };
+			WithOptions = action
+				=>
+			{ action(); return this; };
 
-            Options = new();
-            Options.SerializeSettings.Converters.Add(botConverter);
-            updates = updates.Append(UpdateType.Message);
-        }
+			Options = new();
 
-        public IBotConnectionOptionsBuilder SetToken(string token, string baseUrl = default, bool useTestEnvironment = false)
-        {
-            ParseToken(token);
-            return this;
-        }
+			foreach (var con in converters)
+				Options.SerializeSettings.Converters.Add(con);
 
-        IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
-        {
-            Options.Token = token;
-            Options.BaseUrl = baseUrl;
-            Options.UseTestEnvironment = useTestEnvironment;
+			updates = updates.Append(UpdateType.Message);
+		}
 
-            Options.BotId = GetIdFromToken(token);
+		public IBotConnectionOptionsBuilder SetToken(string token, string baseUrl = default, bool useTestEnvironment = false)
+		{
+			ParseToken(token);
+			return this;
+		}
 
-            Options.LocalBotServer = baseUrl is not null;
-            var effectiveBaseUrl = Options.LocalBotServer
-                ? ExtractBaseUrl(baseUrl)
-                : BaseTelegramUrl;
+		IBotOptionsBuilder ParseToken(string token, string baseUrl = default, bool useTestEnvironment = false)
+		{
+			Options.Token = token;
+			Options.BaseUrl = baseUrl;
+			Options.UseTestEnvironment = useTestEnvironment;
 
-            Options.BaseRequestUrl = useTestEnvironment
-                ? $"{effectiveBaseUrl}/bot{token}/test"
-                : $"{effectiveBaseUrl}/bot{token}";
+			Options.BotId = GetIdFromToken(token);
 
-            Options.BaseFileUrl = useTestEnvironment
-                ? $"{effectiveBaseUrl}/file/bot{token}/test"
-                : $"{effectiveBaseUrl}/file/bot{token}";
-            return this;
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static long GetIdFromToken(string token)
-            {
-                var span = token.AsSpan();
-                var index = span.IndexOf(':');
+			Options.LocalBotServer = baseUrl is not null;
+			var effectiveBaseUrl = Options.LocalBotServer
+				? ExtractBaseUrl(baseUrl)
+				: BaseTelegramUrl;
 
-                if (index is < 1 or > 16) { return default; }
+			Options.BaseRequestUrl = useTestEnvironment
+				? $"{effectiveBaseUrl}/bot{token}/test"
+				: $"{effectiveBaseUrl}/bot{token}";
 
-                var botIdSpan = span[..index];
-                if (!long.TryParse(botIdSpan, out var botId)) { return default; }
-                return botId;
-            }
-        }
+			Options.BaseFileUrl = useTestEnvironment
+				? $"{effectiveBaseUrl}/file/bot{token}/test"
+				: $"{effectiveBaseUrl}/file/bot{token}";
+			return this;
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			static long GetIdFromToken(string token)
+			{
+				var span = token.AsSpan();
+				var index = span.IndexOf(':');
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string ExtractBaseUrl(string baseUrl)
-        {
-            if (baseUrl is null) { throw new ArgumentNullException(paramName: nameof(baseUrl)); }
+				if (index is < 1 or > 16) { return default; }
 
-            if (!Uri.TryCreate(uriString: baseUrl, uriKind: UriKind.Absolute, out var baseUri) || string.IsNullOrEmpty(value: baseUri.Scheme) || string.IsNullOrEmpty(value: baseUri.Authority))
-                throw new ArgumentException(message: "Invalid format. A valid base url looks \"http://localhost:8081\" ", paramName: nameof(baseUrl));
+				var botIdSpan = span[..index];
+				if (!long.TryParse(botIdSpan, out var botId)) { return default; }
+				return botId;
+			}
+		}
 
-            return $"{baseUri.Scheme}://{baseUri.Authority}";
-        }
-        Func<Action, IBotOptionsBuilder> With;
-        Func<Action, IBotConnectionOptionsBuilder> WithOptions;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static string ExtractBaseUrl(string baseUrl)
+		{
+			if (baseUrl is null) { throw new ArgumentNullException(paramName: nameof(baseUrl)); }
 
-        public IBotOptionsBuilder ReceiveCallBacks()
-            => With(() => updates = updates.Append(UpdateType.CallbackQuery));
-        public IBotOptionsBuilder ReceiveInlineQueries()
-            => With(() => updates = updates.Append(UpdateType.InlineQuery));
-        public IBotOptionsBuilder ReceiveInlineResult()
-            => With(() => updates = updates.Append(UpdateType.ChosenInlineResult));
-        public IBotOptionsBuilder TrackMessgeChanges()
-            => With(() => updates = updates.Append(UpdateType.EditedMessage));
+			if (!Uri.TryCreate(uriString: baseUrl, uriKind: UriKind.Absolute, out var baseUri) || string.IsNullOrEmpty(value: baseUri.Scheme) || string.IsNullOrEmpty(value: baseUri.Authority))
+				throw new ArgumentException(message: "Invalid format. A valid base url looks \"http://localhost:8081\" ", paramName: nameof(baseUrl));
 
-        public IBotConnectionOptions Build()
-        {
-            foreach (var action in updItems)
-                action();
-            Options.AllowedUpdates = updates.ToArray();
-            foreach (var action in updItems)
-                action();
-            return Options;
-        }
+			return $"{baseUri.Scheme}://{baseUri.Authority}";
+		}
+		Func<Action, IBotOptionsBuilder> With;
+		Func<Action, IBotConnectionOptionsBuilder> WithOptions;
 
-        public IBotConnectionOptionsBuilder SetTimeout(TimeSpan timeout)
-            => WithOptions(() => Options.Timeout = timeout);
+		public IBotOptionsBuilder ReceiveCallBacks()
+			=> With(() => updates = updates.Append(UpdateType.CallbackQuery));
+		public IBotOptionsBuilder ReceiveInlineQueries()
+			=> With(() => updates = updates.Append(UpdateType.InlineQuery));
+		public IBotOptionsBuilder ReceiveInlineResult()
+			=> With(() => updates = updates.Append(UpdateType.ChosenInlineResult));
+		public IBotOptionsBuilder TrackMessgeChanges()
+			=> With(() => updates = updates.Append(UpdateType.EditedMessage));
 
-        public IBotConnectionOptionsBuilder SetExceptionHandler(Func<Exception, CancellationToken, Task> handlerFactory)
-            => WithOptions(() => Options.ConnectionErrorHandler = handlerFactory);
+		public IBotConnectionOptions Build()
+		{
+			foreach (var action in updItems)
+				action();
+			Options.AllowedUpdates = updates.ToArray();
+			foreach (var action in updItems)
+				action();
+			return Options;
+		}
 
-        public IBotConnectionOptionsBuilder UseCustomUpdateHandler()
-            => WithOptions(() => Options.UseCustomParser = true);
+		public IBotConnectionOptionsBuilder SetTimeout(TimeSpan timeout)
+			=> WithOptions(() => Options.Timeout = timeout);
 
-        public IBotUnitBuilder AddResponseUnit<TUnit>() where TUnit : BaseUnit
-        {
-            throw new NotImplementedException();
-        }
+		public IBotConnectionOptionsBuilder SetExceptionHandler(Func<Exception, CancellationToken, Task> handlerFactory)
+			=> WithOptions(() => Options.ConnectionErrorHandler = handlerFactory);
 
-        public IBotUnitBuilder Apply<TDecorator>() where TDecorator : UnitItemSerializeDecorator
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public IBotConnectionOptionsBuilder UseCustomUpdateHandler()
+			=> WithOptions(() => Options.UseCustomParser = true);
+
+		public IBotUnitBuilder AddResponseUnit<TUnit>() where TUnit : BaseBotUnit
+		{
+			throw new NotImplementedException();
+		}
+
+		public IBotUnitBuilder Apply<TDecorator>() where TDecorator : UnitItemSerializeDecorator
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

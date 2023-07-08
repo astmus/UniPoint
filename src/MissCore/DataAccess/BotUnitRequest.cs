@@ -1,18 +1,20 @@
-using System.Collections.Specialized;
 using System.Linq.Expressions;
+
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
-using MissBot.Entities;
-using MissCore.Data.Collections;
+using MissBot.Abstractions.Actions;
+using MissBot.Abstractions.Bot;
+using MissBot.Entities.Abstractions;
+using MissCore.Bot;
+using MissCore.Data;
 
 namespace MissCore.DataAccess
 {
-    public static class BotUnitRequest
+	public static class BotUnitRequest
     {
         const string JsonNoWrap = "without_array_wrapper";
         const string RootContent = "root('Content')";
         const string JsonAuto = $" for json auto";
+        const string JsonPath = $" for json path";
 
         public static string Format(this RequestOptions options) => options switch
         {
@@ -20,30 +22,32 @@ namespace MissCore.DataAccess
             RequestOptions.JsonAuto => JsonAuto,
             RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
             RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
-            RequestOptions.JsonPath | RequestOptions.Scalar => $"{JsonAuto},  {JsonNoWrap}",
+            RequestOptions.RootContent => $", {RootContent}",
+            RequestOptions.JsonPath | RequestOptions.RootContent => $"{JsonPath},  {RootContent}",
             _ => throw new ArgumentException("Bad request options")
         };
-        public static BotUnitRequest<TUnit> Create<TUnit>(TUnit unit) where TUnit : IBotUnit
+        public static BotUnitRequest<TUnit> Create<TUnit>(TUnit unit) where TUnit : BaseBotUnit
             => new BotUnitRequest<TUnit>(unit);
     }
-    public class BotUnitRequest<TUnit> : IUnitRequest<TUnit> where TUnit : IBotUnit
+    public class BotUnitRequest<TUnit> : IUnitRequest<TUnit>, IBotUnitRequest where TUnit : BaseBotUnit
     {
         private readonly TUnit _unit;
-        private readonly IMetaData _parameters;
+        private readonly IMetaData _unitData;
 
         internal BotUnitRequest(TUnit unit)
         {
             _unit = unit;
-            _parameters = MetaData.Parse(unit);
-            Params = _unit.GetParameters().Select(s => new BaseParameter(s, _parameters.GetValue(s))).Cast<IUnitItem>().ToList();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
+            _unitData = Unit<TUnit>.ReadMetadata(unit);
+            if (_unit is IParameterizedUnit pUnit)
+                Params = pUnit.GetParameters().Select(s => new UnitParameter(s, _unitData[s])).Cast<IUnitParameter>().ToArray();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
         }
 
         public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
-        public IEnumerable<IUnitItem> Params { get; init; }
+        public IEnumerable<IUnitParameter> Params { get; init; }
 
         public virtual string GetCommand()
         {
-            return $"{_unit.Payload} {Options.Format()}";
+            return $"{_unitData[nameof(BotUnit.Extension)]} {Options.Format()}";
         }
     }
 

@@ -1,7 +1,7 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Entities;
-using Telegram.Bot.Types.Enums;
+using MissBot.Entities.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MissCore.Data
@@ -57,7 +57,7 @@ namespace MissCore.Data
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? AllowSendingWithoutReply { get; set; }
 
-        /// <inheritdoc cref="Abstractions.Documentation.ReplyMarkup"/>
+        /// <inheritdoc cref="ReplyMarkup"/>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IReplyMarkup ReplyMarkup { get; set; }
 

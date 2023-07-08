@@ -1,6 +1,6 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 using MissBot.Abstractions.Handlers;
 using MissCore.Data.Collections;
 using MissCore.Handlers;
@@ -32,7 +32,7 @@ namespace MissDataMaiden
             { 
                 var command = await commandsRepository.GetAsync<TCommand>();
                 handler.SetContext(Context);
-                await handler.HandleAsync(command, cancel);               
+                await handler.HandleAsync(command, cancel);
             }
         }
         
@@ -40,7 +40,7 @@ namespace MissDataMaiden
         {
             switch (command.Action)
             {
-                case "add":
+                case "Add":
                     var handler = Context.GetBotService<ICreateBotCommandHandler>();          
                     await handler.CreateAsync(Context, cancel);
                     Context.IsHandled = false;
@@ -48,14 +48,14 @@ namespace MissDataMaiden
                 default:
                     
                     var repository = Context.GetBotService<IJsonRepository>();
-                    var result = await repository.RawAsync<GenericUnit>(command.Payload);
+                    var result = await repository.RawAsync<GenericUnit>(command.Extension);
                     var response = Context.BotServices.Response<BotCommand>();
-                    foreach (var item in result.Content)
-                    {                    
+                    //foreach (IUnit<GenericUnit> item in result.Content)
+                    //{
                         //response.Write(item.ToUnit<BotCommand>());
                         if (response.Length > 1500)
                             await response.Commit(default);
-                    }
+                    //}
                     await response.Commit(default);
                     break;
             }           

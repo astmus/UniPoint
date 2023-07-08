@@ -3,7 +3,6 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Extensions;
 using MissCore.Data;
-using MissCore.Extensions;
 
 namespace BotService
 {
@@ -23,7 +22,7 @@ namespace BotService
             _hostLifeTime = hostLifeTime;
             botScopeServices = (scope = factory.ScopeFactory.CreateScope()).ServiceProvider;
         }
-        
+
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Worker running at: {time}", DateTimeOffset.Now);

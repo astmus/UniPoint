@@ -1,26 +1,39 @@
 using MissBot.Entities;
 using MissBot.Entities.Query;
+using System.Globalization;
 
-namespace MissBot.Extensions.Entities
+namespace MissBot.Extensions
 {
     public static class CommandExtensions
     {
-        public static (string command, string[] args) GetCommandAndArgs(this Message message)
+        public static (string command, ICollection<string> args) GetCommandAndArgs(this Message message)
             => ParseCommand(message.Text);
+
         public static string Capitalize(this string text)
-            => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text);
+            => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text);
+
         public static string Capitalize(this ReadOnlySpan<char> text)
-            => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToString());
-        public static (string command, string[] args) GetCommandAndArgs(this CallbackQuery query)
-            => ParseCommand(query.Data);
-        static (string command, string[] args) ParseCommand(string message)
         {
-            if (message.Contains("/"))
+            var cU = CultureInfo.CurrentCulture.TextInfo.ToUpper(text[0]);// .ToTitleCase(text.ToString());
+            return $"{cU}{text[1..]}";
+        }
+
+        public static (string command, ICollection<string> args) GetCommandAndArgs(this CallbackQuery query)
+            => ParseCommand(query.Data);
+
+        static (string command, ICollection<string> args) ParseCommand(string message)
+        {
+            var iterator = message.SplitCommandArguments();
+
+            if (iterator.MoveNext())
             {
-                var items = message.Split("/", StringSplitOptions.RemoveEmptyEntries);
-                return (items[0], items[1..]);
+                var res = (command: iterator.Current.Segment.Capitalize(), args: new List<string>());
+                while (iterator.MoveNext())
+                    res.args.Add(iterator.Current);
+                return res;
             }
-            return (null, null);
+
+            return default;
         }
     }
 }

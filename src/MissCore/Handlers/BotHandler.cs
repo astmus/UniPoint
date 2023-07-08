@@ -23,7 +23,7 @@ namespace MissCore.Handlers
             else
                 startHandler = builder.BuildHandler();
 
-             await startHandler(context).ConfigureAwait(false);
+            await startHandler(context).ConfigureAwait(false);
         }
 
         //object SetUpdateObject(IHandleContext ctx, UpdateType type) => type switch

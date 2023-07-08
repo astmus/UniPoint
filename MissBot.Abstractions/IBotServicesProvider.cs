@@ -1,15 +1,17 @@
 
+using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
-using MissBot.Abstractions.Entities;
+using MissBot.Abstractions.Bot;
 
 namespace MissBot.Abstractions
 {
     public interface IBotServicesProvider : IServiceProvider
     {
-        IBotClient Client { get; }        
-        IResponse<T> Response<T>() where T:BaseUnit;
+        IBotClient Client { get; }
+        IResponse<T> Response<T>() where T : class;
+        IInteraction<TData> InteractionOf<TData>() where TData : class;
         IResponseError ResponseError();
-        IEnumerable<object?> GetServices(Type serviceType);
+        IEnumerable<object> GetServices(Type serviceType);
         T Activate<T>() where T : class;
         T GetService<T>();
         T GetRequiredService<T>();

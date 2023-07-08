@@ -1,25 +1,13 @@
 
 using MissBot.Abstractions.Actions;
+using MissBot.Entities.Abstractions;
 using MissBot.Entities.Results.Inline;
 
 namespace MissBot.Abstractions
 {
-    public interface IBotCommandData
+	public interface IBotCommand : IBotEntity
     {
-        string Payload { get; set; }
-    }
-
-    public interface IInlineUnit
-    {
-        public InlineQueryResultType Type { get; }
-        object Content { get; }
-        string Id { get; }
-        string Title { get; }
-        string Description { get; }
-    }
-    public interface IBotCommand : IBotUnitAction
-    {
-        string Description { get; }
         string Command { get; }
+        string Description { get; }
     }
 }

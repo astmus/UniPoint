@@ -3,8 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>annotations</Nullable>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <Nullable>annotations</Nullable>        
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\external\Telegram.Bot\src\Telegram.Bot\Telegram.Bot.csproj" />
     <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
-    <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.Entities.csproj" />
+    <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
