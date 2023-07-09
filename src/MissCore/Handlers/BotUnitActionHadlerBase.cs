@@ -11,7 +11,7 @@ using MissBot.Identity;
 
 namespace MissCore.Handlers
 {
-	public abstract class BotUnitActionHadlerBase<TUnit> : IAsyncBotUnitActionHandler where TUnit : BaseBotAction
+	public abstract class BotUnitActionHadlerBase<TUnit> : IAsyncBotUnitActionHandler where TUnit : BaseAction
 	{
 		AsyncInputHandler CurrentHandler;
 		AsyncInputHandler[] Handlers;
@@ -90,7 +90,7 @@ namespace MissCore.Handlers
 			complete = callBack;
 			currentUnit = context.Get<FormattableUnit>(action.Identifier as Id);
 			if (action is IParameterizedUnit pUnit)
-				currentUnit ??= FormattableUnit.Create(action.Extension, pUnit.GetParameters());
+				currentUnit ??= FormattableUnit.Create(action.Format, pUnit.GetParameters());
 			currentUnit["Id"] = (action.Identifier as Id<TUnitAction>).Key;
 
 			await HandleAsync(context);

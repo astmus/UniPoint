@@ -7,28 +7,35 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
 using MissBot.Identity;
+using MissCore.Actions;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
 	[Table("##BotUnits")]
 	[JsonObject(MemberSerialization.OptOut, ItemNullValueHandling = NullValueHandling.Ignore)]
-	public record BotUnit<TData> : BaseBotUnit, IBotUnit<TData>, IInteractableUnit<TData>, IParameterizedUnit where TData : class, IIdentibleUnit
+	public record BotUnit<TData> : BaseBotUnit, IBotUnit<TData>, IInteractableUnit<TData>, IParameterizedUnit, ITemplatedUnit where TData : class, IIdentibleUnit
 	{
 		public static readonly (string Unit, string Entity) Key = new(Regex.Replace(typeof(TData).Name, "`1", ""), typeof(TData).GetGenericArguments().FirstOrDefault()?.Name);
 		public static readonly Id<TData> UnitId = Id<TData>.Join(Key.Unit, Key.Entity);
 
-		[Column("Entity")]
-		public override string EntityKey { get; set; } = Key.Entity;
+		[Association(ThisKey = nameof(Entity), OtherKey = nameof(UnitAction.Action))]
+		public UnitActions<TData> UnitActions { get; set; }
 
-		[Column("Unit")]
-		public override string UnitKey { get; set; } = Key.Unit;
+		[Column]
+		public override string Entity { get; set; } = Key.Entity;
+
+		[Column]
+		public override string Unit { get; set; } = Key.Unit;
 
 		[Column]
 		public string Parameters { get; set; }
 
 		[Column]
-		public string Extension { get; set; }
+		public string Template { get; set; }
+
+		[Column]
+		public string Format { get; set; }
 
 		public IUnitContext DataContext { get; set; }
 
@@ -38,6 +45,10 @@ namespace MissCore.Bot
 
 		public IEnumerator UnitEntities
 			=> DataContext?.UnitEntities;
+
+
+		public IEnumerator GetEnumerator()
+			=> UnitEntities;
 
 		public void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<TData>
 		{

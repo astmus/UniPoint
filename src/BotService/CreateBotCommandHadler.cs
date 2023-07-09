@@ -89,7 +89,7 @@ namespace BotService
 		protected object SetCommand(IHandleContext context, string input, string parameterName) => input switch
 		{
 			null => Response.InputDataInteraction("Enter command text"),
-			_ => cmd.Extension = input
+			_ => cmd.Format = input
 		};
 
 		public Task CreateAsync(IHandleContext context, CancellationToken cancel = default)

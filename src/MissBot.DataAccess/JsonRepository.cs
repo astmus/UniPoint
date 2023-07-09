@@ -167,12 +167,18 @@ internal static class DBExtension
 	internal static async Task<StringBuilder> ReadAsync(this DbCommand cmd, CancellationToken cancel)
 	{
 		using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancel);
-		StringBuilder b = new StringBuilder();
+		if (await reader.ReadAsync(cancel))
+		{
+			StringBuilder sBuilder = new StringBuilder();
+			sBuilder.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
 
-		while (await reader.ReadAsync(cancel))
-			b.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
-		reader.Close();
-		return b;
+			while (await reader.ReadAsync(cancel))
+				sBuilder.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
+
+			reader.Close();
+			return sBuilder;
+		}
+		return default;
 	}
 
 	internal static void LoadParameters(this DbCommand cmd, KeyValuePair<object, object>[] parameters)

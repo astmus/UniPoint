@@ -90,7 +90,7 @@ namespace MissCore.Response
 			throw new NotImplementedException();
 		}
 	}
-	public record BotCommandResponse<T>(IHandleContext Context = default) : BaseResponse<T>(Context), IInteraction<T> where T : BaseBotAction
+	public record BotCommandResponse<T>(IHandleContext Context = default) : BaseResponse<T>(Context), IInteraction<T> where T : BaseAction
 	{
 		Message Message
 			=> Context.Take<Message>();

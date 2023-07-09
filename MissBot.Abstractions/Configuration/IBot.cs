@@ -6,7 +6,7 @@ namespace MissBot.Abstractions.Configuration
     {
         Func<IUnitUpdate, string> ScopePredicate { get; }
         IBotServicesProvider BotServices { get; }
-        Task<bool> SyncCommands();
+        Task<bool> SyncCommandsAsync();
     }
 
     public interface IBot<in TUpdate> : IBot where TUpdate : class, IUpdateInfo

@@ -1,3 +1,4 @@
+using LinqToDB;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities;
 using MissBot.Entities.Results;
@@ -20,6 +21,8 @@ namespace MissDataMaiden
 		{
 			var unit = Context.Bot.GetUnit<DataBaseInfo>();
 			unit.Id = long.Parse(result.Id);
+			ITable<DataBase> q = Context.Bot.GetRepository<DataBase>(unit.Template, unit.Id) as ITable<DataBase>;
+			q.FirstOrDefault();
 
 			var request = BotUnitRequest.Create(unit);
 			var response = Context.BotServices.Response<DataBase>();

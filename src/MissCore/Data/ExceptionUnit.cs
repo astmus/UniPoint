@@ -8,7 +8,7 @@ namespace MissCore.Data
     public record ExceptionUnit : Unit<Exception>
     {
         [Column("Unit")]
-        public override string UnitKey { get; set; }
+        public override string Unit { get; set; }
 
         [Column("Entity")]
         public override string EntityKey { get; set; }

@@ -10,7 +10,7 @@ using MissBot.Identity;
 namespace MissCore.Bot
 {
 	[Table("##UnitActions")]
-	public record BotAction : BaseBotAction, IBotAction
+	public record BotAction : BaseAction, IBotAction
 	{
 		[Column]
 		public virtual string Template { get; set; }
@@ -27,13 +27,13 @@ namespace MissCore.Bot
 
 	[Table("##BotUnits")]
 	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-	public record BotUnitCommand : BotCommand, IExtendableUnit, IBotEntity
+	public record BotUnitCommand : BotCommand, ITemplatedUnit, IBotEntity
 	{
 		[Column("Unit")]
 		public virtual string UnitKey { get; set; }
 
 		[Column("Entity")]
-		public override string EntityKey { get => Action; }
+		public override string Entity { get => Action; }
 
 		[Column("Entity")]
 		public override string Action { get; set; }
@@ -42,7 +42,7 @@ namespace MissCore.Bot
 		public override string Description { get; set; }
 
 		[Column]
-		public override string Extension { get; set; }
+		public override string Format { get; set; }
 
 		[Column]
 		public virtual string Parameters { get; set; }
@@ -55,7 +55,7 @@ namespace MissCore.Bot
 	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 	public record BotCommand<TEntity> : BotCommand
 	{
-		public override string EntityKey
+		public override string Entity
 			=> Id<TEntity>.Instance.Key;
 	}
 }

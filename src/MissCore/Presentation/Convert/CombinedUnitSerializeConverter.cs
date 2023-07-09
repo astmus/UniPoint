@@ -1,3 +1,4 @@
+using MissBot.Abstractions;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Presentation.Convert
@@ -13,31 +14,29 @@ namespace MissCore.Presentation.Convert
 
 		protected override void Serialize(ref TabWriter tabWriter, JToken root, int shift = 0)
 		{
-			foreach (JToken item in root.Children())
+			foreach (JToken item in root)
 			{
-				//Console.WriteLine(item);
 				switch (item)
 				{
 					case JArray arr:
-						foreach (var children in arr.Children())
-							foreach (var child in children.Children<JProperty>())
-								Serialize(ref tabWriter, child, shift);
+						foreach (var child in arr.Children())
+							Serialize(ref tabWriter, child, shift);
 						break;
 					case JObject target when target.Parent is JArray arr:
-						foreach (var children in arr.Children())
-							foreach (var child in target.Children<JProperty>())
-								Serialize(ref tabWriter, child, shift + ind);
+						//foreach (var child in arr)
+						//foreach (var child in target.Children<JProperty>())
+						Serialize(ref tabWriter, target, shift + ind);
 						break;
-					case JObject target when target.Parent is JProperty prop:
-						tabWriter.Append(prop, shift + ind);
-						foreach (var child in prop.Children<JObject>())
-							Serialize(ref tabWriter, child, shift + ind);
+					case JObject obj when obj.Parent is JProperty prop:
+						tabWriter.Append(propertyFacede.Wrap(prop), shift + ind);
+						//foreach (var child in prop.Children<JObject>())
+						Serialize(ref tabWriter, obj, shift + ind);
 						break;
 					case JValue value when value.Parent is JProperty prop:
-						tabWriter.Append(prop, shift + ind);
+						tabWriter.Append(propertyFacede.Wrap(prop), shift + ind);
 						break;
 					case JProperty prop:
-						tabWriter.Append(prop, shift + ind);
+						tabWriter.Append(propertyFacede.Wrap(prop), shift + ind);
 						break;
 				}
 			}

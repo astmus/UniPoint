@@ -1,58 +1,64 @@
 using System.Collections;
+using System.Diagnostics;
 using MissBot.Abstractions.Actions;
 using MissBot.Entities.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions.Bot
 {
 	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    public abstract record BaseBotUnit : BaseItem, IBotEntity
-    {
-        public override object Identifier
-            => string.Join('.', UnitKey, EntityKey);
+	public abstract record BaseBotUnit : BaseItem, IBotEntity
+	{
+		public override object Identifier
+			=> string.Join('.', Unit, Entity);
 
-        [JsonProperty("Unit")]
-        public abstract string UnitKey { get; set; }
+		[JsonProperty]
+		public abstract string Unit { get; set; }
 
-        [JsonProperty("Entity", Order = int.MinValue + 1)]
-        public virtual string EntityKey { get; set; }
-    }
+		[JsonProperty(Order = int.MinValue + 1)]
+		public virtual string Entity { get; set; }
+	}
 
-    public abstract record BaseUnit : BaseItem, IUnit
-    {
-        [JsonProperty("Unit", Order = int.MinValue)]
-        public virtual string UnitKey { get; set; }
+	[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
+	public abstract record BaseUnit : BaseItem, IUnit
+	{
+		[JsonProperty(Order = int.MinValue)]
+		public virtual string Unit { get; set; }
 
-        [JsonIgnore]
-        public abstract IEnumerator UnitEntities { get; }
-        public abstract void SetContext(object data);
+		[JsonIgnore]
+		public abstract IEnumerator UnitEntities { get; }
 
-        //public IMetaData MetaData { get; set; }
+		public IEnumerator GetEnumerator()
+			=> UnitEntities;
 
-        //public virtual string EntityKey { get; set; }
-        //protected abstract T Get<T>([CallerMemberName] string name = null);
-        //protected abstract void Set<T>(T item, [CallerMemberName] string name = null);
-    }
+		public abstract void SetContext(object data);
 
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    public abstract record BaseItem : IIdentibleUnit
-    {
-        public abstract object Identifier { get; }
-    }
+		private string GetDebuggerDisplay()
+		{
+			return string.Join(": ", this.Cast<JToken>().Select(s => s.Value<string>()).ToArray());
+		}
+	}
 
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    public abstract record BaseBotAction : BaseItem, IBotAction
-    {
-        public override object Identifier
-            => string.Join('.', Unit, Action);
+	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
+	public abstract record BaseItem : IIdentibleUnit
+	{
+		public abstract object Identifier { get; }
+	}
 
-        [JsonProperty]
-        public virtual string Unit { get; set; }
+	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
+	public abstract record BaseAction : BaseItem, IBotAction
+	{
+		public override object Identifier
+			=> string.Join('.', Unit, Action);
 
-        [JsonProperty("text", Required = Required.Always, Order = int.MinValue)]
-        public virtual string Action { get; set; }
+		[JsonProperty]
+		public virtual string Unit { get; set; }
 
-        public virtual string EntityKey
-            => Action;
-    }
+		[JsonProperty("text", Required = Required.Always, Order = int.MinValue)]
+		public virtual string Action { get; set; }
+
+		public virtual string Entity
+			=> Action;
+	}
 }

@@ -5,7 +5,7 @@ using MissBot.Entities.API;
 
 namespace MissCore.Handlers
 {
-	public class InputParametersHandler : BotUnitActionHadlerBase<BaseBotAction>
+	public class InputParametersHandler : BotUnitActionHadlerBase<BaseAction>
 	{
 		protected override void Initialize(IEnumerable<string> parameterNames)
 		{

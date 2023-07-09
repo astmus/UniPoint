@@ -12,9 +12,9 @@ namespace MissCore.Bot
         }
 
         public IUnitRequest Read<TEntity>() where TEntity : class
-            => this with { Extension = string.Format(Extension, Unit<TEntity>.Key) };
+            => this with { Format = string.Format(Format, Unit<TEntity>.Key) };
         public override string ToString()
-            => Extension  + Options.Format();
+            => Format  + Options.Format();
         public override string GetCommand()
             => ToString();
     }

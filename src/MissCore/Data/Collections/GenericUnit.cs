@@ -32,7 +32,7 @@ namespace MissCore.Data.Collections
         public string StringValue
             => string.Join(" ", ItemNames.Select(key => $"{key}: {this[key]}"));
 
-        public string EntityKey { get; }
+        public string Entity { get; }
         public string UnitKey { get; }
     }
 }

@@ -37,7 +37,7 @@ namespace MissBot.Abstractions
 
 		protected abstract void LoadBotInfrastructure();
 
-		public virtual async Task<bool> SyncCommands()
+		public virtual async Task<bool> SyncCommandsAsync()
 			=> await Client.SyncCommandsAsync(botContext.Commands);
 
 		#region DTO

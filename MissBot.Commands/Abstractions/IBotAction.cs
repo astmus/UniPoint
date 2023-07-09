@@ -8,8 +8,8 @@ namespace MissBot.Entities.Abstractions
 		string Unit { get; }
 	}
 
-	public interface IBotAction<TUnit> : IBotAction, IIdentibleUnit, IExtendableUnit
+	public interface IBotAction<out TUnit> : IBotAction, IIdentibleUnit, ITemplatedUnit
 	{
-		Id<TUnit> Id { get; set; }
+		Id Id { get; set; }
 	}
 }

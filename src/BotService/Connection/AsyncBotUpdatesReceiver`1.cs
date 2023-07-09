@@ -130,18 +130,19 @@ namespace BotService.Connection
 
 			async Task ReceiveUpdatesAsync()
 			{
-				//if (_receiver._receiverOptions?.ThrowPendingUpdates is true)
+
+				//if (_receiver.botConnection?.th .ThrowPendingUpdates is true)
 				//{
-				try
-				{
-					_messageOffset = await _receiver.botConnection.ThrowOutPendingUpdatesAsync(
-						cancellationToken: _token
-					).ConfigureAwait(false);
-				}
-				catch (OperationCanceledException)
-				{
-					// ignored
-				}
+				//try
+				//{
+				//	_messageOffset = await _receiver.botConnection.ThrowOutPendingUpdatesAsync(
+				//		cancellationToken: _token
+				//	).ConfigureAwait(false);
+				//}
+				//catch (OperationCanceledException)
+				//{
+				//	// ignored
+				//}
 				//}
 
 				while (!_cts.IsCancellationRequested)

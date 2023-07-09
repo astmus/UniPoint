@@ -2,12 +2,13 @@ namespace MissBot.Entities.Abstractions
 {
 	public interface IBotEntity
 	{
-		string EntityKey { get; }
+		string Entity { get; }
 		virtual string StringValue
-			=> EntityKey;
+			=> Entity;
 	}
 	public interface IUnitEntity
 	{
-		string UnitKey { get; }
+		string Unit
+			=> nameof(IUnitEntity);
 	}
 }

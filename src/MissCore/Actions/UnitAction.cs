@@ -1,15 +1,19 @@
 using System.Runtime.Serialization;
+
 using LinqToDB.Mapping;
+
 using MissBot.Abstractions;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
+using MissBot.Identity;
 
 namespace MissCore.Actions;
 
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-[Table("##UnitActions")]
+//[Table("##UnitActions")]
 public record UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> //where TEntity : class
 {
+	public virtual Id Id { get; set; } = Id<TEntity>.Instance;
 	public UnitAction()
 	{
 	}
@@ -27,26 +31,27 @@ public record UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> //where TEn
 	[JsonProperty("text")]
 	public override string Action { get; set; }
 
-	//public required IIdentible Entity { get; set; }
-	public override string EntityKey => base.EntityKey;
+	public override string Entity => base.Entity;
+
+	public virtual string Format { get; set; }
 }
 
 [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-[Table("##UnitActions")]
+//[Table("##UnitActions")]
 //[Column(nameof(Unit), nameof(Action))]
-public record UnitAction : BaseBotAction, IUnitAction, IParameterizedUnit, ISerializable
+public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISerializable
 {
-	[Column]
+	//[Column]
 	public override string Action { get; set; }
 
-	public override string EntityKey => base.EntityKey;
+	public override string Entity => base.Entity;
 
 	//[Column("Unit", IsDiscriminator = true)]
-	[Column]
+	//[Column]
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public override string Unit { get; set; }
 
-	[Column]
+	//[Column]
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string Template { get; set; }
 
@@ -74,7 +79,7 @@ public record UnitAction : BaseBotAction, IUnitAction, IParameterizedUnit, ISeri
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public bool? Pay { get; set; }
 
-	[Column]
+	//[Column]
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string Parameters { get; }
 

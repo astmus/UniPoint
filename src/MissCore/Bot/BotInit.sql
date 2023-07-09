@@ -4,9 +4,9 @@ CREATE table ##BotUnits
 (
     Unit      varchar(32),
     Entity     varchar(32),
-    Template varchar(128) null,
+    Format varchar(128) null,
     Description varchar(256)  null,
-    Extension     varchar(2048) null,
+    Template     varchar(2048) null,
     Parameters varchar(256) null,
 )
 
@@ -22,7 +22,7 @@ CREATE table ##UnitParameters
 (       
     Unit            varchar(32),
     Name         varchar(64),
-    Template    varchar(256),
+    Format    varchar(256),
     Value          varchar(1024),    
 )
 CREATE table ##SearchResults
@@ -91,7 +91,7 @@ VALUES ('BotUnit', 'ReadUnit', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUni
 INSERT INTO ##BotUnits
 VALUES ('BotUnit', 'GenericUnit', 'WITH {0} as ({1}) for json auto, root(''{0}'')' ,  '','', null);
 INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', '', '', '' , 'SELECT TOP(1) * FROM ##Info Where Id = @Id', 'Id');
+VALUES ('DataBaseInfo', '', '', '' , 'SELECT TOP(1) * FROM ##DataBase Where Id = {0}', 'Id');
                                                                                                                                              
 INSERT INTO ##UnitActions
 VALUES ('DataBase', 'Delete', 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
@@ -108,7 +108,23 @@ IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
 
 SELECT *
 INTO ##DataBase
-FROM (select 'DataBase' as Unit , D.database_id as Id, D.name as Name, cast(D.create_date as varchar(17)) as Created, CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo], CONVERT(decimal(10,2), round(SUM(F.size*8)/1024.0,1)) AS Size  FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master') GROUP BY create_date, D.name, d.database_id) dbs
+FROM (SELECT 'DataBase' as Unit , D.database_id as Id,
+			D.name as Name,
+			GETDATE()+ (RAND()*100) as Created,
+			CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo],
+			ROUND(RAND()*100,2) AS Size
+			FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master')
+			GROUP BY create_date, D.name, d.database_id) dbs
+
+SELECT *
+INTO ##DataBaseEx
+FROM (SELECT 'DataBase' as Unit , D.database_id as Id,
+			D.name as Name,
+			GETDATE()+ (RAND()*100) as Created,
+			CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo],
+			ROUND(RAND()*100,2) AS Size
+			FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master')
+			GROUP BY create_date, D.name, d.database_id) dbs
 
 USE      DBs
 
@@ -116,8 +132,8 @@ MERGE ##DataBase AS T
 USING [DataBases]	AS S
 ON S.Id = T.Id
 WHEN NOT MATCHED BY Target THEN
-    INSERT (Unit,Id,Name, Created) 
-    VALUES ('DataBase',S.Id,S.Title, GetDate());
+    INSERT (Unit,Id,Name, Created, Size, DaysAgo) 
+    VALUES ('DataBase',S.Id,S.Title, GETDATE()+ (RAND()*100), ROUND(RAND()*100,2),ROUND(RAND()*100,0));
      
 
 IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL

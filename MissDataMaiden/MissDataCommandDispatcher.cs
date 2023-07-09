@@ -48,7 +48,7 @@ namespace MissDataMaiden
                 default:
                     
                     var repository = Context.GetBotService<IJsonRepository>();
-                    var result = await repository.RawAsync<GenericUnit>(command.Extension);
+                    var result = await repository.RawAsync<GenericUnit>(command.Format);
                     var response = Context.BotServices.Response<BotCommand>();
                     //foreach (IUnit<GenericUnit> item in result.Content)
                     //{

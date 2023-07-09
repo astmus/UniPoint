@@ -16,6 +16,9 @@ namespace BotService.Configuration
 		/// </summary>
 		public BotConnectionOptions()
 		{
+			//JsonConvert.DefaultSettings =
+			//	() => SerializeConnectionSettings;
+
 			SerializeConnectionSettings.NullValueHandling = NullValueHandling.Ignore;
 			SerializeConnectionSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
 			SerializeConnectionSettings.ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor;

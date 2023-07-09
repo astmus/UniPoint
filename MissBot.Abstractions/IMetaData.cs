@@ -1,58 +1,62 @@
 using System.Collections;
+using MissBot.Entities.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MissBot.Abstractions
 {
-    public enum MetaType : byte
-    {
-        Null,
-        Empty,
-        Value,
-        Item,
-        Unit,
-        Union
-    }
+	public enum MetaType : byte
+	{
+		Null,
+		Empty,
+		Value,
+		Item,
+		Unit,
+		Union
+	}
 
-    public interface IUnitContext : IMetaData
-    {
-        JToken Root { get; }
-        TEntity GetUnitEntity<TEntity>() where TEntity : class;
-        IEnumerator UnitEntities { get; }
-        //void SetContext<TUnitData>(TUnitData data) where TUnitData : JToken;
-    }
+	public interface IUnitContext : IMetaData, IUnitEntity
+	{
+		JToken Root { get; }
+		TEntity GetUnitEntity<TEntity>() where TEntity : class;
+		IEnumerator UnitEntities { get; }
+		//void SetContext<TUnitData>(TUnitData data) where TUnitData : JToken;
+	}
 
-    public interface IUnitContext<TUnit>
-    {
-        [JsonIgnore]
-        IUnitContext DataContext { get; set; }
-    }
+	public interface IDataUnit<out TUnit>
+	{
+		TUnit UnitData { get; }
 
-    public interface IMetaData
-    {
-        object? this[string propertyName]
-        {
-            get;
-        }
+		[JsonIgnore]
+		IUnitContext DataContext { get; set; }
+	}
 
-        IEnumerable<string> Paths { get; }
-        IEnumerable<string> Names { get; }
-        int Count { get; }
-    }
+	public interface IMetaData
+	{
+		object? this[string propertyName]
+		{
+			get;
+		}
 
-    public interface ISerializableItem
-    {
-        string Serialize();
-    }
+		IEnumerable<string> Paths { get; }
+		IEnumerable<string> Names { get; }
+		int Count { get; }
+	}
 
-    public interface IUnitItem<TName, TValue>
-    {
-        TName ItemName { get; }
-        TValue ItemValue { get; }
-    }
-    public interface IUnitItem : IUnitItem<string, object>, ISerializableItem
-    {
+	public interface ISerializableUnit
+	{
+		string Serialize();
+	}
 
-    }
+	public interface IUnitItem<TName, TValue>
+	{
+		TName ItemName { get; }
+		TValue ItemValue { get; }
+	}
+
+	public interface IUnitItem : IUnitItem<string, object>, ISerializableUnit
+	{
+
+	}
 
 }

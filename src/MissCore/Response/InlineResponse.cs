@@ -50,7 +50,7 @@ namespace MissCore.Response
 			{
 				var entities = unit.UnitEntities;
 				entities.MoveNext();
-				item.Id = Id<TUnit>.Instance.Combine(unit.UnitKey, unit.Identifier, InlineQuery.Query);
+				item.Id = Id<TUnit>.Instance.Combine(unit.Unit, unit.Identifier, InlineQuery.Query);
 				item.QueryId = InlineQuery.Query;
 				item.Title ??= entities.Current.ToString();
 				entities.MoveNext();

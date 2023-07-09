@@ -12,7 +12,7 @@ namespace MissCore.Bot
         //public static string EntityKey
         //    => Key;
         [Column("Entity")]
-        public virtual string EntityKey => Key;        
+        public virtual string Entity => Key;        
     }
 
     [Table("##BotUnits")]

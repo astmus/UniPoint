@@ -229,7 +229,7 @@ namespace BotService.Internal
 
 		#region Commands    
 
-		public IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BaseBotAction
+		public IBotBuilder AddCommand<TCommand, THandler>() where THandler : BotCommandHandler<TCommand> where TCommand : BaseAction
 		{
 			host.ConfigureServices((h, Services)
 				=>

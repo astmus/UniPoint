@@ -8,7 +8,7 @@ namespace MissBot.Abstractions.Bot
         [JsonIgnore]
         public string UnitKey { get; set; }
         [JsonIgnore]
-        public string EntityKey { get; }
+        public string Entity { get; }
     }
 }
 

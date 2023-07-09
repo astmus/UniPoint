@@ -14,7 +14,7 @@ namespace MissCore.DataAccess
         public UnitRequest(string cmd = default)
         {
             LazyUnit = new Lazy<FormattableUnit>(()
-                => FormattableUnit.Create(cmd ?? Extension));
+                => FormattableUnit.Create(cmd ?? Format));
         }
 
         public RequestOptions Options { get; set; } = RequestOptions.JsonPath | RequestOptions.RootContent;

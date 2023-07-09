@@ -6,6 +6,7 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
+using MissBot.Extensions;
 using MissBot.Identity;
 using MissCore.Data.Collections;
 using MissCore.Data.Entities;
@@ -16,11 +17,11 @@ namespace MissCore.Data
 	//[Table("##BotUnits")]
 	public partial record Unit : BaseUnit, IUnit//, IBotIdentible
 	{
-		[Column("Unit")]
-		public override string UnitKey { get; set; }
+		//[Column("Unit")]
+		//public override string Unit { get; set; }
 
 		public override IEnumerator UnitEntities { get; }
-
+		[NotColumn]
 		public override object Identifier
 			=> Id<Unit>.Instance.Key;
 		//public static TMeta FromObject<TMeta>(object dataObject) where TMeta : class, IUnitContext
@@ -64,13 +65,13 @@ namespace MissCore.Data
 	[Table("##BotUnits")]
 	[JsonObject(MemberSerialization.OptOut, ItemNullValueHandling = NullValueHandling.Ignore)]
 	//[JsonConverter(typeof(GenericUnitConverter<Unit>))]
-	public record Unit<TData> : Unit, IUnit<TData>, IUnitContext<TData>, IInteractableUnit<TData> where TData : class
+	public record Unit<TData> : Unit, IUnit<TData>, IDataUnit<TData> where TData : class
 	{
 		public static readonly string Key = Id<TData>.Instance.Key;
 		Lazy<TData> _lazyEntity;
 
-		[Column("Unit")]
-		public override string UnitKey { get; set; } = Key;
+		//[Column("Unit")]
+		//public override string Unit { get; set; } = Key;
 
 		[JsonProperty("Entity", Order = int.MinValue + 1)]
 		public virtual string EntityKey { get; set; }
@@ -81,7 +82,7 @@ namespace MissCore.Data
 
 		[JsonIgnore]
 		public override object Identifier
-			=> Id<TData>.Join(UnitKey, EntityKey, DataContext["Id"]);
+			=> Id<TData>.Join(Unit, EntityKey, DataContext["Id"]);
 
 		[JsonIgnore]
 		public IUnitContext DataContext { get; set; }
@@ -94,19 +95,12 @@ namespace MissCore.Data
 
 		public override void SetContext(object data)
 		{
-			DataContext = Unit.MetaData.FromObject<UnitContext>(data);
+			DataContext = Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
+			_lazyEntity = new Lazy<TData>(() =>
+			{
+				return DataContext.GetUnitEntity<TData>();
+			});
 		}
-		//public override void SetContext<TUnitData>(TUnitData data)
-		//{
-		//    base.SetRawData<TUnitData>(data);
-		//    _lazyEntity = new Lazy<TData>(() =>
-		//    {
-		//        UnitData.ThrowIfNull(nameof(UnitData));
-		//        UnitData.ThrowIfTypeIs(nameof(UnitData), typeof(JValue), typeof(JArray));
-		//        return UnitData is JObject || UnitData is JProperty || UnitData is not JToken ? UnitData?.ToObject<TData>() : null;
-		//    });
-		//    MetaData = ReadMetadata<TData>(data);
-		//}
 
 		public static Unit<TData> Init<TUData>(TUData data) where TUData : class
 		{
@@ -124,17 +118,17 @@ namespace MissCore.Data
 		}
 
 		public static IMetaData ReadMetadata(TData data)
-			=> Unit.MetaData.FromObject<UnitContext>(data);
+			=> Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
 
 		public static IMetaData ReadMetadata<TUnit>(object data) where TUnit : class
 			=> data is JToken token ? MetaData.FromRootToken<MetaData<TUnit>>(token) : MetaData.FromObject<MetaData<TUnit>>(data);
 
 		public void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken
 		{
-			DataContext = Unit.MetaData.FromObject<UnitContext>(data);
+			DataContext = Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
 		}
 
-		internal class UnitContext : MetaData<TData>, IUnitContext<TData>, IUnitContext
+		internal class UnitContext : MetaData<TData>, /*IDataUnit<TData>,*/ IUnitContext
 		{
 			public IUnitContext DataContext { get; set; }
 			public IEnumerator UnitEntities
@@ -142,6 +136,9 @@ namespace MissCore.Data
 
 			public JToken Root
 				=> root;
+
+			public TData UnitData
+				=> GetUnitEntity<TData>();
 
 			public UnitContext()
 			{
@@ -196,12 +193,7 @@ namespace MissCore.Data
 					var result = token.ToObject<TUnit>();
 					if (result is ResultUnit<TData> unit)
 					{
-						unit.DataContext = Unit.MetaData.FromRootToken<UnitContext>(token);
-						//if (result is IInteractableUnit interUnit)
-						//{
-						//    //unit.Entities = null;
-						//    interUnit.ActionsSet = this.Actions.GetSet(unit.Id);
-						//}
+						unit.DataContext = Data.Unit.MetaData.FromRootToken<Unit<TData>.UnitContext>(token);
 					}
 					yield return result;
 				}

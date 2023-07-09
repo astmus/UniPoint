@@ -5,7 +5,6 @@ namespace MissBot.Abstractions.Actions
 {
 	public interface IMetaCollection<TData> : IMetaCollection, IEnumerable<TData> where TData : class
 	{
-		IEnumerable<IUnit<TData>> EnumarateUnits();
 		IEnumerable<TUnit> EnumarateUnits<TUnit>() where TUnit : BaseUnit, IUnit<TData>;
 		IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class, TData;
 	}

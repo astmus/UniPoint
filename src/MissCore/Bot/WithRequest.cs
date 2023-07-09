@@ -6,7 +6,7 @@ using MissCore.Data;
 namespace MissCore.Bot
 {
 	[Table("##BotUnits")]
-    public record WithRequest : Unit, IUnitRequest, IExtendableUnit, IBotEntity
+    public record WithRequest : Unit, IUnitRequest, ITemplatedUnit, IBotEntity
     {
         string Unit;
         string UnitCommand;
@@ -14,9 +14,9 @@ namespace MissCore.Bot
         public IEnumerable<IUnitParameter> Params { get; }
         public RequestOptions Options { get; set; }
         public string Template { get; set; }
-        public string Extension { get; set; }
+        public string Format { get; set; }
         [Column("Entity")]
-        public string EntityKey { get; }
+        public string Entity { get; }
 
         public WithRequest()
         {

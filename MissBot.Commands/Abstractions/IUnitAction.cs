@@ -6,8 +6,8 @@ public interface IUnitAction : IBotAction
 	IIdentibleUnit UnitContext { get; set; }
 }
 
-public interface IUnitAction<out TUnit> : IUnitAction
+public interface IUnitAction<out TUnit> : IBotAction<TUnit>, IUnitAction
 {
-	string Template { get; set; }
+
 }
 

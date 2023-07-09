@@ -45,12 +45,12 @@ namespace MissBot.Abstractions.Bot
 		}
 	}
 
-	public interface IBotUnit : IBotEntity, IExtendableUnit, IParameterizedUnit, IUnitEntity
+	public interface IBotUnit : IBotEntity, ITemplatedUnit, IParameterizedUnit, IUnitEntity
 	{
 		string Description { get; set; }
 	}
 
-	public interface IBotUnit<TUnit> : IBotEntity, IUnitEntity, IUnitContext<TUnit> where TUnit : class
+	public interface IBotUnit<TUnit> : IBotEntity, IUnitEntity, IDataUnit<TUnit> where TUnit : class
 	{
 		void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<TUnit>;
 	}

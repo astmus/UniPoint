@@ -7,9 +7,9 @@ namespace MissCore.Actions
 {
 	public record BotUnitAction<TUnit> : BotAction, IBotAction<TUnit> where TUnit : class
 	{
-		public Id<TUnit> Id { get; set; }
+		public Id Id { get; set; } = Id<TUnit>.Instance;
 		public string Command { get; set; }
-		public virtual string Extension { get; set; }
+		public virtual string Format { get; set; }
 
 		public static implicit operator BotUnitAction<TUnit>(string data)
 			=> JsonConvert.DeserializeObject<BotUnitAction<TUnit>>(data);

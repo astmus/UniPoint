@@ -1,11 +1,14 @@
 using LinqToDB.Mapping;
+
 using MissBot.Abstractions;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
 using MissBot.Entities.Results.Inline;
 using MissBot.Identity;
+
 using MissCore.Data;
 using MissCore.Data.Entities;
+
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Response
@@ -48,11 +51,11 @@ namespace MissCore.Response
 
 		[Column("Entity", IsDiscriminator = true)]
 		[JsonProperty("Entity")]
-		public override string EntityKey { get; set; }
+		public override string Entity { get; set; }
 
 		[JsonProperty("Unit")]
 		[Column("Unit")]
-		public override string UnitKey { get; set; }
+		public override string Unit { get; set; }
 
 		public override object Identifier
 			=> Id;
