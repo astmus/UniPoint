@@ -1,41 +1,36 @@
 using LinqToDB.Mapping;
-
-using MissBot.Abstractions.Actions;
-using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Bot;
-using MissBot.Entities;
 using MissBot.Entities.Abstractions;
-using MissBot.Identity;
 
 namespace MissCore.Bot
 {
-	[Table("##UnitActions")]
+	[Table("##BotActions")]
 	public record BotAction : BaseAction, IBotAction
 	{
+		[Column("Id"), PrimaryKey, NotNull]
+		public override object Identifier => base.Identifier;
 		[Column]
-		public virtual string Template { get; set; }
-
-		[Column("Unit")]
 		public override string Unit { get; set; }
 
 		[Column]
-		public string Parameters { get; set; }
+		public override string Action { get; set; }
 
 		[Column]
-		public override string Action { get; set; }
+		public virtual string Template { get; set; }
+
+		[Column]
+		public virtual string Parameters { get; set; }
+
 	}
 
 	[Table("##BotUnits")]
 	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-	public record BotUnitCommand : BotCommand, ITemplatedUnit, IBotEntity
+	public record BotUnitCommand : BotCommand
 	{
-		[Column("Unit")]
-		public virtual string UnitKey { get; set; }
+		[Column]
+		public override string Unit { get; set; }
 
-		[Column("Entity")]
-		public override string Entity { get => Action; }
-
-		[Column("Entity")]
+		[Column(nameof(Entity))]
 		public override string Action { get; set; }
 
 		[Column]
@@ -55,7 +50,6 @@ namespace MissCore.Bot
 	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 	public record BotCommand<TEntity> : BotCommand
 	{
-		public override string Entity
-			=> Id<TEntity>.Instance.Key;
+
 	}
 }

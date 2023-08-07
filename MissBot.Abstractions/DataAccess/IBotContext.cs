@@ -3,25 +3,27 @@ using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using MissCore.Data.Entities;
 
 namespace MissBot.Abstractions.DataAccess
 {
+
 	public interface IBotContext
 	{
 		IList<BotCommand> Commands { get; }
 		IImmutableList<IUnitParameter> Parameters { get; }
-		IQueryable<TRepository> GetRepository<TRepository>(string query = default, object id = default) where TRepository : class;
+		IQueryUnit<TData> GetQueryUnit<TData>() where TData : class;
 		TCommand GetCommand<TCommand>() where TCommand : BotCommand;
 		TUnit GetUnit<TUnit>() where TUnit : BaseBotUnit;
 		TEntity GetBotEntity<TEntity>() where TEntity : class, IBotEntity;
-		IUnitRequest CreateUnitRequest<TUnit>(TUnit unit) where TUnit : class, IBotEntity, ITemplatedUnit;
-		IBotUnit<TUnit> GetBotUnit<TUnit>() where TUnit : BaseBotUnit;
+		IBotUnit<TUnit> GetBotUnit<TUnit>() where TUnit : BaseUnit;
 		Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : class, IUnit;
 		Task<TUnit> GetBotUnitAsync<TUnit, TEntity>() where TUnit : class, IBotUnit<TEntity> where TEntity : class, IUnit;
 		IEnumerable<IBotUnit<TUnit>> SetUnitActions<TUnit>(IUnitCollection<TUnit> units) where TUnit : BaseUnit, IInteractableUnit;
-		IEnumerable<TRes> SearchResults<TRes>(IEnumerable<TRes> units) where TRes : BaseUnit;
+		IQueryable<ResultUnit<TRes>> SearchResults<TRes>(IEnumerable<TRes> units) where TRes : BaseUnit;
 		TAction GetAction<TAction>() where TAction : BaseBotUnit, IBotAction;
-		Task<IBotAction<TUnit>> GetActionAsync<TUnit>(string actionName) where TUnit : class, IIdentibleUnit;
+		Task<IUnitAction<TUnit>> GetUnitActionAsync<TUnit>(string actionName) where TUnit : class, IIdentibleUnit, IUnit;
 		IInteractableUnit<TUnit> UnitActions<TUnit>(IInteractableUnit<TUnit> unit, byte rowCount = byte.MaxValue) where TUnit : class, IUnit;
 	}
 

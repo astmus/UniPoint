@@ -5,11 +5,6 @@ namespace MissCore.Internal
 {
 	internal class GenericUnitConverter<TUnit> : JsonConverter<TUnit> where TUnit : class, IUnit
 	{
-		private readonly IServiceProvider sp;
-
-		public GenericUnitConverter(IServiceProvider sp)
-			=> this.sp = sp;
-
 
 		public override bool CanRead => false;
 		public override bool CanWrite => true;
@@ -23,7 +18,6 @@ namespace MissCore.Internal
 
 		public override void WriteJson(JsonWriter writer, TUnit? value, JsonSerializer serializer)
 		{
-			TUnit t = (TUnit)value;
 			writer.WriteStartObject();
 			var iterator = value.UnitEntities;
 

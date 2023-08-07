@@ -18,7 +18,6 @@ namespace MissBot.DataAccess
 {
 	public class JsonRepository : DataContext, IJsonRepository
 	{
-
 		public JsonRepository(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)
 		{
 		}
@@ -36,7 +35,7 @@ namespace MissBot.DataAccess
 				await connection.OpenAsync(cancel);
 				using (var cmd = connection.CreateCommand())
 				{
-					cmd.CommandText = request.GetCommand();
+					cmd.CommandText = request.Get(RequestOptions.JsonAuto.ToStringFast(), RequestOptions.RootContent.ToStringFast());
 
 					if (await cmd.ReadAsync(cancel) is StringBuilder json)
 						result = JsonConvert.DeserializeObject<ContentUnit<TResult>>(json.ToString());
@@ -56,11 +55,11 @@ namespace MissBot.DataAccess
 
 			using (var conn = DataProvider.CreateConnection(ConnectionString))
 			{
-				await conn.OpenAsync(cancel);
+				await conn.OpenAsync(cancel).ConfigureAwait(false);
 				try
 				{
 					using var cmd = conn.CreateCommand();
-					cmd.CommandText = sql;
+					cmd.CommandText = sql += RequestOptions.JsonAuto.ToStringFast();
 					if (await cmd.ReadAsync(cancel) is StringBuilder json && json.Length > 0)
 						result = parser(json.ToString());
 				}
@@ -73,11 +72,11 @@ namespace MissBot.DataAccess
 		}
 		public async Task<JObject> HandleScalarAsync(IUnitRequest cmd, CancellationToken cancel = default)
 		{
-			var jobj = await HandleRawAsync(JObject.Parse, cmd.GetCommand(), cancel);
+			var jobj = await HandleRawAsync(JObject.Parse, cmd.Get(), cancel);
 			return jobj;
 		}
 
-		public async Task<TResult> HandleScalarAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : BaseUnit
+		public async Task<TResult> HandleScalarAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : BaseBotUnit, IDataUnit
 		{
 			TResult result = default;
 			using (var conn = DataProvider.CreateConnection(ConnectionString))
@@ -86,8 +85,9 @@ namespace MissBot.DataAccess
 				{
 					await conn.OpenAsync(cancel);
 					using var cmd = conn.CreateCommand();
-					request.Options |= RequestOptions.JsonAuto | RequestOptions.Scalar;
-					cmd.CommandText = request.GetCommand();
+
+					request += RequestOptions.JsonAuto.ToStringFast() + RequestOptions.Scalar.ToStringFast();
+					cmd.CommandText = request.Get();
 
 					cmd.LoadParameters(request.Params);
 
@@ -95,7 +95,7 @@ namespace MissBot.DataAccess
 					{
 						var j = JObject.Parse(json.ToString());
 						result = Activator.CreateInstance<TResult>();
-						result.SetContext(j);
+						result.SetDataContext(j);
 						//result = JsonConvert.DeserializeObject<TResult>(json.ToString());
 					}
 				}
@@ -113,8 +113,8 @@ namespace MissBot.DataAccess
 
 		public async Task<TResult> HandleRawAsync<TResult>(string request, CancellationToken cancel = default) where TResult : class
 		{
-			IUnitRequest command = new UnitRequest<Unit<TResult>>(request);
-			command.Options |= RequestOptions.Scalar;
+			var command = new UnitRequest<DataUnit<TResult>>(request);
+			command += RequestOptions.Scalar.ToStringFast();
 			JObject item = await HandleScalarAsync(command, cancel);
 			var result = item?.ToObject<TResult>();
 
@@ -124,7 +124,7 @@ namespace MissBot.DataAccess
 		public async Task<IMetaCollection<TUnit>> HandleQueryJsonAsync<TUnit>(IUnitRequest query, CancellationToken cancel = default) where TUnit : class
 		{
 			//var r = await RawAsync<TUnit>(query.GetCommand(), cancel);
-			if (await HandleRawAsync(JArray.Parse, query.GetCommand(), cancel) is JArray items)
+			if (await HandleRawAsync(JArray.Parse, query.Get(), cancel) is JArray items)
 				return new MetaCollection<TUnit>(items);
 			else
 				return MetaCollection<TUnit>.Empty;
@@ -140,14 +140,14 @@ namespace MissBot.DataAccess
 					await conn.OpenAsync(cancel);
 					using var cmd = conn.CreateCommand();
 
-					cmd.CommandText = $"{request} {(RequestOptions.JsonPath | RequestOptions.RootContent).Format()}";
+					cmd.CommandText = $"{request += RequestOptions.JsonPath.ToStringFast() + RequestOptions.RootContent.ToStringFast()}";
 
 					cmd.LoadParameters(parameters);
 
 					if (await cmd.ReadAsync(cancel) is StringBuilder json)
 					{
-						var token = JToken.Parse(json.ToString());
-						var result2 = JsonConvert.DeserializeObject<ContentUnit<TResult>>(json.ToString());
+						//var token = JToken.Parse(json.ToString());
+						result = JsonConvert.DeserializeObject<ContentUnit<TResult>>(json.ToString());
 					}
 
 					//var r = this.FromSqlScalar<ContentUnit<TResult>>(FormattableStringFactory.Create(cmd.CommandText));
@@ -160,8 +160,13 @@ namespace MissBot.DataAccess
 			return result;
 		}
 
+		public IQueryable<TData> RawQuery<TData>(string query, params object[] args)
+		{
+			return this.FromSql<TData>(query, args);
+		}
 	}
 }
+
 internal static class DBExtension
 {
 	internal static async Task<StringBuilder> ReadAsync(this DbCommand cmd, CancellationToken cancel)
@@ -170,10 +175,10 @@ internal static class DBExtension
 		if (await reader.ReadAsync(cancel))
 		{
 			StringBuilder sBuilder = new StringBuilder();
-			sBuilder.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
 
-			while (await reader.ReadAsync(cancel))
+			do
 				sBuilder.Append(await reader.GetTextReader(0).ReadToEndAsync(cancel));
+			while (await reader.ReadAsync(cancel));
 
 			reader.Close();
 			return sBuilder;

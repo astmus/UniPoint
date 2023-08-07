@@ -21,12 +21,12 @@ namespace MissCore.Response
 		public InlineQueryResultType Type { get; set; } = InlineQueryResultType.Article;
 
 		[JsonProperty("input_message_content")]
-		public override IInlineContent Content
+		public override ResultContent Content
 		{
 			get
 			{
-				var r = DataContext.GetUnitEntity<InlineContent<TEntity>>();
-				r.Value = string.Join(' ', DataContext.Root.Children().Values<string>());
+				var r = DataContext.GetUnitEntity<ResultContent<TEntity>>();
+				r.Content = string.Join(' ', DataContext.Root.Children().Values<string>());
 				return r;
 			}
 		}
@@ -34,7 +34,7 @@ namespace MissCore.Response
 		[Column]
 		[JsonProperty]
 		public virtual string Id { get; set; } = Id<TEntity>.Instance;
-		//=> DataContext[nameof(Id)];
+		//=> 
 
 		public string QueryId { get; set; }
 
@@ -58,25 +58,21 @@ namespace MissCore.Response
 		public override string Unit { get; set; }
 
 		public override object Identifier
-			=> Id;
+			=> DataContext[nameof(Id)];
 
 		public IEnumerable<IEnumerable<IUnitAction<TEntity>>> Actions { get; set; }
 
 
-		public override void SetContext<TDataUnit>(TDataUnit data)
+		public override void SetDataContext<TDataUnit>(TDataUnit data)
 		{
-			DataContext = new Unit<TDataUnit>.UnitContext(data);
+			DataContext = new DataUnit<TDataUnit>.UnitContext(data);
 		}
 
-		public override void SetContext(object data)
-		{
-			throw new NotImplementedException();
-		}
 
-		public override void SetContextRoot<TRoot>(TRoot data)
-		{
-			DataContext = new Unit<TRoot>.UnitContext(data);
-		}
+		//public override void SetDataContex6t<TRoot>(TRoot data)
+		//{
+		//	DataContext = new DataUnit<TRoot>.UnitContext(data);
+		//}
 
 		//public override void SetContext<TUnitData>(TUnitData data)
 		//{

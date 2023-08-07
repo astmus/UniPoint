@@ -11,28 +11,30 @@ using Newtonsoft.Json.Linq;
 namespace MissCore.Data.Collections
 {
 	public interface IGenericUnit
-    {
-        IEnumerable<string> ItemNames { get; }
-        IEnumerable<string> ItemValues { get; }
-        string StringValue { get; }
+	{
+		IEnumerable<string> ItemNames { get; }
+		IEnumerable<string> ItemValues { get; }
+		string StringValue { get; }
+		IEnumerator<IUnitItem> GetEnumerator();
+	}
 
-        Unit<T> ToUnit<T>() where T : class;
-    }
+	[JsonDictionary]
+	public class GenericUnit : ListDictionary, IGenericUnit, IBotEntity
+	{
+		public IEnumerable<string> ItemNames
+			=> Keys.Cast<string>();
+		public IEnumerable<string> ItemValues
+			=> Values.Cast<string>();
 
-    [JsonDictionary]
-    public class GenericUnit : ListDictionary, IGenericUnit, IBotEntity
-    {
-        public IEnumerable<string> ItemNames
-            => Keys.Cast<string>();
-        public IEnumerable<string> ItemValues
-            => Values.Cast<string>();
-        public Unit<T> ToUnit<T>() where T : class
-            => Unit<T>.Init(this);
+		public string StringValue
+			=> string.Join(" ", ItemNames.Select(key => $"{key}: {this[key]}"));
 
-        public string StringValue
-            => string.Join(" ", ItemNames.Select(key => $"{key}: {this[key]}"));
+		public string Entity { get; }
+		public string UnitKey { get; }
 
-        public string Entity { get; }
-        public string UnitKey { get; }
-    }
+		public new IEnumerator<IUnitItem> GetEnumerator()
+		{
+			return this.GetEnumerator();
+		}
+	}
 }

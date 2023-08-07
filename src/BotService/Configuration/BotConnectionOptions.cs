@@ -3,6 +3,7 @@ using MissBot.Entities;
 using MissBot.Entities.Enums;
 using MissBot.Entities.Exceptions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace BotService.Configuration
 {
@@ -16,7 +17,7 @@ namespace BotService.Configuration
 		/// </summary>
 		public BotConnectionOptions()
 		{
-			//JsonConvert.DefaultSettings =
+			//JsonConvert.DefaultSettings--- =
 			//	() => SerializeConnectionSettings;
 
 			SerializeConnectionSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -25,6 +26,7 @@ namespace BotService.Configuration
 			SerializeConnectionSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
 			SerializeConnectionSettings.PreserveReferencesHandling = PreserveReferencesHandling.Arrays;
 			SerializeConnectionSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+			SerializeConnectionSettings.TraceWriter = new DiagnosticsTraceWriter();
 			//SerializeConnectionSettings.ObjectCreationHandling = 
 			//var cnv = Assembly.GetAssembly(typeof(Unit)).GetTypes().Where(w => w.IsAssignableTo(typeof(IUnit<>))).Reverse().ToList();
 			//foreach (var c in cnv)

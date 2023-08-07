@@ -14,10 +14,10 @@ namespace MissCore.Data.Context
 			return result;
 		}
 		public T Get<T>(Id<T> identifier)
-			=> Get<T>(identifier.Key);
+			=> Get<T>(identifier.Value);
 
 		public T Get<T>(Id identifier)
-			=> Get<T>(identifier.Key);
+			=> Get<T>(identifier.Value);
 
 		public TAny Any<TAny>()
 		{
@@ -30,7 +30,7 @@ namespace MissCore.Data.Context
 					(k, o, w) => this[k] = w, value);
 
 		public T Set<T>(T value, Id identifier)
-			=> Set<T>(value, identifier.Key);
+			=> Set<T>(value, identifier.Value);
 	}
 }
 

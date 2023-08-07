@@ -9,9 +9,10 @@ namespace MissBot.Abstractions.Actions
 		IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class, TData;
 	}
 
-	public interface IMetaCollection : IMetaUnit, IUnitEntity
+	public interface IMetaCollection : IUnitEntity
 	{
 		int Count { get; }
 		IEnumerable<TUnit> Enumarate<TUnit>() where TUnit : class;
+		IEnumerable<IUnitItem> EnumarateUnitItems();
 	}
 }

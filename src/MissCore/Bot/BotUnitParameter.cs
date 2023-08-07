@@ -21,7 +21,7 @@ namespace MissCore.Bot
 		public override object Value { get; set; }
 	}
 
-	[Table("##UnitParameters")]
+	//[Table("##UnitParameters")]
 	public record UnitParameter(string Name, object Value) : IUnitParameter
 	{
 	}

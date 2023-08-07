@@ -3,7 +3,7 @@ using MissBot.Abstractions;
 namespace MissCore.Data.Context
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    internal class UnitDataContext<TData> : Unit<TData>.UnitContext, IUnitContext where TData : class
+    internal class UnitDataContext<TData> : DataUnit<TData>.UnitContext, IUnitContext where TData : class
     {
 
         public UnitDataContext(TData data) : base(data)

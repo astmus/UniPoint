@@ -8,6 +8,7 @@ using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
 using MissBot.Identity;
 using MissCore.Actions;
+using MissCore.Data;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
@@ -29,13 +30,13 @@ namespace MissCore.Bot
 		public override string Unit { get; set; } = Key.Unit;
 
 		[Column]
-		public string Parameters { get; set; }
+		public override string Parameters { get; set; }
 
 		[Column]
-		public string Template { get; set; }
+		public override string Template { get; set; }
 
 		[Column]
-		public string Format { get; set; }
+		public override string Format { get; set; }
 
 		public IUnitContext DataContext { get; set; }
 
@@ -43,26 +44,18 @@ namespace MissCore.Bot
 		public TData UnitData
 			=> DataContext.GetUnitEntity<TData>();
 
-		public IEnumerator UnitEntities
+		public override IEnumerator UnitEntities
 			=> DataContext?.UnitEntities;
 
-
-		public IEnumerator GetEnumerator()
-			=> UnitEntities;
-
-		public void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<TData>
+		public void SetDataContext<TUnit>(TUnit unit) where TUnit : JToken
 		{
-			throw new NotImplementedException();
+			var dataContext = new DataUnit<TData>.UnitContext(unit);
+			DataContext = dataContext;
 		}
 
-		public void SetContext(object data)
+		void IBotUnit<TData>.SetContext<TDataUnit>(TDataUnit data)
 		{
-			throw new NotImplementedException();
-		}
-
-		public void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken
-		{
-			throw new NotImplementedException();
+			DataContext = new DataUnit<TData>.UnitContext(data as TData);
 		}
 	}
 }

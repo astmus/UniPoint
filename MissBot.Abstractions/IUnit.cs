@@ -9,13 +9,12 @@ namespace MissBot.Abstractions
 	{
 		[JsonIgnore]
 		TData UnitData { get; }
-		void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken;
+		void SetDataContext<TRoot>(TRoot data) where TRoot : JToken;
 	}
 
 	public interface IUnit : IIdentibleUnit, IUnitEntity, IEnumerable
 	{
 		[JsonIgnore]
 		IEnumerator UnitEntities { get; }
-		void SetContext(object data);
 	}
 }

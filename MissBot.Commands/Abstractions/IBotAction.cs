@@ -2,13 +2,12 @@ using MissBot.Identity;
 
 namespace MissBot.Entities.Abstractions
 {
-	public interface IBotAction : IBotEntity
+	public interface IBotAction : IUnitEntity
 	{
 		string Action { get; }
-		string Unit { get; }
 	}
 
-	public interface IBotAction<out TUnit> : IBotAction, IIdentibleUnit, ITemplatedUnit
+	public interface IBotAction<in TUnit> : IBotAction, IIdentibleUnit, ITemplatedUnit
 	{
 		Id Id { get; set; }
 	}

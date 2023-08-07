@@ -21,6 +21,8 @@ namespace MissBot.Abstractions
 		{
 			public abstract void ConfigureConnection(IBotConnectionOptionsBuilder connectionBuilder);
 			public abstract void ConfigureOptions(IBotOptionsBuilder botBuilder);
+			public abstract JsonSerializerSettings ConfigureDefaultSerializationSetting(JsonSerializerSettings defaultSettings);
+
 		}
 
 		public BaseBot(IBotContext botContext)

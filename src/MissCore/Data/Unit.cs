@@ -20,11 +20,11 @@ namespace MissCore.Data
 		//[Column("Unit")]
 		//public override string Unit { get; set; }
 
-		public override IEnumerator UnitEntities { get; }
-		[NotColumn]
-		public override object Identifier
-			=> Id<Unit>.Instance.Key;
-		//public static TMeta FromObject<TMeta>(object dataObject) where TMeta : class, IUnitContext
+		//public override IEnumerator UnitEntities { get; }
+		//[NotColumn]
+		//public override object Identifier
+		//	=> Id<Unit>.Instance.Key;
+		////public static TMeta FromObject<TMeta>(object dataObject) where TMeta : class, IUnitContext
 		//{
 		//    var meta = Activator.CreateInstance<TMeta>();
 		//    meta.
@@ -67,7 +67,7 @@ namespace MissCore.Data
 	//[JsonConverter(typeof(GenericUnitConverter<Unit>))]
 	public record Unit<TData> : Unit, IUnit<TData>, IDataUnit<TData> where TData : class
 	{
-		public static readonly string Key = Id<TData>.Instance.Key;
+		public static readonly string Key = Id<TData>.Instance.Value;
 		Lazy<TData> _lazyEntity;
 
 		//[Column("Unit")]
@@ -93,9 +93,9 @@ namespace MissCore.Data
 
 		public IEnumerable<IEnumerable<IUnitAction<TData>>> Actions { get; set; }
 
-		public override void SetContext(object data)
+		public virtual void SetContext(object data)
 		{
-			DataContext = Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
+			DataContext = new Unit<TData>.UnitContext(data);
 			_lazyEntity = new Lazy<TData>(() =>
 			{
 				return DataContext.GetUnitEntity<TData>();
@@ -105,7 +105,7 @@ namespace MissCore.Data
 		public static Unit<TData> Init<TUData>(TUData data) where TUData : class
 		{
 			var unit = Activator.CreateInstance<Unit<TData>>();
-			unit.SetContextRoot(JToken.FromObject(data));
+			unit.SetContext(JToken.FromObject(data));
 			return unit;
 		}
 
@@ -117,16 +117,21 @@ namespace MissCore.Data
 			return collection;
 		}
 
-		public static IMetaData ReadMetadata(TData data)
-			=> Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
-
-		public static IMetaData ReadMetadata<TUnit>(object data) where TUnit : class
-			=> data is JToken token ? MetaData.FromRootToken<MetaData<TUnit>>(token) : MetaData.FromObject<MetaData<TUnit>>(data);
-
-		public void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken
+		public void SetDataContext<TUnit>(TUnit unit) where TUnit : JToken
 		{
-			DataContext = Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
+			throw new NotImplementedException();
 		}
+
+		//public static IMetaData ReadMetadata(TData data)
+		//	=> Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
+
+		//public static IMetaData ReadMetadata<TUnit>(object data) where TUnit : class
+		//	=> data is JToken token ? MetaData.FromRootToken<MetaData<TUnit>>(token) : MetaData.FromObject<MetaData<TUnit>>(data);
+
+		//public void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken
+		//{
+		//	DataContext = Data.Unit.MetaData.FromObject<Unit<TData>.UnitContext>(data);
+		//}
 
 		internal class UnitContext : MetaData<TData>, /*IDataUnit<TData>,*/ IUnitContext
 		{
@@ -144,6 +149,9 @@ namespace MissCore.Data
 			{
 			}
 			public UnitContext(TData data) : base(data)
+			{
+			}
+			public UnitContext(object data) : base(data)
 			{
 			}
 
@@ -186,7 +194,7 @@ namespace MissCore.Data
 				Add(unit);
 			}
 
-			public override IEnumerable<TUnit> Enumarate<TUnit>()
+			public new IEnumerable<TUnit> Enumarate<TUnit>() where TUnit : class
 			{
 				foreach (var token in this)
 				{

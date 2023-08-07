@@ -13,31 +13,31 @@ using MissDataMaiden.Entities;
 namespace MissDataMaiden
 {
 
-    public class SearchDataBaseHandler : InlineQueryHandler<DataBase>
-    {
-        private readonly IBotContext botContext;
-        IJsonRepository repository;
+	public class SearchDataBaseHandler : InlineQueryHandler<DataBase>
+	{
+		private readonly IBotContext botContext;
+		IJsonRepository repository;
 
-        public SearchDataBaseHandler(IBotContext bot, IJsonRepository jsonRepository)
-        {
-            botContext = bot;
-            repository = jsonRepository;
-        }
+		public SearchDataBaseHandler(IBotContext bot, IJsonRepository jsonRepository)
+		{
+			botContext = bot;
+			repository = jsonRepository;
+		}
 
-        public async override Task LoadAsync(Paging pager, InlineResponse<DataBase> response, InlineQuery query, CancellationToken cancel = default)
-        {
-            var search = botContext.GetUnit<Search<DataBase>>() with { Query = query.Query, Pager = pager, };
+		public async override Task LoadAsync(Paging pager, InlineResponse<DataBase> response, InlineQuery query, CancellationToken cancel = default)
+		{
+			var search = botContext.GetUnit<Search<DataBase>>() with { Query = query.Query, Pager = pager, };
 
-            var result = await repository.HandleQueryAsync<DataBase>(search, cancel);
+			var result = await repository.HandleQueryAsync<DataBase>(search, cancel);
 
-            if (result is IContentUnit<DataBase> dbUnits)
-                foreach (var u in dbUnits.Content.Enumarate<InlineResultUnit<DataBase>>())
-                {
-                    botContext.UnitActions(u);
-                    response.WriteUnit(u);
-                }
+			if (result is IContentUnit<DataBase> dbUnits)
+				foreach (var u in dbUnits.EnumerateAs<InlineResultUnit<DataBase>>())
+				{
+					botContext.UnitActions(u);
+					response.WriteUnit(u);
+				}
 
-            await response.Commit(default);
-        }
-    }
+			await response.Commit(default);
+		}
+	}
 }

@@ -1,124 +1,89 @@
-   IF OBJECT_ID(N'tempdb..##BotUnits') IS NOT NULL
-    DROP TABLE ##BotUnits
-CREATE table ##BotUnits
-(
-    Unit      varchar(32),
-    Entity     varchar(32),
-    Format varchar(128) null,
-    Description varchar(256)  null,
-    Template     varchar(2048) null,
-    Parameters varchar(256) null,
-)
+   
+--INSERT INTO ##UnitParameters
+--VALUES ('Backup', '@path', 'DECLARE @path AS VARCHAR(256)=''{0}'';', 'Basic DBs information');
+--INSERT INTO ##UnitParameters
+--VALUES ('Backup', '@name', 'DECLARE @name AS VARCHAR(64)=''{0}'';', 'Basic DBs information');
 
-CREATE table ##UnitActions
-(
-    Unit      varchar(32),
-    Action     varchar(32),
-    Template varchar(2048) null,
-    Parameters varchar(256) null,    
-)
-
-CREATE table ##UnitParameters
-(       
-    Unit            varchar(32),
-    Name         varchar(64),
-    Format    varchar(256),
-    Value          varchar(1024),    
-)
-CREATE table ##SearchResults
-(       
-    Id            varchar(32) null,
-    Title         varchar(64) null,
-    Description    varchar(256) null,
-    Content          varchar(1024) null,
-    Entity              varchar(32),
-    Unit              varchar(32),
-)
-
-INSERT INTO ##SearchResults
-VALUES ('', '', '','','DataBase','DataBase');
-INSERT INTO ##UnitParameters
-VALUES ('Backup', '@path', 'DECLARE @path AS VARCHAR(256)=''{0}'';', 'Basic DBs information');
-INSERT INTO ##UnitParameters
-VALUES ('Backup', '@name', 'DECLARE @name AS VARCHAR(64)=''{0}'';', 'Basic DBs information');
 
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'Info', '/{0}', 'Basic DBs information',
-        'select CAST(Id as VARCHAR(15)) as Id, Name, Size, DaysAgo, Created as Description
-        from ##DataBase
-        where Title like '' %{2}%''
-        ORDER BY Title OFFSET {0} ROWS
-        FETCH NEXT {1} ROWS ONLY', null);
+VALUES ('BotCommand.Info','BotCommand', 'Info', '/{0}', 'Basic DBs information',
+				'SELECT CAST(Id as VARCHAR(15)) as Id, Name, Size, DaysAgo, Created as Description
+				FROM ##DataBase
+				WHERE Title like '' %{2}%''
+				ORDER BY Title OFFSET {0} ROWS
+				FETCH NEXT {1} ROWS ONLY', null);
+
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'List', '/{0}', 'List of data bases with info', '
-        SELECT D.database_id                                                    as Id,
-               D.name                                                                    as Name,
-               cast(D.create_date as varchar(17))                           as Created,
-               CAST(DATEDIFF(Day, D.create_date, GETDATE()) as INT)        as [DaysAgo],
-               CONVERT(decimal(10, 2), round(SUM(F.size * 8) / 1024.0, 1)) AS Size
-        FROM sys.master_files F
-                 INNER JOIN sys.databases D ON D.database_id = F.database_id
-        WHERE D.name NOT IN ("model", "tempdb", "msdb", "master")
-        GROUP BY create_date, D.name, d.database_id
-        ', null);
+VALUES ('BotCommand.List','BotCommand', 'List', '/{0}', 'List of data bases with info', '
+				SELECT D.database_id                                                    as Id,
+				D.name                                                                    as Name,
+				cast(D.create_date as varchar(17))                           as Created,
+				CAST(DATEDIFF(Day, D.create_date, GETDATE()) as INT)        as [DaysAgo],
+				CONVERT(decimal(10, 2), round(SUM(F.size * 8) / 1024.0, 1)) AS Size
+				FROM sys.master_files F
+                INNER JOIN sys.databases D ON D.database_id = F.database_id
+				WHERE D.name NOT IN ("model", "tempdb", "msdb", "master")
+				GROUP BY create_date, D.name, d.database_id', null);
+
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'Disk', '/{0}', 'Disk space information',
-        'SELECT DISTINCT dovs.logical_volume_name                                                                                                       AS Name,
-                        dovs.volume_mount_point                                                                                                                     AS Drive,
+VALUES ('BotCommand.Disk','BotCommand', 'Disk', '/{0}', 'Disk space information',
+						'SELECT DISTINCT dovs.logical_volume_name                                                                                     AS [Na me],
+                        dovs.volume_mount_point                                                                                                                     AS [Dri ve],
                         CONVERT(NUMERIC(10, 1), ROUND(dovs.available_bytes / 1073741824.0, 1))                                     AS Free,
                         CONVERT(NUMERIC(10, 1), Round((dovs.total_bytes - dovs.available_bytes) / 1073741824.0, 1))        AS Used,
                         CONVERT(NUMERIC(10, 1), round(dovs.total_bytes / 1073741824.0, 1))                                               AS Total,
-                        CONVERT(varchar, (CONVERT(NUMERIC(5, 1), 100.0 - ((dovs.available_bytes / CAST(dovs.total_bytes as real) * 100))))) + '' % '' as Perc
-        FROM sys.master_files mf
-                 CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs', null);
+                        CONVERT(varchar, (CONVERT(NUMERIC(5, 1), 100.0 - ((dovs.available_bytes / CAST(dovs.total_bytes as real) * 100)))))  as Perc
+						FROM sys.master_files mf
+						CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs', null);
+
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'Test', '/{0}', 'test Command', null,null);
+VALUES ('BotCommand.Test','BotCommand', 'Test', '/{0}', 'test Command', null,null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'Raw', '/{0}', 'raw request format [/raw] /[request]', null,null);
+VALUES ('BotCommand.Raw','BotCommand', 'Raw', '/{0}', 'raw request format [/raw] /[request]', null,null);
 INSERT INTO ##BotUnits
-VALUES ('BotCommand', 'Add', '/{0}', 'add custom request', null,null);
+VALUES ('BotCommand.Add','BotCommand', 'Add', '/{0}', 'add custom request', null,null);
 INSERT INTO ##BotUnits
-VALUES ('BotUnit', 'Paging', '' , '','OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY',null);
+VALUES ('BP','BotUnit', 'Paging', '' , '','OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY',null);
 INSERT INTO ##BotUnits
-VALUES ('Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
+VALUES ('BS','Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
 INSERT INTO ##BotUnits
-VALUES ('BotUnit', 'DataBase', '' , '','SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''DataBase''',null);
+VALUES ('BD','BotUnit', 'DataBase', '' , '','SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''DataBase''',null);
 INSERT INTO ##BotUnits
-VALUES ('BotUnit', 'ReadUnit', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'' and Unit = ''BotUnit'')                                            
+VALUES ('BR','BotUnit', 'ReadUnit', '' ,  '','WITH u as (SELECT Units.* FROM ##BotUnits Units WHERE Entity = ''{0}'' and Unit = ''BotUnit'')                                            
                                             SELECT u.Unit as ''Entity'', Actions.* FROM u                                            
-                                            Inner join ##UnitActions Actions
+                                            Inner join ##BotActions Actions
                                             ON Actions.Unit = U.eNTITY order by Actions.Action', null);
 INSERT INTO ##BotUnits
-VALUES ('BotUnit', 'GenericUnit', 'WITH {0} as ({1}) for json auto, root(''{0}'')' ,  '','', null);
+VALUES ('BG','BotUnit', 'GenericUnit', 'WITH {0} as ({1}) for json auto, root(''{0}'')' ,  '','', null);
 INSERT INTO ##BotUnits
-VALUES ('DataBaseInfo', '', '', '' , 'SELECT TOP(1) * FROM ##DataBase Where Id = {0}', 'Id');
-                                                                                                                                             
-INSERT INTO ##UnitActions
-VALUES ('DataBase', 'Delete', 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
-INSERT INTO ##UnitActions
-VALUES ('DataBase', 'Info', 'SELECT * FROM ##Info where Id = @Id', 'Id');
-INSERT INTO ##UnitActions
-VALUES ('DataBase', 'Restore', 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
-INSERT INTO ##UnitActions
-VALUES ('DataBase', 'Backup', 'DECLARE @fileName as VARCHAR(1024) = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
+VALUES ('D','BotRepository', 'DataBase', '', 'Id' , 'SELECT ''DataBase.''+CAST(D.database_id as VARCHAR(15)) as Identifier ,''DataBase'' as Unit , D.database_id as Id,
+																				D.name as Name,
+																				GETDATE()+ (RAND()*100) as Created,
+																				CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo],
+																				ROUND(RAND()*100,2) AS Size
+																				FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id 
+                                                                                WHERE D.name 
+                                                                                NOT IN (''model'',''tempdb'',''msdb'',''master'')
+																				GROUP BY create_date, D.name, d.database_id', 'Id');
 
+INSERT INTO ##BotUnits
+VALUES ('Q','QueryUnit', 'DataBase', '', 'Id' , 'SELECT * FROM ##DataBase', 'Id');
+                                                                                                                                   
+INSERT INTO ##BotActions
+VALUES ('DataBase.Delete','DataBase', 'Delete', 'SELECT * FROM ##DataBase where Id = @Id', 'Id;Name');
+INSERT INTO ##BotActions
+VALUES ('DataBase.Info','DataBase', 'Info', 'SELECT * FROM ##Info where Id = @Id', 'Id');
+INSERT INTO ##BotActions
+VALUES ('DataBase.Restore','DataBase', 'Restore', 'SELECT * FROM ##DataBase where Id = @Id', 'Id');
+INSERT INTO ##BotActions
+VALUES ('DataBase.Backup','DataBase', 'Backup', 'DECLARE @fileName as VARCHAR(1024) = @path + @name + ''_'' + REPLACE(CONVERT(NVARCHAR(20),GETDATE(),108),'':'','''') + ''.BAK'';BACKUP DATABASE @name TO DISK = @filename ', 'path;name');
 
 IF OBJECT_ID(N'tempdb..##DataBase') IS NOT NULL
     DROP TABLE ##DataBase
 
 SELECT *
 INTO ##DataBase
-FROM (SELECT 'DataBase' as Unit , D.database_id as Id,
-			D.name as Name,
-			GETDATE()+ (RAND()*100) as Created,
-			CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo],
-			ROUND(RAND()*100,2) AS Size
-			FROM  sys.master_files F INNER JOIN sys.databases D ON D.database_id = F.database_id WHERE D.name NOT IN ('model','tempdb','msdb','master')
-			GROUP BY create_date, D.name, d.database_id) dbs
-
-SELECT *
-INTO ##DataBaseEx
-FROM (SELECT 'DataBase' as Unit , D.database_id as Id,
+FROM (SELECT 'DataBase.'+CAST(D.database_id as VARCHAR(15)) as Identifier, 'DataBase' as Unit , D.database_id as Id,
 			D.name as Name,
 			GETDATE()+ (RAND()*100) as Created,
 			CAST(DATEDIFF(Day, D.create_date,GETDATE()) as INT) as [DaysAgo],
@@ -132,18 +97,17 @@ MERGE ##DataBase AS T
 USING [DataBases]	AS S
 ON S.Id = T.Id
 WHEN NOT MATCHED BY Target THEN
-    INSERT (Unit,Id,Name, Created, Size, DaysAgo) 
-    VALUES ('DataBase',S.Id,S.Title, GETDATE()+ (RAND()*100), ROUND(RAND()*100,2),ROUND(RAND()*100,0));
+    INSERT (Identifier, Unit,Id,Name, Created, Size, DaysAgo) 
+    VALUES ('DataBase.'+CAST(Id as VARCHAR(15)), 'DataBase',S.Id,S.Title, GETDATE()+ (RAND()*100), ROUND(RAND()*100,2),ROUND(RAND()*100,0));
      
 
 IF OBJECT_ID(N'tempdb..##Info') IS NOT NULL
     DROP TABLE ##Info
 
-SELECT DISTINCT  d.Id, Info.* 
+SELECT DISTINCT  d.Identifier, Info.* 
 INTO ##Info
 FROM(
---SELECT CAST(database_id as VARCHAR(15)) as Id,
-SELECT  DISTINCT   TOP(100)
+SELECT --d.Id,
 'DataBase' as Unit,
 CONVERT(VARCHAR(25), DB.name) AS DBName,
 CONVERT(VARCHAR(10), DATABASEPROPERTYEX(name, 'status')) AS [Status],

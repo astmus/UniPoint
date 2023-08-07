@@ -16,6 +16,7 @@ namespace MissBot.Abstractions
 		IHandleContext SetNextHandler(AsyncHandler data);
 		Task GetNextHandler(AsyncHandler defHandler = default);
 		T GetBotService<T>() where T : class;
+		IResponse<T> Response<T>() where T : class;
 	}
 
 	public interface IUpdate<TUpdate> : IUpdateInfo
@@ -27,7 +28,6 @@ namespace MissBot.Abstractions
 	{
 		string StringContent { get; }
 		Message CurrentMessage { get; }
-		Chat Chat { get; }
 		bool IsCommand { get; }
 	}
 

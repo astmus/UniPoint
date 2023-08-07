@@ -1,29 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
-    <PropertyGroup>
-        <TargetFrameworks>net7.0</TargetFrameworks>
-        <Nullable>annotations</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>dotnet-BotService-42a88c58-d5e0-4a19-abe0-e4630180fb97</UserSecretsId>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <DockerfileContext>..\..</DockerfileContext>
-        <OutputType>Library</OutputType>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net7.0</TargetFrameworks>
+		<Nullable>annotations</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>dotnet-BotService-42a88c58-d5e0-4a19-abe0-e4630180fb97</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
+		<OutputType>Library</OutputType>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AsyncAwaitBestPractices" Version="6.0.6" />
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="7.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AsyncAwaitBestPractices" Version="6.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="7.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
-        <ProjectReference Include="..\..\MissBot.Commands\MissBot.Entities.csproj" />
-        <ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.csproj" />
-        <ProjectReference Include="..\MissBot.DataAccess\MissBot.DataAccess.csproj" />
-        <ProjectReference Include="..\MissCore\MissCore.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\MissBot.Abstractions\MissBot.Abstractions.csproj" />
+		<ProjectReference Include="..\..\MissBot.Commands\MissBot.Entities.csproj" />
+		<ProjectReference Include="..\..\MissBot.Extensions.Entities\MissBot.Extensions.csproj" />
+		<ProjectReference Include="..\MissBot.DataAccess\MissBot.DataAccess.csproj" />
+		<ProjectReference Include="..\MissCore\MissCore.csproj" />
+	</ItemGroup>
 </Project>

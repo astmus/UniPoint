@@ -1,16 +1,19 @@
 using System.Text.Json.Nodes;
+
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Utils;
 using MissBot.Identity;
+
 using MissCore.Data;
 using MissCore.Data.Collections;
+
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Bot
 {
 	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-	public record ContentUnit<TData> : Unit, IContentUnit<TData>, IUnitContainable<TData> where TData : class
+	public record ContentUnit<TData> : DataUnit<TData>, IContentUnit<TData>, IUnitContainable<TData> where TData : class
 	{
 		[JsonProperty(nameof(Content))]
 		Union<TData> _content;
@@ -24,7 +27,7 @@ namespace MissCore.Bot
 		}
 
 		public override string Unit
-			=> Id<TData>.Instance.Key;
+			=> Id<TData>.Instance.Value;
 
 		[JsonIgnore]
 		public IUnitCollection<TData> Content
@@ -38,6 +41,11 @@ namespace MissCore.Bot
 			content.Add(unit);
 		}
 
+		public IEnumerable<TUnit> EnumerateAs<TUnit>() where TUnit : class
+		{
+			return Content.Enumarate<TUnit>();
+		}
+
 		public MetaType ContentType => _content switch
 		{
 			null => MetaType.Null,
@@ -45,12 +53,10 @@ namespace MissCore.Bot
 			_ => MetaType.Union
 		};
 
-		IMetaCollection IContentUnit.Content { get; }
-
-		public record Empty : Unit<TData>
+		public record Empty : DataUnit<TData>
 		{
 			public override string Unit
-				=> Unit<TData>.Key;
+				=> DataUnit<TData>.Key;
 		}
 	}
 }

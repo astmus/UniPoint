@@ -1,4 +1,5 @@
 using MissBot.Abstractions;
+
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Collections
@@ -49,27 +50,27 @@ namespace MissCore.Data.Collections
 		{
 		}
 
-		public string ItemName
+		public new string Name
 			=> this switch
 			{
 				{ Parent: { } } _this when _this.Parent is JProperty property => property.Name,
-				_ => Name
+				_ => base.Name
 			};
 
-		public object ItemValue
-			=> Value switch
+		public new object Value
+			=> base.Value switch
 			{
 				JValue value => value.Value,
 				JProperty prop => prop.Value,
 				JArray array => null,
-				_ => throw new Exception($"value is no J is {Value}")
+				_ => throw new Exception($"value is no J is {base.Value}")
 			};
 
 		public override string ToString()
 			=> Serialize();
 
 		public virtual string Serialize()
-			=> $"{ItemName}: {ItemValue}";
+			=> $"{Name}: {Value}";
 	}
 
 	//public readonly record struct UnitItem23(JProperty token) : IUnitItem

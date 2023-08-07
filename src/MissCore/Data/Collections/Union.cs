@@ -7,19 +7,19 @@ using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Collections
 {
-    [JsonArray]
-    public class Union<TUnit> : Unit<TUnit>.UnitCollection, IMetaCollection where TUnit : class
-    {
-        public Union(IEnumerable<IUnit<TUnit>> items) : base(items)
-        {
-        }
+	[JsonArray]
+	public class Union<TUnit> : DataUnit<TUnit>.UnitCollection where TUnit : class
+	{
+		public Union(IEnumerable<IUnit<TUnit>> items) : base(items)
+		{
+		}
 
-        public Union(IEnumerable<JToken> items) : base(items)
-        {
-        }
+		public Union(IEnumerable<JToken> items) : base(items)
+		{
+		}
 
-        public Union(JArray items) : base(items)
-        {
-        }
-    }
+		public Union(JArray items) : base(items)
+		{
+		}
+	}
 }

@@ -11,4 +11,8 @@ namespace MissBot.Entities.Abstractions
 		string Unit
 			=> nameof(IUnitEntity);
 	}
+	public interface IValueUnit : IUnitEntity
+	{
+		object Value { get; }
+	}
 }

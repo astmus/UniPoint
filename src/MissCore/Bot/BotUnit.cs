@@ -1,3 +1,4 @@
+using System.Collections;
 using LinqToDB.Mapping;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Bot;
@@ -11,23 +12,27 @@ namespace MissCore.Bot;
 [Table("##BotUnits")]
 public record BotUnit : BaseBotUnit, IBotUnit
 {
+	[Column("Id"), PrimaryKey, NotNull]
+	public override object Identifier => base.Identifier;
+
 	[Column]
 	public override string Unit { get; set; }
 
 	[Column]
 	public override string Entity { get; set; }
 
-	[Column]
-	public virtual string Template { get; set; }
 
 	[Column]
-	public string Description { get; set; }
+	public override string Format { get; set; }
+	[Column]
+	public override string Description { get; set; }
 
 	[Column]
-	public virtual string Format { get; set; }
+	public override string Template { get; set; }
 
 	[Column]
-	public virtual string Parameters { get; set; } = string.Empty;
+	public override string Parameters { get; set; } = string.Empty;
+	public override IEnumerator UnitEntities { get; }
 
 	public override string ToString()
 		=> Format;

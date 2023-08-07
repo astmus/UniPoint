@@ -5,12 +5,12 @@ using MissCore.Bot;
 namespace MissCore.Data
 {
     [Table("##BotUnits")]
-    public record ExceptionUnit : Unit<Exception>
+    public record ExceptionUnit : DataUnit<Exception>
     {
         [Column("Unit")]
         public override string Unit { get; set; }
 
         [Column("Entity")]
-        public override string EntityKey { get; set; }
+        public override string Entity { get; set; }
     }
 }

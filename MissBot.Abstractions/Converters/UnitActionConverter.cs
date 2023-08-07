@@ -10,16 +10,7 @@ namespace MissBot.Abstractions.Converters
 	public class UnitActionsConverter : JsonConverter<IEnumerable<IEnumerable<IUnitAction>>> //where TAction : IEnumerable<IEnumerable<IUnitAction<TAction>>>
 	{
 		private readonly IServiceProvider sp;
-		//static UnitActionsConverter()
-		//    => JsonConvert.DefaultSettings = () =>
-		//    {
-		//        return new JsonSerializerSettings()
-		//        {
-		//            NullValueHandling = NullValueHandling.Ignore,
-		//            DefaultValueHandling = DefaultValueHandling.Ignore,
-		//            MissingMemberHandling = MissingMemberHandling.Ignore
-		//        };
-		//    };
+
 
 		string _chapter;
 		public UnitActionsConverter(string chapter)

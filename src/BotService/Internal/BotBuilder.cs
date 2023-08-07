@@ -17,6 +17,9 @@ using MissCore.Handlers;
 using MissCore.Presentation.Convert;
 using MissCore.Response;
 using MissBot.Identity;
+using System.Diagnostics;
+using LinqToDB;
+using MissCore.Storage;
 
 namespace BotService.Internal
 {
@@ -132,7 +135,8 @@ namespace BotService.Internal
 
 			return WithBot(services => services.AddScoped<THandler>());
 		}
-		public IBotBuilder<TBot> AddRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository
+
+		public IBotBuilder<TBot> AddGenericRepository<TRepository, TImplementatipon>() where TRepository : class, IRepository where TImplementatipon : class, TRepository, IRepository
 			=> WithBot(services => services.AddScoped<TRepository, TImplementatipon>());
 
 
@@ -157,6 +161,23 @@ namespace BotService.Internal
 				});
 			return this;
 		}
+
+		public IBotBuilder<TBot> AddUnit<TUnit, TUnitActionHandler>() where TUnit : BaseUnit where TUnitActionHandler : class, IAsyncUnitActionHanlder<TUnit>
+		{
+			return WithBot(services =>
+			{
+				Debug.WriteLine(Id<TUnit>.UnderlineType.FullName);
+				services.AddScoped<IAsyncUnitActionHanlder<TUnit>, TUnitActionHandler>();
+			});
+		}
+
+		public IBotBuilder<TBot> AddRepository<TUnit, TImplementatipon>() where TUnit : class where TImplementatipon : class, IRepository<TUnit>
+			=> WithBot(services
+				=>
+			{
+				services.AddScoped<IRepository<TUnit>, TImplementatipon>();
+				//services.AddOptions<DataOptions<UserDataContext>>().Configure(opt => opt.
+			});
 	}
 
 	internal abstract class BotBuilder : IBotBuilder

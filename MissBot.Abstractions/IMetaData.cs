@@ -23,7 +23,12 @@ namespace MissBot.Abstractions
 		//void SetContext<TUnitData>(TUnitData data) where TUnitData : JToken;
 	}
 
-	public interface IDataUnit<out TUnit>
+	public interface IDataUnit : IIdentibleUnit
+	{
+		void SetDataContext<TUnit>(TUnit unit) where TUnit : JToken;
+	}
+
+	public interface IDataUnit<out TUnit> : IDataUnit
 	{
 		TUnit UnitData { get; }
 
@@ -50,11 +55,11 @@ namespace MissBot.Abstractions
 
 	public interface IUnitItem<TName, TValue>
 	{
-		TName ItemName { get; }
-		TValue ItemValue { get; }
+		TName Name { get; }
+		TValue Value { get; }
 	}
 
-	public interface IUnitItem : IUnitItem<string, object>, ISerializableUnit
+	public interface IUnitItem : IUnitItem<string, object>
 	{
 
 	}

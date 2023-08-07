@@ -14,88 +14,95 @@ namespace MissCore.Response
 {
 
 	[JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public record Response<TUnit>(IHandleContext Context = default) : BaseResponse<TUnit>(Context) where TUnit : class
-    {
-        Message Message
-            => Context.Take<Message>();
+	public record Response<TUnit>(IHandleContext Context = default) : BaseResponse<TUnit>(Context) where TUnit : class
+	{
+		Message Message
+			=> Context.Take<Message>();
 
-        Func<JsonConverter> ConverterDelegate = Context.GetBotService<UnitSerializeConverter<TUnit>>;
-        public Message<TUnit> CurrentMessage { get; protected set; }
+		Func<JsonConverter> ConverterDelegate = Context.GetBotService<UnitSerializeConverter<TUnit>>;
+		public Message CurrentMessage { get; protected set; }
 
-        public override int Length
-            => Content?.ToString().Length ?? 0;
-        protected override JsonConverter CustomConverter
-            => ConverterDelegate();
+		public override int Length
+			=> Content?.ToString().Length ?? 0;
 
-        public override async Task Commit(CancellationToken cancel)
-        {
-            if (Content == null) return;
+		protected override JsonConverter CustomConverter
+			=> ConverterDelegate();
 
-            if (Content is IInteractableUnit<TUnit> unit)
-            {
-                Actions = unit.Actions;
-                unit.Actions = null;
-            }
-            CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
-            Content = default;
-        }
+		public override async Task Commit(CancellationToken cancel)
+		{
+			if (Content == null) return;
 
-        public override IUnitEntity Content { get; protected set; }
+			if (Content is IInteractableUnit<TUnit> unit)
+			{
+				Actions = unit.Actions;
+				unit.Actions = null;
+			}
+			CurrentMessage = await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
+			Content = default;
+		}
 
-        public override IResponse<TUnit> InputDataInteraction(string description, IActionsSet options = null)
-        {
-            ActionsSet = options;
-            return this;
-        }
+		public override IUnitEntity Content { get; protected set; }
 
-        public override IResponse CompleteInteraction(object completeObject)
-        {
-            Content = Unit<TUnit>.Init(completeObject);
-            if (Actions is IChatActionsSet set)
-                ActionsSet = set.RemoveKeyboard();
+		public override IResponse<TUnit> InputDataInteraction(string description, IActionsSet options = null)
+		{
+			ActionsSet = options;
+			return this;
+		}
 
-            return this;
-        }
+		public override IResponse CompleteInteraction(object completeObject)
+		{
+			Content = DataUnit<TUnit>.Init(completeObject);
+			if (Actions is IChatActionsSet set)
+				ActionsSet = set.RemoveKeyboard();
 
-        IUnitCollection<TUnit> contentUnits;
-        public override void InitializeCombinedContent()
-        {
-            ConverterDelegate = Context.GetBotService<CombinedUnitSerializeConverter<TUnit>>;
-            Content = contentUnits = Context.BotServices.Activate<Unit<TUnit>.UnitCollection>();
-        }
+			return this;
+		}
 
-        public override void WriteUnit<TData>(TData unit)
-        {
-            ConverterDelegate = Context.GetBotService<UnitSerializeConverter<TUnit>>;
-            Content = unit;
-        }
+		IUnitCollection<TUnit> contentUnits;
+		public override void InitializeCombinedContent()
+		{
+			ConverterDelegate = Context.GetBotService<CombinedUnitSerializeConverter<TUnit>>;
+			Content = contentUnits = Context.BotServices.Activate<DataUnit<TUnit>.UnitCollection>();
+		}
 
-
-        public override IResponse Write(object data)
-        {
-            Content = Unit<TUnit>.Init(data);
-            return this;
-        }
+		public override void WriteUnit<TData>(TData unit)
+		{
+			ConverterDelegate = Context.GetBotService<UnitSerializeConverter<TUnit>>;
+			Content = unit;
+		}
 
 
-        public override void AddUnit<TData>(IUnit<TData> unit)
-        {
-            contentUnits.Add(unit);
-        }
+		public override IResponse Write<TData>(TData data)
+		{
+			Content = new ValueUnit(data);
+			return this;
+		}
 
-        public override void WriteMetadata<TData>(TData meta)
-        {
-            throw new NotImplementedException();
-        }
 
-        public override void AddUnits<TData>(IEnumerable<TData> units)
-        {
-            throw new NotImplementedException();
-        }
+		public override void AddUnit<TData>(IUnit<TData> unit)
+		{
+			InitializeCombinedContent();
+			contentUnits.Add(unit);
+		}
 
-        //public override void Add<TUnit>(TUnit unit) where TUnit: T
-        //    => contentUnit.Add(unit);
-    }
+		public override void WriteMetadata<TData>(TData meta)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void AddUnits<TData>(IEnumerable<TData> units)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override IResponse Write(IUnitItem data)
+		{
+			throw new NotImplementedException();
+		}
+
+		//public override void Add<TUnit>(TUnit unit) where TUnit: T
+		//    => contentUnit.Add(unit);
+	}
 }
 
 

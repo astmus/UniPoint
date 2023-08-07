@@ -26,7 +26,7 @@ namespace MissCore.Data.Context
 
 		public T Get<T>(T defaultValue = default, Id identifier = default)
 		{
-			string id = identifier?.Key ?? Id<T>.Instance.Key;
+			string id = identifier?.Value ?? Id<T>.Instance.Value;
 			var result = default(T);
 			if (TryGetValue(id, out var o) && o is T val)
 				return val;
@@ -55,7 +55,7 @@ namespace MissCore.Data.Context
 					(k, o, w) => this[k] = w, value);
 
 		public T Take<T>(Id<T> identifier)
-			=> Take<T>(identifier.Key);
+			=> Take<T>(identifier.Value);
 	}
 
 }

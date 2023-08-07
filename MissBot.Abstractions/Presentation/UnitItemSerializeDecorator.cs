@@ -18,8 +18,8 @@ namespace MissBot.Abstractions.Presentation
 	{
 		protected IUnitItem component { get; set; }
 
-		public abstract string ItemName { get; }
-		public abstract object ItemValue { get; }
+		public abstract string Name { get; }
+		public abstract object Value { get; }
 
 		public IUnitItem SetComponent(IUnitItem item)
 		{

@@ -6,7 +6,6 @@ namespace MissCore.Actions;
 
 
 [JsonObject(MemberSerialization.OptIn, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-[Table("##BotUnits")]
 public record ChatAction : BaseAction
 {
 	[JsonProperty("text", Required = Required.Always)]

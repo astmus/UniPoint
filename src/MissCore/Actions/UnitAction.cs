@@ -6,6 +6,8 @@ using MissBot.Abstractions;
 using MissBot.Abstractions.Bot;
 using MissBot.Entities.Abstractions;
 using MissBot.Identity;
+using MissCore.Bot;
+using MissCore.Data;
 
 namespace MissCore.Actions;
 
@@ -22,16 +24,20 @@ public record UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> //where TEn
 	{
 	}
 
-	public virtual UnitAction<TEntity> SetUnitContext(IIdentibleUnit unit)
+	public virtual UnitAction<TEntity> WithUnitContextId(IIdentibleUnit unit)
 	{
-		UnitContext = unit;
+		Identifier = CallbackData = $"{Unit}.{Action}.{unit.Identifier}";
 		return this;
+	}
+
+	IMetaData Meta;
+	public void SetUnitContext<TCUnit>(TCUnit unit) where TCUnit : class, TEntity
+	{
+		Meta = Data.Unit.MetaData.FromObject<MetaData<TCUnit>>(unit);
 	}
 
 	[JsonProperty("text")]
 	public override string Action { get; set; }
-
-	public override string Entity => base.Entity;
 
 	public virtual string Format { get; set; }
 }
@@ -39,12 +45,12 @@ public record UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> //where TEn
 [JsonObject(MemberSerialization.OptOut, NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 //[Table("##UnitActions")]
 //[Column(nameof(Unit), nameof(Action))]
-public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISerializable
+public record UnitAction : BotAction, IUnitAction, IParameterizedUnit, ISerializable
 {
 	//[Column]
-	public override string Action { get; set; }
+	//public override string Action { get; set; }
 
-	public override string Entity => base.Entity;
+	//public override string Entity => base.Entity;
 
 	//[Column("Unit", IsDiscriminator = true)]
 	//[Column]
@@ -53,16 +59,10 @@ public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISeriali
 
 	//[Column]
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-	public string Template { get; set; }
+	public override string Template { get; set; }
 
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string? Url { get; set; }
-
-	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-	//public WebAppInfo? WebApp { get; set; }
-
-	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-	//public LoginUrl? LoginUrl { get; set; }
 
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string? SwitchInlineQuery { get; set; }
@@ -73,15 +73,8 @@ public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISeriali
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public SwitchInlineQueryChosenChat? SwitchInlineQueryChosenChat { get; set; }
 
-	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-	//public CallbackGame? CallbackGame { get; set; }
-
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public bool? Pay { get; set; }
-
-	//[Column]
-	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-	public string Parameters { get; }
 
 	[JsonIgnore]
 	public virtual IIdentibleUnit UnitContext { get => _unit; set { _unit = value; CallbackData = Identifier.ToString(); } }
@@ -90,8 +83,8 @@ public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISeriali
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string CallbackData { get; set; }
 
-	public override object Identifier
-		=> base.Identifier + $".{UnitContext.Identifier}";
+	public override object Identifier { get; set; }
+	//=> $"{Unit}.{Action}.{UnitContext.Identifier}";
 
 	[JsonConstructor]
 	public UnitAction(string text) : this()
@@ -103,6 +96,18 @@ public record UnitAction : BaseAction, IUnitAction, IParameterizedUnit, ISeriali
 	}
 	//public static UnitAction WithUrl(string text, string url) =>
 	//    new(text) { Url = url };
+	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+	//public WebAppInfo? WebApp { get; set; }
+
+	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+	//public LoginUrl? LoginUrl { get; set; }
+
+	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+	//public CallbackGame? CallbackGame { get; set; }
+	//[Column]
+	//[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+	//public override string Parameters { get; }
+
 
 	//public static InlineUnitAction WithLoginUrl(string text, LoginUrl loginUrl) =>
 	//    new(text) { LoginUrl = loginUrl };

@@ -12,7 +12,7 @@ namespace MissCore.Extensions
 		{
 			if (message.Contains("."))
 			{
-				var iterator = message.SplitCommandArguments('.').GetEnumerator();
+				var iterator = MissBot.Extensions.StringExtensions.SplitBy(message, '.').GetEnumerator();
 				var itemsCount = iterator.SlicesCount();
 				string[] items = new string[itemsCount];
 				byte index = 0;

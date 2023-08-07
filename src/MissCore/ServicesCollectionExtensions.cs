@@ -1,10 +1,14 @@
+using System.Reflection;
+using LinqToDB;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MissBot.Entities.Abstractions;
+
 using MissCore.Actions;
 using MissCore.Internal;
 using MissCore.Presentation.Convert;
 
-namespace BotService
+namespace MissCore
 {
 	public static class ServicesCollectionExtensions
 	{

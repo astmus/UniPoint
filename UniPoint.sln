@@ -153,6 +153,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{0145fd37-5652-4849-a3aa-b1ea62c0c50a}*SharedItemsImports = 5
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{51b33f67-77db-4ad2-9647-4d23e1a01711}*SharedItemsImports = 5
+		src\Shared\MissBot.Common\MissBot.Common.projitems*{dcd73bcc-322e-408e-b5dd-9f183434df74}*SharedItemsImports = 5
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{e9eb6953-a065-48b3-9c13-9726c181241b}*SharedItemsImports = 5
 		src\Shared\MissBot.Common\MissBot.Common.projitems*{f83dfa73-28bc-435a-8c02-7bbc31ceaa4e}*SharedItemsImports = 13
 	EndGlobalSection

@@ -10,27 +10,32 @@ using Newtonsoft.Json.Linq;
 
 namespace MissCore.Data.Entities
 {
-	public abstract record ResultUnit<T> : BaseUnit, IUnit<T>, IBotUnit<T> where T : class
+	public abstract record ResultUnit<T> : BaseUnit<T>, IUnit<T>, IBotUnit<T> where T : class
 	{
 		public override object Identifier
-			=> Id<T>.Instance.Key;
+			=> Id<T>.Instance.Value;
 		public virtual string Entity { get; set; }
-		public virtual string Title { get; set; } = Id<T>.Instance.Key;
+		public virtual string Title { get; set; } = Id<T>.Instance.Value;
 		public abstract string Description { get; set; }
 
-		public abstract IInlineContent Content { get; }
-
-		public MetaType ContentType
-			=> MetaType.Unit;
+		public abstract ResultContent Content { get; }
 
 		public T UnitData
 			=> DataContext?.GetUnitEntity<T>();
 
-		public abstract void SetContextRoot<TRoot>(TRoot data) where TRoot : JToken;
-		public abstract void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<T>;
-
 		public IUnitContext DataContext { get; set; }
 		public override IEnumerator UnitEntities
 			=> DataContext.UnitEntities;
+
+		public string Template { get; set; }
+		public string Format { get; set; }
+		public string Parameters { get; }
+
+		public abstract void SetDataContext<TRoot>(TRoot data) where TRoot : JToken;
+
+		void IBotUnit<T>.SetContext<TDataUnit>(TDataUnit data)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

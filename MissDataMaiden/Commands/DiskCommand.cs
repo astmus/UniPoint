@@ -11,44 +11,48 @@ using MissCore.DataAccess;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using MissBot.Identity;
 
 namespace MissDataMaiden.Commands
 {
-    [JsonObject]
-    public record Disk : BotUnitCommand
-    {
-    }
+	[JsonObject]
+	public record Disk : BotUnitCommand
+	{
+	}
 
 
-    public record DiskCommand : BotCommand<Disk>
-    {
-    }
+	public record DiskCommand : BotCommand<Disk>
+	{
+	}
 
-    public class DiskCommandHandler : BotCommandHandler<Disk>
-    {
-        private readonly IJsonRepository repository;
+	public class DiskCommandHandler : BotCommandHandler<Disk>
+	{
+		private readonly IJsonRepository repository;
 
-        public DiskCommandHandler(IJsonRepository repository)
-        {
-            this.repository = repository;
-        }
+		public DiskCommandHandler(IJsonRepository repository)
+		{
+			this.repository = repository;
+		}
 
-        public async override Task HandleCommandAsync(Disk command, CancellationToken cancel = default)
-        {
-            var response = Context.BotServices.Response<Disk>();
-
-            IUnitRequest request = Context.Bot.CreateUnitRequest(command);
+		public async override Task HandleCommandAsync(Disk command, CancellationToken cancel = default)
+		{
+			//var response = Context.Response<Disk>();
 
 
-            var metaCollection = await repository.HandleQueryJsonAsync<GenericUnit>(request);
-            var items = metaCollection.Enumarate<Unit<Disk>>();
-            ///response.Write(metaCollection.EnumarateUnits<Unit<Disk>>());
-            foreach (var item in items)
-            {
-                response.WriteUnit(item);
-            }
+			Response.SetCounter(Id<Disk>.Instance.Sequence());
 
-            await response.Commit(default);
-        }
-    }
+
+
+			var metaCollection = await repository.RawAsync<GenericUnit>(command.Template);
+
+			//var items = metaCollection;
+			//response.Write(metaCollection.Enumarate<DataUnit<Disk>>());
+			foreach (var item in metaCollection.Content)
+			{
+				Response.Write(item);
+			}
+
+			await Response.Commit(default);
+		}
+	}
 }

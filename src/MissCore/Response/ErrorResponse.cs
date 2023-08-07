@@ -17,9 +17,9 @@ namespace MissCore.Response
 		public IResponseError Write(Exception error)
 		{
 			HttpUtility.HtmlEncode(error.StackTrace);
-			var v = Context.BotServices.Activate<ExceptionUnit>();
-			v.SetContext(error);
-			Content = v.DataContext;
+			var v = DataUnit<Exception>.Init(error);
+
+			Content = v;
 			return this;
 		}
 	}

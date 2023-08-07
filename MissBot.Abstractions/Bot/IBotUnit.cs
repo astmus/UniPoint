@@ -50,7 +50,7 @@ namespace MissBot.Abstractions.Bot
 		string Description { get; set; }
 	}
 
-	public interface IBotUnit<TUnit> : IBotEntity, IUnitEntity, IDataUnit<TUnit> where TUnit : class
+	public interface IBotUnit<TUnit> : IBotUnit, IUnitEntity, IDataUnit<TUnit> where TUnit : class
 	{
 		void SetContext<TDataUnit>(TDataUnit data) where TDataUnit : class, IUnit<TUnit>;
 	}

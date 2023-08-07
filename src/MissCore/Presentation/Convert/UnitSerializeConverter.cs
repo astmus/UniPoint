@@ -1,6 +1,8 @@
 using System.Text;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Presentation;
+using MissBot.Identity;
+using MissCore.Bot;
 using MissCore.Data;
 using MissCore.Data.Collections;
 using MissCore.Internal;
@@ -32,7 +34,6 @@ namespace MissCore.Presentation.Convert
 			public void Append(IUnitItem item, int shift)
 			{
 				_parent.Decorator.SetComponent(item);
-				//Console.WriteLine($"{_parent.Decorator.Serialize()}\n{_spaces[..(shift * tab)]}");
 				sb.Append($"{_parent.Decorator.Serialize()}\n{Spaces(shift * tab)}");
 			}
 		}
@@ -44,7 +45,7 @@ namespace MissCore.Presentation.Convert
 			propertyFacede = new PropertyFacade();
 			var tabWriter = new TabWriter(this);
 			Decorator = new BoldNameUnitItemDecorator();
-
+			writer.WriteValue(Id<TUnit>.Instance.ToString());
 			if (value is IUnit unit)
 				foreach (var item in unit)
 					Serialize(ref tabWriter, item as JToken);
@@ -96,36 +97,4 @@ namespace MissCore.Presentation.Convert
 			throw new NotImplementedException();
 		}
 	}
-	//public class UnitConverter : JsonConverter<BaseUnit>
-	//{
-	//    public override BaseUnit? ReadJson(JsonReader reader, Type objectType, BaseUnit? existingValue, bool hasExistingValue, JsonSerializer serializer)
-	//    {
-	//        throw new NotImplementedException();
-	//    }
-
-	//    public override void WriteJson(JsonWriter writer, BaseUnit? value, JsonSerializer serializer)
-	//    {
-	//        throw new NotImplementedException();
-	//    }
-
-	//    UnitConverter<TUnit> GetConverter<TUnit>() where TUnit : BaseUnit
-	//        => new UnitConverter<TUnit>();
-	//}--
-	//{
-	//public class KnownTypesBinder : ISerializationBinder
-	//{
-	//    public IList<Type> KnownTypes
-	//    { get; init; } = Assembly.GetCallingAssembly().GetTypes().Where(w => w.IsAssignableTo(typeof(BaseUnit))).ToList();
-
-	//    public Type BindToType(string assemblyName, string typeName)
-	//    {
-	//        return KnownTypes.SingleOrDefault(t => t.Name == typeName);
-	//    }
-
-	//    public void BindToName(Type serializedType, out string assemblyName, out string typeName)
-	//    {
-	//        assemblyName = null;
-	//        typeName = serializedType.Name;
-	//    }
-	//}
 }

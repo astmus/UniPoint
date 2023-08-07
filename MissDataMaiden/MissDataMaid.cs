@@ -3,6 +3,8 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess;
 using MissBot.Entities.Enums;
 using MissCore.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden
 {
@@ -55,5 +57,19 @@ namespace MissDataMaiden
 					.SetToken(Environment.GetEnvironmentVariable("AliseBot", EnvironmentVariableTarget.User))
 					.SetTimeout(TimeSpan.FromMinutes(2))
 					.SetExceptionHandler(MissDataMaid.ErrorHandler);
+
+
+		public override JsonSerializerSettings ConfigureDefaultSerializationSetting(JsonSerializerSettings defaultSettings)
+			=>
+				new JsonSerializerSettings(defaultSettings)
+				{
+					NullValueHandling = NullValueHandling.Ignore,
+					//DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+					MissingMemberHandling = MissingMemberHandling.Ignore,
+					TraceWriter = new MemoryTraceWriter()
+				};
+
+
+
 	}
 }

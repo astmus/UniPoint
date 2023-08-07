@@ -1,7 +1,9 @@
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Bot;
-
+using MissCore.Data.Entities;
+using MissCore.Internal;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -34,9 +36,9 @@ namespace MissCore.Data.Collections
 		protected override void Init()
 		{
 			if (ChildrenTokens.FirstOrDefault() is JToken token)
-				MetaData = Unit<TData>.ReadMetadata<TData>(token);
+				MetaData = DataUnit<TData>.ReadMetadata<TData>(token);
 		}
-		public IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class, TData
+		public virtual IEnumerable<TEntity> EnumarateAs<TEntity>() where TEntity : class, TData
 		{
 			foreach (var token in this)
 			{
@@ -50,18 +52,37 @@ namespace MissCore.Data.Collections
 			foreach (var token in this)
 			{
 				var result = token.ToObject<TUnit>();
-				result.SetContext(token);
+				result.SetDataContext(token);
 				yield return result;
 			}
 		}
+		public override IEnumerable<IUnitItem> EnumarateUnitItems()
+		{
 
+			foreach (JObject obj in this)
+			{
+				foreach (JProperty prop in obj.Properties())
+				{
+					var u = PropertyFacade.Instance with { context = prop };
+					var result = obj.ToObject<TData>();
+					if (result is ResultUnit<TData> unit)
+					{
+						unit.DataContext = Data.Unit.MetaData.FromRootToken<DataUnit<TData>.UnitContext>(obj);
+					}
+					yield return u;
+				}
+			}
+
+		}
 		IEnumerator<TData> IEnumerable<TData>.GetEnumerator()
 		{
 			return SupplyTo<TData>().GetEnumerator();
 		}
 
-	}
 
+
+	}
+	[JsonDictionary]
 	public class MetaCollection : JArray, IMetaCollection, IList<JToken>
 	{
 		public readonly static MetaCollection Empty = new MetaCollection();
@@ -97,17 +118,27 @@ namespace MissCore.Data.Collections
 		}
 
 
-		public virtual IEnumerable<TUnit> Enumarate<TUnit>() where TUnit : class
+
+		public virtual IEnumerable<IUnitItem> EnumarateUnitItems()
+		{
+			throw new NotImplementedException();
+		}
+
+
+
+
+		public IEnumerable<TUnit> Enumarate<TUnit>() where TUnit : class
 		{
 			foreach (var token in this)
 			{
 				var result = token.ToObject<TUnit>();
 
 				if (result is IUnit<TUnit> unit)
-					unit.SetContextRoot(token);
+					unit.SetDataContext(token);
 
 				yield return result;
 			}
+			//}
 		}
 	}
 }

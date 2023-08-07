@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using MissBot.Abstractions.Actions;
 using MissBot.Entities.Abstractions;
@@ -11,6 +11,8 @@ public record UnitActions<TUnit>(
     //[JsonConverter(typeof(UnitActionsConverter))]
     IEnumerable<IEnumerable<IUnitAction<TUnit>>> Actions) : IUnitActions<TUnit>, IUnitActionsSet, IActionsSet where TUnit : class
 {
+	public bool? Selective { get; set; }
+
 	[return: NotNullIfNotNull(nameof(action))]
 	public static implicit operator UnitActions<TUnit>?(UnitAction? action)
 		=> action is null ? default : new(action);

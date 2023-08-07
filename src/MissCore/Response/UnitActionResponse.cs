@@ -1,3 +1,4 @@
+using System.Collections;
 using MissBot.Abstractions;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Bot;
@@ -6,7 +7,10 @@ using MissBot.Entities.Abstractions;
 
 using MissCore.Bot;
 using MissCore.Data;
+using MissCore.Data.Collections;
+using MissCore.Internal;
 using MissCore.Presentation.Convert;
+using Newtonsoft.Json.Linq;
 
 namespace MissCore.Response
 {
@@ -18,13 +22,13 @@ namespace MissCore.Response
 			=> Context.Take<Message>();
 
 		Func<JsonConverter> ConverterDelegate = Context.GetBotService<ActionSerializeConverter<BotAction<T>>>;
-		public Message<BotAction<T>> CurrentMessage { get; protected set; }
+		public Message CurrentMessage { get; protected set; }
 		public override int Length
 			=> Content?.ToString().Length ?? 0;
 		protected override JsonConverter CustomConverter
 			=> ConverterDelegate();
 
-		[JsonProperty("text")]
+
 		public override IUnitEntity Content { get; protected set; }
 
 		public override async Task Commit(CancellationToken cancel)
@@ -39,14 +43,14 @@ namespace MissCore.Response
 
 		public override IResponse<BotAction<T>> InputDataInteraction(string description, IActionsSet options = null)
 		{
-			Content = Unit<T>.Init(description);
+			Content = DataUnit<T>.Init(description);
 			ActionsSet = options;
 			return this;
 		}
 
 		public override IResponse CompleteInteraction(object completeObject)
 		{
-			Content = Unit<T>.Init(completeObject);
+			Content = DataUnit<T>.Init(completeObject);
 			if (Actions is IChatActionsSet set)
 				ActionsSet = set.RemoveKeyboard();
 
@@ -71,9 +75,9 @@ namespace MissCore.Response
 			throw new NotImplementedException();
 		}
 
-		public override IResponse Write(object data)
+		public override IResponse Write<TData>(TData data)
 		{
-			Content = Unit<T>.Init(data);
+			Content = DataUnit<T>.Init(data);
 			return this;
 		}
 
@@ -89,14 +93,20 @@ namespace MissCore.Response
 		{
 			throw new NotImplementedException();
 		}
+
+		public override IResponse Write(IUnitItem data)
+		{
+			throw new NotImplementedException();
+		}
 	}
+
 	public record BotCommandResponse<T>(IHandleContext Context = default) : BaseResponse<T>(Context), IInteraction<T> where T : BaseAction
 	{
 		Message Message
 			=> Context.Take<Message>();
 
 		Func<JsonConverter> ConverterDelegate = Context.GetBotService<ActionSerializeConverter<T>>;
-		public Message<T> CurrentMessage { get; protected set; }
+		public Message CurrentMessage { get; protected set; }
 		public override int Length
 			=> Content?.ToString().Length ?? 0;
 		protected override JsonConverter CustomConverter
@@ -116,14 +126,14 @@ namespace MissCore.Response
 
 		public override IResponse<T> InputDataInteraction(string description, IActionsSet options = null)
 		{
-			Content = Unit<T>.Init(description);
+			Content = DataUnit<T>.Init(description);
 			ActionsSet = options;
 			return this;
 		}
 
 		public override IResponse CompleteInteraction(object completeObject)
 		{
-			Content = Unit<T>.Init(completeObject);
+			Content = DataUnit<T>.Init(completeObject);
 			if (ActionsSet is IChatActionsSet set)
 				ActionsSet = set.RemoveKeyboard();
 
@@ -134,7 +144,7 @@ namespace MissCore.Response
 		public override void InitializeCombinedContent()
 		{
 			ConverterDelegate = Context.GetBotService<CombinedUnitSerializeConverter<T>>;
-			Content = contentUnit = Context.BotServices.Activate<ContentUnit<T>>();
+			Content ??= contentUnit ??= Context.BotServices.Activate<ContentUnit<T>>();
 		}
 
 		public override void WriteUnit<TData>(TData unit)
@@ -148,10 +158,11 @@ namespace MissCore.Response
 			throw new NotImplementedException();
 		}
 
-
-
 		public override void AddUnit<TData>(IUnit<TData> unit)
-			=> contentUnit.Add(unit);
+		{
+			InitializeCombinedContent();
+			contentUnit.Add(unit);
+		}
 
 		public override void WriteMetadata<TData>(TData meta)
 		{
@@ -163,9 +174,30 @@ namespace MissCore.Response
 			throw new NotImplementedException();
 		}
 
-		public override IResponse Write(object data)
+		MutableUnit m;
+
+		protected object NextCount
 		{
-			throw new NotImplementedException();
+			get
+			{
+				CountEnumerator.MoveNext();
+				return CountEnumerator.Current;
+			}
+		}
+
+		public override IResponse Write<TData>(TData data)
+		{
+			Content ??= m ??= new MutableUnit(JObject.FromObject(data));
+			//Write(data as IUnitItem);
+			m[NextCount] = JObject.FromObject(data);
+			return this;
+		}
+
+		public override IResponse Write(IUnitItem data)
+		{
+
+			//m[data.Name] = data.Value as JObject;
+			return this;
 		}
 	}
 }

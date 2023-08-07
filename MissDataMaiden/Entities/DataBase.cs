@@ -6,11 +6,12 @@ using MissBot.Entities.Abstractions;
 using MissCore.Bot;
 using MissCore.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace MissDataMaiden.Entities
 {
-	public record Info : Unit<DataBase>, IInteractableUnit<DataBase>
+	public record Info : DataUnit<DataBase>, IInteractableUnit<DataBase>
 	{
 		public override object Identifier
 			=> Id;
@@ -39,7 +40,7 @@ namespace MissDataMaiden.Entities
 	//[Table("##DataBase")]
 	public record DataBase : Unit
 	{
-		[JsonProperty("Unit", Order = int.MinValue)]
+		[JsonProperty(Order = int.MinValue)]
 		public override string Unit { get; set; } = nameof(DataBase);
 
 		//[Column]
@@ -56,33 +57,8 @@ namespace MissDataMaiden.Entities
 		//[Column]
 		public float Size { get; set; }
 		//[Column]
-		public DateTime Created { get; set; }
-		//public UnitActions UnitActions { get; set; }
-		//public override string Id { get => Get<string>(); set => Set(value); }
-		//public string Name { get => Get<string>(); set => Set(value); }
-		//public float? Size { get => Get<float>(); set => Set(value); }
-		//public string Created { get => Get<string>(); set => Set(value); }
-	}
 
-	[JsonObject(memberSerialization: MemberSerialization.OptOut, MissingMemberHandling = MissingMemberHandling.Ignore)]
-	//[Table("##DataBase")]
-	public record DataBaseEx
-	{
-		//[Column]
-		public string Id { get; set; }
-
-		//[Column("Id")]
-		//public override object Identifier
-		//	=> Id;
-
-		//[Column]
-		public string Name { get; set; }
-		//[Column]
-		//public int DaysAgo { get; set; }
-		//[Column]
-		public float Size { get; set; }
-		//[Column]
-		public DateTime Created { get; set; }
+		public string Created { get; set; }
 		//public UnitActions UnitActions { get; set; }
 		//public override string Id { get => Get<string>(); set => Set(value); }
 		//public string Name { get => Get<string>(); set => Set(value); }
@@ -93,14 +69,8 @@ namespace MissDataMaiden.Entities
 	[JsonObject]
 	public record Progress([JsonProperty(Order = int.MinValue)] byte Completed, [JsonProperty(Order = int.MinValue + 1)] TimeSpan Elapsed) { }
 
-	public record DataBaseInfo : BotUnit<DataBase>, IUnit<DataBase>
+	public record DataBaseBotUnit : BotUnit<DataBase>, IUnit<DataBase>
 	{
-		[NotColumn]
-		public override object Identifier
-			=> Id;
 
-		public long Id { get; set; }
-		public string Name { get; set; }
-		public DateTime Created { get; set; }
 	}
 }

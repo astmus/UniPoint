@@ -32,9 +32,9 @@ namespace MissCore.Handlers
 				}
 				catch (Exception error)
 				{
-					var command = context.BotServices.ResponseError();
-					command.Write(error);
-					await command.Commit();
+					var response = context.BotServices.ResponseError();
+					response.Write(error);
+					await response.Commit();
 				}
 				context.IsHandled ??= true;
 			}
@@ -48,7 +48,7 @@ namespace MissCore.Handlers
 			if (context.Bot.Commands.FirstOrDefault(c => c.Action == command) is BotUnitCommand cmd)
 				await HandleAsync(cmd).ConfigureAwait(false);
 			else
-				await context.BotServices.Response<BotCommand>().Write($"There is no handler for command {command}").Commit().ConfigFalse();
+				await context.GetBotService<IResponse<BotCommand>>().Write($"There is no handler for command {command}").Commit().ConfigFalse();
 		}
 	}
 }

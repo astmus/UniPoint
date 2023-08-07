@@ -11,25 +11,25 @@ namespace MissCore.DataAccess
 {
 	public static class BotUnitRequest
 	{
-		const string JsonNoWrap = "without_array_wrapper";
-		const string RootContent = "root('Content')";
-		const string JsonAuto = $" for json auto";
-		const string JsonPath = $" for json path";
+		//const string JsonNoWrap = "without_array_wrapper";
+		//const string RootContent = "root('Content')";
+		//const string JsonAuto = $" for json auto";
+		//const string JsonPath = $" for json path";
 
-		public static string Format(this RequestOptions options) => options switch
-		{
-			RequestOptions.Unknown => $"Unknown format {options}",
-			RequestOptions.JsonAuto => JsonAuto,
-			RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
-			RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
-			RequestOptions.RootContent => $", {RootContent}",
-			RequestOptions.JsonPath | RequestOptions.RootContent => $"{JsonPath},  {RootContent}",
-			_ => throw new ArgumentException("Bad request options")
-		};
+		//public static string Format(this RequestOptions options) => options switch
+		//{
+		//	RequestOptions.Unknown => $"Unknown format {options}",
+		//	RequestOptions.JsonAuto => JsonAuto,
+		//	RequestOptions.JsonAuto | RequestOptions.Scalar => $"{JsonAuto}, {JsonNoWrap}",
+		//	RequestOptions.JsonAuto | RequestOptions.RootContent => $"{JsonAuto}, {RootContent}",
+		//	RequestOptions.RootContent => $", {RootContent}",
+		//	RequestOptions.JsonPath | RequestOptions.RootContent => $"{JsonPath},  {RootContent}",
+		//	_ => throw new ArgumentException("Bad request options")
+		//};
 		public static BotUnitRequest<TUnit> Create<TUnit>(TUnit unit) where TUnit : BaseBotUnit
 			=> new BotUnitRequest<TUnit>(unit);
 	}
-	public class BotUnitRequest<TUnit> : IUnitRequest<TUnit>, IBotUnitRequest where TUnit : BaseBotUnit
+	public class BotUnitRequest<TUnit> : IUnitRequest<TUnit> where TUnit : BaseBotUnit
 	{
 		private readonly TUnit _unit;
 		private readonly IMetaData _unitData;
@@ -37,17 +37,22 @@ namespace MissCore.DataAccess
 		internal BotUnitRequest(TUnit unit)
 		{
 			_unit = unit;
-			_unitData = Unit<TUnit>.ReadMetadata(unit);
+			_unitData = MetaData<TUnit>.With(unit);
 			if (_unit is IParameterizedUnit pUnit)
 				Params = pUnit.GetParameters().Select(s => new UnitParameter(s, _unitData[s])).Cast<IUnitParameter>().ToArray();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
 		}
 
-		public RequestOptions Options { get; set; } = RequestOptions.JsonAuto;
 		public IEnumerable<IUnitParameter> Params { get; init; }
+		public string Options { get; set; }
 
 		public virtual string GetCommand()
 		{
-			return $"{_unitData[nameof(BotUnit.Format)]} {Options.Format()}";
+			return $"{_unitData[nameof(BotUnit.Template)]}";
+		}
+
+		public string Get(params object[] args)
+		{
+			throw new NotImplementedException();
 		}
 	}
 

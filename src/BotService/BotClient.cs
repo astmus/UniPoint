@@ -3,6 +3,8 @@ using MissBot.Abstractions.Configuration;
 using MissBot.Abstractions.DataAccess.Async;
 using MissBot.Extensions;
 using MissCore.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace BotService
 {
@@ -31,6 +33,8 @@ namespace BotService
 			var config = botScopeServices.GetRequiredService<BaseBot.Configurator>();
 			config.ConfigureOptions(botScopeServices.GetRequiredService<IBotOptionsBuilder>());
 			config.ConfigureConnection(botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>());
+			//var newSetting = config.ConfigureDefaultSerializationSetting(JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings());
+			//JsonConvert.DefaultSettings = () => newSetting;
 			//botScopeServices.GetRequiredService<IBotConnectionOptionsBuilder>().SetExceptionHandler(
 
 			try

@@ -91,7 +91,7 @@ namespace MissCore.Handlers
 			currentUnit = context.Get<FormattableUnit>(action.Identifier as Id);
 			if (action is IParameterizedUnit pUnit)
 				currentUnit ??= FormattableUnit.Create(action.Format, pUnit.GetParameters());
-			currentUnit["Id"] = (action.Identifier as Id<TUnitAction>).Key;
+			currentUnit["Id"] = (action.Identifier as Id<TUnitAction>).Value;
 
 			await HandleAsync(context);
 

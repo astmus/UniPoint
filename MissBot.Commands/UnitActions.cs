@@ -9,6 +9,8 @@ public record UnitActions(
     //[JsonConverter(typeof(UnitActionsConverter))]
     IEnumerable<IEnumerable<IUnitAction>> Actions) : IUnitActionsSet, IActionsSet
 {
+	public bool? Selective { get; set; }
+
 	//[return: NotNullIfNotNull(nameof(action))]
 	//public static implicit operator UnitActions(UnitAction? action)
 	//	=> action is null ? default : new(action);

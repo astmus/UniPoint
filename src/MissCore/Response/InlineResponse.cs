@@ -7,6 +7,7 @@ using MissBot.Entities.Query;
 using MissCore.Bot;
 using MissCore.Data.Entities;
 using MissBot.Identity;
+using System.Collections;
 
 namespace MissCore.Response
 {
@@ -30,6 +31,7 @@ namespace MissCore.Response
 		public int Length
 			=> Results.Count;
 		public Paging Pager { get; set; }
+		public IEnumerator CountEnumerator { get; set; }
 
 		public async Task Commit(CancellationToken cancel)
 		{
@@ -38,6 +40,7 @@ namespace MissCore.Response
 				{
 					await Context.BotServices.Client.SendQueryRequestAsync(this, cancel).ConfigureAwait(false);
 				}
+				catch { throw; }
 				finally
 				{
 					Results.Clear();
@@ -50,7 +53,7 @@ namespace MissCore.Response
 			{
 				var entities = unit.UnitEntities;
 				entities.MoveNext();
-				item.Id = Id<TUnit>.Instance.Combine(unit.Unit, unit.Identifier, InlineQuery.Query);
+				item.Id = Id<TUnit>.Instance.Combine(item.Unit, unit.Identifier, InlineQuery.Query);
 				item.QueryId = InlineQuery.Query;
 				item.Title ??= entities.Current.ToString();
 				entities.MoveNext();
@@ -62,10 +65,10 @@ namespace MissCore.Response
 		public void AddUnit<TData>(IUnit<TData> unit) where TData : class, TUnit
 		{
 			var item = Context.BotServices.Activate<InlineResultUnit<TUnit>>();
-			item.SetContext(unit);
+			//item.SetDataContext(unit);
 			var entities = unit.UnitEntities;
 			entities.MoveNext();
-			item.Id = Id<TUnit>.Instance.Combine(unit.Identifier).Combine(InlineQuery.Query);
+			item.Id = Id<TUnit>.Join(unit.Identifier, InlineQuery.Query);
 			item.Title ??= entities.Current.ToString();
 			entities.MoveNext();
 			item.Description ??= entities.Current.ToString();
@@ -93,6 +96,16 @@ namespace MissCore.Response
 		void IResponse<TUnit>.AddUnits<TData>(IEnumerable<TData> units)
 		{
 			throw new NotImplementedException();
+		}
+
+		public IResponse Write<TData>(TData data)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SetCounter(IEnumerator countEnumerator)
+		{
+			CountEnumerator = countEnumerator;
 		}
 	}
 }

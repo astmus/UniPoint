@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
+
 namespace MissBot.Extensions
 {
 	internal static class StringExtensions
@@ -14,7 +17,7 @@ namespace MissBot.Extensions
 		public static SplitEnumerator SplitCommandArguments(this string str)
 			=> new SplitEnumerator(str.AsSpan(), '/', '-', '|', ' ');
 
-		public static SplitEnumerator SplitCommandArguments(this string str, params char[] delimiters)
+		public static SplitEnumerator SplitBy(this string str, params char[] delimiters)
 			=> new SplitEnumerator(str.AsSpan(), delimiters);
 
 		public static SplitEnumerator SplitParameters(this string str)
@@ -24,7 +27,8 @@ namespace MissBot.Extensions
 		{
 			private ReadOnlySpan<char> _str;
 			private ReadOnlySpan<char> _separators;
-
+			public byte Length
+				=> SlicesCount();
 			public SplitEnumerator(ReadOnlySpan<char> splitTarget, params char[] separators)
 			{
 				_str = splitTarget;
@@ -48,30 +52,38 @@ namespace MissBot.Extensions
 			}
 			public bool MoveNext()
 			{
+				if (_str.Length == 0) return false;
+
 				var span = _str;
-				if (span.Length == 0)
-					return false;
 
 				var index = span.IndexOfAny(_separators);
 				if (index == -1)
 				{
 					_str = ReadOnlySpan<char>.Empty;
-					Current = new SplitEntry(span, ReadOnlySpan<char>.Empty);
+					Current = new SplitEntry(ReadOnlySpan<char>.Empty, span);
 					return true;
 				}
-
-				if (index < span.Length - 1)
-					if (span[index + 1] is char next && !_separators.Contains(next))
-					{
-						var start = span[..index];
-						Current = new SplitEntry(start, span.Slice(index, 1));
-						_str = span[(index + 1)..];
+				switch (index)
+				{
+					case > 0:
+						if (span[index + 1] is char next && !_separators.Contains(next))
+						{
+							var delimiter = span.Slice(index, 1);
+							span = span[(index + 1)..];
+							index = span.IndexOfAny(_separators);
+							if (index != -1)
+								Current = new SplitEntry(span[..index], delimiter);
+							else
+								Current = new SplitEntry(span, delimiter);
+						}
 						return true;
-					}
-
-				Current = new SplitEntry(span[..index], span.Slice(index, 1));
-				_str = span[(index + 1)..];
-				return true;
+					case 0:
+						Current = new SplitEntry(span.Slice(index, 1), span[++index..]);
+						_str = span.Slice(index + Current.Segment.Length);
+						return true;
+					default:
+						return false;
+				}
 			}
 
 			public SplitEntry Current { get; private set; }
@@ -125,12 +137,13 @@ namespace MissBot.Extensions
 	}
 	internal readonly ref struct SplitEntry
 	{
-		public SplitEntry(ReadOnlySpan<char> entry, ReadOnlySpan<char> delimiter)
+		public SplitEntry(ReadOnlySpan<char> delimiter, ReadOnlySpan<char> entry)
 		{
 			Segment = entry;
 			Delimiter = delimiter;
 		}
-
+		public string Trimmed(Range sub)
+			=> Segment[sub].Trim().ToString();
 		public ReadOnlySpan<char> Segment { get; }
 		public ReadOnlySpan<char> Delimiter { get; }
 

@@ -1,23 +1,27 @@
 using Microsoft.Extensions.DependencyInjection;
+
 using MissBot.Abstractions;
 using MissBot.Entities.Abstractions;
+
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace MissCore.Internal
 {
-	internal class PropertyFacade : IUnitItem
+	internal record PropertyFacade : IUnitItem
 	{
+		public static readonly PropertyFacade Instance = new PropertyFacade();
+
 		private readonly IServiceProvider provider;
-		protected JProperty context { get; set; }
-		public string ItemName
+		internal protected JProperty context { get; set; }
+		public string Name
 			=> this switch
 			{
 				{ context.Parent: { } } _this when context.Parent is JProperty property => property.Name,
 				_ => context.Name
 			};
 
-		public object ItemValue
+		public object Value
 			=> context.Value switch
 			{
 				JValue value => value.Value,
@@ -33,6 +37,6 @@ namespace MissCore.Internal
 		}
 
 		public string Serialize()
-			=> $"{ItemName}: {ItemValue}";
+			=> $"{Name}: {Value}";
 	}
 }

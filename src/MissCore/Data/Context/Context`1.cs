@@ -1,6 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using MissBot.Abstractions;
 using MissBot.Abstractions.DataAccess;
+using MissBot.Entities;
 using MissBot.Identity;
+using MissCore.Bot;
 using MissCore.Data.Collections;
 
 namespace MissCore.Data.Context
@@ -39,7 +42,7 @@ namespace MissCore.Data.Context
 			=> BotServices.GetService<IAsyncHandler<T>>();
 
 		public bool Contains<T>(Id<T> identifier)
-			=> ContainsKey(identifier.Key) || Map.Contains(identifier.Key);
+			=> ContainsKey(identifier.Value) || Map.Contains(identifier.Value);
 
 		public IHandleContext SetNextHandler(AsyncHandler handler)
 		{
@@ -58,5 +61,8 @@ namespace MissCore.Data.Context
 
 		public IBotContext Bot
 			=> BotServices.GetRequiredService<IBotContext>();
+
+		public IResponse<T> Response<T>() where T : class
+			=> BotServices.GetService<IResponse<T>>();
 	}
 }

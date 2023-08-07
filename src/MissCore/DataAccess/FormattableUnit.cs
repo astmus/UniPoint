@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Specialized;
-
+using System.Globalization;
 using MissBot.Abstractions.Actions;
 using MissBot.Abstractions.Bot;
 using MissBot.Abstractions.Utils;
@@ -19,7 +19,7 @@ namespace MissCore.DataAccess
 
 		public int ParameterIndex
 			=> Parameter.Current;
-
+		protected FormattableUnit() { }
 		internal FormattableUnit(string format)
 			=> _format = format;
 
@@ -70,7 +70,7 @@ namespace MissCore.DataAccess
 
 		public override string ToString(IFormatProvider formatProvider)
 		{
-			var result = _format;
+			var result = Format;
 			foreach (DictionaryEntry item in _parameters)
 				result = result.Replace("@" + (string)item.Key, (string)_parameters[item.Key]);
 			if (_arguments?.ToArray() is object[] args)
@@ -79,13 +79,8 @@ namespace MissCore.DataAccess
 				return string.Format(formatProvider, result);
 		}
 
-		string GetCommand(RequestOptions format = RequestOptions.JsonAuto)
-		{
-			return ToString(null) + format.Format();
-		}
-
 		public override string GetCommand()
-			=> GetCommand(RequestOptions.JsonAuto);
+			=> ToString(CultureInfo.CurrentCulture);
 
 		public override IEnumerator<KeyValuePair<object, object>> GetEnumerator()
 		{

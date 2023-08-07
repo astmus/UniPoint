@@ -166,7 +166,6 @@ public class Message
 		Text is null
 			? default
 			: Entities?.Select(entity => Text.AsSpan(entity.Offset, entity.Length).ToString());
-
 	/// <summary>
 	/// Optional. Message is an animation, information about the animation. For backward compatibility, when this
 	/// field is set, the <see cref="Document"/> field will also be set

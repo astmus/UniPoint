@@ -1,40 +1,56 @@
 using MissBot.Abstractions;
-using MissBot.Abstractions.DataAccess;
 using MissBot.Abstractions.Bot;
-using MissBot.Entities;
+using MissBot.Abstractions.DataAccess;
+using MissBot.Entities.Abstractions;
 using MissBot.Entities.Query;
-using MissBot.Extensions;
+using MissBot.Identity;
 using MissCore.Data.Collections;
 using MissCore.Handlers;
-
 using MissDataMaiden.Entities;
-using MissBot.Identity;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using MissBot.Extensions;
+using System.Text.RegularExpressions;
 using LinqToDB;
-using LinqToDB.DataProvider.SQLite;
 
 namespace MissDataMaiden
 {
+
 	internal class MissDataCallBackDispatcher : CallbackQueryHandler
 	{
-		public MissDataCallBackDispatcher(IResponseNotification notifier) : base(notifier)
-		{ }
+		IJsonRepository repo;
+		public MissDataCallBackDispatcher(IResponseNotification notifier, IJsonRepository repository) : base(notifier)
+			=> repo = repository;
 
 		IInteraction<DataBase> response;
 		protected override async Task HandleAsync(string command, string unit, string id, CallbackQuery query, CancellationToken cancel = default)
 		{
-			response = Context.BotServices.InteractionOf<DataBase>();
-			var u = Context.Bot.GetUnit<DataBaseInfo>();
+			switch (unit)
+			{
+				case nameof(DataBase):
+					var unitAction = Context.Set(await Context.Bot.GetUnitActionAsync<DataBase>(command));
+					unitAction.Id = Id<DataBase>.Create(id);
+					HandleUnitAction(unitAction);
+					break;
+			}
+			//response = Context.BotServices.InteractionOf<DataBase>();
+			//var u = Context.Bot.GetBotUnitAsync<DataBase>();
 			//	u.Template
-			var unitAction = Context.Set(await Context.Bot.GetActionAsync<DataBase>(command));
+			//var source = Context.Bot.GetQueryUnit<DataBase>();
+			//dbRepo.
+			//source.SourceContext = userDataContext.FromSql<DataBase>;
+			//var db = source.Get(id);
+			//var dbs = await repo.HandleQueryAsync<DataBase>(source, cancel); //<DataBase>(source.Get()).FirstOrDefaultAsync(d => d.Id == id);
+			//unitAction.SetUnitContext(dbs);
 
-			unitAction.Id = Id<DataBase>.Instance.With(id);
-			u.Id = Id<DataBase>.Instance.With(id);
-			var table = Context.Bot.GetRepository<DataBase>(u.Template, u.Id.ToString());
+
+			//u.Id = Id<DataBase>.Create(id); 
+			//var table = Context.Bot.GetRepository<DataBase>(u.Template, id);
 			//Context.Bot.SearchResults<DataBase>(null);
-			var d = table.FirstOrDefault();
+			//var d = table.FirstOrDefault();
 			//ask.Run(DataBaseDelete, d);
-			//var tl = d.ToList();
-			ThreadPool.QueueUserWorkItem<DataBase>(DataBaseDelete, d, false);
+			///0/var tl = d.ToList();
+
 			Context.IsHandled = false;
 			//var handler = Context.GetBotService<InputParametersHandler>();
 			//await handler.HandleAsync(ParametersEntered, unitAction, Context, cancel);
@@ -42,14 +58,6 @@ namespace MissDataMaiden
 			//Context.SetNextHandler(handler.AsyncDelegate);
 		}
 
-		public static void DataBaseDelete(DataBase db)
-		{
-			for (int i = 0; i < 20; i++)
-			{
-				Console.WriteLine($"{i}{db}");
-				Thread.Sleep(200);
-			}
-		}
 
 		async Task ParametersEntered(FormattableUnitBase result, IHandleContext context)
 		{
