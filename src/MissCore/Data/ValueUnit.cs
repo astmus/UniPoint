@@ -84,7 +84,7 @@ namespace MissCore.Data
 		public static readonly string Key = Id<TData>.Instance.Value;
 		Lazy<TData> _lazyEntity;
 
-		public override string Unit { get; set; } = Id<TData>.Instance.Value;
+		public override string Unit { get; init; } = Id<TData>.Instance.Value;
 
 		//[Column]
 		//public override string Unit { get; set; } = Key;
@@ -214,11 +214,10 @@ namespace MissCore.Data
 					switch (token)
 					{
 						case JObject obj:
-							var result = token.ToObject<TData>();
+							var result = token.ToObject<TUnit>();
 							if (result is ResultUnit<TData> unit)
-							{
 								unit.DataContext = Data.Unit.MetaData.FromRootToken<DataUnit<TData>.UnitContext>(obj);
-							}
+							yield return result;
 							break;
 						case JProperty prop:
 							var u = PropertyFacade.Instance with { context = prop };

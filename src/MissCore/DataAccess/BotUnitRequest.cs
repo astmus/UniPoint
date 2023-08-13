@@ -42,7 +42,7 @@ namespace MissCore.DataAccess
 				Params = pUnit.GetParameters().Select(s => new UnitParameter(s, _unitData[s])).Cast<IUnitParameter>().ToArray();//  UnitRequestParameter.Create<string, object>(ref s, _parameters.GetValue(s)));
 		}
 
-		public IEnumerable<IUnitParameter> Params { get; init; }
+		public IEnumerable<IUnitParameter> Params { get; set; }
 		public string Options { get; set; }
 
 		public virtual string GetCommand()

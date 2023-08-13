@@ -17,31 +17,6 @@ using MissCore.Storage;
 namespace MissCore.DataAccess
 {
 	[Table("##BotUnits")]
-	public record BotRepository : Unit, IRepository, IBotUnit, IUnitEntity
-	{
-		public string Description { get; set; }
-		public string Entity { get; }
-		public string Template { get; set; }
-		public string Format { get; }
-		public string Parameters { get; }
-
-		public Task ExecuteCommandAsync(IUnitRequest request, CancellationToken cancel = default)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<IContentUnit<TResult>> HandleQueryAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : class
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<TResult> HandleRawAsync<TResult>(string request, CancellationToken cancel = default) where TResult : class
-		{
-			throw new NotImplementedException();
-		}
-	}
-
-	[Table("##BotUnits")]
 	public class GenericRepository<TUnit> : DataContext, IRepository<TUnit>, IUnitEntity where TUnit : class
 	{
 		public GenericRepository(IOptions<BotContextOptions> ctxOptions) : base(ctxOptions.Value.DataProvider, ctxOptions.Value.ConnectionString)

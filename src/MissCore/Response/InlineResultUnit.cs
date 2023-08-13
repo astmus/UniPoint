@@ -55,7 +55,7 @@ namespace MissCore.Response
 
 		[JsonProperty("Unit")]
 		[Column("Unit")]
-		public override string Unit { get; set; }
+		public override string Unit { get; init; }
 
 		public override object Identifier
 			=> DataContext[nameof(Id)];

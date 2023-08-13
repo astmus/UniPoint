@@ -14,6 +14,6 @@ namespace MissBot.Abstractions.DataAccess
 		Task<JObject> HandleScalarAsync(IUnitRequest cmd, CancellationToken cancel = default);
 		Task<TResult> HandleScalarAsync<TResult>(IUnitRequest request, CancellationToken cancel = default) where TResult : BaseBotUnit, IDataUnit;
 		Task<IContentUnit<TResult>> RawAsync<TResult>(string request, CancellationToken cancel = default, params KeyValuePair<object, object>[] parameters) where TResult : class;
-		IQueryable<TData> RawQuery<TData>(string query, params object[] args);
+
 	}
 }

@@ -99,7 +99,7 @@ namespace MissBot.DataAccess
 						//result = JsonConvert.DeserializeObject<TResult>(json.ToString());
 					}
 				}
-				catch (Exception error)
+				catch
 				{
 					throw;
 				}

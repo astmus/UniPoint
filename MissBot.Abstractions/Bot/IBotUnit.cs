@@ -45,7 +45,7 @@ namespace MissBot.Abstractions.Bot
 		}
 	}
 
-	public interface IBotUnit : IBotEntity, ITemplatedUnit, IParameterizedUnit, IUnitEntity
+	public interface IBotUnit : IBotEntity, ITemplatedUnit, IParameterizedUnit, IUnitEntity, IIdentibleUnit
 	{
 		string Description { get; set; }
 	}

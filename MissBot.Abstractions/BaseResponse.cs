@@ -11,7 +11,7 @@ namespace MissBot.Abstractions
 	{
 		[JsonProperty(Required = Required.Always)]
 		public ChatId ChatId
-			=> Chat.Id;
+			=> Chat?.Id ?? Context.Take<User>("from").Id;
 
 		protected Chat Chat
 			=> Context.Take<Chat>();

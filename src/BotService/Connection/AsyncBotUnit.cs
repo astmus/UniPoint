@@ -39,7 +39,14 @@ namespace BotService.Connection
 						if (ctx is IHandleContext context)
 						{
 							log.LogInformation(id);
-							await handler.HandleUpdateAsync(update, context, cts.Token).ConfigFalse();
+							try
+							{
+								await handler.HandleUpdateAsync(update, context, cts.Token).ConfigFalse();
+							}
+							catch (Exception error)
+							{
+								log.WriteError(error);
+							}
 							if (ctx.IsHandled == true) Factory.Remove(id);
 						}
 					}

@@ -18,7 +18,7 @@ namespace MissCore.DataAccess
 		}
 
 		[JsonIgnore]
-		public IEnumerable<IUnitParameter> Params { get; init; }
+		public IEnumerable<IUnitParameter> Params { get; set; }
 		public string Options { get; set; }
 
 		public override string ToString()

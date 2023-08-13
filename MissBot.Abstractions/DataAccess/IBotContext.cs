@@ -16,6 +16,7 @@ namespace MissBot.Abstractions.DataAccess
 		IQueryUnit<TData> GetQueryUnit<TData>() where TData : class;
 		TCommand GetCommand<TCommand>() where TCommand : BotCommand;
 		TUnit GetUnit<TUnit>() where TUnit : BaseBotUnit;
+		ISearchUnitRequest<TUnit> SearchItems<TUnit>() where TUnit : class, IIdentibleUnit;
 		TEntity GetBotEntity<TEntity>() where TEntity : class, IBotEntity;
 		IBotUnit<TUnit> GetBotUnit<TUnit>() where TUnit : BaseUnit;
 		Task<IBotUnit<TUnit>> GetBotUnitAsync<TUnit>() where TUnit : class, IUnit;

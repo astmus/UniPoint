@@ -50,10 +50,10 @@ namespace MissCore.Data.Context
 			return this;
 		}
 
-		public Task GetNextHandler(AsyncHandler defHandler = default)
+		public async Task GetNextHandler(AsyncHandler defHandler = default)
 		{
 			currentHandler = Get<AsyncHandler>(defHandler);
-			return currentHandler(this);
+			await currentHandler(this);
 		}
 
 		public AsyncHandler CurrentHandler

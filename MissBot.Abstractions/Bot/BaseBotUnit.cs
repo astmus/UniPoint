@@ -11,7 +11,7 @@ namespace MissBot.Abstractions.Bot
 	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
 	public abstract record BaseBotUnit : BaseUnit, IBotUnit
 	{
-		public override object Identifier { get; set; } = nameof(BaseBotUnit);
+		public override object Identifier { get; init; } = nameof(BaseBotUnit);
 
 		public override IEnumerator UnitEntities => Enumerable.Empty<IUnit>().GetEnumerator();
 
@@ -29,7 +29,7 @@ namespace MissBot.Abstractions.Bot
 	public abstract record BaseUnit : BaseItem, IUnit
 	{
 		[JsonProperty(Order = int.MinValue)]
-		public virtual string Unit { get; set; } = nameof(BaseUnit);
+		public virtual string Unit { get; init; } = nameof(BaseUnit);
 
 		[JsonIgnore]
 		public abstract IEnumerator UnitEntities { get; }
@@ -46,7 +46,7 @@ namespace MissBot.Abstractions.Bot
 	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
 	public abstract record BaseItem : IIdentibleUnit
 	{
-		public virtual object Identifier { get; set; } = Id<BaseItem>.Instance;
+		public virtual object Identifier { get; init; } = Id<BaseItem>.Instance;
 	}
 
 	[JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]

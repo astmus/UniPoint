@@ -46,6 +46,7 @@ namespace MissCore.Presentation.Convert
 			var tabWriter = new TabWriter(this);
 			Decorator = new BoldNameUnitItemDecorator();
 			writer.WriteValue(Id<TUnit>.Instance.ToString());
+			
 			if (value is IUnit unit)
 				foreach (var item in unit)
 					Serialize(ref tabWriter, item as JToken);
@@ -53,7 +54,11 @@ namespace MissCore.Presentation.Convert
 				Serialize(ref tabWriter, JToken.FromObject(value));
 
 			if (!tabWriter.IsEmpty)
+			{
+				writer.WritePropertyName(value?.Unit ?? value?.GetType().Name);
 				writer.WriteValue(tabWriter.ToString());
+			}
+			writer.WriteEndObject();
 		}
 
 		protected const int tab = 3;

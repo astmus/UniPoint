@@ -11,16 +11,17 @@ namespace MissBot.Abstractions.Actions
 
 	public interface ISearchUnitRequest : IUnitRequest
 	{
-		string Query { get; init; }
+		string Query { get; set; }
 	}
 
 	public interface ISearchUnitRequest<in TUnit> : IUnitRequest<TUnit>, ISearchUnitRequest
 	{
+		void SetEtalone(TUnit unit);
 	}
 
 	public interface IUnitRequest
 	{
-		IEnumerable<IUnitParameter> Params { get; }
+		IEnumerable<IUnitParameter> Params { get; set; }
 		string Get(params object[] args);
 		string Options { get; set; }
 		public static IUnitRequest operator +(IUnitRequest request, string append)

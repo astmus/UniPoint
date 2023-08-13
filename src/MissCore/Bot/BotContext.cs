@@ -226,7 +226,6 @@ namespace MissCore.Bot
 			return default;//query.As .AsQueryable<ResultUnit<TUnit>>();
 		}
 
-
 		async Task<TUnit> IBotContext.GetBotUnitAsync<TUnit, TEntity>()
 		{
 			if (cache.Get<TUnit>(BotUnit<TEntity>.UnitId) is TUnit unit)
@@ -256,5 +255,11 @@ namespace MissCore.Bot
 			return cache.Set(action, actionName);
 		}
 
+		public ISearchUnitRequest<TUnit> SearchItems<TUnit>() where TUnit : class, IIdentibleUnit
+		{
+			var search = GetUnits<Search<TUnit>>().FirstOrDefault(w =>
+				   w.Identifier == Id<Search, TUnit>.Instance.Value);
+			return search;
+		}
 	}
 }

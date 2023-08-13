@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using LinqToDB.Mapping;
 using MissBot.Abstractions.Actions;
+using MissBot.Entities.Abstractions;
 using MissCore.DataAccess;
 using MissCore.Internal;
 
@@ -11,15 +12,22 @@ namespace MissCore.Bot
 	/// <summary>Construct a Range object using the start and end indexes.</summary>
 	/// <param name="start">Represent the inclusive start index of the range.</param>
 	/// <param name="end">Represent the exclusive end index of the range.</param>
-	public record PagingRange(Index Start, Index End) : IEquatable<PagingRange>
+	[Table("##BotUnits")]
+	public record Paging : IEquatable<Paging>, IBotEntity
 	{
+		Index Start
+			=> Skip;
+
+		Index End
+			=> Skip + PageSize;
+
 		#region Default implementation
 		/// <summary>Indicates whether the current Range object is equal to another Range object.</summary>
 		/// <param name="other">An object to compare with this object</param>
 		public bool Equals(Range other)
 			=> other.Start.Equals(Start) && other.End.Equals(End);
 
-		public virtual bool Equals(PagingRange other)
+		public virtual bool Equals(Paging other)
 			=> other.Start.Equals(Start) && other.End.Equals(End);
 
 		/// <summary>Returns the hash code for this instance.</summary>
@@ -33,37 +41,36 @@ namespace MissCore.Bot
 		}
 
 		/// <summary>Converts the value of the current Range object to its equivalent string representation.</summary>
-		public override string ToString()
-		{
-#if (!NETSTANDARD2_0 && !NETFRAMEWORK)
-			Span<char> span = stackalloc char[2 + (2 * 11)]; // 2 for "..", then for each index 1 for '^' and 10 for longest possible uint
-			int pos = 0;
+		//		public override string ToString()
+		//		{
+		//#if (!NETSTANDARD2_0 && !NETFRAMEWORK)
+		//			Span<char> span = stackalloc char[2 + (2 * 11)]; // 2 for "..", then for each index 1 for '^' and 10 for longest possible uint
+		//			int pos = 0;
 
-			if (Start.IsFromEnd)
-			{
-				span[0] = '^';
-				pos = 1;
-			}
-			bool formatted = ((uint)Start.Value).TryFormat(span.Slice(pos), out int charsWritten);
-			Debug.Assert(formatted);
-			pos += charsWritten;
+		//			if (Start.IsFromEnd)
+		//			{
+		//				span[0] = '^';
+		//				pos = 1;
+		//			}
+		//			bool formatted = ((uint)Start.Value).TryFormat(span.Slice(pos), out int charsWritten);
+		//			Debug.Assert(formatted);
+		//			pos += charsWritten;
 
-			span[pos++] = '.';
-			span[pos++] = '.';
+		//			span[pos++] = '.';
+		//			span[pos++] = '.';
 
-			if (End.IsFromEnd)
-			{
-				span[pos++] = '^';
-			}
-			formatted = ((uint)End.Value).TryFormat(span.Slice(pos), out charsWritten);
-			Debug.Assert(formatted);
-			pos += charsWritten;
+		//			if (End.IsFromEnd)			
+		//				span[pos++] = '^';
 
-			return new string(span.Slice(0, pos));
-#else
-            return Start.ToString() + ".." + End.ToString();
-#endif
-		}
+		//			formatted = ((uint)End.Value).TryFormat(span.Slice(pos), out charsWritten);
+		//			Debug.Assert(formatted);
+		//			pos += charsWritten;
+
+		//			return new string(span.Slice(0, pos));
+		//#else
+		//            return Start.ToString() + ".." + End.ToString();
+		//#endif
+		//		}
 
 		/// <summary>Create a Range object starting from start index to the end of the collection.</summary>
 		public static Range StartAt(Index start) => new Range(start, Index.End);
@@ -106,37 +113,52 @@ namespace MissCore.Bot
 		#endregion
 
 		[Column]
+		public string Entity
+			=> nameof(Paging);
+
+		[Column]
 		public virtual string Template { get; set; }
 
-		public uint Skip
+		public int Skip
 			=> Page * PageSize;
-		public uint Page { get; set; } = 0;
-		public uint PageSize { get; set; } = 32;
-		public virtual string ToString(object? count)
-			=> string.Format(Template, Skip, PageSize);
-	}
+		public int Page { get; set; } = 0;
+		public int PageSize { get; set; } = 32;
 
-	public record Paging : BotUnit
-	{
-		public uint Skip
-			=> Page * PageSize;
-		public uint Page { get; set; } = 0;
-		public uint PageSize { get; set; } = 32;
 		public override string ToString()
 			=> string.Format(Template, Skip, PageSize);
 	}
 
+	//public record Paging : BotUnit
+	//{
+	//	public uint Skip
+	//		=> Page * PageSize;
+	//	public uint Page { get; set; } = 0;
+	//	public uint PageSize { get; set; } = 32;
+	//	public override string ToString()
+	//		=> string.Format(Template, Skip, PageSize);
+	//}
+
 	public record Search : UnitRequest
 	{
-		public string Query { get; init; }
-		public Paging Pager { get; init; }
+		public string Query { get; set; }
+		public Paging Pager { get; set; }
 	}
 
 	public record Search<TUnit> : Search, ISearchUnitRequest<TUnit>
 	{
+		public Search()
+		{
+			Identifier = base.Identifier;
+		}
+		public override object Identifier { get; init; }
 		public override string Get(params object[] args)
 		{
 			return $"{string.Format(Template, Query)} {Pager} {string.Join(", ", args)}";
+		}
+
+		public void SetEtalone(TUnit unit)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

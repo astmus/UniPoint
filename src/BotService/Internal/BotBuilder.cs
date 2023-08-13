@@ -166,7 +166,7 @@ namespace BotService.Internal
 		{
 			return WithBot(services =>
 			{
-				Debug.WriteLine(Id<TUnit>.UnderlineType.FullName);
+				Debug.WriteLine(Id<TUnit>.InnerType.FullName);
 				services.AddScoped<IAsyncUnitActionHanlder<TUnit>, TUnitActionHandler>();
 			});
 		}

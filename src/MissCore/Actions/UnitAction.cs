@@ -26,8 +26,7 @@ public record UnitAction<TEntity> : UnitAction, IUnitAction<TEntity> //where TEn
 
 	public virtual UnitAction<TEntity> WithUnitContextId(IIdentibleUnit unit)
 	{
-		Identifier = CallbackData = $"{Unit}.{Action}.{unit.Identifier}";
-		return this;
+		return this with { Identifier = CallbackData = $"{Unit}.{Action}.{unit.Identifier}" };
 	}
 
 	IMetaData Meta;
@@ -82,9 +81,6 @@ public record UnitAction : BotAction, IUnitAction, IParameterizedUnit, ISerializ
 
 	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 	public string CallbackData { get; set; }
-
-	public override object Identifier { get; set; }
-	//=> $"{Unit}.{Action}.{UnitContext.Identifier}";
 
 	[JsonConstructor]
 	public UnitAction(string text) : this()

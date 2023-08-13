@@ -41,7 +41,7 @@ namespace MissDataMaiden.Entities
 	public record DataBase : Unit
 	{
 		[JsonProperty(Order = int.MinValue)]
-		public override string Unit { get; set; } = nameof(DataBase);
+		public override string Unit { get; init; } = nameof(DataBase);
 
 		//[Column]
 		public string Id { get; set; }

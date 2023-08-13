@@ -27,7 +27,7 @@ namespace MissCore.Bot
 		public override string Entity { get; set; } = Key.Entity;
 
 		[Column]
-		public override string Unit { get; set; } = Key.Unit;
+		public override string Unit { get; init; } = Key.Unit;
 
 		[Column]
 		public override string Parameters { get; set; }

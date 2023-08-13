@@ -16,7 +16,13 @@ namespace MissBot.Extensions
 
 
 		public static void WriteError(this ILogger log, Exception e, [CallerMemberName] string name = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = default)
-			=> log.LogError(e ?? new Exception("Write to log exceptio"), $" {name} {line} {path} ");
+		{
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("An error occured {0}", e);
+			log.LogError(e ?? new Exception("Exceptio error"), $" {name} {line} {path} ");
+			Console.ResetColor();
+		}
 		public static void WriteCritical(this ILogger log, Exception e, [CallerMemberName] string name = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = default)
 			=> log.LogCritical(e, $" {name} {line} {path} ");
 		public static void Write(this ILogger log, string val, [CallerMemberName] string name = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = default)

@@ -52,7 +52,7 @@ namespace MissCore.Bot
 		public override string Format
 			=> string.Format(Template, Parameters) + Options;
 
-		public IEnumerable<IUnitParameter> Params { get; }
+		public IEnumerable<IUnitParameter> Params { get; set; }
 
 		public string Options { get; set; }
 

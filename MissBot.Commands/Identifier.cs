@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 
@@ -9,11 +10,11 @@ namespace MissBot.Identity
 	public record Id<T>(string Value) : Id(Value)
 	{
 		public static readonly Id<T> Instance;
-		public static Type UnderlineType { get; }
+		public static Type InnerType { get; }
 		static Id()
 		{
-			UnderlineType = typeof(T);
-			Instance = new Id<T>(UnderlineType.Name.Replace("`1", string.Empty));
+			InnerType = typeof(T);
+			Instance = new Id<T>(InnerType.Name.Replace("`1", string.Empty));
 		}
 		public IEnumerator<string> Sequence()
 			=> Enumerable.Range(0, int.MaxValue).Select((Func<int, string>)(s
@@ -28,13 +29,22 @@ namespace MissBot.Identity
 			=> Instance with { Value = string.Join('.', ids) };
 	}
 
-	public record Id<T, T2>(string unitId, string entityId) : Id<T>(unitId + "." + entityId)
+	public record Id<T, T2>(string unitId, string entityId) : Id<T>(string.Join('.', unitId, entityId))
 	{
-		public static readonly Id<T, T2> Instance = new Id<T, T2>(typeof(T).Name, typeof(T2).Name);
+		public static new readonly Id<T, T2> Instance = new Id<T, T2>(typeof(T).Name, typeof(T2).Name);
 	}
 
 	public record Id(string Value) : IEquatable<Id>
 	{
+		public virtual bool Equals(Id other)
+			=> Value == other?.Value == true;
+
+		public override int GetHashCode()
+			=> Value.GetHashCode();
+
+		public static Id operator +([NotNull] Id _this, Id other)
+			=> _this with { Value = string.Join('.', _this.Value, other.Value) };
+
 		public static implicit operator string(Id id)
 			=> id.Value;
 

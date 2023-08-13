@@ -16,7 +16,7 @@ public record BotUnit : BaseBotUnit, IBotUnit
 	public override object Identifier => base.Identifier;
 
 	[Column]
-	public override string Unit { get; set; }
+	public override string Unit { get; init; }
 
 	[Column]
 	public override string Entity { get; set; }

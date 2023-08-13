@@ -45,7 +45,7 @@ VALUES ('BotCommand.Add','BotCommand', 'Add', '/{0}', 'add custom request', null
 INSERT INTO ##BotUnits
 VALUES ('BP','BotUnit', 'Paging', '' , '','OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY',null);
 INSERT INTO ##BotUnits
-VALUES ('BS','Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
+VALUES ('Search.DataBase', 'Search', 'DataBase', '' , '','SELECT * FROM ##DataBase WHERE Name LIKE ''%{0}%'' ORDER BY Name',null);
 INSERT INTO ##BotUnits
 VALUES ('BD','BotUnit', 'DataBase', '' , '','SELECT Units.* FROM ##BotUnits Units WHERE Unit = ''DataBase''',null);
 INSERT INTO ##BotUnits
